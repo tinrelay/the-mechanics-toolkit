@@ -64,26 +64,26 @@ const { UHrendererTail, UHrendererProjection } = Function(
   `var ${tailSource},${projectionSource};return {UHrendererTail,UHrendererProjection}`
 )();
 
-const short = turns(1499);
-assert.strictEqual(UHrendererTail(short, 1500), short, "short task keeps the exact stock array");
-assert.strictEqual(UHrendererProjection({ visibleTurnEntries: short }, 1500).visibleTurnEntries, short);
+const short = turns(199);
+assert.strictEqual(UHrendererTail(short, 200), short, "short task keeps the exact stock array");
+assert.strictEqual(UHrendererProjection({ visibleTurnEntries: short }, 200).visibleTurnEntries, short);
 
 const long = turns(5050);
-const bounded = UHrendererTail(long, 1500);
-assert.equal(bounded.length, 1500);
-assert.equal(bounded[0].turnId, "turn-3550");
+const bounded = UHrendererTail(long, 200);
+assert.equal(bounded.length, 200);
+assert.equal(bounded[0].turnId, "turn-4850");
 assert.equal(bounded.at(-1).turnId, "turn-5049");
 let materializations = 0;
 bounded.flatMap(turn => {
   materializations += 1;
   return [turn];
 });
-assert.equal(materializations, 1500, "materialization receives only the bounded tail");
+assert.equal(materializations, 200, "materialization receives only the bounded tail");
 
-const current = turns(400);
+const current = turns(40);
 const parent = turns(5000, "parent");
-const parentLimit = Math.max(0, 1500 - UHrendererTail(current, 1500).length);
-assert.equal(UHrendererTail(parent, parentLimit).length + current.length, 1500, "parent and current share one budget");
+const parentLimit = Math.max(0, 200 - UHrendererTail(current, 200).length);
+assert.equal(UHrendererTail(parent, parentLimit).length + current.length, 200, "parent and current share one budget");
 assert.deepEqual(UHrendererTail(parent, 0), [], "a full current tail leaves no parent budget");
 
 const delegated = {
@@ -95,7 +95,7 @@ const delegated = {
   ]
 };
 const active = { turnId: "active", status: "inProgress", items: turns(2500, "item") };
-const containers = UHrendererTail([...turns(1600), delegated, active], 1500);
+const containers = UHrendererTail([...turns(1600), delegated, active], 200);
 assert.strictEqual(containers.at(-2), delegated, "delegated multi-item container remains whole");
 assert.equal(containers.at(-2).items.length, 3);
 assert.strictEqual(containers.at(-1), active, "newest streaming container remains whole");
@@ -105,15 +105,15 @@ const projected = UHrendererProjection({
   historyTimeline: turns(5050, "history"),
   latestVisibleTurnId: "old",
   visibleTurnEntries: long
-}, 1500);
-assert.equal(projected.visibleTurnEntries.length, 1500);
+}, 200);
+assert.equal(projected.visibleTurnEntries.length, 200);
 assert.equal(projected.historyTimeline, null, "bounded projection cannot rejoin the full timeline");
 assert.equal(projected.latestVisibleTurnId, "turn-5049");
 
 const accumulatedPages = turns(2505, "paged");
-const accumulatedTail = UHrendererTail(accumulatedPages, 1500);
-assert.equal(accumulatedTail.length, 1500, "loaded pages cannot grow the mounted renderer past its budget");
-assert.equal(accumulatedTail[0].turnId, "paged-1005");
+const accumulatedTail = UHrendererTail(accumulatedPages, 200);
+assert.equal(accumulatedTail.length, 200, "loaded pages cannot grow the mounted renderer past its budget");
+assert.equal(accumulatedTail[0].turnId, "paged-2305");
 assert.equal(accumulatedTail.at(-1).turnId, "paged-2504");
 
 const selectorContracts = build8881 ? [
@@ -145,7 +145,7 @@ const selectorContracts = build8881 ? [
 ];
 for (const contract of selectorContracts) assert.ok(app.includes(contract), `selector contract: ${contract}`);
 
-assert.equal(count(local, "const UH_RENDERER_TURN_LIMIT=1500;"), 1);
+assert.equal(count(local, "const UH_RENDERER_TURN_LIMIT=200;"), 1);
 const mountedSelectorCalls = 4;
 assert.equal(count(local, "rendererTailLimit:UH_RENDERER_TURN_LIMIT"), mountedSelectorCalls,
   "every mounted local UI selector consumer shares the bound");
@@ -168,7 +168,7 @@ assert.ok(!fullConsumer[0].includes("rendererTailLimit:"), "full transcript/expo
 
 process.stdout.write(`${JSON.stringify({
   state: "green",
-  nativeTurnLimit: 1500,
+  nativeTurnLimit: 200,
   shortTaskIdentityPreserved: true,
   longTaskMaterializations: materializations,
   parentAndCurrentShareLimit: true,

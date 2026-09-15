@@ -169,13 +169,13 @@ staging, installation, restart, and live acceptance remain separate actions.
 
 ## Codex Desktop package patches
 
-The desktop package fleet is currently qualified against **Codex Desktop `26.908.40834` (`8881`)**
-on **macOS ARM64**, **Ubuntu ARM64**, and **Windows 11 ARM64**, with different platform-owned
-acceptance boundaries. macOS passed the complete static fleet, supervised installation, renderer
-readiness, and selected live message paths. Ubuntu passed the complete 13-patch package and healthy
-supervisor adoption. Windows passed the complete 13-patch signed-MSIX package and a deliberately
-broken three-turn rescue with known-working restoration; its ordinary cross-version rollback
-provenance remains open.
+The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.40834` (`8881`)**
+on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
+readiness, and selected live message paths. Ubuntu ARM64 and Windows 11 ARM64 retain qualification
+for the earlier 13-patch build-8881 fleet while the current additions are ported. Ubuntu passed
+healthy supervisor adoption. Windows passed a signed-MSIX package and a deliberately broken
+three-turn rescue with known-working restoration; its ordinary cross-version rollback provenance
+remains open.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and
@@ -196,11 +196,13 @@ unnamed Codex build.
 | [Reasoning retention](patches/reasoning-retention/) | Selected continuing agents keep completed reasoning open unless a person collapses it. |
 | [Model identity guard](patches/model-identity-guard/) | Detects the wrong model or effort setting—a real Codex failure we have seen most often around restarts—and blocks new input behind a flashing `BAD MODEL` warning until corrected. |
 | [Task attention policy](patches/task-attention-policy/) | Mutes completion notifications from selected tasks—the most useful case—without hiding their output or failures. |
-| [Runtime JSON reload](patches/runtime-json-reload/) | Palette and attention-policy changes take effect after a valid save without restarting Codex. |
+| [Agent roster](patches/agent-roster/) | Discovers runtime task identity and optional feature settings from project-owned `agent-roster.json` files without compiling a workspace into the app. |
+| [Runtime JSON reload](patches/runtime-json-reload/) | Valid agent-roster changes take effect after a save without restarting Codex. |
 | [Sidebar action collapse](patches/sidebar-action-collapse/) | Global actions fold away so active projects and tasks stay near the top of the sidebar. |
 | [Terminal toggle](patches/terminal-toggle/) | Repairs a recently introduced shortcut bug so the configured terminal key opens and closes the bottom terminal from focused editors. This patch is expected to be temporary. |
 | [Safe restart and rescue](docs/safe-start.md) | Detects a failed or wedged Codex restart and opens the same task in a terminal with bounded startup diagnostics. |
 | [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Native Codex app tools keep working after a narrow local repair and re-signing. |
+| [Codex observability](patches/codex-observability/) | Gives a local agent or operator explicit DevTools, CDP, renderer metrics, CPU-profile, and timeline-trace access without exposing a remote-debugging port. |
 | [Patched Codex binary integration](patches/standalone-output-compaction/) | Places the separately built, same-version `codex` executable into a staged desktop candidate and verifies the exact copied bytes. |
 | [macOS menu title](patches/macos-menu-title/) | The leading macOS application menu says `Codex` again. Mike just hates the merged-app title. |
 

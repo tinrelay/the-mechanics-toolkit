@@ -7,7 +7,8 @@ const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: model-identity-guard.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
 const owner = uniqueOwner(source => source.includes("function MTKinstallModelIdentityGuard("));
-const start = owner.source.indexOf('const MTKmodelGuardStyleId=');
+const rosterPolicy = owner.source.includes("function MTKmodelPinForTask(");
+const start = owner.source.indexOf(rosterPolicy ? "function MTKmodelPinForTask(" : 'const MTKmodelGuardStyleId=');
 const componentBoundary = owner.source.slice(start).match(/function [A-Za-z_$][\w$]*\(e\)\{let t=\(0,[A-Za-z_$][\w$]*\.c\)\(/);
 const end = componentBoundary == null ? -1 : start + componentBoundary.index;
 assert.ok(start >= 0 && end > start, "model guard helper seam");
@@ -83,13 +84,31 @@ const document = {
 };
 class FakeMutationObserver { observe() {} }
 let pin = {model: "gpt-5.6-sol", reasoningEffort: "high"};
-const realm = {
-  __MTKmodelPinForTask(taskId) { return new Set(["task-1", "task-2"]).has(taskId) ? pin : null; },
+const pinnedTask = taskId => new Set(["task-1", "task-2"]).has(taskId);
+const diagnostics = [];
+const realm = rosterPolicy ? {
+  __MTK_AGENT_ROSTER__: {
+    match(_title, taskId) { return pinnedTask(taskId) ? {data: {modelPin: pin}} : null; },
+    subscribe() { return () => {}; },
+    diagnose(code, detail) { diagnostics.push({code, detail}); }
+  }
+} : {
+  __MTKmodelPinForTask(taskId) { return pinnedTask(taskId) ? pin : null; },
   __MTKmodelPinSubscribe() { return () => {}; }
 };
 const S7 = {useEffect(callback) { return callback(); }};
 const navigator = {platform: "MacIntel"};
-const api = Function("document", "MutationObserver", "Element", "S7", "globalThis", "navigator", `${helper};return {guard:MTKmodelIdentityGuard,mismatch:MTKmodelGuardMismatch,describe:MTKmodelGuardDescription,recovery:MTKmodelGuardRecoveryMessage,instruction:MTKmodelGuardOverrideInstruction,use:MTKuseModelIdentityGuard}`)(document, FakeMutationObserver, FakeElement, S7, realm, navigator);
+const api = Function("document", "MutationObserver", "Element", "S7", "globalThis", "navigator", `${helper};return {guard:MTKmodelIdentityGuard,mismatch:MTKmodelGuardMismatch,mutationRelevant:MTKmodelGuardMutationRelevant,describe:MTKmodelGuardDescription,recovery:MTKmodelGuardRecoveryMessage,instruction:MTKmodelGuardOverrideInstruction,use:MTKuseModelIdentityGuard}`)(document, FakeMutationObserver, FakeElement, S7, realm, navigator);
+
+const ordinaryTranscriptNode = {nodeType: 1, matches() { return false; }, querySelector() { return null; }};
+const composerNode = {nodeType: 1, matches(selectorText) { return selectorText.includes('[role="textbox"]'); }, querySelector() { return null; }};
+const composerContainer = {nodeType: 1, matches() { return false; }, querySelector(selectorText) { return selectorText.includes('[role="textbox"]') ? composerNode : null; }};
+assert.equal(api.mutationRelevant([{addedNodes: [ordinaryTranscriptNode]}]), false,
+  "ordinary transcript mutations do not rescan the mounted task");
+assert.equal(api.mutationRelevant([{addedNodes: [composerNode]}]), true,
+  "a newly mounted composer remains guarded");
+assert.equal(api.mutationRelevant([{addedNodes: [composerContainer]}]), true,
+  "a container holding the composer remains guarded");
 
 assert.equal(api.mismatch(pin, {model: "gpt-5.6-sol", reasoningEffort: "high"}), false);
 assert.equal(api.mismatch(pin, null), false,

@@ -2,6 +2,7 @@
   "enabledPatches": [
     "cross-task-attribution",
     "runtime-json-reload",
+    "agent-roster",
     "task-visual-palette",
     "reasoning-retention",
     "model-identity-guard",
@@ -14,12 +15,13 @@
     "wait-thread-roster",
     "tinrelay-pointer-presentation",
     "native-app-tools-peer-authorization",
+    "codex-observability",
+    "renderer-turn-window",
     "renderer-patch-registry",
     "safe-start-readiness"
   ],
   "codexBinary": "/absolute/path/to/patched/codex",
   "signingIdentity": "-",
-  "workspaceRoot": "/absolute/path/to/your/workspace",
   "tinrelay": {
     "client": "/absolute/path/to/tinrelay",
     "localShip": "example-ship"

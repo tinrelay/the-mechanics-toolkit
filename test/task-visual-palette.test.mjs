@@ -6,8 +6,8 @@ import { linuxBuild8881 as linuxPaletteBuild8881 } from "../patches/task-visual-
 import { linuxBuild8881 as linuxAttentionBuild8881 } from "../patches/task-attention-policy/profiles/linux.mjs";
 
 const extractedRoot = path.resolve(process.argv[2] ?? "");
-if (!process.argv[2] || !process.argv[3]) throw new Error("usage: task-visual-palette.test.mjs EXTRACTED_ASAR_ROOT PALETTE_PROJECT_ROOT");
-const projectRoot = path.resolve(process.argv[3]);
+if (!process.argv[2]) throw new Error("usage: task-visual-palette.test.mjs EXTRACTED_ASAR_ROOT [LEGACY_PALETTE_PROJECT_ROOT]");
+const projectRoot = process.argv[3] == null ? null : path.resolve(process.argv[3]);
 const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
@@ -21,7 +21,10 @@ const build7942 = source.includes("function Oks(){MTKusePaletteBootstrap();") ||
 const build8378 = source.includes("function ALs(){MTKusePaletteBootstrap();") || source.includes("function ALs(){MTKuseAttentionBootstrap8378();MTKusePaletteBootstrap();");
 const build8576 = source.includes("function zLs(){MTKusePaletteBootstrap();") || source.includes("function zLs(){MTKuseAttentionBootstrap8576();MTKusePaletteBootstrap();");
 const build8690 = source.includes("function Ocs(){MTKusePaletteBootstrap();") || source.includes("function Ocs(){MTKuseAttentionBootstrap8690();MTKusePaletteBootstrap();");
-const build8881 = source.includes("function Jcs(){MTKusePaletteBootstrap();") || source.includes("function Jcs(){MTKuseAttentionBootstrap8881();MTKusePaletteBootstrap();");
+const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
+const build8881 = source.includes("function Jcs(){MTKusePaletteBootstrap();") ||
+  source.includes("function Jcs(){MTKuseAttentionBootstrap8881();MTKusePaletteBootstrap();") ||
+  source.includes("function Jcs(){MTKuseAttentionBootstrap8881();MTKuseAgentRoster();MTKusePaletteBootstrap();");
 const build8881Linux = source.includes(`${linuxAttentionBuild8881.appRoot}MTKuseAttentionBootstrap${linuxAttentionBuild8881.suffix}();MTKusePaletteBootstrap();`);
 const appPrimary = uniqueAsset(/^app-primary-.*\.js$/);
 const primarySource = readAsset(appPrimary);
@@ -29,13 +32,23 @@ const rendererSource = source + primarySource;
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
 const helperTail = source.slice(helperStart);
 const helperBoundary = helperTail.match(
-  /function [$A-Z_a-z][$\w]*\((?:e)?\)\{(?:MTKuseAttentionBootstrap(?:7345|7746|7942|8109|8378|8576|8690|8881|8881Linux)?\(\);)?MTKusePaletteBootstrap\(\);/
+  /function [$A-Z_a-z][$\w]*\((?:e)?\)\{(?:MTKuseAttentionBootstrap(?:7345|7746|7942|8109|8378|8576|8690|8881|8881Linux)?\(\);)?(?:MTKuseAgentRoster\(\);)?MTKusePaletteBootstrap\(\);/
 );
 const rootBoundary = helperBoundary == null ? -1 : helperStart + helperBoundary.index;
-const attentionBoundary = source.indexOf('const MTKattentionRelativePath=', helperStart);
+const attentionBoundaries = [
+  source.indexOf('const MTKattentionRelativePath=', helperStart),
+  source.indexOf("const MTKattentionRosterBridge=1", helperStart)
+].filter(index => index >= 0);
+const attentionBoundary = attentionBoundaries.length === 0 ? -1 : Math.min(...attentionBoundaries);
 const helperEnd = attentionBoundary >= 0 && attentionBoundary < rootBoundary ? attentionBoundary : rootBoundary;
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "palette helper seam");
 const helper = source.slice(helperStart, helperEnd);
+if (rosterConsumer) {
+  await testRosterConsumer(helper, source, primarySource);
+  process.stdout.write("task visual palette roster behavioral probe passed\n");
+  process.exit(0);
+}
+if (projectRoot == null) throw new Error("legacy palette profiles require PALETTE_PROJECT_ROOT");
 assert.ok(!helper.includes("k9e"), "palette decoder does not capture a minified bundle binding");
 assert.ok(helper.includes("new TextDecoder().decode(Uint8Array.from(atob(e)"), "palette decoder is self-contained");
 const api = Function(
@@ -593,6 +606,62 @@ function uniqueAsset(pattern) {
   const matches = assetNames.filter(name => pattern.test(name));
   assert.equal(matches.length, 1, `unique asset ${pattern}`);
   return matches[0];
+}
+
+async function testRosterConsumer(helperSource, appSource, appPrimarySource) {
+  const exactId = "019fa304-44d7-7922-9186-7eaaf5d33e82";
+  const titleRule = Object.freeze({
+    key: "temporary-tamsin-color",
+    kind: "task",
+    ownerRoot: "/ship",
+    taskId: null,
+    pattern: /^Tamsin/,
+    data: Object.freeze({titlePattern: "^Tamsin", color: "#CC0000"})
+  });
+  const exactAgent = Object.freeze({
+    key: "tamsin",
+    kind: "agent",
+    ownerRoot: "/office",
+    taskId: exactId,
+    pattern: /^Tamsin(?:\s+—\s+.+)?$/,
+    data: Object.freeze({name: "Tamsin", taskId: exactId, color: "#55AA77", mark: ".codex/marks/tamsin.svg", protectSidebarArchive: true})
+  });
+  const snapshot = Object.freeze({
+    sources: Object.freeze([{ownerRoot: "/office", data: Object.freeze({calibration: {sidebar: 20}})}]),
+    entries: Object.freeze([titleRule, exactAgent])
+  });
+  const diagnostics = [];
+  const realm = {
+    __MTK_AGENT_ROSTER__: {
+      current: () => snapshot,
+      readAsset: async entry => entry === exactAgent ? Buffer.from("<svg/>").toString("base64") : null,
+      subscribe: () => () => {},
+      diagnose: (code, detail) => { diagnostics.push({code, detail}); return null; }
+    }
+  };
+  const api = Function("globalThis", `${helperSource};return {load:MTKloadPalette,match:MTKmatchPalette,archive:MTKsidebarArchiveProtected}`)(realm);
+  const loaded = await api.load();
+  assert.ok(loaded, "roster visual entries load");
+  assert.equal(loaded.rules.length, 2);
+  assert.equal(api.match(loaded, "Tamsin — Portfolio Secretary", exactId).color, "#55AA77",
+    "exact task identity wins over an earlier matching title rule");
+  assert.equal(api.match(loaded, "Tamsin — Temporary", "unrelated").color, "#CC0000",
+    "title-only visual rules remain available for ordinary tasks");
+  assert.equal(api.archive(exactId, loaded), true, "exact roster identity can protect archive");
+  assert.match(api.match(loaded, "Tamsin", exactId).markDataUrl, /^data:image\/svg\+xml;base64,/,
+    "mark bytes resolve through the roster owner");
+  assert.deepEqual(diagnostics, []);
+  assert.ok(appSource.includes("MTKuseAgentRoster();MTKusePaletteBootstrap();"),
+    "palette bootstrap follows roster bootstrap");
+  for (const contract of [
+    "data-mtk-palette-room-host",
+    "data-mtk-palette-delegation",
+    "data-mtk-palette-sidebar-context",
+    "--mtk-sidebar-chip",
+    "MTKapplyPaletteSurfaces",
+    "MTKclearPaletteSurfaces"
+  ]) assert.ok(appSource.includes(contract), `roster palette surface contract: ${contract}`);
+  assert.ok(appPrimarySource.includes("data-mtk-palette-room-host"), "room host remains attached to the active task");
 }
 
 function readAsset(name) {

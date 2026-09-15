@@ -13,6 +13,7 @@ const names = fs.readdirSync(assets);
 const matches = names.filter(name => /^app-initial-.*\.js$/.test(name));
 assert.equal(matches.length, 1, "unique app-initial asset");
 const source = fs.readFileSync(path.join(assets, matches[0]), "utf8");
+const rosterBridge = source.includes("const MTKattentionRosterBridge=1");
 const build8881 = source.includes("function MTKuseAttentionBootstrap8881(");
 const build7345 = source.includes("function MTKuseAttentionBootstrap7345(");
 const build7746 = source.includes("function MTKuseAttentionBootstrap7746(");
@@ -27,6 +28,11 @@ const singleOwnerBuild = build8881Linux || build8881 || build7345 || build7746 |
 const primaryMatches = names.filter(name => /^app-primary-.*\.js$/.test(name));
 assert.equal(primaryMatches.length, 1, "unique app-primary asset");
 const primarySource = fs.readFileSync(path.join(assets, primaryMatches[0]), "utf8");
+if (rosterBridge) {
+  testRosterAttention(source, primarySource);
+  process.stdout.write("task attention roster behavioral probe passed\n");
+  process.exit(0);
+}
 const helperStart = source.indexOf('const MTKattentionRelativePath=');
 const helperTail = source.slice(helperStart);
 const boundary = helperTail.match(build8881Linux
@@ -339,4 +345,53 @@ function file(target, contents) {
 
 function count(haystack, needle) {
   return haystack.split(needle).length - 1;
+}
+
+function testRosterAttention(appSource, appPrimarySource) {
+  const start = appSource.indexOf("const MTKattentionRosterBridge=1");
+  const boundary = appSource.indexOf("function Jcs(){MTKuseAttentionBootstrap8881();", start);
+  assert.ok(start >= 0 && boundary > start, "roster attention helper seam");
+  const helper = appSource.slice(start, boundary).replaceAll("8881", "");
+  const diagnostics = [];
+  const exact = {key: "tamsin", ownerRoot: "/office", data: {name: "Tamsin"}};
+  const mutedByTitle = {key: "mute-tamsin-for-the-day", ownerRoot: "/office", data: {muteCompletion: true}};
+  const invalid = {key: "bad", ownerRoot: "/ship", data: {muteCompletion: "yes"}};
+  const roster = {
+    matches(title, taskId) {
+      if (taskId === "tamsin-id") return [exact, mutedByTitle];
+      if (title === "Invalid") return [invalid];
+      return [];
+    },
+    subscribe: () => () => {},
+    diagnose: (code, detail) => diagnostics.push({code, detail})
+  };
+  const KB = Symbol("task atom");
+  const api = Function("globalThis", "KB", "gm", "Q", "Qcs", `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`)(
+    {__MTK_AGENT_ROSTER__: roster}, KB, () => ({set() {}}), Symbol("scope"), {useEffect() {}}
+  );
+  assert.equal(api.ignored("Tamsin — Portfolio Secretary", "tamsin-id"), true,
+    "a matching title rule can mute an exact named agent");
+  assert.equal(api.ignored("Tamsin — Portfolio Secretary", "other-id"), false,
+    "the exact identity alone does not implicitly mute completion");
+  assert.equal(api.ignored("Invalid", "other-id"), false, "an invalid extension value fails open");
+  assert.equal(diagnostics[0]?.code, "invalid-mute-completion");
+  const entries = new Map([
+    ["local", {kind: "local", catalogTitle: "Tamsin — Portfolio Secretary", conversationId: "tamsin-id"}],
+    ["remote", {kind: "remote", task: {title: "Tamsin — Remote", id: "tamsin-id"}}]
+  ]);
+  const select = (atom, key) => { assert.equal(atom, KB); return entries.get(key); };
+  assert.equal(api.thread(select, "local"), true);
+  assert.equal(api.thread(select, "remote"), true);
+  for (const contract of [
+    "MTKattentionPolicyAtom=Zp(Q,0)",
+    "s=s.filter(t=>!MTKattentionIgnoredThread8881(e,t,c))",
+    "[desktop-notifications] suppressed task-attention-policy turn-complete"
+  ]) assert.ok(appSource.includes(contract), `roster attention app contract: ${contract}`);
+  for (const contract of [
+    "MTKattentionIgnoredForTask=MTKuseTaskAttention8881(vt,n)",
+    "let Rt=MTKattentionIgnoredForTask?{...Lt,unread:!1,unreadCount:0}:Lt",
+    "Ht=MTKattentionIgnoredForTask?[]:Vt==null?[]:[Vt]",
+    "let Jt=MTKattentionIgnoredForTask?void 0:qt",
+    "hasUnreadTurn:!MTKattentionIgnoredForTask&&!jt&&nt===!0"
+  ]) assert.ok(appPrimarySource.includes(contract), `roster attention row contract: ${contract}`);
 }

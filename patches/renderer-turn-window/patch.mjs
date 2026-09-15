@@ -31,14 +31,14 @@ if (command === "apply" && state === "needs-apply") {
 
 process.stdout.write(`${JSON.stringify({
   state,
-  historicalLimit: 1500,
+  historicalLimit: 200,
   behavior: state === "upstream-owned" ? "stock-paginated-renderer" : "bounded-mounted-turns",
   targets: [path.relative(root, appInitial), path.relative(root, localThread)]
 }, null, 2)}\n`);
 
 function inspectState(app, local) {
   const appMarked = app.includes("UHrendererTail=(e,t)=>") || app.includes("rendererTailLimit:UHrendererTailLimit");
-  const localMarked = local.includes("const UH_RENDERER_TURN_LIMIT=1500;") || local.includes("rendererTailLimit:UH_RENDERER_TURN_LIMIT");
+  const localMarked = local.includes("const UH_RENDERER_TURN_LIMIT=200;") || local.includes("rendererTailLimit:UH_RENDERER_TURN_LIMIT");
   if (appMarked || localMarked) {
     if (!appMarked || !localMarked) throw new Error("Unrecognized renderer turn window: partial application");
     inspectAppliedSelector(app);
@@ -427,7 +427,7 @@ function inspectPristineRenderer(source) {
 
 function inspectAppliedRenderer(source) {
   const owner = rendererOwner(source);
-  if (!source.slice(Math.max(0, owner.start - 80), owner.start).includes("const UH_RENDERER_TURN_LIMIT=1500;")) {
+  if (!source.slice(Math.max(0, owner.start - 80), owner.start).includes("const UH_RENDERER_TURN_LIMIT=200;")) {
     throw new Error("Unrecognized renderer turn window: global limit is not adjacent to its owner");
   }
   if (owner.calls !== 4) throw new Error(`Unrecognized renderer turn window: found ${owner.calls} selector calls`);
@@ -442,7 +442,7 @@ function patchRenderer(source) {
   const bounded = `{conversationId:${owner.conversation},isBackgroundSubagentsEnabled:${owner.background},rendererTailLimit:UH_RENDERER_TURN_LIMIT}`;
   if (count(owner.text, args) !== 4) throw new Error("Upstream changed: renderer selector argument ownership is ambiguous");
   const patched = owner.text.split(args).join(bounded);
-  return replaceOnce(source, owner.text, `const UH_RENDERER_TURN_LIMIT=1500;${patched}`, "local conversation renderer");
+  return replaceOnce(source, owner.text, `const UH_RENDERER_TURN_LIMIT=200;${patched}`, "local conversation renderer");
 }
 
 function selectorOwner(source) {

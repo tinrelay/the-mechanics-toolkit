@@ -17,16 +17,14 @@ section manually.
 
 ## Configuration
 
-Reasoning retention is an exact-task extension of the
-[task visual palette](../task-visual-palette/) identity rule. Set `keepReasoningOpen: true` beside a
-rule's exact `taskId` in `<workspaceRoot>/.codex/task-visual-palette.json`. Title-only rules cannot
-enable it.
+Reasoning retention is an exact-task extension of [agent-roster](../agent-roster/). Set
+`keepReasoningOpen: true` on an entry with an exact `taskId`. Title-only task rules cannot enable it.
 
 ```json
 {
-  "rules": {
-    "^(Engine Tender — Repairs|22222222-2222-4222-8222-222222222222)$": {
-      "color": "#71879A",
+  "agents": {
+    "engine-tender": {
+      "name": "Engine Tender",
       "taskId": "22222222-2222-4222-8222-222222222222",
       "keepReasoningOpen": true
     }
@@ -34,10 +32,8 @@ enable it.
 }
 ```
 
-The palette is the one identity registry; this patch does not create a second roster or duplicate
-its selectors. It requires the task-visual-palette patch in the selected fleet. When runtime JSON
-reload is selected through that dependency, valid external palette saves update the exact-ID
-reasoning decision without restarting Codex.
+The shared roster is the identity registry; this patch validates and consumes only its own field.
+Valid roster saves update the exact-ID decision without restarting Codex.
 
 ## Owned seam
 

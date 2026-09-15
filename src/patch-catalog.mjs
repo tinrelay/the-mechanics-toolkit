@@ -7,28 +7,31 @@ const definitions = [
   {
     name: "runtime-json-reload",
     script: "patches/runtime-json-reload/patch.mjs",
-    probe: "test/runtime-json-reload.test.mjs",
-    config: true
+    probe: "test/runtime-json-reload.test.mjs"
+  },
+  {
+    name: "agent-roster",
+    script: "patches/agent-roster/patch.mjs",
+    probe: "test/agent-roster.test.mjs",
+    requires: ["runtime-json-reload"]
   },
   {
     name: "task-visual-palette",
     script: "patches/task-visual-palette/patch.mjs",
     probe: "test/task-visual-palette.test.mjs",
-    config: true,
-    probeWorkspaceRoot: true,
-    requires: ["cross-task-attribution", "runtime-json-reload"]
+    requires: ["cross-task-attribution", "agent-roster"]
   },
   {
     name: "reasoning-retention",
     script: "patches/reasoning-retention/patch.mjs",
     probe: "test/reasoning-retention.test.mjs",
-    requires: ["task-visual-palette"]
+    requires: ["agent-roster"]
   },
   {
     name: "model-identity-guard",
     script: "patches/model-identity-guard/patch.mjs",
     probe: "test/model-identity-guard.test.mjs",
-    requires: ["task-visual-palette"]
+    requires: ["agent-roster"]
   },
   {
     name: "macos-menu-title",
@@ -52,9 +55,7 @@ const definitions = [
     name: "task-attention-policy",
     script: "patches/task-attention-policy/patch.mjs",
     probe: "test/task-attention-policy.test.mjs",
-    config: true,
-    probeWorkspaceRoot: true,
-    requires: ["runtime-json-reload"]
+    requires: ["agent-roster"]
   },
   {
     name: "terminal-toggle",
@@ -81,6 +82,11 @@ const definitions = [
     name: "native-app-tools-peer-authorization",
     script: "patches/native-app-tools-peer-authorization/patch.mjs",
     probe: "test/native-app-tools-peer-authorization.test.mjs"
+  },
+  {
+    name: "codex-observability",
+    script: "patches/codex-observability/patch.mjs",
+    probe: "test/codex-observability.test.mjs"
   },
   {
     name: "full-history-drain-suppression",

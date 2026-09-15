@@ -50,9 +50,11 @@ const lazyCalls = files.flatMap(file => {
 const names = [...appCalls, ...lazyCalls].map(call => call.name).sort();
 const allSources = files.map(file => fs.readFileSync(file, "utf8"));
 const expectedNames = [
+  ["agentRoster", source => source.includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze(")],
   ["crossTaskAttribution", source => source.includes("function MTKsender(")],
   ["runtimeJsonReload", source => source.includes("function MTKinstallRuntimeJsonReload(")],
-  ["reasoningRetention", source => source.includes("function MTKreasoningShouldStayOpen(")],
+  ["reasoningRetention", source => source.includes("function MTKreasoningShouldStayOpen(") ||
+    source.includes("function MTKreasoningRosterValue(")],
   ["outgoingMessageReceipt", source => source.includes("function MTKOutboundMessageReceipt(")],
   ["modelIdentityGuard", source => source.includes("function MTKinstallModelIdentityGuard(") &&
     source.includes("data-mtk-model-guard-mismatch")],
@@ -65,7 +67,7 @@ const expectedNames = [
     source.includes("function MTKattentionIgnoredThread7345(") || source.includes("function MTKattentionIgnoredThread7746(") ||
     source.includes("function MTKattentionIgnoredThread7942(") || source.includes("function MTKattentionIgnoredThread8109(") ||
     source.includes("function MTKattentionIgnoredThread8378(") || source.includes("function MTKattentionIgnoredThread8576(") ||
-    source.includes("function MTKattentionIgnoredThread8690(")],
+    source.includes("function MTKattentionIgnoredThread8690(") || source.includes("function MTKattentionIgnoredThread8881(")],
   ["taskVisualPalette", source => source.includes("function MTKusePaletteBootstrap(")],
   ["tinrelayPointerPresentation", source => source.includes("function MTKtinrelayPointerFromMessage(") &&
     source.includes("data-mtk-tinrelay-pointer")],
@@ -73,6 +75,7 @@ const expectedNames = [
   ["waitThreadRoster", source => source.includes("function MTKrenderWaitThreads(") &&
     source.includes("data-mtk-wait-thread-roster")],
   ["nativeAppToolsPeerAuthorization", source => source.includes("function MTKnativeAppToolsPeerAuthorizer(")],
+  ["codexObservability", source => source.includes('const MTKobserveContract="tmtk-codex-observability-v1"')],
   ["safeStartReadiness", source => source.includes("s.type===`ready`&&P();")]
 ].filter(([, active]) => [...allSources, mainSource].some(active)).map(([name]) => name).sort();
 assert.deepEqual(names, expectedNames);
@@ -112,6 +115,12 @@ if (registry.packages.outgoingMessageReceipt != null) {
 if (registry.packages.crossTaskAttribution != null) {
   assert.equal(registry.packages.crossTaskAttribution.version, 2);
   assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title: "Bridge Keeper — Coordination"}), "Bridge Keeper");
+}
+if (registry.packages.codexObservability != null) {
+  assert.equal(registry.packages.codexObservability.version, 1);
+  assert.equal(registry.packages.codexObservability.transport, "private-local");
+  assert.deepEqual(registry.packages.codexObservability.capabilities,
+    ["targets", "metrics", "devtools", "cdp", "cpu-profile", "trace"]);
 }
 if (registry.packages.tinrelayPointerPresentation != null) {
   assert.equal(registry.packages.tinrelayPointerPresentation.version, 2);

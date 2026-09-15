@@ -28,31 +28,19 @@ task or changing its state.
 
 ## Configuration
 
-Set `workspaceRoot` in a private copy of [`toolkit.example.json`](../../toolkit.example.json). The
-transform embeds only that root. At runtime Codex loads
-`<workspaceRoot>/.codex/task-visual-palette.json` through its existing local App Server filesystem
-boundary.
+Select [agent-roster](../agent-roster/) and place `.codex/agent-roster.json` below any registered
+local project root. No project path or identity is compiled into the application. Each `agents`
+entry has one current exact `taskId`; `tasks` entries may instead use `taskId`, `titlePattern`, or
+both. A visual entry supplies a six-digit hex `color` and may include:
 
-[`palette.example.json`](palette.example.json) shows the complete schema with fictional identities.
-Rule keys are regular expressions tested against the complete task title or task ID. Each rule
-requires a six-digit hex `color` and may include:
+- `protectSidebarArchive`: a boolean requiring an exact `taskId`; and
+- `mark`: a safe relative path to an SVG below the project root that owns that roster entry.
 
-- `taskId`: an exact UUID also matched by the rule;
-- `protectSidebarArchive`: a boolean requiring `taskId`;
-- `keepReasoningOpen`: a boolean requiring `taskId`, consumed by the separate
-  [reasoning-retention patch](../reasoning-retention/);
-- `modelPin`: an exact internal `model` and `reasoningEffort` pair requiring `taskId`, consumed by
-  the separate [model identity guard](../model-identity-guard/); and
-- `mark`: a safe relative path to an SVG below `workspaceRoot`.
+Calibration values are bounded percentages. Unknown extension keys are accepted. Invalid owned
+values or assets diagnose the feature and leave its last valid runtime projection in place.
 
-Calibration values are bounded percentages. Unknown keys, invalid expressions, duplicate task IDs,
-unsafe paths or symlinks, a palette over 64 KiB, a mark over 64 KiB, or anything other than exactly
-one owning palette leaves Codex on native styles.
-
-With [runtime JSON reload](../runtime-json-reload/) selected, saving a complete valid palette from
-an external editor updates the open app without a restart. Validation runs before publication; a
-partial or invalid save leaves the last-good colors, archive protection, reasoning-retention, and
-model-pin decisions in place.
+Saving a complete valid roster updates the open app without a restart. Aggregate validation runs
+before publication; a partial, invalid, or conflicting save leaves the last-good roster in place.
 
 ## Owned seam
 
@@ -67,14 +55,13 @@ first; palette application refuses when that exact prerequisite is absent.
 
 ## Check and apply
 
-`check` is read-only and needs no configuration. `apply` requires the toolkit config when installing
-the full patch into a pristine supported tree.
+`check` and `apply` need no private identity configuration; runtime roster data stays outside the
+application package.
 
 ```sh
 node bin/toolkit.mjs patch task-visual-palette check /path/to/extracted-asar
-node bin/toolkit.mjs patch task-visual-palette apply /path/to/disposable-extracted-asar \
-  --config /path/to/toolkit.local.json
-node test/task-visual-palette.test.mjs /path/to/disposable-extracted-asar /path/to/workspace
+node bin/toolkit.mjs patch task-visual-palette apply /path/to/disposable-extracted-asar
+node test/task-visual-palette.test.mjs /path/to/disposable-extracted-asar /path/to/roster-project
 ```
 
 The patch command modifies only the supplied extracted tree. The separate staging command can build
@@ -83,11 +70,10 @@ replaces a working application.
 
 ## Verification
 
-`test/task-visual-palette-transform.test.mjs` creates a synthetic pristine build-`7942` renderer
-tree with the exact attribution prerequisite and a quoted fictional workspace path. It proves
-config refusal, exact-root quoting, all four transformations, palette parsing, theme-specific color contrast,
-room/sidebar/delegation behavior, archive suppression, mutation filtering, and byte-identical
-second application.
+`test/task-visual-palette-transform.test.mjs` covers the historical standalone profile.
+`test/task-visual-palette.test.mjs` exercises the current build-`8881` roster consumer, safe
+project-owned marks, theme-specific contrast, room/sidebar/delegation behavior, archive
+suppression, invalid owned values, and byte-identical second application.
 
 The current transform also keeps the sender name inside an attribution label source-hued while
 moving toward the theme's readable endpoint only as far as contrast requires. The surrounding
@@ -106,6 +92,6 @@ separately namespaced public transform is installed.
 - inventing task identities or colors;
 - recoloring message text or dimming room contents;
 - hiding, deleting, pausing, or archiving tasks;
-- loading remote marks or files outside the configured workspace;
+- loading remote marks or files outside the project that owns the roster entry;
 - editing the palette from the Codex UI;
 - accepting an approximately matching future build.

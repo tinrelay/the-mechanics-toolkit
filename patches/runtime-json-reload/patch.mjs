@@ -5,26 +5,23 @@ import { spawnSync } from "node:child_process";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
-const configPath = readOption("--config");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
-  throw new Error("usage: runtime-json-reload/patch.mjs check|apply EXTRACTED_ASAR_ROOT [--config TOOLKIT_CONFIG]");
+  throw new Error("usage: runtime-json-reload/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
 const assets = path.join(root, "webview/assets");
 const renderer = rendererFile(assets);
 const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
 const runtimeFiles = Object.freeze([
-  "task-attention-policy.json",
-  "task-visual-palette.json"
+  "agent-roster.json"
 ]);
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();
 
 if (command === "apply" && state === "needs-apply") {
-  const workspaceRoot = configuredWorkspaceRoot();
-  rendererSource = patchRenderer(rendererSource, workspaceRoot);
-  mainSource = patchMain(mainSource, workspaceRoot);
+  rendererSource = patchRenderer(rendererSource);
+  mainSource = patchMain(mainSource);
   fs.writeFileSync(renderer, rendererSource);
   fs.writeFileSync(main, mainSource);
   syntaxCheck(renderer);
@@ -42,11 +39,11 @@ process.stdout.write(`${JSON.stringify({
 
 function inspectState() {
   const rendererMarkers = [
-    'const MTKruntimeJsonFiles=new Set(["task-attention-policy.json","task-visual-palette.json"])',
+    'const MTKruntimeJsonFiles=new Set(["agent-roster.json"])',
     "function MTKruntimeJsonRegister(",
     "function MTKinstallRuntimeJsonReload(",
     '.subscribe("mtk-runtime-json-changed"',
-    '.dispatchMessage("mtk-runtime-json-watch",{})',
+    '.dispatchMessage("mtk-runtime-json-watch",{roots:',
     "MTKinstallRuntimeJsonReload(),"
   ];
   const mainMarkers = [
@@ -55,7 +52,7 @@ function inspectState() {
     "function MTKcloseRuntimeJsonWatch(",
     'MTKruntimeJsonFs.watch(n,{persistent:!1}',
     'type:"mtk-runtime-json-changed"',
-    'case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager);break'
+    'case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break'
   ];
   const rendererApplied = rendererMarkers.every(marker => rendererSource.includes(marker));
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker));
@@ -94,9 +91,9 @@ function inspectPristineMain() {
   }
 }
 
-function patchRenderer(value, workspaceRoot) {
+function patchRenderer(value) {
   const profile = rendererProfile(value);
-  const helper = rendererHelper(workspaceRoot, profile.bus);
+  const helper = rendererHelper(profile.bus);
   let patched = helper + value;
   patched = replaceOnce(
     patched,
@@ -107,8 +104,8 @@ function patchRenderer(value, workspaceRoot) {
   return patched;
 }
 
-function rendererHelper(workspaceRoot, bus) {
-  return String.raw`const MTKruntimeJsonFiles=new Set(["task-attention-policy.json","task-visual-palette.json"]),MTKruntimeJsonAcceptors=new Map;let MTKruntimeJsonInstalled=!1;function MTKruntimeJsonQueue(e,t=!1){let n=MTKruntimeJsonAcceptors.get(e);if(n!=null)if(n.running)n.queued=!0,n.initial=n.initial||t;else{n.running=!0;let r=t;Promise.resolve().then(()=>n.accept(Object.freeze({initial:r}))).catch(()=>!1).finally(()=>{n.running=!1;if(MTKruntimeJsonAcceptors.get(e)!==n)return;if(n.queued){let t=n.initial;n.queued=!1,n.initial=!1,MTKruntimeJsonQueue(e,t)}})}}function MTKruntimeJsonRegister(e,t){if(!MTKruntimeJsonFiles.has(e)||typeof t!=="function")return null;let n={accept:t,running:!1,queued:!1,initial:!1};MTKruntimeJsonAcceptors.set(e,n),queueMicrotask(()=>{MTKruntimeJsonAcceptors.get(e)===n&&MTKruntimeJsonQueue(e,!0)});return()=>{MTKruntimeJsonAcceptors.get(e)===n&&MTKruntimeJsonAcceptors.delete(e)}}function MTKinstallRuntimeJsonReload(){if(MTKruntimeJsonInstalled)return;MTKruntimeJsonInstalled=!0;let e=globalThis.__MTK_RUNTIME_JSON_RELOAD__;if(e!==void 0&&e?.version!==1)return;globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:1,register:MTKruntimeJsonRegister,workspaceRoot:${JSON.stringify(workspaceRoot)}}),${bus}.subscribe("mtk-runtime-json-changed",e=>{MTKruntimeJsonFiles.has(e?.fileName)&&MTKruntimeJsonQueue(e.fileName,!1)}),${bus}.dispatchMessage("mtk-runtime-json-watch",{})}`;
+function rendererHelper(bus) {
+  return String.raw`const MTKruntimeJsonFiles=new Set(["agent-roster.json"]),MTKruntimeJsonAcceptors=new Map;let MTKruntimeJsonInstalled=!1;function MTKruntimeJsonQueue(e,t=!1){let n=MTKruntimeJsonAcceptors.get(e);if(n!=null)if(n.running)n.queued=!0,n.initial=n.initial||t;else{n.running=!0;let r=t;Promise.resolve().then(()=>n.accept(Object.freeze({initial:r}))).catch(()=>!1).finally(()=>{n.running=!1;if(MTKruntimeJsonAcceptors.get(e)!==n)return;if(n.queued){let t=n.initial;n.queued=!1,n.initial=!1,MTKruntimeJsonQueue(e,t)}})}}function MTKruntimeJsonRoots(e){return[...new Set((Array.isArray(e)?e:[]).filter(e=>typeof e==="string"&&e.length>0))].sort()}function MTKruntimeJsonRegister(e,t,n){if(!MTKruntimeJsonFiles.has(e)||typeof n!=="function")return null;let r={accept:n,roots:MTKruntimeJsonRoots(t),running:!1,queued:!1,initial:!1};MTKruntimeJsonAcceptors.set(e,r),${bus}.dispatchMessage("mtk-runtime-json-watch",{roots:r.roots}),queueMicrotask(()=>{MTKruntimeJsonAcceptors.get(e)===r&&MTKruntimeJsonQueue(e,!0)});return()=>{MTKruntimeJsonAcceptors.get(e)===r&&(MTKruntimeJsonAcceptors.delete(e),${bus}.dispatchMessage("mtk-runtime-json-watch",{roots:[]}))}}function MTKinstallRuntimeJsonReload(){if(MTKruntimeJsonInstalled)return;MTKruntimeJsonInstalled=!0;let e=globalThis.__MTK_RUNTIME_JSON_RELOAD__;if(e!==void 0&&e?.version!==2)return;globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:2,register:MTKruntimeJsonRegister}),${bus}.subscribe("mtk-runtime-json-changed",e=>{MTKruntimeJsonFiles.has(e?.fileName)&&MTKruntimeJsonQueue(e.fileName,!1)})}`;
 }
 
 function rendererProfile(value) {
@@ -117,46 +114,22 @@ function rendererProfile(value) {
   return {bus: matches[0].groups.bus, contract: matches[0][0]};
 }
 
-function patchMain(value, workspaceRoot) {
+function patchMain(value) {
   const owners = value.match(/var [$\w]+=i\.i\(`electron-message-handler`\)/g) ?? [];
   if (owners.length !== 1) throw new Error("Upstream changed: main-process runtime JSON helper owner is not unique");
-  let patched = replaceOnce(value, owners[0], mainHelper(workspaceRoot) + owners[0],
+  let patched = replaceOnce(value, owners[0], mainHelper() + owners[0],
     "main-process runtime JSON helper owner");
   patched = replaceOnce(
     patched,
     "case`electron-add-new-workspace-root-option`:",
-    "case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager);break;case`electron-add-new-workspace-root-option`:",
+    "case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break;case`electron-add-new-workspace-root-option`:",
     "main-process runtime JSON message handler"
   );
   return patched;
 }
 
-function mainHelper(workspaceRoot) {
-  return String.raw`const MTKruntimeJsonFs=require("node:fs"),MTKruntimeJsonPath=require("node:path"),MTKruntimeJsonRoot=${JSON.stringify(workspaceRoot)},MTKruntimeJsonNames=new Set(["task-attention-policy.json","task-visual-palette.json"]),MTKruntimeJsonWatchers=new Map;function MTKcloseRuntimeJsonWatch(e){let t=MTKruntimeJsonWatchers.get(e);if(t!=null){MTKruntimeJsonWatchers.delete(e);for(let e of t.timers.values())clearTimeout(e);t.timers.clear();try{t.watcher.close()}catch{}}}function MTKscheduleRuntimeJsonChange(e,t){let n=e.timers.get(t);n!==void 0&&clearTimeout(n),e.timers.set(t,setTimeout(()=>{e.timers.delete(t);try{e.windowManager.sendMessageToWebContents(e.webContents,{type:"mtk-runtime-json-changed",fileName:t})}catch{}},180))}function MTKstartRuntimeJsonWatch(e,t){if(e==null||!Number.isInteger(e.id)||MTKruntimeJsonWatchers.has(e.id))return;let n=MTKruntimeJsonPath.join(MTKruntimeJsonRoot,".codex");try{let r=MTKruntimeJsonFs.lstatSync(n);if(!r.isDirectory()||r.isSymbolicLink())return;let i={webContents:e,windowManager:t,watcher:null,timers:new Map},a=MTKruntimeJsonFs.watch(n,{persistent:!1},(e,t)=>{let n=t==null?null:Buffer.isBuffer(t)?t.toString("utf8"):String(t);n==null?MTKruntimeJsonNames.forEach(e=>MTKscheduleRuntimeJsonChange(i,e)):MTKruntimeJsonNames.has(n)&&MTKscheduleRuntimeJsonChange(i,n)});i.watcher=a,MTKruntimeJsonWatchers.set(e.id,i),a.on("error",()=>MTKcloseRuntimeJsonWatch(e.id)),e.once("destroyed",()=>MTKcloseRuntimeJsonWatch(e.id))}catch{}}`;
-}
-
-function configuredWorkspaceRoot() {
-  if (configPath == null) throw new Error("runtime-json-reload apply requires --config TOOLKIT_CONFIG");
-  let config;
-  try {
-    config = JSON.parse(fs.readFileSync(configPath, "utf8"));
-  } catch (error) {
-    throw new Error(`Cannot read toolkit config: ${error.message}`);
-  }
-  if (config == null || typeof config !== "object" || Array.isArray(config) ||
-      typeof config.workspaceRoot !== "string" || !path.isAbsolute(config.workspaceRoot) ||
-      config.workspaceRoot.includes("\0")) {
-    throw new Error("runtime-json-reload requires an absolute workspaceRoot in toolkit config");
-  }
-  return path.normalize(config.workspaceRoot);
-}
-
-function readOption(name) {
-  const index = process.argv.indexOf(name);
-  if (index < 0) return null;
-  const value = process.argv[index + 1];
-  if (value == null || value.startsWith("--")) throw new Error(`${name} requires a value`);
-  return path.resolve(value);
+function mainHelper() {
+  return String.raw`const MTKruntimeJsonFs=require("node:fs"),MTKruntimeJsonPath=require("node:path"),MTKruntimeJsonNames=new Set(["agent-roster.json"]),MTKruntimeJsonWatchers=new Map;function MTKcloseRuntimeJsonWatch(e){let t=MTKruntimeJsonWatchers.get(e);if(t!=null){MTKruntimeJsonWatchers.delete(e);for(let e of t.timers.values())clearTimeout(e);t.timers.clear();for(let e of t.watchers.values())try{e.close()}catch{}t.watchers.clear()}}function MTKscheduleRuntimeJsonChange(e,t){let n=e.timers.get(t);n!==void 0&&clearTimeout(n),e.timers.set(t,setTimeout(()=>{e.timers.delete(t);try{e.windowManager.sendMessageToWebContents(e.webContents,{type:"mtk-runtime-json-changed",fileName:t})}catch{}},180))}function MTKvalidRuntimeJsonRoots(e){if(!Array.isArray(e)||e.length>128)return[];let t=[];for(let n of e){if(typeof n!=="string"||n.length===0||n.length>4096||n.includes("\0")||!MTKruntimeJsonPath.isAbsolute(n))continue;let e=MTKruntimeJsonPath.normalize(n);if(e===MTKruntimeJsonPath.parse(e).root||t.includes(e))continue;t.push(e)}return t.sort()}function MTKstartRuntimeJsonWatch(e,t,n){if(e==null||!Number.isInteger(e.id))return;MTKcloseRuntimeJsonWatch(e.id);let r={webContents:e,windowManager:t,watchers:new Map,timers:new Map};MTKruntimeJsonWatchers.set(e.id,r);for(let t of MTKvalidRuntimeJsonRoots(n)){let n=MTKruntimeJsonPath.join(t,".codex");try{let t=MTKruntimeJsonFs.lstatSync(n);if(!t.isDirectory()||t.isSymbolicLink())continue;let i=MTKruntimeJsonFs.watch(n,{persistent:!1},(e,t)=>{let n=t==null?null:Buffer.isBuffer(t)?t.toString("utf8"):String(t);(n==null||MTKruntimeJsonNames.has(n))&&MTKscheduleRuntimeJsonChange(r,"agent-roster.json")});r.watchers.set(n,i),i.on("error",()=>{if(r.watchers.get(n)!==i)return;try{i.close()}catch{}r.watchers.delete(n)})}catch{}}e.once("destroyed",()=>MTKcloseRuntimeJsonWatch(e.id))}`;
 }
 
 function uniqueFile(pattern, directory) {

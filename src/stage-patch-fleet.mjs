@@ -8,7 +8,6 @@ const baseConfigKeys = Object.freeze([
   "codexBinary",
   "enabledPatches",
   "signingIdentity",
-  "workspaceRoot",
   "tinrelay"
 ]);
 
@@ -157,7 +156,6 @@ function patchCommand(definition, action, root, configFile, repository) {
 function runProbes(selected, roots, config, repository) {
   for (const definition of selected) {
     const args = [path.join(repository, definition.probe), roots[definition.scope]];
-    if (definition.probeWorkspaceRoot) args.push(path.resolve(config.workspaceRoot));
     run(process.execPath, args);
   }
 }

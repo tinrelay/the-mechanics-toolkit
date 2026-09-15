@@ -147,9 +147,9 @@ That form detects and rescues launch failure but has no pre-adoption app to rest
 ## Local configuration
 
 For macOS, copy [`toolkit.example.json`](../toolkit.example.json) to the ignored
-`toolkit.local.json`. For the exact Linux build-8881 13-patch fleet, start from
+`toolkit.local.json`. For the exact Linux build-8881 fleet, start from
 [`toolkit.linux.example.json`](../toolkit.linux.example.json); for the exact Windows build-8881
-13-patch fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The
+fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The
 examples contain fictional absolute paths and are not runnable until the agent replaces the
 applicable values.
 `enabledPatches` selects the staged fleet; the catalog
@@ -168,15 +168,33 @@ Configuration-backed patches use these values:
   integrated into a macOS or Linux staged desktop package. Windows instead uses
   `windows.codexBinaries.native` and `windows.codexBinaries.wsl` because the package contains both
   execution modes;
-- `workspaceRoot` locates `.codex/task-visual-palette.json` and
-  `.codex/task-attention-policy.json`;
-- reasoning retention consumes exact task opt-ins from the visual palette;
-- the model identity guard consumes exact task model-and-effort pins from the visual palette;
+- `agent-roster` discovers `.codex/agent-roster.json` below every currently registered local
+  project root at runtime; no project path or roster contents are staging inputs;
+- reasoning retention consumes exact task opt-ins from the roster;
+- the model identity guard consumes exact task model-and-effort pins from the roster;
 - `tinrelay.client` and `tinrelay.localShip` identify the local Tinrelay boundary.
 
-The toolkit configuration itself is staging input and is not watched. In an adopted build, the
-palette and attention-policy files are runtime-reloadable. Each owning patch accepts only a
-complete valid replacement and otherwise keeps its last-good value.
+The toolkit configuration itself is staging input and is not watched. In an adopted build,
+agent-roster files are runtime-reloadable. The aggregate accepts only a complete valid replacement
+and otherwise keeps its last-good value.
+
+## Observe a running patched Codex
+
+When `codex-observability` is selected, `bin/tmtk-observe.mjs` can inspect a running patched app
+without enabling a TCP debugging port:
+
+```sh
+bin/tmtk-observe.mjs list
+bin/tmtk-observe.mjs metrics TARGET_ID
+bin/tmtk-observe.mjs cpu-profile TARGET_ID 10 codex.cpuprofile
+bin/tmtk-observe.mjs trace TARGET_ID 10 codex-trace.json
+```
+
+The last two commands attach only for the requested duration and refuse to overwrite an output
+file. The trace contains timeline and V8 sampling data for JavaScript, garbage collection, style,
+layout, paint, compositor, and GPU investigation. The same CLI can open detached DevTools or send
+one explicit CDP command; see the [patch maintenance log](../patches/codex-observability/) for the
+power and privacy boundary.
 
 ## Check or apply one patch
 

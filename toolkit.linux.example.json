@@ -2,6 +2,7 @@
   "enabledPatches": [
     "cross-task-attribution",
     "runtime-json-reload",
+    "agent-roster",
     "task-visual-palette",
     "reasoning-retention",
     "model-identity-guard",
@@ -11,10 +12,10 @@
     "outgoing-message-receipt",
     "wait-thread-roster",
     "tinrelay-pointer-presentation",
+    "codex-observability",
     "safe-start-readiness",
     "renderer-patch-registry"
   ],
-  "workspaceRoot": "/absolute/path/to/your/workspace",
   "tinrelay": {
     "client": "/absolute/path/to/tinrelay",
     "localShip": "example-ship"

@@ -22,6 +22,7 @@ record. This ledger is not a promise to publish every historical experiment.
 | Outgoing send receipt | Extracted; build-8881 causal-order probe and live task-message rendering green; build-8576 restart reconstruction green | Exercise restart reconstruction on build 8881 |
 | Wait-thread roster | Extracted; build-8881 names, links, colors, and multi-target behavior live-accepted | Record the next accepted build |
 | Runtime JSON reload | Extracted; build-8881 static stage and build-8109 live save green | Live-accept on build 8881 |
+| Agent roster | Extracted; build-8881 aggregate discovery, conflict handling, runtime reload, and current live identity projection green | Exercise a cross-project task move without changing its task ID |
 | Task palette | Extracted; build-8881 static stage and current live chips, room colors, and background marks green | Live-accept JSON reload across both room and sidebar surfaces |
 | Reasoning retention | Extracted; build-8881 static stage and build-8109 live use green | Live-accept on build 8881 |
 | Model identity guard | Extracted; exact-task policy and locked-composer behavior; build-8881 full-fleet stage and current live protection green | Exercise the Dictate false-alarm regression specifically |
@@ -30,20 +31,21 @@ record. This ledger is not a promise to publish every historical experiment.
 | Tinrelay presentation | Extracted as one patch; build-8881 shared-bus, outgoing-order, restart, and pagination probes plus live incoming/outgoing loopback rendering green; build-8576 restart reconstruction live-accepted | Exercise later-pagination reconstruction on build 8881 |
 | Sidebar action collapse | Extracted; build-8881 static stage and live use green | Record the next accepted build |
 | Patch registry | Extracted; per-realm API, build-8881 full-fleet composition, and current live task-message/Tinrelay consumers green | Record the next accepted build |
+| Codex observability | Extracted; build-8881 socket, metrics, CDP, CPU-profile, and timeline-trace paths passed causal probes and live renderer captures | Record the next accepted build |
 | Task supervisor | Extracted and fixture-tested; benched and excluded from the example fleet | Requalify only if a real current use returns |
 | Full-history drain suppression | Extracted and fixture-tested; dormant upstream-owned | Requalify only if eager local resume draining returns |
-| Renderer turn window | Reactivated after real build-8881 tasks took 30–90 seconds to switch; current scope-aware selector port and pristine-ASAR probes green | Live-accept task switching with the 1,500-turn mounted window |
+| Renderer turn window | Reactivated after real build-8881 tasks took 30–90 seconds to switch; current scope-aware selector port and pristine-ASAR probes green | Live-accept task switching with the 200-turn mounted window |
 
 ## Current build qualification
 
 Codex Desktop `26.908.40834` (build `8881`) for macOS ARM64 was inspected and staged on macOS
 `26.6.2` (`25G83`) from a pristine vendor update, then re-staged and adopted with the current
-17-patch fleet on 2026-09-14. The complete selected
+19-patch fleet on 2026-09-14. The complete selected
 desktop-package fleet—including the separately built Codex 0.154.0-alpha.6.2 binary—passed every
 focused probe before and after repacking, remained byte-identical on a second application,
 preserved the native package tree and executable helper, and produced a valid code signature and
 ASAR seal. The accepted ASAR SHA-256 is
-`93fd2edeeac84d892f6ccefa06ee69230b609e0df38c5d0080233865fb647948`. The supervisor installed that
+`9c977a8480f7c663301dd2e8086d7a1890517e39ed44a1dbaa626a9b4aee7b0c`. The supervisor installed that
 exact candidate at the canonical path, proved its signature and ASAR seal, observed real renderer
 readiness, and returned to the originating task without an overlapping CLI writer. Native
 task-to-task messages rendered in both directions, a wait roster named its real tasks, and an
@@ -72,6 +74,7 @@ The qualified desktop fleet was staged with these exact package patches:
 [
   "cross-task-attribution",
   "runtime-json-reload",
+  "agent-roster",
   "task-visual-palette",
   "reasoning-retention",
   "model-identity-guard",
@@ -84,8 +87,10 @@ The qualified desktop fleet was staged with these exact package patches:
   "wait-thread-roster",
   "tinrelay-pointer-presentation",
   "native-app-tools-peer-authorization",
-  "renderer-patch-registry",
-  "safe-start-readiness"
+  "codex-observability",
+  "renderer-turn-window",
+  "safe-start-readiness",
+  "renderer-patch-registry"
 ]
 ```
 

@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` synthetic transform and behavioral probes green, 2026-09-08
+- **Patch-specific evidence:** Build `8881` transform and behavioral probes green, 2026-09-14
 
 ## Why it exists
 
@@ -32,12 +32,12 @@ are restored.*
 ## Configuration
 
 The patch consumes an optional `modelPin` from an exact-ID
-[task visual palette](../task-visual-palette/) rule:
+[agent roster](../agent-roster/) entry:
 
 ```json
 {
+  "name": "Engine Tender",
   "taskId": "22222222-2222-4222-8222-222222222222",
-  "color": "#71879A",
   "modelPin": {
     "model": "gpt-5.6-sol",
     "reasoningEffort": "high"
@@ -48,7 +48,7 @@ The patch consumes an optional `modelPin` from an exact-ID
 Model values use Codex's stable internal IDs. Effort accepts `none`, `minimal`, `low`, `medium`,
 `high`, `xhigh`, `max`, `ultra`, or `persistent`. A pin requires an exact `taskId`; titles and
 regular-expression matches never assign this safety policy by themselves. Unknown or malformed
-configuration leaves the last valid palette in force when runtime reload is enabled.
+configuration leaves the last valid roster in force when runtime reload is enabled.
 
 ## Owned seam
 
@@ -57,11 +57,11 @@ normalized reasoning effort. A small React effect publishes that exact live pair
 The guard scopes itself to the existing composer root inside the exact task room and uses the stock
 model selector as the repair control. A transient composer withdrawal, including switching into
 Dictate, supplies no contrary model evidence and does not trigger the guard; a concrete published
-model or effort must disagree with the pin.
+model or effort must disagree with the pin. Its DOM observer ignores ordinary transcript mutations
+and rescans only when a task room, model selector, or composer surface is newly mounted.
 
-This patch requires task-visual-palette because the palette owns the private identity file, exact-ID
-validation, runtime reload, and pin subscription. It remains a separate patch so colors and identity
-marks do not imply model enforcement.
+This patch requires agent-roster for exact-ID validation, runtime reload, and subscription. It
+remains separate so roster identity does not imply model enforcement.
 
 ## Check and apply
 

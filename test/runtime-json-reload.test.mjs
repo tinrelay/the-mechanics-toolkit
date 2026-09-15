@@ -14,7 +14,7 @@ const mainSource = fs.readFileSync(main, "utf8");
 
 const rendererStart = rendererSource.indexOf('const MTKruntimeJsonFiles=');
 const rendererTail = rendererSource.slice(rendererStart);
-const rendererTerminator = /(?<bus>[$A-Z_a-z][$\w]*)\.dispatchMessage\("mtk-runtime-json-watch",\{\}\)\}/.exec(rendererTail);
+const rendererTerminator = /(?<bus>[$A-Z_a-z][$\w]*)\.subscribe\("mtk-runtime-json-changed",e=>\{MTKruntimeJsonFiles\.has\(e\?\.fileName\)&&MTKruntimeJsonQueue\(e\.fileName,!1\)\}\)\}/.exec(rendererTail);
 const rendererEnd = rendererTerminator == null ? -1 : rendererStart + rendererTerminator.index + rendererTerminator[0].length;
 assert.ok(rendererStart >= 0 && rendererTerminator != null && rendererEnd > rendererStart, "renderer helper boundary");
 const rendererHelper = rendererSource.slice(rendererStart, rendererEnd);
@@ -36,27 +36,32 @@ const rendererApi = Function(
 )(realm, hostBus, queueMicrotask);
 rendererApi.install();
 rendererApi.install();
-assert.equal(realm.__MTK_RUNTIME_JSON_RELOAD__.version, 1);
-assert.deepEqual(dispatches, [{ type: "mtk-runtime-json-watch", payload: {} }], "one main-process watch request");
+assert.equal(realm.__MTK_RUNTIME_JSON_RELOAD__.version, 2);
+assert.deepEqual(dispatches, [], "watch roots are supplied by the roster owner");
 assert.equal(subscriptions.size, 1, "one renderer change subscription");
 
 const accepted = [];
-const unregister = realm.__MTK_RUNTIME_JSON_RELOAD__.register("task-visual-palette.json", async metadata => {
+const roots = ["/projects/office", "/projects/other", "/projects/office"];
+const unregister = realm.__MTK_RUNTIME_JSON_RELOAD__.register("agent-roster.json", roots, async metadata => {
   accepted.push(metadata);
   return true;
 });
 assert.equal(typeof unregister, "function");
-assert.equal(realm.__MTK_RUNTIME_JSON_RELOAD__.register("not-owned.json", () => true), null);
+assert.equal(realm.__MTK_RUNTIME_JSON_RELOAD__.register("not-owned.json", roots, () => true), null);
+assert.deepEqual(dispatches, [{
+  type: "mtk-runtime-json-watch",
+  payload: { roots: ["/projects/office", "/projects/other"] }
+}], "one normalized watch request for the active project roots");
 await drainMicrotasks();
 assert.deepEqual(accepted, [{ initial: true }], "registration performs one initial acceptance pass");
 subscriptions.get("mtk-runtime-json-changed")({ fileName: "not-owned.json" });
 await drainMicrotasks();
 assert.equal(accepted.length, 1, "unknown filenames do not reach consumers");
-subscriptions.get("mtk-runtime-json-changed")({ fileName: "task-visual-palette.json" });
+subscriptions.get("mtk-runtime-json-changed")({ fileName: "agent-roster.json" });
 await drainMicrotasks();
 assert.deepEqual(accepted, [{ initial: true }, { initial: false }], "watched change reaches the owning acceptance callback");
 unregister();
-subscriptions.get("mtk-runtime-json-changed")({ fileName: "task-visual-palette.json" });
+subscriptions.get("mtk-runtime-json-changed")({ fileName: "agent-roster.json" });
 await drainMicrotasks();
 assert.equal(accepted.length, 2, "unregistered consumers receive no later changes");
 
@@ -64,7 +69,7 @@ let releaseAcceptance;
 let activeAcceptances = 0;
 let maximumConcurrentAcceptances = 0;
 const serialized = [];
-realm.__MTK_RUNTIME_JSON_RELOAD__.register("task-attention-policy.json", async metadata => {
+realm.__MTK_RUNTIME_JSON_RELOAD__.register("agent-roster.json", ["/projects/office"], async metadata => {
   activeAcceptances += 1;
   maximumConcurrentAcceptances = Math.max(maximumConcurrentAcceptances, activeAcceptances);
   serialized.push(metadata);
@@ -73,8 +78,8 @@ realm.__MTK_RUNTIME_JSON_RELOAD__.register("task-attention-policy.json", async m
   return true;
 });
 await drainMicrotasks();
-subscriptions.get("mtk-runtime-json-changed")({ fileName: "task-attention-policy.json" });
-subscriptions.get("mtk-runtime-json-changed")({ fileName: "task-attention-policy.json" });
+subscriptions.get("mtk-runtime-json-changed")({ fileName: "agent-roster.json" });
+subscriptions.get("mtk-runtime-json-changed")({ fileName: "agent-roster.json" });
 releaseAcceptance();
 await drainMicrotasks();
 await drainMicrotasks();
@@ -87,7 +92,7 @@ const mainOwner = mainSource.slice(mainStart).match(/var [$\w]+=i\.i\(`electron-
 const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "main helper boundary");
 const mainHelper = mainSource.slice(mainStart, mainEnd);
-let watchCallback = null;
+const watchCallbacks = new Map();
 let watchCount = 0;
 let closeCount = 0;
 let errorCallback = null;
@@ -98,7 +103,7 @@ const fakeFs = {
   watch(_directory, options, callback) {
     watchCount += 1;
     assert.deepEqual(options, { persistent: false });
-    watchCallback = callback;
+    watchCallbacks.set(_directory, callback);
     return {
       close() { closeCount += 1; },
       on(type, handler) {
@@ -135,32 +140,29 @@ const windowManager = {
     messages.push(message);
   }
 };
-mainApi.start(webContents, windowManager);
-mainApi.start(webContents, windowManager);
-assert.equal(watchCount, 1, "one directory watcher per renderer web contents");
-watchCallback("change", "unrelated.json");
+mainApi.start(webContents, windowManager, ["/projects/office", "/projects/other"]);
+assert.equal(watchCount, 2, "one directory watcher per project root");
+watchCallbacks.get("/projects/office/.codex")("change", "unrelated.json");
 runTimers();
 assert.deepEqual(messages, [], "irrelevant directory changes stay local");
-watchCallback("rename", Buffer.from("task-attention-policy.json"));
+watchCallbacks.get("/projects/other/.codex")("rename", Buffer.from("agent-roster.json"));
 runTimers();
-assert.deepEqual(messages, [{ type: "mtk-runtime-json-changed", fileName: "task-attention-policy.json" }]);
-watchCallback("rename", null);
+assert.deepEqual(messages, [{ type: "mtk-runtime-json-changed", fileName: "agent-roster.json" }]);
+watchCallbacks.get("/projects/office/.codex")("rename", null);
 runTimers();
-assert.deepEqual(messages.slice(1).map(message => message.fileName).sort(), [
-  "task-attention-policy.json",
-  "task-visual-palette.json"
-], "filename-less directory events conservatively refresh both owned files");
+assert.deepEqual(messages.slice(1).map(message => message.fileName), ["agent-roster.json"],
+  "filename-less directory events conservatively refresh the roster");
 destroyed();
-assert.equal(closeCount, 1, "watcher closes with its renderer");
+assert.equal(closeCount, 2, "all project-root watchers close with their renderer");
 assert.doesNotThrow(() => errorCallback(), "late watcher error cleanup is idempotent");
-assert.equal(closeCount, 1);
+assert.equal(closeCount, 2);
 
-assert.ok(mainSource.includes('case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager);break'));
+assert.ok(mainSource.includes('case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break'));
 assert.match(rendererSource, new RegExp(`${rendererTerminator.groups.bus}=[$A-Z_a-z][$\\w]*\\.getInstance\\(\\),MTKinstallRuntimeJsonReload\\(\\),`));
 process.stdout.write(`${JSON.stringify({
   state: "green",
   watchedDirectory: ".codex",
-  files: ["task-attention-policy.json", "task-visual-palette.json"],
+  files: ["agent-roster.json"],
   consumerBoundary: "per-file acceptance callback",
   invalidation: "debounced-and-serialized",
   cleanup: "web-contents-destroyed"

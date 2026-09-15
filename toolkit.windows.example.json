@@ -2,6 +2,7 @@
   "enabledPatches": [
     "cross-task-attribution",
     "runtime-json-reload",
+    "agent-roster",
     "task-visual-palette",
     "reasoning-retention",
     "model-identity-guard",
@@ -11,10 +12,11 @@
     "outgoing-message-receipt",
     "wait-thread-roster",
     "tinrelay-pointer-presentation",
+    "codex-observability",
+    "renderer-turn-window",
     "renderer-patch-registry",
     "safe-start-readiness"
   ],
-  "workspaceRoot": "C:\\absolute\\path\\to\\your\\workspace",
   "tinrelay": {
     "client": "C:\\absolute\\path\\to\\tinrelay.exe",
     "localShip": "example-ship"

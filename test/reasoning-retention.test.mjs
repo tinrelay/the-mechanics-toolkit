@@ -8,19 +8,46 @@ const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extracted, "webview/assets");
 
-const palette = uniqueSource(source => source.includes("function MTKreasoningShouldStayOpen("), "reasoning policy owner");
 const turn = uniqueSource(source => source.includes("function MTKuseReasoningRetention("), "reasoning turn owner");
 const thread = uniqueSource(source => source.includes("function MTKuseReasoningThreadRetention("), "reasoning thread owner");
 const activity = uniqueSource(source => source.includes("isCollapsed:!r&&(a??!i)"), "stock collapse owner");
+const rosterPolicy = turn.source.includes("function MTKreasoningRosterValue(");
+const policyOwner = rosterPolicy
+  ? turn
+  : uniqueSource(source => source.includes("function MTKreasoningShouldStayOpen("), "reasoning policy owner");
 
-const decisionText = functionAt(palette.source, palette.source.indexOf("function MTKreasoningShouldStayOpen("));
-const decision = Function(`${decisionText};return MTKreasoningShouldStayOpen`)();
+const decisionName = rosterPolicy ? "MTKreasoningRosterValue" : "MTKreasoningShouldStayOpen";
+const decisionText = functionAt(policyOwner.source, policyOwner.source.indexOf(`function ${decisionName}(`));
 const kept = "22222222-2222-4222-8222-222222222222";
 const ordinary = "33333333-3333-4333-8333-333333333333";
 const policy = {rules: [
   {taskId: kept, keepReasoningOpen: true},
   {taskId: ordinary, keepReasoningOpen: false}
 ]};
+let subscribed = false;
+const diagnostics = [];
+const roster = {
+  match(_title, taskId) {
+    const rule = policy.rules.find(candidate => candidate.taskId === taskId);
+    return rule == null ? null : {data: rule};
+  },
+  subscribe(listener) {
+    subscribed = typeof listener === "function";
+    return () => {};
+  },
+  diagnose(code, detail) { diagnostics.push({code, detail}); }
+};
+const realm = rosterPolicy
+  ? {__MTK_AGENT_ROSTER__: roster}
+  : {
+      __MTKreasoningSubscribe(listener) { subscribed = typeof listener === "function"; return () => {}; },
+      __MTKreasoningShouldStayOpen(taskId) {
+        return policy.rules.find(rule => rule.taskId === taskId)?.keepReasoningOpen === true;
+      }
+    };
+const decision = rosterPolicy
+  ? Function("globalThis", `${decisionText};return ${decisionName}`)(realm)
+  : Function(`${decisionText};return ${decisionName}`)();
 assert.equal(decision(kept, policy), true, "an exact opted-in task retains reasoning");
 assert.equal(decision(ordinary, policy), false, "an ordinary task keeps stock behavior");
 assert.equal(decision("Engine Tender — Repairs", policy), false, "a title cannot opt a task into retention");
@@ -30,16 +57,6 @@ const helperOwner = turn.source.indexOf("function MTKuseReasoningRetention(", he
 const helperEnd = turn.source.indexOf("function ", helperOwner + "function MTKuseReasoningRetention(".length);
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "turn hook helper seam");
 const hookText = turn.source.slice(helperStart, helperEnd);
-let subscribed = false;
-const bridge = {
-  __MTKreasoningSubscribe(listener) {
-    subscribed = typeof listener === "function";
-    return () => {};
-  },
-  __MTKreasoningShouldStayOpen(taskId) {
-    return decision(taskId, policy);
-  }
-};
 const Ui = {
   useSyncExternalStore(subscribe, snapshot) {
     subscribe(() => {});
@@ -48,10 +65,18 @@ const Ui = {
 };
 const hookReact = hookText.match(/return ([A-Za-z_$][\w$]*)\.useSyncExternalStore\(/)?.[1];
 assert.ok(hookReact, "turn hook names its React owner");
-const hook = Function(hookReact, "globalThis", `${hookText};return MTKuseReasoningRetention`)(Ui, bridge);
+const hook = Function(hookReact, "globalThis", `${hookText};return MTKuseReasoningRetention`)(Ui, realm);
 assert.equal(hook(kept), true);
 assert.equal(hook(ordinary), false);
 assert.equal(subscribed, true, "the turn rerenders when the async palette arrives");
+if (rosterPolicy) {
+  policy.rules[0].keepReasoningOpen = "yes";
+  assert.equal(hook(kept), false, "an invalid roster extension value keeps stock collapse behavior");
+  assert.equal(diagnostics.at(-1)?.code, "invalid-keep-reasoning-open");
+  policy.rules[0].keepReasoningOpen = true;
+  assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
+    "thread transitions validate the same roster extension boundary");
+}
 
 assert.match(
   thread.source,

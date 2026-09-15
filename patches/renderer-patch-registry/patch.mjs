@@ -42,7 +42,12 @@ function activePackages() {
   addIf(packages, appSource.includes("function MTKinstallRuntimeJsonReload("), {
     name: "runtimeJsonReload",
     file: appInitial,
-    call: `MTKpatchRegistry?.register("runtimeJsonReload",{version:1,files:["task-attention-policy.json","task-visual-palette.json"]});`
+    call: `MTKpatchRegistry?.register("runtimeJsonReload",{version:2,files:["agent-roster.json"]});`
+  });
+  addIf(packages, appSource.includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze("), {
+    name: "agentRoster",
+    file: appInitial,
+    call: `MTKpatchRegistry?.register("agentRoster",{version:1,file:"agent-roster.json",discovery:"registered-local-project-roots"});`
   });
   addIf(packages, appSource.includes("function MTKreasoningShouldStayOpen("), {
     name: "reasoningRetention",
@@ -68,7 +73,8 @@ function activePackages() {
     appSource.includes("function MTKattentionIgnoredThread8109(") ||
     appSource.includes("function MTKattentionIgnoredThread8378(") ||
     appSource.includes("function MTKattentionIgnoredThread8576(") ||
-    appSource.includes("function MTKattentionIgnoredThread8690("), {
+    appSource.includes("function MTKattentionIgnoredThread8690(") ||
+    appSource.includes("function MTKattentionIgnoredThread8881("), {
     name: "taskAttentionPolicy",
     file: appInitial,
     call: `MTKpatchRegistry?.register("taskAttentionPolicy",{version:1});`
@@ -83,6 +89,11 @@ function activePackages() {
     file: appInitial,
     call: `MTKpatchRegistry?.register("nativeAppToolsPeerAuthorization",{version:1,policy:"immediate-codex-node-peer"});`
   });
+  addIf(packages, mainSource.includes('const MTKobserveContract="tmtk-codex-observability-v1"'), {
+    name: "codexObservability",
+    file: appInitial,
+    call: `MTKpatchRegistry?.register("codexObservability",{version:1,transport:"private-local",capabilities:["targets","metrics","devtools","cdp","cpu-profile","trace"]});`
+  });
   addIf(packages, mainSource.includes('s.type===`ready`&&P();'), {
     name: "safeStartReadiness",
     file: appInitial,
@@ -96,7 +107,13 @@ function activePackages() {
       name: "runtimeJsonReload",
       file,
       anchor: "function MTKinstallRuntimeJsonReload(",
-      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("runtimeJsonReload",{version:1,files:["task-attention-policy.json","task-visual-palette.json"]});`
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("runtimeJsonReload",{version:2,files:["agent-roster.json"]});`
+    });
+    addIf(packages, source.includes("function MTKreasoningRosterValue("), {
+      name: "reasoningRetention",
+      file,
+      anchor: "function MTKreasoningRosterValue(",
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("reasoningRetention",{version:1,policy:"exact-task-opt-in"});`
     });
     const sidebarAnchor = ["8690", "8576", "8378", "8109", "7942", "7746"]
       .map(build => `function MTKsidebarActionDisclosure${build}(`)

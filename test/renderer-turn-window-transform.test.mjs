@@ -26,8 +26,8 @@ try {
   const behavior = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
   assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
   const evidence = JSON.parse(behavior.stdout);
-  assert.equal(evidence.nativeTurnLimit, 1500);
-  assert.equal(evidence.longTaskMaterializations, 1500);
+  assert.equal(evidence.nativeTurnLimit, 200);
+  assert.equal(evidence.longTaskMaterializations, 200);
   assert.equal(evidence.parentAndCurrentShareLimit, true);
   assert.equal(evidence.transcriptExportScope, "full");
 
@@ -54,7 +54,7 @@ try {
   const build8881Probe = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
   assert.equal(build8881Probe.status, 0, build8881Probe.stderr || build8881Probe.stdout);
   const build8881Evidence = JSON.parse(build8881Probe.stdout);
-  assert.equal(build8881Evidence.nativeTurnLimit, 1500);
+  assert.equal(build8881Evidence.nativeTurnLimit, 200);
   assert.equal(build8881Evidence.mountedSelectorCalls, 4);
   assert.equal(build8881Evidence.upstreamTransportPaginationPreserved, true);
   assert.equal(run("apply").state, "applied");

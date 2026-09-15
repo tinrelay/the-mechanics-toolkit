@@ -6,20 +6,17 @@
 
 ## Why it exists
 
-Operator-owned JSON policy should not require an application restart. This patch watches the one
-configured workspace's `.codex` directory and announces changes to the two active runtime files:
-
-- `task-visual-palette.json`; and
-- `task-attention-policy.json`.
+Operator-owned JSON policy should not require an application restart. This patch watches the
+`.codex` directories below Codex Desktop's currently registered local project roots and announces
+changes to `agent-roster.json`.
 
 Each consuming patch supplies its own acceptance callback. The callback re-reads through Codex's
 existing local App Server filesystem boundary and applies the replacement only after its complete
 schema and filesystem-safety checks pass. Invalid, partial, missing, oversized, or unsafe saves
 leave the last-good runtime value in place.
 
-The watcher is deliberately ignorant of either schema. It reports an exact configured filename;
-the palette and attention patches remain the only authorities allowed to accept their respective
-shapes.
+The watcher is deliberately ignorant of the schema. The agent-roster patch owns aggregate
+validation; feature patches consume only their own optional fields.
 
 ## Owned seam
 
@@ -28,19 +25,18 @@ directory rather than either file preserves ordinary atomic-save behavior. Relev
 debounced and delivered over the existing Electron renderer message bus; unknown filenames never
 cross the bridge. The watcher closes with its web contents.
 
-The renderer owns a two-name acceptance registry. It serializes each consumer callback, coalesces a
+The renderer owns a one-name acceptance registry. It serializes the consumer callback, coalesces a
 change that arrives during validation into one later retry, and performs an initial callback when a
 consumer registers so no save can be lost during startup.
 
 ## Configuration and application
 
-Set `workspaceRoot` in a private toolkit config. The transform embeds that root and no policy
-contents.
+No workspace path is compiled into the application. Project registration changes update the
+watched roots at runtime.
 
 ```sh
 node bin/toolkit.mjs patch runtime-json-reload check /path/to/extracted-asar
-node bin/toolkit.mjs patch runtime-json-reload apply /path/to/disposable-extracted-asar \
-  --config /path/to/toolkit.local.json
+node bin/toolkit.mjs patch runtime-json-reload apply /path/to/disposable-extracted-asar
 node test/runtime-json-reload.test.mjs /path/to/disposable-extracted-asar
 ```
 
@@ -51,7 +47,7 @@ saves retain the last-good value and complete valid saves are adopted.
 
 ## Non-goals
 
-- accepting or interpreting either policy schema;
+- accepting or interpreting the roster schema;
 - watching arbitrary paths or filenames;
 - hot-reloading staging configuration or compiled Tinrelay identity;
 - editing policy through the Codex UI; or

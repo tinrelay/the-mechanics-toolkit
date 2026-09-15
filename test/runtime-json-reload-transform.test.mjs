@@ -15,35 +15,24 @@ try {
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");
   const mainDirectory = path.join(extracted, ".vite/build");
-  const workspace = path.join(scratch, 'workspace "quoted"');
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(mainDirectory, { recursive: true });
-  fs.mkdirSync(path.join(workspace, ".codex"), { recursive: true });
   const renderer = path.join(assets, "app-initial-fixture.js");
   const main = path.join(mainDirectory, "main-fixture.js");
-  const config = path.join(scratch, "toolkit.json");
   fs.writeFileSync(renderer, rendererFixture());
   fs.writeFileSync(main, mainFixture());
-  fs.writeFileSync(config, `${JSON.stringify({ workspaceRoot: workspace }, null, 2)}\n`);
 
-  assert.equal(runToolkit("check", false).state, "needs-apply");
-  const withoutConfig = spawnSync(
-    process.execPath,
-    [toolkit, "patch", "runtime-json-reload", "apply", extracted],
-    { encoding: "utf8" }
-  );
-  assert.notEqual(withoutConfig.status, 0, "apply refuses an implicit runtime JSON owner");
-  assert.match(withoutConfig.stderr, /requires --config/);
+  assert.equal(runToolkit("check").state, "needs-apply");
 
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
-  assert.deepEqual(applied.files, ["task-attention-policy.json", "task-visual-palette.json"]);
+  assert.deepEqual(applied.files, ["agent-roster.json"]);
   assert.deepEqual(applied.targets, [
     ".vite/build/main-fixture.js",
     "webview/assets/app-initial-fixture.js"
   ]);
-  assert.ok(fs.readFileSync(renderer, "utf8").includes(`workspaceRoot:${JSON.stringify(workspace)}`));
-  assert.ok(fs.readFileSync(main, "utf8").includes(`MTKruntimeJsonRoot=${JSON.stringify(workspace)}`));
+  assert.ok(!fs.readFileSync(renderer, "utf8").includes("workspaceRoot:"));
+  assert.ok(!fs.readFileSync(main, "utf8").includes("MTKruntimeJsonRoot="));
 
   const once = [fs.readFileSync(renderer), fs.readFileSync(main)];
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], { encoding: "utf8" });
@@ -54,9 +43,8 @@ try {
   assert.deepEqual(fs.readFileSync(main), once[1], "main second application is byte-identical");
   process.stdout.write("runtime JSON reload transform probe passed\n");
 
-  function runToolkit(action, withConfig = true) {
+  function runToolkit(action) {
     const args = [toolkit, "patch", "runtime-json-reload", action, extracted];
-    if (withConfig) args.push("--config", config);
     const result = spawnSync(process.execPath, args, { encoding: "utf8" });
     assert.equal(result.status, 0, result.stderr || result.stdout);
     return JSON.parse(result.stdout);

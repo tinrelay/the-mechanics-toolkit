@@ -47,7 +47,7 @@ if (command === "apply" && state !== "applied") {
   } else if (state === "needs-model-pin-bridge") {
     patchModelPinPolicyBridge(appInitial);
   } else {
-    patchAppInitial(appInitial, configuredWorkspaceRoot());
+    patchAppInitial(appInitial, configuredWorkspaceRoot(false));
     patchBottomFade(appInitial, appPrimary);
     patchSidebarArchiveAffordances(appInitial, appPrimary);
     patchLocalPage(localPage);
@@ -91,8 +91,25 @@ function inspectState() {
   if (appSource.includes("JSON.parse(k9e(e))") && appSource.includes("function k9e(e){j9e=e}")) {
     throw new Error("Unrecognized palette patch: captured minified decoder binding is present");
   }
+  const rosterConsumer = appSource.includes("const MTKpaletteRosterConsumer=1");
+  const loaderApplied = rosterConsumer
+    ? appSource.includes("globalThis.__MTK_AGENT_ROSTER__") &&
+      appSource.includes(".current?.()") &&
+      appSource.includes(".readAsset(") &&
+      !appSource.includes("MTKloadPaletteWhenReady")
+    : appSource.includes("function MTKloadPaletteWhenReady(") &&
+      appSource.includes('__MTK_RUNTIME_JSON_RELOAD__?.register("task-visual-palette.json"') &&
+      appSource.includes("JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(e),e=>e.charCodeAt(0))))") &&
+      !appSource.includes("JSON.parse(k9e(e))") && appSource.includes(".when(({get:");
   const applied = [
-    appSource.includes("function MTKusePaletteBootstrap(") && appSource.includes("function MTKloadPaletteWhenReady(") && appSource.includes("function MTKacceptPaletteReload(") && appSource.includes('__MTK_RUNTIME_JSON_RELOAD__?.register("task-visual-palette.json"') && appSource.includes("JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(e),e=>e.charCodeAt(0))))") && !appSource.includes("JSON.parse(k9e(e))") && appSource.includes(".when(({get:") && appSource.includes("function MTKapplyPaletteSurfaces(") && appSource.includes("position:absolute;z-index:-1") && appSource.includes("opacity:var(--mtk-watermark-dark-opacity)") && appSource.includes("opacity:var(--mtk-watermark-light-opacity)") && appSource.includes("--mtk-user-bubble-strength") && appSource.includes("--mtk-generic-bubble-strength") && appSource.includes("selection:n?MTKmix") && appSource.includes("[data-user-message-bubble] *::selection") && appSource.includes("box-shadow:inset 0 0 0 1px var(--mtk-accent-dark)") && (appSource.includes('"data-mtk-palette-bottom-fade":!0') || appPrimarySource.includes('"data-mtk-palette-bottom-fade":!0')),
+    appSource.includes("function MTKusePaletteBootstrap(") && appSource.includes("function MTKacceptPaletteReload(") &&
+      (rosterConsumer ? appSource.includes('__MTK_AGENT_ROSTER__?.subscribe(') : true) && loaderApplied &&
+      appSource.includes("function MTKapplyPaletteSurfaces(") && appSource.includes("position:absolute;z-index:-1") &&
+      appSource.includes("opacity:var(--mtk-watermark-dark-opacity)") && appSource.includes("opacity:var(--mtk-watermark-light-opacity)") &&
+      appSource.includes("--mtk-user-bubble-strength") && appSource.includes("--mtk-generic-bubble-strength") &&
+      appSource.includes("selection:n?MTKmix") && appSource.includes("[data-user-message-bubble] *::selection") &&
+      appSource.includes("box-shadow:inset 0 0 0 1px var(--mtk-accent-dark)") &&
+      (appSource.includes('"data-mtk-palette-bottom-fade":!0') || appPrimarySource.includes('"data-mtk-palette-bottom-fade":!0')),
     localSource.includes('"data-mtk-palette-room-host":!0') && localSource.includes('"data-mtk-palette-thread-id"'),
     delegationSource.includes('"data-mtk-palette-source-title"') && delegationSource.includes('"data-mtk-palette-source-id"') && delegationSource.includes("messageBubbleStyle:MTKdelegatedBubbleStyle")
   ];
@@ -113,14 +130,16 @@ function inspectState() {
       appSource.includes("const MTKpaletteSurfaceSelector=")
     ) {
       if (archiveProtection !== "applied") return "needs-archive-protection";
-      if (!appSource.includes("function MTKreasoningShouldStayOpen(") ||
+      if (!appSource.includes("const MTKpaletteRosterConsumer=1") &&
+          (!appSource.includes("function MTKreasoningShouldStayOpen(") ||
           !appSource.includes("globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen") ||
-          !appSource.includes("globalThis.__MTKreasoningSubscribe=MTKreasoningSubscribe")) {
+          !appSource.includes("globalThis.__MTKreasoningSubscribe=MTKreasoningSubscribe"))) {
         return "needs-reasoning-policy-bridge";
       }
-      if (!appSource.includes("function MTKmodelPinForTask(") ||
+      if (!appSource.includes("const MTKpaletteRosterConsumer=1") &&
+          (!appSource.includes("function MTKmodelPinForTask(") ||
           !appSource.includes("globalThis.__MTKmodelPinForTask=MTKmodelPinForTask") ||
-          !appSource.includes("globalThis.__MTKmodelPinSubscribe=MTKmodelPinSubscribe")) {
+          !appSource.includes("globalThis.__MTKmodelPinSubscribe=MTKmodelPinSubscribe"))) {
         return "needs-model-pin-bridge";
       }
       return appSource.includes(universalSelectionOutlineCss) ? "applied" : "needs-universal-selection-outline";
@@ -132,7 +151,10 @@ function inspectState() {
     throw new Error("Unrecognized palette patch: observer gate is partial or changed");
   }
   const pristine = [
-    appProfile(appSource) != null && bottomFadeProfile(appSource, appPrimarySource) != null && !appSource.includes('"data-mtk-palette-bottom-fade":!0') && !appPrimarySource.includes('"data-mtk-palette-bottom-fade":!0'),
+    (appProfile(appSource) != null || appSource.includes("function Jcs(){let e=(0,Zcs.c)(12),")) &&
+      bottomFadeProfile(appSource, appPrimarySource) != null &&
+      !appSource.includes('"data-mtk-palette-bottom-fade":!0') &&
+      !appPrimarySource.includes('"data-mtk-palette-bottom-fade":!0'),
     localProfile(localSource) != null,
     !delegationSource.includes('"data-mtk-palette-source-id"') && delegationSource.includes("localConversation.codexDelegationUserMessage.app") && delegationSource.includes("sourceThreadId")
   ];
@@ -489,11 +511,11 @@ function appProfile(source) {
     },
     {
       name: "26.908.40834-8881",
-      seam: "function Jcs(){let e=(0,Zcs.c)(12),",
-      patchedSeam: "function Jcs(){MTKusePaletteBootstrap();let e=(0,Zcs.c)(12),",
-      fixedOwnerRoot: true,
+      seam: "function Jcs(){MTKuseAgentRoster();let e=(0,Zcs.c)(12),",
+      patchedSeam: "function Jcs(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Zcs.c)(12),",
+      agentRoster: true,
       excludeMarker: linuxBuild8881.app.marker,
-      helperReplacements: [["A_($)", "gm(Q)"], ["x$c.useEffect", "Qcs.useEffect"], ["e.get($g)", "e.get(Om)"], ["e($g)", "e(Om)"], ['Qg(e,"local")', 'Dm(e,"local")']],
+      helperReplacements: [["QSl.useEffect", "Qcs.useEffect"]],
       bottomFadeBefore: null,
       bottomFadeAfter: null
     }
@@ -621,7 +643,7 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
   if (!helper.includes(currentThemeDerive) || helper.includes(previousThemeDerive)) {
     throw new Error("unrecognized palette theme derivation");
   }
-  const sidebarNullSafeHelper = helper
+  let sidebarNullSafeHelper = helper
     .replace(
       'attributionStyle:{color:"color-mix(in srgb, "+t.color+" 62%, var(--color-text) 38%)"}',
       'attributionStyle:{color:"light-dark("+i.label+","+r.label+")"}'
@@ -642,6 +664,7 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
   ) {
     throw new Error("unrecognized sidebar null-state helper");
   }
+  if (profile.agentRoster === true) sidebarNullSafeHelper = agentRosterConsumer(sidebarNullSafeHelper);
 
   const surfaceCss =
     '[data-user-message-bubble]{background-color:color-mix(in oklab,var(--color-text) var(--mtk-user-bubble-strength),transparent)!important}' +
@@ -736,7 +759,8 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
     throw new Error("legacy whole-room mark opacity remains");
   }
 
-  if (domOnlyHelper.includes("MTKuseTaskVisual") || domOnlyHelper.includes("MTKuseThreadVisual")) {
+  if (profile.agentRoster !== true &&
+      (domOnlyHelper.includes("MTKuseTaskVisual") || domOnlyHelper.includes("MTKuseThreadVisual"))) {
     throw new Error("obsolete palette React hooks remain");
   }
   domOnlyHelper = replaceOnce(
@@ -745,16 +769,19 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
     'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;function MTKensurePaletteStyle()',
     "palette archive classifier bridge"
   );
-  domOnlyHelper = addReasoningPolicyBridge(domOnlyHelper, "MTK");
-  domOnlyHelper = addModelPinPolicyBridge(domOnlyHelper, "MTK");
+  if (profile.agentRoster !== true) {
+    domOnlyHelper = addReasoningPolicyBridge(domOnlyHelper, "MTK");
+    domOnlyHelper = addModelPinPolicyBridge(domOnlyHelper, "MTK");
+  }
   if (profile.fixedOwnerRoot === true) {
+    if (workspaceRoot == null) throw new Error(`${profile.name} requires --config with workspaceRoot`);
     const bootstrap = /function MTKusePaletteBootstrap\(\)\{let e=Ss\(Q\),t=Y\(Can\),n=MTKpaletteKey\(t\);return QSl\.useEffect\(\(\)=>\{let r=!1;if\(n\.length===0\)return MTKinstallSidebar\(null\),\(\)=>\{r=!0\};let i=t\.filter\(e=>e\.projectKind==="local"\)\.flatMap\(e=>e\.rootPaths\?\?\[\]\);return MTKpalettePromiseKey!==n&&\(MTKpalettePromiseKey=n,MTKpalettePromise=MTKloadPaletteWhenReady\(e,i\)\),MTKpalettePromise\.then\(e=>\{r\|\|MTKinstallSidebar\(e\)\}\),\(\)=>\{r=!0\}\},\[e,n\]\),null\}/;
     const replacement = `function MTKusePaletteBootstrap(){let e=A_($),t=${JSON.stringify(workspaceRoot)};return x$c.useEffect(()=>{let n=!1;return MTKpalettePromiseKey!==t&&(MTKpalettePromiseKey=t,MTKpalettePromise=MTKloadPaletteWhenReady(e,[t])),MTKpalettePromise.then(e=>{n||MTKinstallSidebar(e)}),()=>{n=!0}},[e]),null}`;
     const matches = domOnlyHelper.match(bootstrap);
     if (matches == null) throw new Error(`${profile.name} fixed palette owner bootstrap is missing`);
     domOnlyHelper = domOnlyHelper.replace(bootstrap, replacement);
   }
-  domOnlyHelper = addPaletteRuntimeReload(domOnlyHelper, profile.fixedOwnerRoot === true, workspaceRoot);
+  domOnlyHelper = addPaletteRuntimeReload(domOnlyHelper, profile.fixedOwnerRoot === true, workspaceRoot, profile.agentRoster === true);
   for (const [before, after] of profile.helperReplacements) {
     domOnlyHelper = replaceOnce(domOnlyHelper, before, after, `${profile.name} helper alias ${before}`);
   }
@@ -779,7 +806,12 @@ function readableAttributionSource(source) {
   return replaceOnce(source, neutralLabelExpression, readableLabelExpression, "readable attribution color");
 }
 
-function addPaletteRuntimeReload(source, fixedOwnerRoot, workspaceRoot) {
+function addPaletteRuntimeReload(source, fixedOwnerRoot, workspaceRoot, agentRoster = false) {
+  if (agentRoster) {
+    const before = 'function MTKusePaletteBootstrap(){let e=Ss(Q),t=Y(Can),n=MTKpaletteKey(t);return QSl.useEffect(()=>{let r=!1;if(n.length===0)return MTKinstallSidebar(null),()=>{r=!0};let i=t.filter(e=>e.projectKind==="local").flatMap(e=>e.rootPaths??[]);return MTKpalettePromiseKey!==n&&(MTKpalettePromiseKey=n,MTKpalettePromise=MTKloadPaletteWhenReady(e,i)),MTKpalettePromise.then(e=>{r||MTKinstallSidebar(e)}),()=>{r=!0}},[e,n]),null}';
+    const after = 'async function MTKacceptPaletteReload(e){let t=await MTKloadPalette();return e()?(MTKinstallSidebar(t),t!=null):!1}function MTKusePaletteBootstrap(){return QSl.useEffect(()=>{let e=!1,t=()=>MTKacceptPaletteReload(()=>!e),n=globalThis.__MTK_AGENT_ROSTER__?.subscribe(t);return t(),()=>{e=!0,n?.()}},[]),null}';
+    return replaceOnce(source, before, after, "agent roster palette subscription");
+  }
   const dynamicBefore = 'function MTKusePaletteBootstrap(){let e=Ss(Q),t=Y(Can),n=MTKpaletteKey(t);return QSl.useEffect(()=>{let r=!1;if(n.length===0)return MTKinstallSidebar(null),()=>{r=!0};let i=t.filter(e=>e.projectKind==="local").flatMap(e=>e.rootPaths??[]);return MTKpalettePromiseKey!==n&&(MTKpalettePromiseKey=n,MTKpalettePromise=MTKloadPaletteWhenReady(e,i)),MTKpalettePromise.then(e=>{r||MTKinstallSidebar(e)}),()=>{r=!0}},[e,n]),null}';
   const dynamicAfter = 'async function MTKacceptPaletteReload(e,t,n,r){let i=await MTKloadPaletteWhenReady(e,t);return r()&&(i!=null||n?.initial===!0)?(MTKinstallSidebar(i),i!=null):!1}function MTKusePaletteBootstrap(){let e=Ss(Q),t=Y(Can),n=MTKpaletteKey(t);return QSl.useEffect(()=>{let r=!1;if(n.length===0)return MTKinstallSidebar(null),()=>{r=!0};let i=t.filter(e=>e.projectKind==="local").flatMap(e=>e.rootPaths??[]),a=globalThis.__MTK_RUNTIME_JSON_RELOAD__?.register("task-visual-palette.json",t=>MTKacceptPaletteReload(e,i,t,()=>!r));if(typeof a==="function")return()=>{r=!0,a()};return MTKpalettePromiseKey!==n&&(MTKpalettePromiseKey=n,MTKpalettePromise=MTKloadPaletteWhenReady(e,i)),MTKpalettePromise.then(e=>{r||MTKinstallSidebar(e)}),()=>{r=!0}},[e,n]),null}';
   if (!fixedOwnerRoot) return replaceOnce(source, dynamicBefore, dynamicAfter, "palette runtime reload callback");
@@ -787,6 +819,29 @@ function addPaletteRuntimeReload(source, fixedOwnerRoot, workspaceRoot) {
   const fixedBefore = `function MTKusePaletteBootstrap(){let e=A_($),t=${JSON.stringify(workspaceRoot)};return x$c.useEffect(()=>{let n=!1;return MTKpalettePromiseKey!==t&&(MTKpalettePromiseKey=t,MTKpalettePromise=MTKloadPaletteWhenReady(e,[t])),MTKpalettePromise.then(e=>{n||MTKinstallSidebar(e)}),()=>{n=!0}},[e]),null}`;
   const fixedAfter = `async function MTKacceptPaletteReload(e,t,n,r){let i=await MTKloadPaletteWhenReady(e,t);return r()&&(i!=null||n?.initial===!0)?(MTKinstallSidebar(i),i!=null):!1}function MTKusePaletteBootstrap(){let e=A_($),t=${JSON.stringify(workspaceRoot)};return x$c.useEffect(()=>{let n=!1,r=globalThis.__MTK_RUNTIME_JSON_RELOAD__?.register("task-visual-palette.json",r=>MTKacceptPaletteReload(e,[t],r,()=>!n));if(typeof r==="function")return()=>{n=!0,r()};return MTKpalettePromiseKey!==t&&(MTKpalettePromiseKey=t,MTKpalettePromise=MTKloadPaletteWhenReady(e,[t])),MTKpalettePromise.then(e=>{n||MTKinstallSidebar(e)}),()=>{n=!0}},[e]),null}`;
   return replaceOnce(source, fixedBefore, fixedAfter, "fixed-owner palette runtime reload callback");
+}
+
+function agentRosterConsumer(source) {
+  source = "const MTKpaletteRosterConsumer=1;" + source;
+  source = replaceOnce(source,
+    'const MTKpaletteRelativePath=".codex/task-visual-palette.json"',
+    'const MTKpaletteRelativePath=".codex/agent-roster.json"',
+    "agent roster filename");
+  const loadStart = source.indexOf("async function MTKloadPalette(");
+  const loadEnd = source.indexOf("function MTKpaletteKey(", loadStart);
+  if (loadStart < 0 || loadEnd < 0) throw new Error("agent roster palette loader boundary is missing");
+  const loader = String.raw`async function MTKloadPalette(){let e=globalThis.__MTK_AGENT_ROSTER__,t=e?.current?.();if(t==null)return null;let n=t.sources.filter(e=>e.data.calibration!==void 0);if(n.length>1)return e.diagnose("multiple-palette-calibrations",n.map(e=>e.ownerRoot));let r=MTKcalibration(n[0]?.data.calibration);if(r==null)return e.diagnose("invalid-palette-calibration",n[0]?.ownerRoot);let i=[];for(let n of t.entries){let t=n.data;if(t.color===void 0)continue;if(typeof t.color!=="string"||!/^#[0-9A-Fa-f]{6}$/.test(t.color)||t.mark!==void 0&&(typeof t.mark!=="string"||!/\.svg$/i.test(t.mark))||t.protectSidebarArchive!==void 0&&typeof t.protectSidebarArchive!=="boolean"||t.protectSidebarArchive===!0&&n.taskId==null)return e.diagnose("invalid-palette-entry",{ownerRoot:n.ownerRoot,key:n.key});let a=null;t.mark!==void 0&&(a=await e.readAsset(n,t.mark,65536),a!=null&&(a="data:image/svg+xml;base64,"+a));let o=n.pattern??new RegExp("^(?:"+n.taskId+")$");i.push(MTKvisualRule(r,{color:t.color.toUpperCase(),markDataUrl:a,taskId:n.taskId,protectSidebarArchive:t.protectSidebarArchive},o))}return{calibration:r,rules:i}}`;
+  source = source.slice(0, loadStart) + loader + source.slice(loadEnd);
+  source = replaceOnce(
+    source,
+    'function MTKmatchPalette(e,t,n){if(e==null)return null;let r=typeof t==="string"?t:"",i=typeof n==="string"?n:"";for(let t of e.rules)if(t.pattern.test(r)||t.pattern.test(i))return t;return null}',
+    'function MTKmatchPalette(e,t,n){if(e==null)return null;let r=typeof t==="string"?t:"",i=typeof n==="string"?n:"",a=i.length>0?e.rules.find(e=>e.taskId===i):null;if(a!=null)return a;for(let t of e.rules)if(t.pattern.test(r))return t;return null}',
+    "agent roster exact visual identity priority"
+  );
+  const visualStart = source.indexOf("function MTKuseTaskVisual(");
+  if (visualStart < 0) throw new Error("agent roster visual hook boundary is missing");
+  const bootstrap = 'function MTKusePaletteBootstrap(){let e=Ss(Q),t=Y(Can),n=MTKpaletteKey(t);return QSl.useEffect(()=>{let r=!1;if(n.length===0)return MTKinstallSidebar(null),()=>{r=!0};let i=t.filter(e=>e.projectKind==="local").flatMap(e=>e.rootPaths??[]);return MTKpalettePromiseKey!==n&&(MTKpalettePromiseKey=n,MTKpalettePromise=MTKloadPaletteWhenReady(e,i)),MTKpalettePromise.then(e=>{r||MTKinstallSidebar(e)}),()=>{r=!0}},[e,n]),null}';
+  return source.slice(0, visualStart) + bootstrap;
 }
 
 function patchBottomFade(appFile, primaryFile) {
@@ -1434,8 +1489,11 @@ function readOption(name) {
   return path.resolve(process.argv[index + 1]);
 }
 
-function configuredWorkspaceRoot() {
-  if (configPath == null) throw new Error("task-visual-palette apply requires --config TOOLKIT_CONFIG");
+function configuredWorkspaceRoot(required = true) {
+  if (configPath == null) {
+    if (required) throw new Error("task-visual-palette apply requires --config TOOLKIT_CONFIG");
+    return null;
+  }
   let config;
   try {
     config = JSON.parse(fs.readFileSync(configPath, "utf8"));

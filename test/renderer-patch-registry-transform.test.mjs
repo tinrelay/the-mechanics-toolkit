@@ -28,6 +28,7 @@ try {
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.packages, [
+    "codexObservability",
     "crossTaskAttribution",
     "modelIdentityGuard",
     "nativeAppToolsPeerAuthorization",
@@ -116,6 +117,7 @@ function lazyFixture() {
 
 function mainFixture() {
   return [
+    'const MTKobserveContract="tmtk-codex-observability-v1";',
     "function MTKnativeAppToolsPeerAuthorizer(){}",
     "function readiness(s){const N=()=>true,P=()=>{};if(!N(s))return;s.type===`ready`&&P();}",
     "export const fixture=true;"

@@ -3,8 +3,8 @@
 **State:** Active
 
 Older Codex Desktop builds could retain and repeatedly materialize thousands of complete native
-turn containers in one mounted conversation. This patch bounded the local renderer to the newest
-1,500 current and inherited-parent turns while leaving persistence, model context, older-page
+turn containers in one mounted conversation. This patch bounds the local renderer to the newest
+200 current and inherited-parent turns while leaving persistence, model context, older-page
 loading, and full transcript export untouched.
 
 Build `7982` added five-turn initial transport pagination, and this transform was made dormant.
@@ -20,7 +20,7 @@ The transform owns two renderer modules:
 - the derived selector that joins current and optional parent turn arrays before materialization;
 - the local-conversation component's four eager UI selector calls.
 
-The selector shares one 1,500-turn budget between current and parent tasks, keeps complete native
+The selector shares one 200-turn budget between current and parent tasks, keeps complete native
 turn containers intact, and suppresses the unbounded history-timeline join only when the window is
 active. Only mounted UI consumers receive the limit. The Markdown/transcript consumer deliberately
 does not.
@@ -49,5 +49,5 @@ state and the active build-`8881` selector profile.
   transcript export.
 - It does not slice the items inside a native turn container.
 - It does not replace or broaden Codex's explicit older-page transport.
-- It does not claim that a 1,500-turn window fixes a single unusually large turn; items inside the
+- It does not claim that a 200-turn window fixes a single unusually large turn; items inside the
   newest turn remain intact.

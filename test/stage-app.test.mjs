@@ -52,12 +52,12 @@ try {
     [
       "missing reasoning dependency",
       ["reasoning-retention", "safe-start-readiness", "renderer-patch-registry"],
-      /requires: task-visual-palette/
+      /requires: agent-roster/
     ],
     [
       "missing model guard dependency",
       ["model-identity-guard", "safe-start-readiness", "renderer-patch-registry"],
-      /requires: task-visual-palette/
+      /requires: agent-roster/
     ]
   ]) {
     const rejectedConfig = path.join(scratch, `${label}.json`);

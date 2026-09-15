@@ -27,22 +27,22 @@ const collapse = uniqueOwner(source =>
 
 let state = inspectState();
 if (command === "apply" && state === "needs-apply") {
-  const palette = paletteOwner();
-  ensurePaletteBridge(palette);
-  patchTurn(turn.file);
-  patchThread(thread.file);
-  syntaxCheck(palette.file);
+  const policy = policyOwner();
+  ensurePolicyBridge(policy);
+  patchTurn(turn.file, policy.kind === "roster");
+  patchThread(thread.file, policy.kind === "roster");
+  syntaxCheck(policy.file);
   syntaxCheck(turn.file);
   syntaxCheck(thread.file);
   state = inspectState();
   if (state !== "applied") throw new Error("reasoning retention transform did not verify");
 }
 
-const palette = paletteOwner(false);
+const policy = policyOwner(false);
 process.stdout.write(`${JSON.stringify({
   state,
-  policy: ".codex/task-visual-palette.json",
-  targets: [palette?.file, turn.file, thread.file].filter(Boolean).map(file => path.relative(root, file))
+  policy: policy?.kind === "roster" ? ".codex/agent-roster.json" : ".codex/task-visual-palette.json",
+  targets: [policy?.file, turn.file, thread.file].filter(Boolean).map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
 function inspectState() {
@@ -64,15 +64,14 @@ function inspectState() {
   if (turnMarkers.some(Boolean) && !turnApplied) throw new Error("Unrecognized reasoning retention patch: partial turn markers");
   if (threadMarkers.some(Boolean) && !threadApplied) throw new Error("Unrecognized reasoning retention patch: partial thread markers");
   if (turnApplied) {
-    const palette = paletteOwner();
-    const paletteSource = fs.readFileSync(palette.file, "utf8");
-    for (const marker of [
-      "keepReasoningOpen:t.keepReasoningOpen===!0",
-      "function MTKreasoningShouldStayOpen(",
-      "globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen",
-      "globalThis.__MTKreasoningSubscribe="
-    ]) {
-      if (!paletteSource.includes(marker)) throw new Error(`Unrecognized reasoning retention patch: missing ${marker}`);
+    const policy = policyOwner();
+    const policySource = fs.readFileSync(policy.file, "utf8");
+    const markers = policy.kind === "roster"
+      ? ["globalThis.__MTK_AGENT_ROSTER__=Object.freeze("]
+      : ["keepReasoningOpen:t.keepReasoningOpen===!0", "function MTKreasoningShouldStayOpen(",
+        "globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen", "globalThis.__MTKreasoningSubscribe="];
+    for (const marker of markers) {
+      if (!policySource.includes(marker)) throw new Error(`Unrecognized reasoning retention patch: missing ${marker}`);
     }
     verifyCollapseContract();
     return threadApplied ? "applied" : "needs-apply";
@@ -116,32 +115,41 @@ function verifyCollapseContract() {
   }
 }
 
-function paletteOwner(required = true) {
+function policyOwner(required = true) {
   const owners = [];
   for (const name of fs.readdirSync(assets)) {
     if (!name.endsWith(".js")) continue;
     const file = path.join(assets, name);
     const source = fs.readFileSync(file, "utf8");
-    if (source.includes('MTKpaletteRelativePath=".codex/task-visual-palette.json"')) {
-      owners.push({file, source});
-    }
+    if (source.includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze(")) owners.push({file, source, kind: "roster"});
+    else if (source.includes('MTKpaletteRelativePath=".codex/task-visual-palette.json"')) owners.push({file, source, kind: "palette"});
   }
   if (!required && owners.length === 0) return null;
-  if (owners.length !== 1) throw new Error(`Reasoning retention requires exactly one task visual palette owner; found ${owners.length}`);
+  if (owners.length !== 1) throw new Error(`Reasoning retention requires exactly one agent roster or legacy palette owner; found ${owners.length}`);
   return owners[0];
 }
 
-function ensurePaletteBridge(owner) {
-  if (!owner.source.includes("function MTKreasoningShouldStayOpen(")) {
+function ensurePolicyBridge(owner) {
+  if (owner.kind === "palette" && !owner.source.includes("function MTKreasoningShouldStayOpen(")) {
     throw new Error("Reasoning retention requires the current task-visual-palette patch first");
   }
 }
 
-function patchTurn(file) {
+function reasoningHook(react, roster) {
+  if (!roster) return `const MTKreasoningNoopSubscribe=()=>()=>{};function MTKuseReasoningRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningNoopSubscribe;return ${react}.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}`;
+  return `const MTKreasoningNoopSubscribe=()=>()=>{};function MTKreasoningRosterValue(e){let t=globalThis.__MTK_AGENT_ROSTER__,n=t?.match?.(null,e)?.data.keepReasoningOpen;if(n===void 0)return!1;if(typeof n!=="boolean")return t?.diagnose("invalid-keep-reasoning-open",{taskId:e}),!1;return n}function MTKuseReasoningRetention(e){let t=globalThis.__MTK_AGENT_ROSTER__?.subscribe??MTKreasoningNoopSubscribe;return ${react}.useSyncExternalStore(t,()=>MTKreasoningRosterValue(e),()=>!1)}`;
+}
+
+function reasoningThreadHook(react, roster) {
+  if (!roster) return `const MTKreasoningThreadNoopSubscribe=()=>()=>{};function MTKuseReasoningThreadRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningThreadNoopSubscribe;return ${react}.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}`;
+  return `const MTKreasoningThreadNoopSubscribe=()=>()=>{};function MTKreasoningThreadRosterValue(e){let t=globalThis.__MTK_AGENT_ROSTER__,n=t?.match?.(null,e)?.data.keepReasoningOpen;if(n===void 0)return!1;if(typeof n!=="boolean")return t?.diagnose("invalid-keep-reasoning-open",{taskId:e}),!1;return n}function MTKuseReasoningThreadRetention(e){let t=globalThis.__MTK_AGENT_ROSTER__?.subscribe??MTKreasoningThreadNoopSubscribe;return ${react}.useSyncExternalStore(t,()=>MTKreasoningThreadRosterValue(e),()=>!1)}`;
+}
+
+function patchTurn(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningRetention(")) return;
   if (source.includes("function bi(e){let t=(0,Ki.c)(216),")) {
-    const helper = "const MTKreasoningNoopSubscribe=()=>()=>{};function MTKuseReasoningRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningNoopSubscribe;return Ji.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+    const helper = reasoningHook("Ji", roster);
     source = replaceOnce(source, "function bi(e){let t=(0,Ki.c)(216),", `${helper}function bi(e){let t=(0,Ki.c)(216),`, "build-8690 reasoning turn hook");
     if (source.includes(linuxBuild8881.turn.owner)) {
       source = replaceOnce(source, linuxBuild8881.turn.decisionBefore, linuxBuild8881.turn.decisionAfter, "Linux build-8881 reasoning task decision");
@@ -157,7 +165,7 @@ function patchTurn(file) {
     return;
   }
   if (source.includes("function _i(e){let t=(0,Hi.c)(208),")) {
-    const helper = "const MTKreasoningNoopSubscribe=()=>()=>{};function MTKuseReasoningRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningNoopSubscribe;return Wi.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+    const helper = reasoningHook("Wi", roster);
     source = replaceOnce(source, "function _i(e){let t=(0,Hi.c)(208),", `${helper}function _i(e){let t=(0,Hi.c)(208),`, "build-8378 reasoning turn hook");
     if (source.includes("preventAutoCollapse:At||xr")) {
       source = replaceOnce(source, "let z=Dt,At=E(qn,z)", "let z=Dt,MTKreasoningRetained=MTKuseReasoningRetention(s),At=E(qn,z)", "build-8576 reasoning task decision");
@@ -169,7 +177,7 @@ function patchTurn(file) {
     fs.writeFileSync(file, source);
     return;
   }
-  const helper = "const MTKreasoningNoopSubscribe=()=>()=>{};function MTKuseReasoningRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningNoopSubscribe;return Ui.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+  const helper = reasoningHook("Ui", roster);
   source = replaceOnce(source, "function _i(e){let t=(0,Vi.c)(207),", `${helper}function _i(e){let t=(0,Vi.c)(207),`, "reasoning turn hook");
   if (source.includes("ut=Re!==void 0&&Re,dt=Je(Fe)")) {
     source = replaceOnce(source, "ut=Re!==void 0&&Re,dt=Je(Fe)", "ut=Re!==void 0&&Re,MTKreasoningRetained=MTKuseReasoningRetention(c),dt=Je(Fe)", "reasoning task decision");
@@ -181,11 +189,11 @@ function patchTurn(file) {
   fs.writeFileSync(file, source);
 }
 
-function patchThread(file) {
+function patchThread(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningThreadRetention(")) return;
   if (source.includes("function Uj({conversationId:e,")) {
-    const helper = "const MTKreasoningThreadNoopSubscribe=()=>()=>{};function MTKuseReasoningThreadRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningThreadNoopSubscribe;return qj.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+    const helper = reasoningThreadHook("qj", roster);
     source = replaceOnce(source, "function Uj({conversationId:e,", `${helper}function Uj({conversationId:e,`, "build-8690 reasoning thread hook");
     if (source.includes(linuxBuild8881.thread.owner)) {
       source = replaceOnce(source, linuxBuild8881.thread.decisionBefore, linuxBuild8881.thread.decisionAfter, "Linux build-8881 reasoning thread decision");
@@ -216,7 +224,7 @@ function patchThread(file) {
     return;
   }
   if (source.includes("function zk({conversationId:e,")) {
-    const helper = "const MTKreasoningThreadNoopSubscribe=()=>()=>{};function MTKuseReasoningThreadRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningThreadNoopSubscribe;return Uk.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+    const helper = reasoningThreadHook("Uk", roster);
     source = replaceOnce(source, "function zk({conversationId:e,", `${helper}function zk({conversationId:e,`, "build-8378 reasoning thread hook");
     const threadDecision = source.includes("usesUnifiedTimeline:b}){let x=s(ps)") ? [
       "usesUnifiedTimeline:b}){let x=s(ps)",
@@ -237,7 +245,7 @@ function patchThread(file) {
     fs.writeFileSync(file, source);
     return;
   }
-  const helper = "const MTKreasoningThreadNoopSubscribe=()=>()=>{};function MTKuseReasoningThreadRetention(e){let t=globalThis.__MTKreasoningSubscribe??MTKreasoningThreadNoopSubscribe;return YO.useSyncExternalStore(t,()=>globalThis.__MTKreasoningShouldStayOpen?.(e)===!0,()=>!1)}";
+  const helper = reasoningThreadHook("YO", roster);
   source = replaceOnce(source, "function GO({conversationId:e,", `${helper}function GO({conversationId:e,`, "reasoning thread hook");
   source = replaceOnce(source, "usesUnifiedTimeline:y}){let b=Fo(Mr)", "usesUnifiedTimeline:y}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),b=Fo(Mr)", "reasoning thread decision");
   source = replaceOnce(

@@ -2,16 +2,10 @@ export const linuxBuild8881 = {
   app: {
     name: "26.908.40834-8881-linux",
     marker: "hV=wm(Q,",
-    seam: "function Jcs(){let e=(0,Zcs.c)(12),",
-    patchedSeam: "function Jcs(){MTKusePaletteBootstrap();let e=(0,Zcs.c)(12),",
-    fixedOwnerRoot: true,
-    helperReplacements: [
-      ["A_($)", "gm(Q)"],
-      ["x$c.useEffect", "Qcs.useEffect"],
-      ["e.get($g)", "e.get(b6)"],
-      ["e($g)", "e(b6)"],
-      ['Qg(e,"local")', 'P6(e,"local")']
-    ]
+    seam: "function Jcs(){MTKuseAgentRoster();let e=(0,Zcs.c)(12),",
+    patchedSeam: "function Jcs(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Zcs.c)(12),",
+    agentRoster: true,
+    helperReplacements: [["QSl.useEffect", "Qcs.useEffect"]]
   },
   archive: {
     owner: "function d6t({scope:e,target:t,actions:n,onRename:r,onArchive:i,",
