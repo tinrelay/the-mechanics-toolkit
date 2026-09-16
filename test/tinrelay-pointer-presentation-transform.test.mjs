@@ -66,6 +66,35 @@ try {
   const rendererOnce = fs.readFileSync(rendererTarget);
   const activityOnce = fs.readFileSync(activityTarget);
   const mainOnce = fs.readFileSync(mainTarget);
+  const mainText = mainOnce.toString("utf8");
+  const currentOutgoingEvent = functionSource(mainText, "MTKtinrelayOutgoingEvent");
+  const legacyOutgoingEvent = legacyRequiredAuthorOutgoingEvent();
+
+  fs.writeFileSync(mainTarget, replaceUnique(mainText, currentOutgoingEvent, legacyOutgoingEvent));
+  assert.equal(runOutgoingTransform("check").state, "legacy-required-author-applied",
+    "the old required-author parser is an explicit migration state");
+  assert.equal(runOutgoingTransform("apply").state, "applied",
+    "the old required-author parser migrates to the canonical optional-author parser");
+  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
+    "required-author migration converges byte-for-byte with a fresh application");
+  assert.equal(runOutgoingTransform("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
+    "required-author migration is byte-identical after a second application");
+
+  for (const [label, parser] of [
+    ["partial", legacyOutgoingEvent.replace("return e}", "return null}")],
+    ["mixed", currentOutgoingEvent + legacyOutgoingEvent],
+    ["duplicate legacy", legacyOutgoingEvent + legacyOutgoingEvent],
+    ["duplicate current", currentOutgoingEvent + currentOutgoingEvent]
+  ]) {
+    const ambiguous = replaceUnique(mainText, currentOutgoingEvent, parser);
+    fs.writeFileSync(mainTarget, ambiguous);
+    const rejected = runOutgoingTransformFailure("apply");
+    assert.match(rejected.stderr, /event parser is partial or ambiguous/, label);
+    assert.equal(fs.readFileSync(mainTarget, "utf8"), ambiguous,
+      `${label} parser fails before mutation`);
+  }
+  fs.writeFileSync(mainTarget, mainOnce);
 
   const rendererText = rendererOnce.toString("utf8");
   const durableSourceTurn = 'sourceThreadId:d,sourceTurnId:typeof R==="string"&&R.startsWith(d+"\\0")?R.slice(d.length+1):void 0';
@@ -83,12 +112,15 @@ try {
   if (taskReceiptsAt >= 0) assert.ok(taskReceiptsAt < outgoingTinrelayAt,
     "task receipts and Tinrelay replies retain their established leading order");
   fs.writeFileSync(rendererTarget, rendererText.replace(durableSourceTurn, "sourceThreadId:d,sourceTurnId:S"));
+  fs.writeFileSync(mainTarget, replaceUnique(mainText, currentOutgoingEvent, legacyOutgoingEvent));
   assert.equal(runOutgoingTransform("check").state, "legacy-source-turn-applied",
-    "the undefined-source-turn implementation is detected explicitly");
+    "the undefined-source-turn implementation remains the first recognized migration");
   assert.equal(runOutgoingTransform("apply").state, "applied",
-    "the undefined-source-turn implementation migrates without configuration");
+    "source-turn and required-author migrations converge in one application");
   assert.deepEqual(fs.readFileSync(rendererTarget), rendererOnce,
     "source-turn migration produces the canonical renderer");
+  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
+    "source-turn migration also produces the canonical main parser");
 
   const visualMatch = /function MTKtinrelayEnsureStyle\(\)\{.*?e\.textContent=(?<css>"(?:\\.|[^"\\])*")\,document/.exec(rendererText);
   assert.ok(visualMatch, "localized Tinrelay visual stylesheet");
@@ -131,6 +163,12 @@ try {
     return JSON.parse(result.stdout);
   }
 
+  function runOutgoingTransformFailure(action) {
+    const result = spawnSync(process.execPath, [outgoingTransform, action, extracted], { encoding: "utf8" });
+    assert.notEqual(result.status, 0, result.stdout);
+    return result;
+  }
+
   function runPatch(name, action, withConfig = false) {
     const args = [toolkit, "patch", name, action, extracted];
     if (withConfig) args.push("--config", config);
@@ -149,10 +187,14 @@ function assertMainUpgradePreservesAdjacentHelpers() {
   const legacyHandlers = functionSource(transform, "legacyAnchorMainHandlers");
   const currentHandlers = functionSource(transform, "currentMainHandlers");
   const lookup = "case`mtk-tinrelay-outgoing-lookup`:{let n=await MTKtinrelayOutgoingLookup(t);this.windowManager.sendMessageToWebContents(e,{type:`mtk-tinrelay-outgoing-result`,requestId:typeof t.requestId===`string`?t.requestId:``,ok:n!=null,event:n});break}";
-  const api = Function("legacyMainHelpers", "mainHelpers", "count", "replaceOnce",
+  const api = Function("legacyMainHelpers", "mainHelpers", "mainHelperSlice",
+    "currentOutgoingEvent", "legacyRequiredAuthorOutgoingEvent", "count", "replaceOnce",
     `${legacyHandlers};${currentHandlers};${upgrade};${acknowledge};return value => upgradeMainAcknowledgedAnchors(upgradeMainTurnAnchors(value, "sample-ship"))`)(
       () => "LEGACY-TINRELAY-HELPER",
       () => "CURRENT-TINRELAY-HELPER",
+      () => "LEGACY-TINRELAY-HELPER",
+      () => "CURRENT-EVENT-PARSER",
+      () => "LEGACY-EVENT-PARSER",
       (value, needle) => value.split(needle).length - 1,
       (value, before, after) => {
         assert.equal(value.split(before).length - 1, 1, `unique replacement: ${before.slice(0, 40)}`);
@@ -232,6 +274,15 @@ function functionSource(value, name) {
     else if (character === "}" && --depth === 0) return value.slice(start, index + 1);
   }
   assert.fail(`unterminated function ${name}`);
+}
+
+function replaceUnique(value, before, after) {
+  assert.equal(value.split(before).length - 1, 1, `unique replacement: ${before.slice(0, 40)}`);
+  return value.replace(before, after);
+}
+
+function legacyRequiredAuthorOutgoingEvent() {
+  return 'function MTKtinrelayOutgoingEvent(e){if(e==null||typeof e!=="object"||Array.isArray(e)||Object.keys(e).sort().join("\\0")!=="attention_label\\0author_label\\0body\\0contract\\0kind\\0recipient_ship\\0sender_ship\\0transmission_id"||e.contract!==MTKtinrelayOutgoingContract||e.kind!=="transmission"||typeof e.transmission_id!=="string"||!MTKtinrelayOutgoingUuid.test(e.transmission_id)||e.sender_ship!==MTKtinrelayOutgoingLocalShip||typeof e.recipient_ship!=="string"||e.recipient_ship.length===0||typeof e.attention_label!=="string"||e.author_label!==null&&(typeof e.author_label!=="string"||e.author_label.length===0)||typeof e.body!=="string")return null;return e}';
 }
 
 function initialFixture() {

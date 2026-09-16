@@ -23,6 +23,8 @@ const currentThemeDerive = 'function MTKderive(e,t,n){let r=n?1:.56,i=n?"#101114
 const readableLabelHelper = 'function MTKreadableLabel(e,t,n){let r=n?"#FFFFFF":"#111318";for(let i=0;i<=20;i++){let a=MTKmix(e,r,i/20);if(MTKcontrast(a,t)>=4.5)return a}return r}';
 const neutralLabelExpression = "label:MTKcontrast(m,l)>=4.5?m:s";
 const readableLabelExpression = "label:MTKreadableLabel(e,l,n)";
+const legacyArchiveClassifier = 'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;';
+const canonicalArchiveClassifier = 'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;';
 
 let state = inspectState();
 if (command === "apply" && state !== "applied") {
@@ -46,6 +48,8 @@ if (command === "apply" && state !== "applied") {
     patchUniversalSelectionOutline(appInitial);
   } else if (state === "needs-model-pin-bridge") {
     patchModelPinPolicyBridge(appInitial);
+  } else if (state === "needs-archive-identity") {
+    patchArchiveIdentity(appInitial);
   } else {
     patchAppInitial(appInitial, configuredWorkspaceRoot(false));
     patchBottomFade(appInitial, appPrimary);
@@ -61,7 +65,7 @@ if (command === "apply" && state !== "applied") {
 }
 
 process.stdout.write(`${JSON.stringify({
-  state: new Set(["needs-light-theme", "needs-readable-attribution", "needs-observer-gate", "needs-archive-protection", "needs-reasoning-policy-bridge", "needs-universal-selection-outline", "needs-model-pin-bridge"]).has(state) ? "needs-apply" : state,
+  state: new Set(["needs-light-theme", "needs-readable-attribution", "needs-observer-gate", "needs-archive-protection", "needs-reasoning-policy-bridge", "needs-universal-selection-outline", "needs-model-pin-bridge", "needs-archive-identity"]).has(state) ? "needs-apply" : state,
   targets: [appInitial, appPrimary, localPage, delegation].map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
@@ -142,6 +146,8 @@ function inspectState() {
           !appSource.includes("globalThis.__MTKmodelPinSubscribe=MTKmodelPinSubscribe"))) {
         return "needs-model-pin-bridge";
       }
+      const archiveIdentity = inspectArchiveIdentity(appSource);
+      if (archiveIdentity === "legacy") return "needs-archive-identity";
       return appSource.includes(universalSelectionOutlineCss) ? "applied" : "needs-universal-selection-outline";
     }
     if (
@@ -168,6 +174,14 @@ function uniqueFile(pattern) {
   const found = fs.readdirSync(assets).filter(name => pattern.test(name));
   if (found.length !== 1) throw new Error(`expected one ${pattern}, found ${found.length}`);
   return path.join(assets, found[0]);
+}
+
+function inspectArchiveIdentity(source) {
+  const legacy = source.split(legacyArchiveClassifier).length - 1;
+  const canonical = source.split(canonicalArchiveClassifier).length - 1;
+  if (legacy === 1 && canonical === 0) return "legacy";
+  if (legacy === 0 && canonical === 1) return "canonical";
+  throw new Error(`Unrecognized palette archive identity: legacy=${legacy} canonical=${canonical}`);
 }
 
 function inspectSidebarArchiveProtection(source, primarySource) {
@@ -766,7 +780,7 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
   domOnlyHelper = replaceOnce(
     domOnlyHelper,
     'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}function MTKensurePaletteStyle()',
-    'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;function MTKensurePaletteStyle()',
+    'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;function MTKensurePaletteStyle()',
     "palette archive classifier bridge"
   );
   if (profile.agentRoster !== true) {
@@ -904,15 +918,26 @@ function patchPaletteArchiveSchema(file) {
   source = replaceOnce(
     source,
     'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}function MTKensurePaletteStyle()',
-    'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;function MTKensurePaletteStyle()',
+    'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;function MTKensurePaletteStyle()',
     "palette sidebar archive classifier"
   );
   fs.writeFileSync(file, source);
 }
 
-function patchReasoningPolicyBridge(file) {
+function patchArchiveIdentity(file) {
   const source = fs.readFileSync(file, "utf8");
-  fs.writeFileSync(file, addReasoningPolicyBridge(source, "MTK"));
+  fs.writeFileSync(file, replaceOnce(
+    source,
+    legacyArchiveClassifier,
+    canonicalArchiveClassifier,
+    "palette archive identity"
+  ));
+}
+
+function patchReasoningPolicyBridge(file) {
+  let source = fs.readFileSync(file, "utf8");
+  source = addReasoningPolicyBridge(source, "MTK");
+  fs.writeFileSync(file, addModelPinPolicyBridge(source, "MTK"));
 }
 
 function patchModelPinPolicyBridge(file) {
@@ -921,6 +946,7 @@ function patchModelPinPolicyBridge(file) {
 }
 
 function addReasoningPolicyBridge(source, prefix) {
+  source = canonicalizeArchiveClassifier(source, prefix);
   const visualRuleBefore = `return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,dark:r,light:i}`;
   const visualRuleAfter = `return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,dark:r,light:i}`;
   source = replaceOnce(source, visualRuleBefore, visualRuleAfter, "palette reasoning metadata");
@@ -942,7 +968,7 @@ function addReasoningPolicyBridge(source, prefix) {
     'protectSidebarArchive:r.protectSidebarArchive,keepReasoningOpen:r.keepReasoningOpen},a))',
     "palette reasoning projection"
   );
-  const archiveBridge = `function ${prefix}sidebarArchiveProtected(e,t=${prefix}sidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=${prefix}sidebarArchiveProtected;`;
+  const archiveBridge = archiveClassifier(prefix, true);
   const reasoningBridge = `const ${prefix}reasoningListeners=new Set;function MTKreasoningShouldStayOpen(e,t=${prefix}sidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.keepReasoningOpen===!0&&t.taskId===e)}function ${prefix}reasoningSubscribe(e){return ${prefix}reasoningListeners.add(e),()=>${prefix}reasoningListeners.delete(e)}globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen;globalThis.__MTKreasoningSubscribe=${prefix}reasoningSubscribe;`;
   source = replaceOnce(source, archiveBridge, archiveBridge + reasoningBridge, "palette reasoning bridge");
   source = replaceOnce(
@@ -955,6 +981,7 @@ function addReasoningPolicyBridge(source, prefix) {
 }
 
 function addModelPinPolicyBridge(source, prefix) {
+  source = canonicalizeArchiveClassifier(source, prefix);
   const visualRuleBefore = `return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,dark:r,light:i}`;
   const visualRuleAfter = `return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,modelPin:t.modelPin??null,dark:r,light:i}`;
   source = replaceOnce(source, visualRuleBefore, visualRuleAfter, "palette model-pin metadata");
@@ -986,6 +1013,24 @@ function addModelPinPolicyBridge(source, prefix) {
     "palette model-pin update notification"
   );
   return source;
+}
+
+function archiveClassifier(prefix, canonical) {
+  return canonical
+    ? `function ${prefix}sidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function ${prefix}sidebarArchiveProtected(e,t=${prefix}sidebarPalette){let n=${prefix}sidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}globalThis.__MTKsidebarArchiveProtected=${prefix}sidebarArchiveProtected;`
+    : `function ${prefix}sidebarArchiveProtected(e,t=${prefix}sidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=${prefix}sidebarArchiveProtected;`;
+}
+
+function canonicalizeArchiveClassifier(source, prefix) {
+  const legacy = archiveClassifier(prefix, false);
+  const canonical = archiveClassifier(prefix, true);
+  const legacyCount = source.split(legacy).length - 1;
+  const canonicalCount = source.split(canonical).length - 1;
+  if (legacyCount === 1 && canonicalCount === 0) {
+    return replaceOnce(source, legacy, canonical, "palette archive identity");
+  }
+  if (legacyCount === 0 && canonicalCount === 1) return source;
+  throw new Error(`Unrecognized palette archive identity: legacy=${legacyCount} canonical=${canonicalCount}`);
 }
 
 function patchSidebarArchiveAffordances(file, primaryFile) {

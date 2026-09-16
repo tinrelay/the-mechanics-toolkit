@@ -149,6 +149,16 @@ const event = {
   author_label: "mechanic",
   body: "Hello from below deck.\n<em>This stays text.</em>"
 };
+const unlabeledEvent = {
+  contract: "tinrelay-outgoing-observer-v1",
+  kind: "transmission",
+  transmission_id: "66666666-6666-4666-8666-666666666666",
+  sender_ship: localShip,
+  recipient_ship: "friendly-ship",
+  attention_label: "aster",
+  body: "Observer events may omit their optional author label.\r\n"
+};
+const normalizedUnlabeledEvent = {...unlabeledEvent, author_label: null};
 const item = execItem(acceptance);
 assert.deepEqual(rendererApi.acceptance(item), acceptance);
 assert.equal(rendererApi.matches(event, acceptance), true);
@@ -391,6 +401,24 @@ try {
   assert.equal(mainApi.event({...event, transmission_id: "not-a-uuid"}), null,
     "observer transmission IDs use Tinrelay's exact UUID grammar");
   assert.equal(mainApi.event(event)?.body, event.body);
+  assert.deepEqual(mainApi.event(unlabeledEvent), normalizedUnlabeledEvent,
+    "an omitted optional author label is normalized to null");
+  for (const candidate of [
+    {...unlabeledEvent, extra: true},
+    {...unlabeledEvent, author_label: ""},
+    {...unlabeledEvent, author_label: 42},
+    {...unlabeledEvent, author_label: undefined},
+    {...unlabeledEvent, attention_label: null}
+  ]) assert.equal(mainApi.event(candidate), null,
+    "optional-author normalization preserves strict event validation");
+
+  await send(socketPath, `${JSON.stringify(unlabeledEvent)}\n`);
+  const unlabeledCache = path.join(cacheDirectory, `${unlabeledEvent.transmission_id}.json`);
+  await eventually(() => fs.existsSync(unlabeledCache),
+    "the unlabeled event is persisted by the outgoing listener");
+  assert.deepEqual(JSON.parse(fs.readFileSync(unlabeledCache, "utf8")),
+    normalizedUnlabeledEvent,
+    "the unlabeled event is normalized before persistence");
 
   const delayedId = "22222222-2222-4222-8222-222222222222";
   const delayed = mainApi.lookup({requestId: "request-1", transmissionId: delayedId,

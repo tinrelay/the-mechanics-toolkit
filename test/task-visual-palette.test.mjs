@@ -192,7 +192,13 @@ assert.deepEqual(loaded.calibration, {
 });
 assert.equal(api.MTKmatchPalette(loaded, "unmatched title", engineRule.taskId)?.color.toLowerCase(), engineRule.color.toLowerCase());
 assert.equal(api.MTKsidebarArchiveProtected(protectedTaskId, loaded), true);
+assert.equal(api.MTKsidebarArchiveProtected(`local:${protectedTaskId}`, loaded), true,
+  "stock local sidebar keys resolve to the roster task identity");
 assert.equal(api.MTKsidebarArchiveProtected(ordinaryTaskId, loaded), false);
+assert.equal(api.MTKsidebarArchiveProtected(`remote:${protectedTaskId}`, loaded), false);
+assert.equal(api.MTKsidebarArchiveProtected(`local:local:${protectedTaskId}`, loaded), false);
+assert.equal(api.MTKsidebarArchiveProtected(`local:${protectedTaskId}:extra`, loaded), false);
+assert.equal(api.MTKsidebarArchiveProtected("local:not-a-uuid", loaded), false);
 assert.equal(api.MTKsidebarArchiveProtected("Bridge Keeper — Coordination", loaded), false, "titles never authorize archive protection");
 assert.equal(api.MTKreasoningShouldStayOpen(engineRule.taskId, loaded), true);
 assert.equal(api.MTKreasoningShouldStayOpen("Engine Tender — Repairs", loaded), false, "titles never authorize reasoning retention");
@@ -648,6 +654,12 @@ async function testRosterConsumer(helperSource, appSource, appPrimarySource) {
   assert.equal(api.match(loaded, "Tamsin — Temporary", "unrelated").color, "#CC0000",
     "title-only visual rules remain available for ordinary tasks");
   assert.equal(api.archive(exactId, loaded), true, "exact roster identity can protect archive");
+  assert.equal(api.archive(`local:${exactId}`, loaded), true,
+    "stock local sidebar identity can protect archive");
+  assert.equal(api.archive(`remote:${exactId}`, loaded), false,
+    "other task-key envelopes cannot protect archive");
+  assert.equal(api.archive("Tamsin — Portfolio Secretary", loaded), false,
+    "matching names alone cannot protect archive");
   assert.match(api.match(loaded, "Tamsin", exactId).markDataUrl, /^data:image\/svg\+xml;base64,/,
     "mark bytes resolve through the roster owner");
   assert.deepEqual(diagnostics, []);
