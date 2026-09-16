@@ -18,8 +18,7 @@
     "safe-start-readiness"
   ],
   "tinrelay": {
-    "client": "C:\\absolute\\path\\to\\tinrelay.exe",
-    "localShip": "example-ship"
+    "client": "C:\\absolute\\path\\to\\tinrelay.exe"
   },
   "windows": {
     "candidateVersion": "1.0.0.1",

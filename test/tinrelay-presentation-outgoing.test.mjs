@@ -25,11 +25,8 @@ const turnCallSources = fs.readdirSync(assets).filter(name => name.endsWith(".js
 ).filter(value => value.includes("(MTKtinrelayOutgoingTurnPresentations,{conversationId:"));
 assert.equal(turnCallSources.length, 1, "one turn renderer owns outgoing TinRelay promotion");
 const turnCallSource = turnCallSources[0];
-const localShip = JSON.parse(uniqueMatch(
-  rendererSource,
-  /const MTKtinrelayLocalShip=(?<ship>"(?:\\.|[^"\\])*");function MTKtinrelay(?:Envelope|PointerFromMessage)\(/g,
-  "embedded local ship"
-).groups.ship);
+const localShip = "sample-ship";
+assert.ok(!rendererSource.includes("MTKtinrelayLocalShip"), "renderer contains no build-time ship identity");
 
 const rendererStart = rendererSource.indexOf("function MTKtinrelayOutgoingAcceptance(");
 const outgoingViewStart = rendererSource.indexOf("function MTKtinrelayOutgoingView(", rendererStart);
@@ -83,13 +80,12 @@ const bus = {
   dispatchMessage(type, value) { dispatches.push({type, value}); }
 };
 const rendererApiFactory = () => Function(
-    jsxName, "MTKtinrelayReact", "MTKtinrelayLocalShip", "MTKtinrelayAddress",
+    jsxName, "MTKtinrelayReact", "MTKtinrelayAddress",
     "MTKtinrelayScrollSnapshot", "MTKtinrelayScheduleScroll", "MTKtinrelayMessageView", busName,
     `${helper};return {acceptance:MTKtinrelayOutgoingAcceptance,matches:MTKtinrelayOutgoingMatches,exec:MTKtinrelayOutgoingExec,turn:MTKtinrelayOutgoingTurnPresentations,view:MTKtinrelayOutgoingView}`
   )(
     jsx,
     react,
-    localShip,
     (label, ship) => `${label || ""}@${ship}`,
     () => { scrollSnapshots.push(scrollToken); return scrollToken; },
     value => scheduledScrolls.push(value),
@@ -154,7 +150,7 @@ const event = {
   body: "Hello from below deck.\n<em>This stays text.</em>"
 };
 const item = execItem(acceptance);
-assert.deepEqual(rendererApi.acceptance(item, localShip), acceptance);
+assert.deepEqual(rendererApi.acceptance(item), acceptance);
 assert.equal(rendererApi.matches(event, acceptance), true);
 
 function Stock() {}
@@ -272,28 +268,30 @@ assert.equal(unlabeledRoute, `@${localShip} → @friendly-ship`, "ship-wide endp
 
 for (const [label, candidate] of [
   ["nonzero exit", execItem(acceptance, {exitCode: 2})],
-  ["wrong sender", execItem({...acceptance, sender_ship: "other-ship"})],
+  ["invalid sender", execItem({...acceptance, sender_ship: "Bad Ship"})],
   ["wrong state", execItem({...acceptance, state: "delivered"})],
   ["unknown field", execItem({...acceptance, secret: "no"})],
   ["empty id", execItem({...acceptance, transmission_id: ""})],
   ["non-UUID id", execItem({...acceptance, transmission_id: "tr-outgoing-test-1"})],
   ["extra output", execItem(acceptance, {suffix: "noise\n"})],
   ["carriage return", execItem(acceptance, {prefix: "\r"})]
-]) assert.equal(rendererApi.acceptance(candidate, localShip), null, label);
+]) assert.equal(rendererApi.acceptance(candidate), null, label);
+assert.deepEqual(rendererApi.acceptance(execItem({...acceptance, sender_ship: "other-ship"})),
+  {...acceptance, sender_ship: "other-ship"}, "accepted-send identity comes from Tinrelay stdout");
 
-const activityStart = activitySource.indexOf("const MTKtinrelayOutgoingLocalShip=");
+const activityStart = activitySource.indexOf("function MTKtinrelayOutgoingAcceptance(");
 const activityEnd = ["function an(", "function ln("]
   .map(marker => activitySource.indexOf(marker, activityStart))
   .find(index => index >= 0) ?? -1;
 assert.ok(activityStart >= 0 && activityEnd > activityStart, "outgoing activity parser is localized");
 const activityApi = Function(`${activitySource.slice(activityStart, activityEnd)};return MTKtinrelayOutgoingAcceptance`)();
-assert.deepEqual(activityApi(item, localShip), acceptance, "activity classifier recognizes ordinary Tinrelay acceptance");
-assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e,MTKtinrelayOutgoingLocalShip\)!=null\?`standalone`/g) ?? []).length, 1,
+assert.deepEqual(activityApi(item), acceptance, "activity classifier recognizes ordinary Tinrelay acceptance");
+assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?`standalone`/g) ?? []).length, 1,
   "recognized sends are first-class standalone conversation items");
 assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
-const collapseMarker = rendererSource.indexOf("i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i,MTKtinrelayLocalShip)!=null||");
+const collapseMarker = rendererSource.indexOf("i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||");
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);
 const collapseEnd = collapseEndMarker < 0 ? -1 : collapseEndMarker + 1;
@@ -307,13 +305,12 @@ const dynamicPredicate = collapseSource.match(/i\.type===`dynamic-tool-call`&&(?
 const mcpPredicate = collapseSource.match(/i\.type===`mcp-tool-call`&&(?<name>[$A-Z_a-z][$\w]*)\(\{item:i,mcpServerStatuses:n\}\)/)?.groups.name;
 assert.ok(collapseFunction && collapseAggregate && dynamicPredicate && mcpPredicate, "collapsed activity classifier dependencies");
 const collapseApi = Function(
-  dynamicPredicate, mcpPredicate, "MTKtinrelayOutgoingAcceptance", "MTKtinrelayLocalShip",
+  dynamicPredicate, mcpPredicate, "MTKtinrelayOutgoingAcceptance",
   `${collapseAggregateSource};return ${collapseAggregate}`
 )(
   () => false,
   () => null,
-  activityApi,
-  localShip
+  activityApi
 );
 const unit = {kind: "standalone", item: {item}};
 const collapsed = collapseApi([unit]);
@@ -346,11 +343,7 @@ const mainHandlerFactory = api => Function(
   `return async function(type,t,e){switch(type){${mainSource.slice(mainHandlerStart, mainHandlerEnd)}default:break}}`
 )(api.lookup, api.anchorRemember, api.anchorsList, "tinrelay-outgoing-anchor-v1");
 
-assert.equal(mainApi.event({...event, extra: true}), null, "observer event shape is exact");
-assert.equal(mainApi.event({...event, sender_ship: "other-ship"}), null, "observer is local-ship scoped");
-assert.equal(mainApi.event({...event, transmission_id: "not-a-uuid"}), null,
-  "observer transmission IDs use Tinrelay's exact UUID grammar");
-assert.equal(mainApi.event(event)?.body, event.body);
+assert.equal(mainApi.event(event), null, "observer accepts no ship before runtime configuration");
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoing-observer-test-"));
 const socketDir = fs.mkdtempSync(path.join(os.tmpdir(), "mtko-"));
@@ -370,12 +363,12 @@ try {
   fs.chmodSync(publicSocketDir, 0o755);
   const publicSocketPath = path.join(publicSocketDir, "observer.sock");
   const configPath = path.join(configDir, "outgoing-observer.json");
-  fs.writeFileSync(configPath, JSON.stringify({socket_path: publicSocketPath}));
+  fs.writeFileSync(configPath, JSON.stringify({socket_path: publicSocketPath}), {mode: 0o600});
+  if (!windows) fs.chmodSync(configPath, 0o600);
   const disposeDisabled = await mainApi.start(appUserData);
   assert.equal(fs.existsSync(publicSocketPath), false, "observer rejects a group/world-accessible parent");
-  if (!windows) {
-    assert.equal(fs.statSync(cacheDirectory).mode & 0o777, 0o700, "presentation cache is private");
-  }
+  assert.equal(fs.existsSync(cacheDirectory), false,
+    "an invalid observer config creates no runtime-ship cache");
   disposeDisabled();
 
   if (!windows) fs.chmodSync(socketDir, 0o700);
@@ -383,12 +376,21 @@ try {
     ? `\\\\.\\pipe\\mtk-outgoing-${process.pid}-${Date.now()}`
     : path.join(socketDir, "observer.sock");
   fs.writeFileSync(configPath, JSON.stringify({socket_path: socketPath}));
+  if (!windows) fs.chmodSync(configPath, 0o600);
   const dispose = await mainApi.start(appUserData);
   if (windows) {
     assert.equal(await canConnect(socketPath), true, "observer binds the configured Windows named pipe");
   } else {
     assert.equal(fs.lstatSync(socketPath).isSocket(), true, "observer binds the configured Unix socket");
+    assert.equal(fs.lstatSync(socketPath).mode & 0o777, 0o600,
+      "observer socket is accessible only to its owning user");
   }
+
+  assert.equal(mainApi.event({...event, extra: true}), null, "observer event shape is exact");
+  assert.equal(mainApi.event({...event, sender_ship: "other-ship"}), null, "observer is runtime-ship scoped");
+  assert.equal(mainApi.event({...event, transmission_id: "not-a-uuid"}), null,
+    "observer transmission IDs use Tinrelay's exact UUID grammar");
+  assert.equal(mainApi.event(event)?.body, event.body);
 
   const delayedId = "22222222-2222-4222-8222-222222222222";
   const delayed = mainApi.lookup({requestId: "request-1", transmissionId: delayedId,
@@ -476,12 +478,42 @@ try {
   assert.equal(await mainApi.lookup({requestId: "request-4", transmissionId: oversizedId,
     senderShip: localShip, recipientShip: "friendly-ship"}), null, "events larger than 20 KiB are ignored");
 
+  const hotSocketPath = windows
+    ? `\\\\.\\pipe\\mtk-outgoing-hot-${process.pid}-${Date.now()}`
+    : path.join(socketDir, "hot-observer.sock");
+  fs.writeFileSync(configPath, JSON.stringify({socket_path: hotSocketPath}));
+  if (!windows) fs.chmodSync(configPath, 0o600);
+  await eventually(async () => !await canConnect(socketPath) && await canConnect(hotSocketPath),
+    "changing outgoing-observer.json rebinds without restarting Codex");
+
+  const hotId = "88888888-8888-4888-8888-888888888888";
+  const hotEvent = {...event, transmission_id: hotId};
+  await send(hotSocketPath, `${JSON.stringify(hotEvent)}\n`);
+  assert.deepEqual(await mainApi.lookup({requestId: "request-after-hot-rebind", transmissionId: hotId,
+    senderShip: localShip, recipientShip: "friendly-ship"}), hotEvent,
+  "the hot-rebound observer accepts the selected ship's next event");
+
+  const secondShipDir = path.join(scratch, ".config", "tinrelay", "second-ship");
+  fs.mkdirSync(secondShipDir, {recursive: true, mode: 0o700});
+  if (!windows) fs.chmodSync(secondShipDir, 0o700);
+  const secondSocketPath = windows
+    ? `\\\\.\\pipe\\mtk-outgoing-second-${process.pid}-${Date.now()}`
+    : path.join(socketDir, "second-observer.sock");
+  const secondConfigPath = path.join(secondShipDir, "outgoing-observer.json");
+  fs.writeFileSync(secondConfigPath, JSON.stringify({socket_path: secondSocketPath}), {mode: 0o600});
+  if (!windows) fs.chmodSync(secondConfigPath, 0o600);
+  await eventually(async () => !await canConnect(hotSocketPath) && !await canConnect(secondSocketPath),
+    "a second observer config hot-unbinds the ambiguous selection");
+  fs.rmSync(secondShipDir, {recursive: true, force: true});
+  await eventually(() => canConnect(hotSocketPath),
+    "removing the ambiguity hot-rebinds the sole valid observer config");
+
   dispose();
   await tick();
   if (windows) {
-    assert.equal(await canConnect(socketPath), false, "observer closes only its named pipe on disposal");
+    assert.equal(await canConnect(hotSocketPath), false, "observer closes only its named pipe on disposal");
   } else {
-    assert.equal(fs.existsSync(socketPath), false, "observer removes only its socket on disposal");
+    assert.equal(fs.existsSync(hotSocketPath), false, "observer removes only its socket on disposal");
   }
 
   const restarted = mainApiFactory();
@@ -554,6 +586,7 @@ process.stdout.write(`${JSON.stringify({
   contract: "tinrelay-outgoing-observer-v1",
   cli: "ordinary-tinrelay-send-stdout-unchanged",
   observer: windows ? "private-configured-windows-named-pipe" : "private-configured-unix-socket",
+  observerConfiguration: "native-watch-hot-reload",
   restartContinuity: "bounded-private-source-task-turn-anchors",
   correlation: "transmission-id",
   acceptedState: "relay-accepted-not-delivered",
@@ -605,6 +638,15 @@ function canConnect(socketPath) {
 
 function tick() {
   return new Promise(resolve => setTimeout(resolve, 20));
+}
+
+async function eventually(test, label) {
+  const deadline = Date.now() + 5000;
+  while (Date.now() < deadline) {
+    if (await test()) return;
+    await tick();
+  }
+  assert.fail(label);
 }
 
 function renderWithHooks(key, component, props) {

@@ -5,7 +5,7 @@ const definitions = [
     upstream: "https://github.com/openai/codex",
     tag: "rust-v0.154.0-alpha.6.2",
     commit: "b5bffd3ec4db487e7e3dec59663875b0ef7b72ca",
-    desktop: {version: "26.908.40834", build: "8881"},
+    desktop: {version: "26.908.70816", build: "9275"},
     files: {
       "codex-rs/core/src/compact.rs": {
         before: "67c16bf477530a1cad9e4f0643b9fe797fe66f05ca0c4154dec06e6f18277383",

@@ -29,7 +29,7 @@ try {
   fs.writeFileSync(mainTarget, mainFixture());
   fs.writeFileSync(config, JSON.stringify({
     workspaceRoot: "/srv/example-workspace",
-    tinrelay: {client: "/opt/tinrelay/bin/tinrelay", localShip: "sample-ship"}
+    tinrelay: {client: "/opt/tinrelay/bin/tinrelay"}
   }));
 
   assert.equal(runToolkit("check").state, "needs-apply");
@@ -41,8 +41,8 @@ try {
   assert.notEqual(missingConfig.status, 0);
   assert.match(missingConfig.stderr, /requires --config/);
   for (const [label, tinrelay, expected] of [
-    ["relative client", {client: "bin/tinrelay", localShip: "sample-ship"}, /absolute non-root path/],
-    ["invalid ship", {client: "/opt/tinrelay/bin/tinrelay", localShip: "Sample Ship"}, /lowercase DNS-style ship name/]
+    ["relative client", {client: "bin/tinrelay"}, /absolute non-root path/],
+    ["embedded ship", {client: "/opt/tinrelay/bin/tinrelay", localShip: "sample-ship"}, /contain only client/]
   ]) {
     fs.writeFileSync(config, JSON.stringify({tinrelay}));
     const rejected = spawnSync(
@@ -55,13 +55,14 @@ try {
   }
   fs.writeFileSync(config, JSON.stringify({
     workspaceRoot: "/srv/example-workspace",
-    tinrelay: {client: "/opt/tinrelay/bin/tinrelay", localShip: "sample-ship"}
+    tinrelay: {client: "/opt/tinrelay/bin/tinrelay"}
   }));
 
   const applied = runToolkit("apply", true);
   assert.equal(applied.state, "applied");
   assert.equal(applied.client, path.resolve("/opt/tinrelay/bin/tinrelay"));
-  assert.equal(applied.localShip, "sample-ship");
+  assert.equal(applied.localShip, null);
+  assert.equal(applied.shipResolution, "runtime-message-and-observer-config");
   const rendererOnce = fs.readFileSync(rendererTarget);
   const activityOnce = fs.readFileSync(activityTarget);
   const mainOnce = fs.readFileSync(mainTarget);

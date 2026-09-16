@@ -10,7 +10,8 @@ const id = "[$A-Z_a-z][$\\w]*";
 const legacyRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:1,persistence:"mounted-session",visibility:"persistent-when-activity-collapsed",preview:"stock-hover",messageRendering:"recipient-user-message"});';
 const flatCacheRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:2,persistence:"bounded-private-restart-cache",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
 const acklessRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:3,persistence:"bounded-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
-const currentRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:4,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
+const unprojectedRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:4,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
+const currentRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:5,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
 const legacyTaskColorFunction = 'function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}';
 const themedTaskColorFunctions = `${legacyTaskColorFunction}function MTKoutboundParseHex(e){return{r:parseInt(e.slice(1,3),16),g:parseInt(e.slice(3,5),16),b:parseInt(e.slice(5,7),16)}}function MTKoutboundMix(e,t,n){let r=MTKoutboundParseHex(e),i=MTKoutboundParseHex(t),a=e=>Math.round(e).toString(16).padStart(2,"0");return("#"+a(r.r+(i.r-r.r)*n)+a(r.g+(i.g-r.g)*n)+a(r.b+(i.b-r.b)*n)).toUpperCase()}function MTKoutboundLum(e){let t=Object.values(MTKoutboundParseHex(e)).map(e=>{let t=e/255;return t<=.04045?t/12.92:((t+.055)/1.055)**2.4});return.2126*t[0]+.7152*t[1]+.0722*t[2]}function MTKoutboundContrast(e,t){let n=MTKoutboundLum(e),r=MTKoutboundLum(t);return(Math.max(n,r)+.05)/(Math.min(n,r)+.05)}function MTKoutboundLabelColor(e,t){let n=t?.38:.34,r=t?"#FFFFFF":"#111318",i=t?"#101114":"#FFFFFF";for(;n<=1.001;n+=.08){let t=MTKoutboundMix(e,r,Math.min(1,n));if(MTKoutboundContrast(t,i)>=4.5)return t}return r}`;
 const legacyTaskColorStyle = 'l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=';
@@ -22,10 +23,12 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 const assets = path.join(root, "webview/assets");
 assertStockStyles();
 const target = uniqueOwner();
+const projectionTarget = uniqueProjectionOwner();
 const conversationTarget = uniqueConversationOwner();
 const conversationTurnTarget = uniqueConversationTurnOwner(conversationTarget);
 const mainTarget = uniqueMainOwner();
 let source = fs.readFileSync(target, "utf8");
+let projectionSource = fs.readFileSync(projectionTarget, "utf8");
 let conversationSource = fs.readFileSync(conversationTarget, "utf8");
 let conversationTurnSource = conversationTurnTarget === conversationTarget
   ? conversationSource : fs.readFileSync(conversationTurnTarget, "utf8");
@@ -42,8 +45,11 @@ if (command === "apply" && state === "legacy-applied") {
 
 if (command === "apply" && state === "registry-upgrade") {
   source = replaceOnce(source, legacyRegistryCall, currentRegistryCall, "outgoing receipt registry upgrade");
+  projectionSource = patchSuccessProjection(projectionSource);
   fs.writeFileSync(target, source);
+  fs.writeFileSync(projectionTarget, projectionSource);
   syntaxCheck(target);
+  syntaxCheck(projectionTarget);
   state = inspectState();
   if (state !== "applied") throw new Error("outgoing receipt registry upgrade did not verify");
 }
@@ -52,14 +58,17 @@ if (command === "apply" && state === "task-bucket-upgrade") {
   if (source.includes(flatCacheRegistryCall)) {
     source = replaceOnce(source, flatCacheRegistryCall, currentRegistryCall, "outgoing receipt task-bucket registry upgrade");
   }
+  projectionSource = patchSuccessProjection(projectionSource);
   conversationSource = upgradeConversationCache(conversationSource);
   mainSource = upgradeMainAcknowledgment(upgradeMainCache(mainSource));
   fs.writeFileSync(target, source);
   fs.writeFileSync(conversationTarget, conversationSource);
   fs.writeFileSync(mainTarget, mainSource);
+  fs.writeFileSync(projectionTarget, projectionSource);
   syntaxCheck(target);
   syntaxCheck(conversationTarget);
   syntaxCheck(mainTarget);
+  syntaxCheck(projectionTarget);
   state = inspectState();
   if (state !== "applied") throw new Error("outgoing receipt task-bucket upgrade did not verify");
 }
@@ -68,12 +77,15 @@ if (command === "apply" && state === "acknowledgment-upgrade") {
   source = replaceOnce(source, acklessRegistryCall, currentRegistryCall, "outgoing receipt acknowledgment registry upgrade");
   conversationSource = upgradeConversationAcknowledgment(conversationSource);
   mainSource = upgradeMainAcknowledgment(mainSource);
+  projectionSource = patchSuccessProjection(projectionSource);
   fs.writeFileSync(target, source);
   fs.writeFileSync(conversationTarget, conversationSource);
   fs.writeFileSync(mainTarget, mainSource);
+  fs.writeFileSync(projectionTarget, projectionSource);
   syntaxCheck(target);
   syntaxCheck(conversationTarget);
   syntaxCheck(mainTarget);
+  syntaxCheck(projectionTarget);
   state = inspectState();
   if (state !== "applied") throw new Error("outgoing receipt acknowledgment upgrade did not verify");
 }
@@ -81,21 +93,42 @@ if (command === "apply" && state === "acknowledgment-upgrade") {
 if (command === "apply" && state === "theme-label-upgrade") {
   source = replaceOnce(source, legacyTaskColorFunction, themedTaskColorFunctions, "outgoing receipt contrast helpers");
   source = replaceOnce(source, legacyTaskColorStyle, themedTaskColorStyle, "outgoing receipt theme-aware label color");
+  if (source.includes(unprojectedRegistryCall)) {
+    source = replaceOnce(source, unprojectedRegistryCall, currentRegistryCall, "outgoing receipt success-projection registry upgrade");
+  }
+  projectionSource = patchSuccessProjection(projectionSource);
   fs.writeFileSync(target, source);
+  fs.writeFileSync(projectionTarget, projectionSource);
   syntaxCheck(target);
+  syntaxCheck(projectionTarget);
   state = inspectState();
   if (state !== "applied") throw new Error("outgoing receipt theme-label upgrade did not verify");
 }
 
+if (command === "apply" && state === "success-projection-upgrade") {
+  source = replaceOnce(source, unprojectedRegistryCall, currentRegistryCall,
+    "outgoing receipt success-projection registry upgrade");
+  projectionSource = patchSuccessProjection(projectionSource);
+  fs.writeFileSync(target, source);
+  fs.writeFileSync(projectionTarget, projectionSource);
+  syntaxCheck(target);
+  syntaxCheck(projectionTarget);
+  state = inspectState();
+  if (state !== "applied") throw new Error("outgoing receipt success-projection upgrade did not verify");
+}
+
 if (command === "apply" && state === "needs-apply") {
   source = patchSource(source);
+  projectionSource = patchSuccessProjection(projectionSource);
   ({conversationSource, conversationTurnSource} = patchConversation(conversationSource, conversationTurnSource));
   mainSource = patchMain(mainSource);
   fs.writeFileSync(target, source);
+  fs.writeFileSync(projectionTarget, projectionSource);
   fs.writeFileSync(conversationTarget, conversationSource);
   if (conversationTurnTarget !== conversationTarget) fs.writeFileSync(conversationTurnTarget, conversationTurnSource);
   fs.writeFileSync(mainTarget, mainSource);
   syntaxCheck(target);
+  syntaxCheck(projectionTarget);
   syntaxCheck(conversationTarget);
   if (conversationTurnTarget !== conversationTarget) syntaxCheck(conversationTurnTarget);
   syntaxCheck(mainTarget);
@@ -111,7 +144,7 @@ process.stdout.write(`${JSON.stringify({
   messageRendering: "stock-recipient-user-message-formatter",
   collapseOwner: path.relative(root, collapseOwner),
   formatterOwner: path.relative(root, presentation.formatterFile),
-  targets: [...new Set([target, conversationTarget, conversationTurnTarget, mainTarget])].map(file => path.relative(root, file))
+  targets: [...new Set([target, projectionTarget, conversationTarget, conversationTurnTarget, mainTarget])].map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
 function inspectState() {
@@ -167,6 +200,7 @@ function inspectState() {
     (conversationSource.includes("sourceTurnId:S") || conversationSource.includes("sourceTurnId:w") ||
      conversationSource.includes("sourceTurnId:T") || conversationSource.includes("sourceTurnId:C"));
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker));
+  const successProjectionApplied = successProjectionProfile(projectionSource).state === "applied";
   const conversationCacheStart = conversationSource.indexOf("const MTKoutboundReceiptContract=");
   const conversationCacheEnd = conversationSource.indexOf(conversationHelperBoundary(conversationSource), conversationCacheStart);
   const conversationCache = conversationCacheStart >= 0 && conversationCacheEnd > conversationCacheStart
@@ -197,7 +231,11 @@ function inspectState() {
     if (source.includes(legacyRegistryCall)) return "registry-upgrade";
     if (source.includes(flatCacheRegistryCall)) return "task-bucket-upgrade";
     if (!source.includes("function MTKoutboundLabelColor(") || source.includes(legacyTaskColorStyle)) return "theme-label-upgrade";
-    return "applied";
+    if (source.includes(unprojectedRegistryCall)) return "success-projection-upgrade";
+    if (successProjectionApplied &&
+        (source.includes(currentRegistryCall) || !source.includes('register?.("outgoingMessageReceipt"'))) {
+      return "applied";
+    }
   }
   if (count(source, green) === 1 && count(source, red) === 0 && ownerApplied && conversationApplied && mainApplied &&
       (source.includes(flatCacheRegistryCall) || !source.includes('register?.("outgoingMessageReceipt"')) &&
@@ -1457,6 +1495,46 @@ function uniqueOwner() {
   });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} outbound-message owners`);
   return path.join(assets, matches[0]);
+}
+
+function uniqueProjectionOwner() {
+  const matches = assetFiles().filter(file => {
+    const value = fs.readFileSync(file, "utf8");
+    return value.includes("type:`dynamic-tool-call`,callId:") &&
+      value.includes("`create_thread`") && value.includes("`handoff_thread`") &&
+      successProjectionProfile(value, {required: false}) != null;
+  });
+  if (matches.length !== 1) {
+    throw new Error(`Upstream changed: found ${matches.length} dynamic-tool success projection owners`);
+  }
+  return matches[0];
+}
+
+function patchSuccessProjection(value) {
+  const profile = successProjectionProfile(value);
+  return profile.state === "applied"
+    ? value
+    : replaceOnce(value, profile.before, profile.after, "send-message success projection");
+}
+
+function successProjectionProfile(value, {required = true} = {}) {
+  const matches = [...value.matchAll(new RegExp(
+    `\\((?<raw>${id})\\.tool===\`create_thread\`\\|\\|\\k<raw>\\.tool===\`handoff_thread\`\\)&&` +
+      `\\((?<item>${id})\\.contentItems=(?<content>${id}),\\k<item>\\.success=\\k<raw>\\.success\\)`,
+    "g"
+  ))];
+  if (matches.length !== 1) {
+    if (!required && matches.length === 0) return null;
+    throw new Error(`Upstream changed: found ${matches.length} dynamic-tool success projections`);
+  }
+  const {raw, item} = matches[0].groups;
+  const marker = `${raw}.tool===\`send_message_to_thread\`&&(${item}.success=${raw}.success),`;
+  return {
+    state: value.slice(Math.max(0, matches[0].index - marker.length), matches[0].index) === marker
+      ? "applied" : "needs-apply",
+    before: matches[0][0],
+    after: marker + matches[0][0]
+  };
 }
 
 function uniqueConversationOwner() {

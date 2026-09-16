@@ -61,10 +61,24 @@ if (command === "apply" && state === "legacy-presentation-applied") {
   fs.writeFileSync(renderer, rendererSource);
   moduleSyntaxCheck(renderer);
   state = inspectState();
-  if (state !== "applied") throw new Error("Tinrelay presentation migration did not verify");
-} else if (command === "apply" && state === "needs-apply") {
+  if (!new Set(["embedded-identity-applied", "applied"]).has(state)) {
+    throw new Error("Tinrelay presentation migration did not verify");
+  }
+}
+
+if (command === "apply" && state === "embedded-identity-applied") {
+  ({rendererSource, mainSource} = migrateRuntimeIdentity(rendererSource, mainSource));
+  fs.writeFileSync(renderer, rendererSource);
+  fs.writeFileSync(main, mainSource);
+  moduleSyntaxCheck(renderer);
+  moduleSyntaxCheck(main);
+  state = inspectState();
+  if (state !== "applied") throw new Error("Tinrelay runtime identity migration did not verify");
+}
+
+if (command === "apply" && state === "needs-apply") {
   const config = configuredTinrelay();
-  rendererSource = patchRenderer(rendererSource, config.localShip);
+  rendererSource = patchRenderer(rendererSource);
   mainSource = patchMain(mainSource, config);
   fs.writeFileSync(renderer, rendererSource);
   fs.writeFileSync(main, mainSource);
@@ -74,14 +88,15 @@ if (command === "apply" && state === "legacy-presentation-applied") {
   if (state !== "applied") throw new Error("Tinrelay pointer transform did not verify");
 }
 
-const embedded = new Set(["applied", "legacy-presentation-applied"]).has(state) ? embeddedConfiguration() : null;
+const installed = new Set(["applied", "legacy-presentation-applied", "embedded-identity-applied"]).has(state) ? installedConfiguration() : null;
 
 process.stdout.write(`${JSON.stringify({
   state,
   contract: "tinrelay-local-pointer-v1",
   source: "any-delegated-message-with-exact-pointer-shape",
-  client: embedded?.client ?? null,
-  localShip: embedded?.localShip ?? null,
+  client: installed?.client ?? null,
+  localShip: null,
+  shipResolution: state === "applied" ? "runtime-message-and-observer-config" : null,
   targets: [renderer, main].map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
@@ -96,7 +111,6 @@ function inspectState() {
   ];
   const mainBaseMarkers = [
     "const MTKtinrelayClient=",
-    ",MTKtinrelayLocalShip=",
     "function MTKtinrelayMainPointer(",
     "async function MTKtinrelayInspect(",
     "case`mtk-tinrelay-pointer-inspect`:",
@@ -123,13 +137,23 @@ function inspectState() {
         !rendererSource.includes("&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo") ||
         !rendererSource.includes("MTKtinrelayScheduleScroll(d.current)")) {
       inspectAppliedRendererBase(rendererSource);
-      inspectAppliedMain(mainSource);
-      embeddedConfiguration();
+      if (rendererSource.includes("const MTKtinrelayLocalShip=") ||
+          mainSource.includes(",MTKtinrelayLocalShip=")) embeddedConfiguration();
+      else {
+        inspectAppliedMain(mainSource);
+        installedConfiguration();
+      }
       return "legacy-presentation-applied";
+    }
+    if (rendererSource.includes("const MTKtinrelayLocalShip=") ||
+        mainSource.includes(",MTKtinrelayLocalShip=")) {
+      inspectAppliedRendererBase(rendererSource);
+      embeddedConfiguration();
+      return "embedded-identity-applied";
     }
     inspectAppliedRenderer(rendererSource);
     inspectAppliedMain(mainSource);
-    embeddedConfiguration();
+    installedConfiguration();
     return "applied";
   }
   if (rendererBaseMarkers.some(marker => rendererSource.includes(marker)) ||
@@ -165,6 +189,8 @@ function inspectAppliedRenderer(source) {
     throw new Error("Tinrelay renderer host bus is not captured outside component-local bindings");
   }
   for (const contract of [
+    "function MTKtinrelayShip(",
+    "!MTKtinrelayShip(r.local_ship)",
     "function MTKtinrelayAddress(",
     'function MTKtinrelayEnvelope(e,t){if(typeof e!=="string"',
     'function MTKtinrelayPointerFromMessage(e)',
@@ -207,6 +233,9 @@ function inspectAppliedRenderer(source) {
     `(0,${profile.helperJsx}.jsx)(MTKtinrelayMessageView,{body:`
   ]) {
     if (!helpers.includes(contract)) throw new Error(`Tinrelay renderer postcondition missing: ${contract}`);
+  }
+  if (helpers.includes("MTKtinrelayLocalShip")) {
+    throw new Error("Tinrelay renderer retains a build-time ship identity");
   }
   if (!["MTKtinrelayReact=t(x(),1)", "MTKtinrelayReact=t(Wo(),1)", "MTKtinrelayReact=t(ic(),1)", "MTKtinrelayReact=t(Mc(),1)", "MTKtinrelayReact=t(r(),1)",
     "MTKtinrelayReact=t(_e(),1)"].some(marker => source.includes(marker))) {
@@ -293,6 +322,11 @@ function inspectAppliedMainBase(source) {
   ]) {
     if (!helpers.includes(contract)) throw new Error(`Tinrelay main base postcondition missing: ${contract}`);
   }
+  if (helpers.includes("MTKtinrelayLocalShip") ||
+      !helpers.includes('typeof r.local_ship!=="string"') ||
+      !helpers.includes('test(r.local_ship)')) {
+    throw new Error("Tinrelay main helper does not resolve ship identity from the runtime pointer");
+  }
   for (const forbidden of ["execSync", "spawn(", "shell:!0", "stderr", "process.env["]) {
     if (helpers.includes(forbidden)) throw new Error(`Tinrelay main helper uses forbidden surface: ${forbidden}`);
   }
@@ -367,7 +401,7 @@ function incomingRendererProfile(value) {
   throw new Error("Upstream changed: delegated message renderer profile is not recognized");
 }
 
-function patchRenderer(value, localShip) {
+function patchRenderer(value) {
   const hostBus = resolveHostBus(value);
   const profile = incomingRendererProfile(value);
   let patched = replaceOnce(value, profile.moduleBefore, profile.moduleAfter, "delegated message module owner");
@@ -416,18 +450,33 @@ function patchRenderer(value, localShip) {
     "Tinrelay pointer presentation"
   );
   patched = patched.slice(0, delegation.start) + delegationAfter + patched.slice(delegation.end);
-  patched = patched.slice(0, delegation.start) + rendererHelpers(hostBus, localShip, profile) + patched.slice(delegation.start);
+  patched = patched.slice(0, delegation.start) + rendererHelpers(hostBus, profile) + patched.slice(delegation.start);
   patched = patchTinrelayLabelOwner(patched, profile);
   return patched;
 }
 
-function rendererHelpers(hostBus, localShip, profile = {jsx:"Tb", messageComponent:"Eg"}) {
+function rendererHelpers(hostBus, profile = {jsx:"Tb", messageComponent:"Eg"}) {
   const jsx = profile.helperJsx ?? profile.jsx;
-  return `${pointerHelpers(localShip, jsx)}${scrollHelpers()}${presentationHelpers(hostBus, jsx, profile.messageComponent)}`;
+  return `${pointerHelpers(jsx)}${scrollHelpers()}${presentationHelpers(hostBus, jsx, profile.messageComponent)}`;
 }
 
-function pointerHelpers(localShip, jsx = "Tb") {
-  return String.raw`const MTKtinrelayLocalShip=${JSON.stringify(localShip)};function MTKtinrelayEnvelope(e,t){if(typeof e!=="string"||e.includes("\r"))return null;let n=e.endsWith("\n")?e.slice(0,-1):e,r=n.indexOf("\n");if(r<0||n.indexOf("\n",r+1)>=0||n.slice(0,r)!==t)return null;let i;try{i=JSON.parse(n.slice(r+1))}catch{return null}return i==null||typeof i!=="object"||Array.isArray(i)?null:i}function MTKtinrelayPointerFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY LOCAL POINTER");if(r==null)return null;let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||r.local_ship!==MTKtinrelayLocalShip||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string")return null;return r}function MTKtinrelayDeliveryFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY MESSAGE DELIVERY");if(r==null)return null;let i=["attention_label","author_label","body","contract","kind","local_id","local_ship","sender_ship"];if(Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-message-delivery-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||r.local_ship!==MTKtinrelayLocalShip||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string"||r.author_label!==null&&(typeof r.author_label!=="string"||r.author_label.length===0)||typeof r.body!=="string")return null;return r}function MTKtinrelayPointerNode(e,t){let n=MTKtinrelayDeliveryFromMessage(e);return n==null?MTKtinrelayPointerFromMessage(e)==null?null:(0,${jsx}.jsx)(MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}):(0,${jsx}.jsx)(MTKtinrelayDeliveryView,{delivery:n,sentAtMs:t})}function MTKtinrelayAddress(e,t){return(typeof e==="string"&&e.length>0?e:"")+"@"+t}`;
+function legacyRendererHelpers(hostBus, localShip, profile = {jsx:"Tb", messageComponent:"Eg"}) {
+  const jsx = profile.helperJsx ?? profile.jsx;
+  return `${legacyPointerHelpers(localShip, jsx)}${scrollHelpers()}${presentationHelpers(hostBus, jsx, profile.messageComponent)}`;
+}
+
+function pointerHelpers(jsx = "Tb") {
+  return String.raw`function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}function MTKtinrelayEnvelope(e,t){if(typeof e!=="string"||e.includes("\r"))return null;let n=e.endsWith("\n")?e.slice(0,-1):e,r=n.indexOf("\n");if(r<0||n.indexOf("\n",r+1)>=0||n.slice(0,r)!==t)return null;let i;try{i=JSON.parse(n.slice(r+1))}catch{return null}return i==null||typeof i!=="object"||Array.isArray(i)?null:i}function MTKtinrelayPointerFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY LOCAL POINTER");if(r==null)return null;let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||!MTKtinrelayShip(r.local_ship)||!MTKtinrelayShip(r.sender_ship)||typeof r.attention_label!=="string")return null;return r}function MTKtinrelayDeliveryFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY MESSAGE DELIVERY");if(r==null)return null;let i=["attention_label","author_label","body","contract","kind","local_id","local_ship","sender_ship"];if(Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-message-delivery-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||!MTKtinrelayShip(r.local_ship)||!MTKtinrelayShip(r.sender_ship)||typeof r.attention_label!=="string"||r.author_label!==null&&(typeof r.author_label!=="string"||r.author_label.length===0)||typeof r.body!=="string")return null;return r}function MTKtinrelayPointerNode(e,t){let n=MTKtinrelayDeliveryFromMessage(e);return n==null?MTKtinrelayPointerFromMessage(e)==null?null:(0,${jsx}.jsx)(MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}):(0,${jsx}.jsx)(MTKtinrelayDeliveryView,{delivery:n,sentAtMs:t})}function MTKtinrelayAddress(e,t){return(typeof e==="string"&&e.length>0?e:"")+"@"+t}`;
+}
+
+function legacyPointerHelpers(localShip, jsx = "Tb") {
+  return pointerHelpers(jsx)
+    .replace(
+      'function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}',
+      `const MTKtinrelayLocalShip=${JSON.stringify(localShip)};`
+    )
+    .replaceAll("!MTKtinrelayShip(r.local_ship)", "r.local_ship!==MTKtinrelayLocalShip")
+    .replaceAll("!MTKtinrelayShip(r.sender_ship)", 'typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)');
 }
 
 function scrollHelpers() {
@@ -570,16 +619,22 @@ function migrateRendererPresentation(value) {
   if (!patched.includes("function MTKtinrelayDeliveryFromMessage(") ||
       !patched.includes("function MTKtinrelayDeliveryView(")) {
     const profile = incomingRendererProfile(patched);
-    const start = patched.indexOf("const MTKtinrelayLocalShip=");
+    const embeddedStart = patched.indexOf("const MTKtinrelayLocalShip=");
+    const runtimeStart = patched.indexOf("function MTKtinrelayShip(");
+    const start = embeddedStart >= 0 ? embeddedStart : runtimeStart;
     const pointerStart = patched.indexOf("function MTKtinrelayPointerView(", start);
     const pointer = functionAt(patched, pointerStart);
-    const ship = uniqueMatch(
-      patched.slice(start, pointer.start),
-      /const MTKtinrelayLocalShip=(?<ship>"(?:\\.|[^"\\])*");/g,
-      "embedded renderer Tinrelay ship"
-    ).groups.ship;
+    const helpers = embeddedStart >= 0 ? legacyRendererHelpers(
+      resolveHostBus(patched),
+      JSON.parse(uniqueMatch(
+        patched.slice(start, pointer.start),
+        /const MTKtinrelayLocalShip=(?<ship>"(?:\\.|[^"\\])*");/g,
+        "embedded renderer Tinrelay ship"
+      ).groups.ship),
+      profile
+    ) : rendererHelpers(resolveHostBus(patched), profile);
     patched = patched.slice(0, start) +
-      rendererHelpers(resolveHostBus(patched), JSON.parse(ship), profile) +
+      helpers +
       patched.slice(pointer.end);
   }
   return patched;
@@ -605,7 +660,7 @@ function patchMain(value, config) {
 }
 
 function mainHelpers(config) {
-  return String.raw`const MTKtinrelayClient=${JSON.stringify(config.client)},MTKtinrelayLocalShip=${JSON.stringify(config.localShip)};function MTKtinrelayMainPointer(e){if(typeof e?.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(e.requestId)||typeof e.pointerText!=="string"||e.pointerText.includes("\r"))throw Error("Invalid local Tinrelay pointer.");let t=e.pointerText.endsWith("\n")?e.pointerText.slice(0,-1):e.pointerText,n=t.split("\n");if(n.length!==2||n[0]!=="TINRELAY LOCAL POINTER")throw Error("Invalid local Tinrelay pointer.");let r;try{r=JSON.parse(n[1])}catch{throw Error("Invalid local Tinrelay pointer.")}let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(r==null||typeof r!=="object"||Array.isArray(r)||Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||r.local_ship!==MTKtinrelayLocalShip||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string")throw Error("Invalid local Tinrelay pointer.");return r}function MTKtinrelayExec(e){return new Promise((t,n)=>{x.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id],{encoding:"utf8",maxBuffer:1048576,shell:!1,timeout:8e3,windowsHide:!0},(r,i)=>{if(r){n(Error(r.code==="ENOENT"?"Tinrelay client is unavailable.":"Tinrelay could not inspect this transmission."));return}t(i)})})}async function MTKtinrelayInspect(e){let t=MTKtinrelayMainPointer(e),n=await MTKtinrelayExec(t),r;try{r=JSON.parse(n)}catch{throw Error("Tinrelay returned an invalid inspection.")}if(r==null||typeof r!=="object"||Array.isArray(r)||r.contract!=="tinrelay-inspected-inbox-v1"||r.kind!=="transmission"||r.signed_transmission==null||typeof r.signed_transmission!=="object"||Array.isArray(r.signed_transmission))throw Error("Tinrelay inspection did not match this pointer.");let i=r.signed_transmission,a=r.author_label,o=i.from_label,s=typeof a==="string"&&a.length>0&&typeof o==="string"&&o===a||a===null&&(o===void 0||o===null);if(r.local_id!==t.local_id||r.recipient_ship!==t.local_ship||r.sender_ship!==t.sender_ship||r.attention_label!==t.attention_label||!s||r.sender_ship!==i.sender_ship||r.recipient_ship!==i.recipient_ship||r.attention_label!==i.to_label||typeof i.body!=="string")throw Error("Tinrelay inspection did not match this pointer.");return{localId:r.local_id,localShip:r.recipient_ship,senderShip:r.sender_ship,attentionLabel:r.attention_label,authorLabel:a,body:i.body}}`;
+  return String.raw`const MTKtinrelayClient=${JSON.stringify(config.client)};function MTKtinrelayMainPointer(e){if(typeof e?.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(e.requestId)||typeof e.pointerText!=="string"||e.pointerText.includes("\r"))throw Error("Invalid local Tinrelay pointer.");let t=e.pointerText.endsWith("\n")?e.pointerText.slice(0,-1):e.pointerText,n=t.split("\n");if(n.length!==2||n[0]!=="TINRELAY LOCAL POINTER")throw Error("Invalid local Tinrelay pointer.");let r;try{r=JSON.parse(n[1])}catch{throw Error("Invalid local Tinrelay pointer.")}let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(r==null||typeof r!=="object"||Array.isArray(r)||Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||typeof r.local_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.local_ship)||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string")throw Error("Invalid local Tinrelay pointer.");return r}function MTKtinrelayExec(e){return new Promise((t,n)=>{x.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id],{encoding:"utf8",maxBuffer:1048576,shell:!1,timeout:8e3,windowsHide:!0},(r,i)=>{if(r){n(Error(r.code==="ENOENT"?"Tinrelay client is unavailable.":"Tinrelay could not inspect this transmission."));return}t(i)})})}async function MTKtinrelayInspect(e){let t=MTKtinrelayMainPointer(e),n=await MTKtinrelayExec(t),r;try{r=JSON.parse(n)}catch{throw Error("Tinrelay returned an invalid inspection.")}if(r==null||typeof r!=="object"||Array.isArray(r)||r.contract!=="tinrelay-inspected-inbox-v1"||r.kind!=="transmission"||r.signed_transmission==null||typeof r.signed_transmission!=="object"||Array.isArray(r.signed_transmission))throw Error("Tinrelay inspection did not match this pointer.");let i=r.signed_transmission,a=r.author_label,o=i.from_label,s=typeof a==="string"&&a.length>0&&typeof o==="string"&&o===a||a===null&&(o===void 0||o===null);if(r.local_id!==t.local_id||r.recipient_ship!==t.local_ship||r.sender_ship!==t.sender_ship||r.attention_label!==t.attention_label||!s||r.sender_ship!==i.sender_ship||r.recipient_ship!==i.recipient_ship||r.attention_label!==i.to_label||typeof i.body!=="string")throw Error("Tinrelay inspection did not match this pointer.");return{localId:r.local_id,localShip:r.recipient_ship,senderShip:r.sender_ship,attentionLabel:r.attention_label,authorLabel:a,body:i.body}}`;
 }
 
 function patchTinrelayLabelOwner(value, profile = incomingRendererProfile(value)) {
@@ -664,8 +719,13 @@ function exportedAs(source, internal) {
 }
 
 function helperSlice(source) {
-  const start = source.indexOf("const MTKtinrelayLocalShip=");
-  const end = source.indexOf(`function ${incomingRendererProfile(source).delegation}(`, start);
+  const starts = [source.indexOf("function MTKtinrelayShip("),
+    source.indexOf("const MTKtinrelayLocalShip=")].filter(index => index >= 0);
+  const start = starts.length === 1 ? starts[0] : -1;
+  const ends = [source.indexOf("function MTKtinrelayOutgoingAcceptance(", start),
+    source.indexOf(`function ${incomingRendererProfile(source).delegation}(`, start)]
+    .filter(index => index > start);
+  const end = ends.length > 0 ? Math.min(...ends) : -1;
   if (start < 0 || end < 0) throw new Error("Tinrelay renderer helper boundary is missing");
   return source.slice(start, end);
 }
@@ -772,6 +832,35 @@ function readOption(name) {
   return path.resolve(process.argv[index + 1]);
 }
 
+function migrateRuntimeIdentity(rendererValue, mainValue) {
+  const config = embeddedConfiguration();
+  const encodedShip = JSON.stringify(config.localShip);
+  rendererValue = replaceOnce(
+    rendererValue,
+    `const MTKtinrelayLocalShip=${encodedShip};function MTKtinrelayEnvelope(`,
+    'function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}function MTKtinrelayEnvelope(',
+    "Tinrelay renderer runtime ship identity"
+  );
+  if (count(rendererValue, "r.local_ship!==MTKtinrelayLocalShip") !== 2) {
+    throw new Error("Upstream changed: embedded renderer ship checks are not unique");
+  }
+  rendererValue = rendererValue.replaceAll("r.local_ship!==MTKtinrelayLocalShip", "!MTKtinrelayShip(r.local_ship)");
+
+  mainValue = replaceOnce(
+    mainValue,
+    `const MTKtinrelayClient=${JSON.stringify(config.client)},MTKtinrelayLocalShip=${encodedShip};function MTKtinrelayMainPointer(`,
+    `const MTKtinrelayClient=${JSON.stringify(config.client)};function MTKtinrelayMainPointer(`,
+    "Tinrelay main runtime ship identity"
+  );
+  mainValue = replaceOnce(
+    mainValue,
+    "r.local_ship!==MTKtinrelayLocalShip",
+    'typeof r.local_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.local_ship)',
+    "Tinrelay main runtime ship validation"
+  );
+  return {rendererSource: rendererValue, mainSource: mainValue};
+}
+
 function configuredTinrelay() {
   if (configPath == null) throw new Error("tinrelay-pointer-presentation apply requires --config TOOLKIT_CONFIG");
   let config;
@@ -785,18 +874,14 @@ function configuredTinrelay() {
   }
   const tinrelay = config.tinrelay;
   if (tinrelay == null || typeof tinrelay !== "object" || Array.isArray(tinrelay) ||
-      Object.keys(tinrelay).some(key => key !== "client" && key !== "localShip")) {
-    throw new Error("Toolkit config tinrelay must contain only client and localShip");
+      Object.keys(tinrelay).some(key => key !== "client")) {
+    throw new Error("Toolkit config tinrelay must contain only client");
   }
   const client = tinrelay.client;
-  const localShip = tinrelay.localShip;
   if (typeof client !== "string" || !path.isAbsolute(client) || path.parse(client).root === path.resolve(client)) {
     throw new Error("Toolkit config tinrelay.client must be an absolute non-root path");
   }
-  if (!validShip(localShip)) {
-    throw new Error("Toolkit config tinrelay.localShip must be a lowercase DNS-style ship name");
-  }
-  return {client: path.resolve(client), localShip};
+  return {client: path.resolve(client)};
 }
 
 function embeddedConfiguration() {
@@ -816,6 +901,18 @@ function embeddedConfiguration() {
     throw new Error("Upstream changed: embedded Tinrelay configuration is inconsistent");
   }
   return config;
+}
+
+function installedConfiguration() {
+  const literal = '"(?:\\\\.|[^"\\\\])*"';
+  const match = uniqueMatch(
+    mainSource,
+    new RegExp(`const MTKtinrelayClient=(?<client>${literal})(?:,MTKtinrelayLocalShip=(?<ship>${literal}))?;function MTKtinrelayMainPointer\\(`, "g"),
+    "installed Tinrelay configuration"
+  ).groups;
+  const client = JSON.parse(match.client);
+  if (!path.isAbsolute(client)) throw new Error("Upstream changed: installed Tinrelay client is not absolute");
+  return {client};
 }
 
 function validShip(value) {

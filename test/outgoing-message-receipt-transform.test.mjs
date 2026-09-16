@@ -19,6 +19,7 @@ try {
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(mainDirectory, { recursive: true });
   const initialTarget = path.join(assets, "app-initial-fixture.js");
+  const projectionTarget = path.join(assets, "dynamic-projection-fixture.js");
   const ownerTarget = path.join(assets, "app-control-fixture.js");
   const conversationTarget = path.join(assets, "conversation-fixture.js");
   const activityTarget = path.join(assets, "activity-fixture.js");
@@ -27,6 +28,7 @@ try {
   const styleTarget = path.join(assets, "styles-fixture.css");
   const mainTarget = path.join(mainDirectory, "main-fixture.js");
   fs.writeFileSync(initialTarget, initialFixture());
+  fs.writeFileSync(projectionTarget, projectionFixture());
   fs.writeFileSync(ownerTarget, ownerFixture());
   fs.writeFileSync(conversationTarget, conversationFixture());
   fs.writeFileSync(activityTarget, activityFixture());
@@ -39,13 +41,18 @@ try {
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.targets, [
-    "webview/assets/app-control-fixture.js",
-    "webview/assets/conversation-fixture.js",
-    ".vite/build/main-fixture.js"
+    path.join("webview", "assets", "app-control-fixture.js"),
+    path.join("webview", "assets", "dynamic-projection-fixture.js"),
+    path.join("webview", "assets", "conversation-fixture.js"),
+    path.join(".vite", "build", "main-fixture.js")
   ]);
-  assert.equal(applied.collapseOwner, "webview/assets/activity-fixture.js");
-  assert.equal(applied.formatterOwner, "webview/assets/message-fixture.js");
+  assert.equal(applied.collapseOwner, path.join("webview", "assets", "activity-fixture.js"));
+  assert.equal(applied.formatterOwner, path.join("webview", "assets", "message-fixture.js"));
   const once = fs.readFileSync(ownerTarget);
+  const projectionOnce = fs.readFileSync(projectionTarget);
+  assert.match(projectionOnce.toString(),
+    /n\.tool===`send_message_to_thread`&&\(t\.success=n\.success\)/,
+    "completed send projection preserves the raw success result");
   assert.match(once.toString(), /q as MTKoutboundStoreScope/,
     "build 8690 imports the task selector's Q scope, not an unrelated BR export");
   assert.doesNotMatch(once.toString(), /BR as MTKoutboundStoreScope/,
@@ -58,6 +65,8 @@ try {
 
   assert.equal(runToolkit("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(ownerTarget), once, "second application is byte-identical");
+  assert.deepEqual(fs.readFileSync(projectionTarget), projectionOnce,
+    "second success-projection application is byte-identical");
   assert.deepEqual(fs.readFileSync(conversationTarget), conversationOnce, "second conversation application is byte-identical");
   assert.deepEqual(fs.readFileSync(mainTarget), mainOnce, "second main application is byte-identical");
   assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialFixture()), "task and hover owner stays untouched");
@@ -171,6 +180,16 @@ function ownerFixture() {
     "const registry={namespace:N,render:X,renderAgentActivityIcon:I,tool:Send};",
     "const label=`localConversation.appControlToolCall.threadsSendMessage.active`;",
     "export{x as x,PC as persistent};"
+  ].join("");
+}
+
+function projectionFixture() {
+  return [
+    "function project(n,e){let T=[];",
+    "let t={type:`dynamic-tool-call`,callId:n.id,namespace:n.namespace,tool:n.tool,arguments:n.arguments,completed:n.status===`completed`||n.status===`failed`||!1};",
+    "(n.tool===`create_thread`||n.tool===`handoff_thread`)&&(t.contentItems=e,t.success=n.success),T.push(t);",
+    "return T}",
+    "export const fixture=true;"
   ].join("");
 }
 

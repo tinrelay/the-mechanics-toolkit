@@ -38,6 +38,7 @@ process.stdout.write(`${JSON.stringify({
   source: "incoming-pointers-or-deliveries-and-ordinary-successful-sends",
   client: incomingResult.client,
   localShip: incomingResult.localShip,
+  shipResolution: incomingResult.shipResolution,
   targets: [...new Set([...incomingResult.targets, ...outgoingResult.targets])].sort()
 }, null, 2)}\n`);
 

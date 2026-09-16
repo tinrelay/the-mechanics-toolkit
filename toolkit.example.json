@@ -23,7 +23,6 @@
   "codexBinary": "/absolute/path/to/patched/codex",
   "signingIdentity": "-",
   "tinrelay": {
-    "client": "/absolute/path/to/tinrelay",
-    "localShip": "example-ship"
+    "client": "/absolute/path/to/tinrelay"
   }
 }

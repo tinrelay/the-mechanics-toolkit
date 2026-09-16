@@ -17,7 +17,6 @@
     "renderer-patch-registry"
   ],
   "tinrelay": {
-    "client": "/absolute/path/to/tinrelay",
-    "localShip": "example-ship"
+    "client": "/absolute/path/to/tinrelay"
   }
 }

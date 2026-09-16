@@ -8,10 +8,11 @@ turn containers in one mounted conversation. This patch bounds the local rendere
 loading, and full transcript export untouched.
 
 Build `7982` added five-turn initial transport pagination, and this transform was made dormant.
-Build `8881` retains that transport path, but long-lived tasks can still accumulate and repeatedly
-materialize an unbounded in-memory turn list. Real build-`8881` tasks took 30–90 seconds to switch
-or locked the UI during selection, so the local mounted-renderer bound is active again. Transport
-pagination, explicit older-page loading, and the mounted projection are separate ownership seams.
+Builds `8881` and `9275` retain that transport path, but long-lived tasks can still accumulate and
+repeatedly materialize an unbounded in-memory turn list. Real build-`8881` tasks took 30–90 seconds
+to switch or locked the UI during selection, so the local mounted-renderer bound is active again.
+Transport pagination, explicit older-page loading, and the mounted projection are separate
+ownership seams.
 
 ## Owned seam
 
@@ -25,10 +26,10 @@ turn containers intact, and suppresses the unbounded history-timeline join only 
 active. Only mounted UI consumers receive the limit. The Markdown/transcript consumer deliberately
 does not.
 
-Build `8881` has a distinct scope-aware selector profile and four mounted UI consumers. Partial
-markers, changed selector ownership, a changed consumer count, or an ambiguous asset fails closed.
-The five-turn initial page, older-page action, and turn-list endpoint must remain present alongside
-the mounted bound.
+Builds `8881` and `9275` share the qualified scope-aware selector profile and four mounted UI
+consumers. Partial markers, changed selector ownership, a changed consumer count, or an ambiguous
+asset fails closed. The five-turn initial page, older-page action, and turn-list endpoint must
+remain present alongside the mounted bound.
 
 ## Verification
 

@@ -169,7 +169,7 @@ staging, installation, restart, and live acceptance remain separate actions.
 
 ## Codex Desktop package patches
 
-The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.40834` (`8881`)**
+The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.70816` (`9275`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
 readiness, and selected live message paths. Ubuntu ARM64 and Windows 11 ARM64 retain qualification
 for the earlier 13-patch build-8881 fleet while the current additions are ported. Ubuntu passed
@@ -213,7 +213,7 @@ desktop-package transforms above.
 
 | Source patch | Qualified source | What it repairs |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.154.0-alpha.6.2` / Desktop `26.908.40834` (`8881`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.154.0-alpha.6.2` / Desktop `26.908.70816` (`9275`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
 
 ## See the patches
 

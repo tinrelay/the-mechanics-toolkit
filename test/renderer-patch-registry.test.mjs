@@ -106,7 +106,7 @@ for (const call of lazyCalls) {
 }
 assert.deepEqual(Object.keys(registry.packages).sort(), ["validPackage", ...names].sort());
 if (registry.packages.outgoingMessageReceipt != null) {
-  assert.equal(registry.packages.outgoingMessageReceipt.version, 4);
+  assert.equal(registry.packages.outgoingMessageReceipt.version, 5);
   assert.equal(registry.packages.outgoingMessageReceipt.persistence, "acknowledged-private-task-buckets");
   assert.equal(registry.packages.outgoingMessageReceipt.visibility, "persistent-after-restart-and-collapse");
   assert.equal(registry.packages.outgoingMessageReceipt.preview, "stock-hover");
@@ -123,11 +123,13 @@ if (registry.packages.codexObservability != null) {
     ["targets", "metrics", "devtools", "cdp", "cpu-profile", "trace"]);
 }
 if (registry.packages.tinrelayPointerPresentation != null) {
-  assert.equal(registry.packages.tinrelayPointerPresentation.version, 2);
+  assert.equal(registry.packages.tinrelayPointerPresentation.version, 3);
   assert.equal(registry.packages.tinrelayPointerPresentation.contract, "tinrelay-local-pointer-v1");
   assert.equal(registry.packages.tinrelayPointerPresentation.disclosure, "automatic-local-inspection");
   assert.equal(registry.packages.tinrelayPointerPresentation.rendering, "stock-safe-markdown");
   assert.equal(registry.packages.tinrelayPointerPresentation.outgoingContinuity, "private-task-turn-anchors");
+  assert.equal(registry.packages.tinrelayPointerPresentation.shipIdentity,
+    "runtime-message-and-observer-config");
 }
 assert.ok(!bootstrap.includes("subscribe") && !bootstrap.includes("addEventListener") && !bootstrap.includes("MutationObserver"),
   "registry has no lifecycle or event machinery");

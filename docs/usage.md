@@ -172,7 +172,9 @@ Configuration-backed patches use these values:
   project root at runtime; no project path or roster contents are staging inputs;
 - reasoning retention consumes exact task opt-ins from the roster;
 - the model identity guard consumes exact task model-and-effort pins from the roster;
-- `tinrelay.client` and `tinrelay.localShip` identify the local Tinrelay boundary.
+- `tinrelay.client` identifies the local executable used for legacy pointer inspection. Tinrelay
+  ship identity comes from runtime message envelopes and the one valid outgoing-observer config;
+  adding or renaming a ship does not require rebuilding TMTK.
 
 The toolkit configuration itself is staging input and is not watched. In an adopted build,
 agent-roster files are runtime-reloadable. The aggregate accepts only a complete valid replacement
@@ -240,6 +242,14 @@ acceptance JSON by transmission ID. The patch keeps a bounded private presentati
 Codex's application-support directory so an existing task can reconstruct the same outgoing card
 after an app restart. This is local presentation continuity, not a Tinrelay sent archive or proof
 of remote delivery.
+
+Codex hot-loads this configuration. Exactly one private, valid `outgoing-observer.json` may be
+present across the ship directories; zero or multiple candidates close the current observer and
+disable outgoing presentation without affecting incoming messages. A recursive native filesystem
+watcher debounces changes into the serialized runtime selection: the main process closes the prior
+endpoint when it changes, then binds the new sole valid endpoint. It does not poll, and no Codex
+restart or patch rebuild is needed. On POSIX the ship directory, config file, and bound socket are
+mode `0700`, `0600`, and `0600` respectively.
 
 Without that file, incoming presentation still works and accepted sends remain stock command
 results. The observer configuration and exact event contract belong to Tinrelay. See the unified

@@ -16,21 +16,16 @@ const main = unique(fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(na
 const rendererSource = fs.readFileSync(renderer, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
 const stringLiteral = '"(?:\\\\.|[^"\\\\])*"';
-const rendererConfig = uniqueMatch(
-  rendererSource,
-  new RegExp(`const MTKtinrelayLocalShip=(?<ship>${stringLiteral});function MTKtinrelay(?:Envelope|PointerFromMessage)\\(`, "g"),
-  "embedded renderer configuration"
-).groups;
 const mainConfig = uniqueMatch(
   mainSource,
-  new RegExp(`const MTKtinrelayClient=(?<client>${stringLiteral}),MTKtinrelayLocalShip=(?<ship>${stringLiteral});function MTKtinrelayMainPointer\\(`, "g"),
-  "embedded main configuration"
+  new RegExp(`const MTKtinrelayClient=(?<client>${stringLiteral});function MTKtinrelayMainPointer\\(`, "g"),
+  "installed main configuration"
 ).groups;
 const client = JSON.parse(mainConfig.client);
-const localShip = JSON.parse(mainConfig.ship);
-assert.equal(JSON.parse(rendererConfig.ship), localShip, "renderer and main process agree on the local ship");
+const localShip = "sample-ship";
+assert.ok(!rendererSource.includes("MTKtinrelayLocalShip"), "renderer contains no build-time ship identity");
 
-const rendererStart = rendererSource.indexOf("const MTKtinrelayLocalShip=");
+const rendererStart = rendererSource.indexOf("function MTKtinrelayShip(");
 const rendererEnd = rendererSource.indexOf("function MTKtinrelayPointerNode(", rendererStart);
 assert.ok(rendererStart >= 0 && rendererEnd > rendererStart, "localized renderer pointer parser");
 const outgoingHelpersStart = rendererSource.indexOf("function MTKtinrelayOutgoingAcceptance(", rendererStart);
@@ -68,10 +63,11 @@ for (const [label, text] of [
   ["markdown fence", `TINRELAY LOCAL POINTER\n\`${JSON.stringify(pointer)}\``],
   ["unknown key", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, path: "/tmp/no"})}`],
   ["bad local id", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, local_id: "tr_BAD"})}`],
-  ["wrong local ship", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, local_ship: "other"})}`],
   ["bad sender ship", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, sender_ship: "Bad Ship"})}`],
   ["non-string label", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, attention_label: null})}`]
 ]) assert.equal(parsePointer(text), null, label);
+assert.deepEqual(parsePointer(`TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, local_ship: "other-ship"})}`),
+  {...pointer, local_ship: "other-ship"}, "pointer identity comes from the runtime message");
 
 const delivery = {
   contract: "tinrelay-message-delivery-v1",
@@ -90,11 +86,12 @@ assert.equal(parsePointer(deliveryText), null, "a delivery is not a local pointe
 for (const [label, text] of [
   ["pointer presented as delivery", pointerText.replace("LOCAL POINTER", "MESSAGE DELIVERY")],
   ["unknown key", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, extra: true})}`],
-  ["wrong local ship", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, local_ship: "other"})}`],
   ["empty author", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: ""})}`],
   ["non-string body", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, body: null})}`],
   ["literal extra line", `${deliveryText}\nnot-json`]
 ]) assert.equal(parsers.delivery(text), null, `delivery ${label}`);
+assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, local_ship: "other-ship"})}`),
+  {...delivery, local_ship: "other-ship"}, "delivery identity comes from the runtime message");
 assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: null})}`),
   {...delivery, author_label: null}, "an unlabeled delivery is valid");
 
@@ -109,6 +106,7 @@ const helpersEnd = [
   .sort((a, b) => a - b)[0] ?? -1;
 assert.ok(helpersStart >= 0 && helpersEnd > helpersStart, "localized main-process helpers");
 const helperSource = mainSource.slice(helpersStart, helpersEnd);
+assert.ok(!helperSource.includes("MTKtinrelayLocalShip"), "incoming main helpers contain no build-time ship identity");
 const calls = [];
 let executorResult;
 const x = {execFile(...args) {

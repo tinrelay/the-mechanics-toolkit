@@ -46,9 +46,9 @@ results discardable.
 
 [`codex-0.154.0-alpha.6.2.patch`](codex-0.154.0-alpha.6.2.patch) applies only to OpenAI Codex tag
 `rust-v0.154.0-alpha.6.2`, commit `b5bffd3ec4db487e7e3dec59663875b0ef7b72ca`. Codex Desktop
-`26.908.40834` (build `8881`) bundles that same CLI version, and the qualified desktop fleet
-integrates the patched binary. The source-patch command verifies the exact commit and every target
-file's qualified before or after hash.
+`26.908.70816` (build `9275`) bundles that same CLI version, as did the preceding qualified build
+`8881`, and the qualified desktop fleet integrates the patched binary. The source-patch command
+verifies the exact commit and every target file's qualified before or after hash.
 
 ```sh
 node bin/toolkit.mjs source-patch standalone-output-compaction check /path/to/codex

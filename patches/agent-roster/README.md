@@ -15,5 +15,5 @@ identity, or an unreadable file emit a renderer diagnostic and do not replace th
 Removing all rosters disables their effects. Relative assets resolve safely below the project that
 owns the individual entry.
 
-Current qualified profiles are Desktop 26.908.40834 / build 8881 on macOS and Linux. Windows uses the
-same contract once its generated-code profile is qualified.
+The current qualified macOS profile is Desktop 26.908.70816 / build 9275. Linux remains qualified
+against build 8881. Windows uses the same contract once its generated-code profile is qualified.

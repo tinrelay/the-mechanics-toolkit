@@ -72,18 +72,21 @@ are presentation continuity, not delivery evidence or a Tinrelay sent archive.
 
 ## Configuration
 
-The client executable and local ship live in ignored toolkit configuration:
+Only the client executable lives in ignored toolkit configuration:
 
 ```json
 {
   "tinrelay": {
-    "client": "/absolute/path/to/tinrelay",
-    "localShip": "example-ship"
+    "client": "/absolute/path/to/tinrelay"
   }
 }
 ```
 
-`client` must be an absolute non-root path. `localShip` must be a lowercase DNS-style ship name.
+`client` must be an absolute non-root path. Ship identity is runtime data: incoming deliveries and
+pointers carry it in their exact envelope, while outgoing presentation selects the one valid
+observer configuration present at runtime. The main process rescans and serially rebinds that
+selection, so changing, adding, or removing observer configuration needs neither an app restart nor
+a rebuilt patch.
 
 Outgoing cards require Tinrelay's observer configuration at:
 
@@ -103,8 +106,12 @@ On Windows the same field carries one local named-pipe name instead:
 {"socket_path":"\\\\.\\pipe\\tinrelay-SHIP-outgoing"}
 ```
 
-The POSIX socket's immediate parent must already exist without group or world permission bits. A
-Windows value must be a single name below `\\.\pipe\`; the observer closes that exact pipe with
+The ship directory and `outgoing-observer.json` must be private (`0700` and `0600` respectively) on
+POSIX, and the socket's immediate parent must already exist without group or world permission bits.
+Exactly one valid observer configuration may exist; zero or multiple configurations disable
+outgoing presentation while incoming presentation keeps working. The observer sets the bound socket
+itself to mode `0600`. A Windows value must be a single name below
+`\\.\pipe\`; the observer closes that exact pipe with
 its owning Desktop process rather than treating it as a filesystem object. Codex
 accepts one newline-terminated UTF-8 `tinrelay-outgoing-observer-v1` event of at most 20 KiB per
 connection. It keeps at most 256 accepted events in memory and as atomic, mode-`0600` JSON files
@@ -115,6 +122,13 @@ in a sibling private `outgoing-anchors` directory. They retain up to 256 present
 task, up to 8 MiB per task, with a 64-task global safety valve. The two caches therefore create
 bounded local plaintext
 copies of recently sent bodies.
+
+One recursive native filesystem watcher covers the Tinrelay configuration directory and debounces
+changes before rescanning. Rebinding is serialized: the old endpoint is closed before a new sole
+valid endpoint is bound. Invalid, missing, or ambiguous runtime configuration closes the current
+endpoint and clears its in-memory identity without disturbing the private on-disk presentation
+history. Node maps this watcher to the operating system's native facility on each supported
+platform; it does not poll.
 
 On lookup Codex checks memory, then the exact UUID-named cache file, then waits up to 750 ms for a
 fresh observer event. Invalid, corrupt, oversized, misrouted, or pruned evidence leaves the stock

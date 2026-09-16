@@ -106,7 +106,7 @@ function lazyFixture() {
     "function MTKrenderWaitThreads(){}",
     'const waitRoster={"data-mtk-wait-thread-roster":true};',
     "function MTKOutboundMessageReceipt(){}",
-    'const MTKtinrelayLocalShip="sample-ship";',
+    "function MTKtinrelayShip(){}",
     "function MTKtinrelayPointerFromMessage(){}",
     'const tinrelay={"data-mtk-tinrelay-pointer":true};',
     "const delegated={messageBubbleStyle:MTKdelegatedBubbleStyle};",
