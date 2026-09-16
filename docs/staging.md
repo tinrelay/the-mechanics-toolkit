@@ -103,14 +103,16 @@ bin/tmtk-restart --candidate /path/to/chatgpt_amd64_tmtk.deb \
   --known-good /path/to/installed-chatgpt_amd64.deb /usr/lib/chatgpt
 ```
 
-Both receipt-free DEBs must pass the same embedded-signature check against the trusted APT keyring.
-The candidate receipt must identify `--candidate-source` by version, architecture, and SHA-256, and
-the currently installed inner application must match `--known-good`. The source and rollback may
-be different releases during an ordinary upgrade. TMTK copies the candidate and rollback into its
-private incident before the restart dialog. Installation and restoration use `dpkg`,
-with PolicyKit elevation for an ordinary desktop user, followed by exact package and inner-app
-verification. A future higher version from the vendor APT repository may replace the local rebuild.
-RPM staging is not implemented.
+`--candidate-source` must pass the embedded-signature check against the trusted APT keyring. A
+receipt-free `--known-good` must pass the same check; a receipted TMTK rollback is instead verified
+against its strict package receipt. The candidate receipt must identify `--candidate-source` by
+version, architecture, and SHA-256, and the currently installed inner application must match
+`--known-good`. The source and rollback may be different releases during an ordinary upgrade.
+TMTK copies the candidate and rollback into its private incident before the restart dialog.
+Installation and restoration use `dpkg`; an ordinary desktop user authenticates through the
+selected native dialog and `sudo -A`, followed by exact package and inner-app verification. A
+future higher version from the vendor APT repository may replace the local rebuild. RPM staging is
+not implemented.
 
 ### Windows MSIX staging and adoption
 

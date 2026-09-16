@@ -35,12 +35,23 @@ const state = { get: () => true, when: async () => {} };
 const realm = {};
 const quietConsole = { error() {} };
 const api = Function(
-  "globalThis", "atob", "TextDecoder", "console", "Om", "Dm",
+  "globalThis", "atob", "TextDecoder", "console", "Om", "Dm", "b6", "P6", "Ym", "Jm",
   `${helper};return {parse:MTKparseAgentRoster,load:MTKloadAgentRoster,install:MTKinstallAgentRoster,reload:MTKreloadAgentRoster,service:globalThis.__MTK_AGENT_ROSTER__}`
-)(realm, atob, TextDecoder, quietConsole, Symbol("ready"), () => client);
+)(
+  realm,
+  atob,
+  TextDecoder,
+  quietConsole,
+  Symbol("ready"),
+  () => client,
+  Symbol("ready"),
+  () => client,
+  Symbol("ready"),
+  () => client
+);
 
-const tamsinId = "019fa304-44d7-7922-9186-7eaaf5d33e82";
-const otherId = "01a0a050-11f7-77d1-aa8a-d144304711ee";
+const tamsinId = "11111111-1111-4111-8111-111111111111";
+const otherId = "22222222-2222-4222-8222-222222222222";
 directory("/office/.codex");
 directory("/ship/.codex");
 directory("/office/.codex/marks");

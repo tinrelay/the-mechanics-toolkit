@@ -2,8 +2,8 @@
 
 - **Current state:** Infrastructure
 - **Public extraction:** Complete
-- **Patch-specific evidence:** Build `8690` static composition and live task-message/Tinrelay
-  capability consumption green; predecessor build `8109` live composition green
+- **Patch-specific evidence:** Build `9275` full-fleet composition and live task-message/Tinrelay
+  capability consumption green on macOS; the selected registry also passed live on Ubuntu ARM64
 
 ## Why it exists
 

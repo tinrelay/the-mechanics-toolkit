@@ -87,13 +87,13 @@ bin/tmtk-restart --candidate /path/to/chatgpt_amd64_tmtk.deb \
 The Linux adapter proves that the candidate receipt names `--candidate-source` and that the
 installed inner app matches `--known-good`. Those packages may describe different builds during
 an upgrade. It copies the candidate and rollback into the private incident, uses the best
-available native dialog and terminal, installs through `dpkg` with PolicyKit elevation when
-needed, and verifies both receipt-free DEBs' embedded origin signatures plus the installed package
-and payload hashes. On the qualified Linux Desktop
-build, run this from a task whose person has explicitly enabled **Full Access** after the agent
-explains why TMTK must write private state outside the project, survive task/Desktop exit, and
-install the authorized package. The ordinary task sandbox made the rescue root read-only and
-invocation-scoped escalation was unavailable. See
+available native dialog and terminal, installs through `dpkg` with a private native askpass helper
+and exact `sudo -A` when needed, and verifies the candidate source plus either an authenticated
+vendor rollback or a strictly inspected TMTK rollback before checking the installed package and
+payload hashes. On the qualified Linux Desktop build, run this from a task whose person has
+explicitly enabled **Full Access** after the agent explains why TMTK must write private state
+outside the project, survive task/Desktop exit, and install the authorized package. The ordinary
+task sandbox made the rescue root read-only and invocation-scoped escalation was unavailable. See
 [`qualification/linux.md`](../qualification/linux.md) for the exact qualified gate and remaining
 boundaries.
 
@@ -147,11 +147,11 @@ That form detects and rescues launch failure but has no pre-adoption app to rest
 ## Local configuration
 
 For macOS, copy [`toolkit.example.json`](../toolkit.example.json) to the ignored
-`toolkit.local.json`. For the exact Linux build-8881 fleet, start from
+`toolkit.local.json`. For the exact Linux build-9275 16-patch fleet, start from
 [`toolkit.linux.example.json`](../toolkit.linux.example.json); for the exact Windows build-8881
-fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The
-examples contain fictional absolute paths and are not runnable until the agent replaces the
-applicable values.
+fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The examples
+contain fictional absolute paths and are not runnable until the agent replaces the applicable
+values. The Linux example has one remaining operator-specific value: `tinrelay.client`.
 `enabledPatches` selects the staged fleet; the catalog
 applies it in dependency-safe order regardless of array order. Every staged fleet must include
 `safe-start-readiness` for supervised adoption and `renderer-patch-registry`, which publishes the
@@ -172,9 +172,12 @@ Configuration-backed patches use these values:
   project root at runtime; no project path or roster contents are staging inputs;
 - reasoning retention consumes exact task opt-ins from the roster;
 - the model identity guard consumes exact task model-and-effort pins from the roster;
-- `tinrelay.client` identifies the local executable used for legacy pointer inspection. Tinrelay
-  ship identity comes from runtime message envelopes and the one valid outgoing-observer config;
-  adding or renaming a ship does not require rebuilding TMTK.
+- `tinrelay.client` identifies the local executable used for legacy pointer inspection. A pointer's
+  supplied local ship is accepted only when that inspection returns the same recipient ship and
+  exact transmission metadata. Outgoing identity comes from the one valid observer config, and an
+  observer event must name that selected runtime ship as its sender. Adding or renaming a ship does
+  not require rebuilding TMTK. When upgrading from TMTK 0.1.0, remove `tinrelay.localShip`; current
+  configuration accepts only `tinrelay.client` because ship identity is runtime data.
 
 The toolkit configuration itself is staging input and is not watched. In an adopted build,
 agent-roster files are runtime-reloadable. The aggregate accepts only a complete valid replacement
@@ -238,7 +241,8 @@ The outgoing-presentation patch does not replace or wrap Tinrelay. Agents keep u
 `tinrelay --ship SHIP send`, with its complete body on standard input. Outgoing cards require a
 compatible Tinrelay client to report each accepted send to a private Unix socket configured at
 `~/.config/tinrelay/SHIP/outgoing-observer.json`; Codex correlates that event with the unchanged
-acceptance JSON by transmission ID. The patch keeps a bounded private presentation cache under
+acceptance JSON by transmission ID. The observer event's sender ship must also match the ship named
+by the sole selected runtime config. The patch keeps a bounded private presentation cache under
 Codex's application-support directory so an existing task can reconstruct the same outgoing card
 after an app restart. This is local presentation continuity, not a Tinrelay sent archive or proof
 of remote delivery.

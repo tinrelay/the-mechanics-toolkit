@@ -42,7 +42,8 @@ node test/renderer-turn-window.test.mjs /path/to/extracted-asar
 The fixture test proves bounded materialization, a shared parent/current budget, intact delegated
 and streaming containers, accumulated-page bounding, full transcript preservation, and
 byte-identical second application. The bundled-contract probe covers the historical upstream-owned
-state and the active build-`8881` selector profile.
+state and the active build-`8881` and build-`9275` selector profiles. Live switching with more than
+200 turns remains open on build `9275`.
 
 ## Non-goals
 

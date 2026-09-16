@@ -13,6 +13,7 @@
     "wait-thread-roster",
     "tinrelay-pointer-presentation",
     "codex-observability",
+    "renderer-turn-window",
     "safe-start-readiness",
     "renderer-patch-registry"
   ],

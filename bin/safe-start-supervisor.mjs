@@ -21,6 +21,7 @@ import {
   resolveCli
 } from "../src/restart-platform.mjs";
 import {
+  ensurePrivateDirectory,
   loadRescueFile,
   prepareCandidateAdoption,
   pruneSupersededKnownGoodApps,
@@ -68,8 +69,7 @@ function launch(applicationRoot, rescueFilePath, invocationPrompt, candidatePath
     fail(`tmtk-restart: ${error.message}`, 2);
   }
   const rescueRoot = path.join(userHome, ".codex/tmtk-rescue");
-  fs.mkdirSync(rescueRoot, {recursive: true, mode: 0o700});
-  fs.chmodSync(rescueRoot, 0o700);
+  ensurePrivateDirectory(rescueRoot);
   const token = `${new Date().toISOString().replace(/[:.]/g, "-")}-${crypto.randomUUID()}`;
   const incidentDirectory = path.join(rescueRoot, token);
   fs.mkdirSync(incidentDirectory, {mode: 0o700});

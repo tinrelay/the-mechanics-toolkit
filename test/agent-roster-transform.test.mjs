@@ -39,6 +39,43 @@ try {
 
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(target), once, "second application is byte-identical");
+
+  fs.writeFileSync(target, [
+    "const Q=Symbol(`scope`),tV=Symbol(`projects`),b6=Symbol(`ready`);",
+    "const gm=e=>e,Qcs={useEffect(){}},P6=()=>null,hV=wm(Q,()=>{});",
+    "function Jcs(){let e=(0,Zcs.c)(12),value=0;return e}",
+    "export const fixture=true;"
+  ].join(""));
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linuxOnce = fs.readFileSync(target);
+  const linuxBehavior = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
+  assert.equal(linuxBehavior.status, 0, linuxBehavior.stderr || linuxBehavior.stdout);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(target), linuxOnce, "Linux second application is byte-identical");
+
+  fs.writeFileSync(target, [
+    "const Q=Symbol(`scope`),Am=Symbol(`context`),T7r=X(Q,({get:e})=>e),Ym=vm(Q,()=>null);",
+    "const qCt={useContext(){},useRef(){},useEffect(){}},Qcs={useEffect(){}};",
+    "function Lm(e){let t=(0,qCt.useContext)(Am),n={},r={},i={current:null};",
+    "let a={};function o(){}function s(){}function c(){}function l(){}",
+    "a.get=o,a.query=Xxt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
+    "function Jm(e,t){let n=e.get(Ym);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "const gm=e=>e,tV=Symbol(`mac-projects`),b6=Symbol(`mac-ready`),P6=()=>null,hV=wm(Q,()=>{});",
+    "function Jcs(){let e=(0,Zcs.c)(12),t=Lm(Q),value=0;return e}",
+    "export const fixture=true;"
+  ].join(""));
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linux9275 = fs.readFileSync(target, "utf8");
+  assert.ok(linux9275.includes("function MTKuseAgentRoster(){let e=Lm(Q);"));
+  assert.ok(linux9275.includes("return qCt.useEffect("));
+  assert.ok(linux9275.includes("let a=i(T7r);"));
+  assert.ok(linux9275.includes("e.get(Ym)==null&&await e.when(({get:e})=>e(Ym)!=null)"));
+  assert.ok(linux9275.includes('let n=Jm(e,"local")'));
+  for (const macosDecoy of ["let e=gm(Q);", "let a=i(tV);", "e.get(b6)", 'let n=P6(e,"local")']) {
+    assert.ok(!linux9275.includes(macosDecoy), `Linux build 9275 excludes ${macosDecoy}`);
+  }
   process.stdout.write("agent roster transform probe passed\n");
 
   function run(action) {

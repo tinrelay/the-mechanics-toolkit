@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { linuxBuild9275 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -62,6 +63,14 @@ function inspectState(value) {
 function currentProfile(value) {
   const seam = "function Jcs(){let e=(0,Zcs.c)(12),";
   if (!value.includes(seam)) return null;
+  if (value.includes(linuxBuild9275.selector)) {
+    for (const contract of [linuxBuild9275.selector, ...linuxBuild9275.required]) {
+      if (count(value, contract) !== 1) {
+        throw new Error(`Upstream changed: ${linuxBuild9275.name} owner is not unique: ${contract}`);
+      }
+    }
+    return linuxBuild9275.profile;
+  }
   return value.includes("hV=wm(Q,")
     ? { seam, scope: "gm(Q)", react: "Qcs", projectsAtom: "tV", readyAtom: "b6", client: "P6" }
     : { seam, scope: "gm(Q)", react: "Qcs", projectsAtom: "tV", readyAtom: "Om", client: "Dm" };
@@ -86,6 +95,10 @@ function replaceOnce(value, before, after, label) {
     throw new Error(`Upstream changed: ${label} is not unique`);
   }
   return value.slice(0, first) + after + value.slice(first + before.length);
+}
+
+function count(value, needle) {
+  return value.split(needle).length - 1;
 }
 
 function syntaxCheck(file) {

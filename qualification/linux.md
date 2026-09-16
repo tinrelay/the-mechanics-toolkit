@@ -9,16 +9,18 @@ TMTK patch fleet. It has two conclusions that must remain separate:
   React-Oops failures, rescue-terminal ownership, strict CLI/Desktop non-overlap, and known-good
   package restoration.
 
-The DEB adapter has completed healthy supervised adoption from a real Codex task on one exact
-Ubuntu ARM64 build. Selected live feature checks and the deliberate failure/recovery phase remain
-open. Do not report Linux as generally qualified from that bounded result. RPM is outside this
-runbook and remains unsupported.
+The DEB adapter has completed healthy supervised adoption from a real Codex task on Ubuntu ARM64
+build 9275. Runtime roster reload, palette surfaces, model mismatch protection, sidebar collapse,
+cross-task attribution, observability, and the live patch registry also passed on that exact build.
+The remaining live feature fixtures and deliberate failure/recovery phase remain open. Do not
+report Linux as generally qualified from that bounded result. RPM is outside this runbook and
+remains unsupported.
 
 Run from the Linux toolkit checkout. Keep the official DEB untouched, stage to a new file, and
 write exact commands and results to a dated ignored receipt under `.work/qualifications/`.
-Start the exact build-8881 13-patch selection from
-[`toolkit.linux.example.json`](../toolkit.linux.example.json), replacing its three
-operator-specific workspace/Tinrelay values in an ignored private copy.
+Start the exact build-9275 16-patch selection from
+[`toolkit.linux.example.json`](../toolkit.linux.example.json), replacing its one remaining
+operator-specific `tinrelay.client` value in an ignored private copy.
 
 ## 1. Freeze the environment and identities
 
@@ -75,8 +77,9 @@ turn a red inventory row green.
 ## 3. Healthy supervised adoption
 
 Start from the Desktop task being preserved. Confirm that the current installed app is healthy,
-that the pristine `SOURCE_DEB` is its exact package, and that no other task will be surprised by a
-restart. On the qualified Linux Desktop build, the initiating task also had to be set explicitly
+that `KNOWN_GOOD_DEB` reproduces its exact installed identity, that the candidate receipt names the
+pristine `SOURCE_DEB`, and that no other task will be surprised by a restart. On the qualified
+Linux Desktop build, the initiating task also had to be set explicitly
 to **Full Access** before arming. The ordinary **Ask for approval** sandbox made
 `~/.codex/tmtk-rescue` read-only, and an invocation-scoped escalation request was rejected. Explain
 to the person that TMTK needs to write private supervisor state outside the project, survive the
@@ -87,7 +90,7 @@ permanent. Then arm adoption:
 ```sh
 bin/tmtk-restart --candidate "$CANDIDATE_DEB" \
   --candidate-source "$SOURCE_DEB" \
-  --known-good "$SOURCE_DEB" /usr/lib/chatgpt
+  --known-good "$KNOWN_GOOD_DEB" /usr/lib/chatgpt
 ```
 
 After the command says the supervisor is armed, finish the invoking turn. The operator clicks
@@ -99,7 +102,8 @@ The receipt must prove:
 1. the exact invoking bundled CLI ancestor was frozen before Desktop quit;
 2. the exact `/usr/lib/chatgpt/ChatGPT` process quit and no name-based process kill occurred;
 3. the state databases accepted a writer before package installation;
-4. PolicyKit authorized `dpkg --install`, or the supervisor was already root;
+4. an ordinary user authenticated through the selected native askpass dialog and exact
+   `sudo -A dpkg --install`, or the supervisor was already root;
 5. `dpkg-query` reports the local candidate version and architecture;
 6. the installed app matches the candidate's inner version/build and three payload hashes;
 7. the directly launched Desktop process reached the one-use renderer readiness marker; and
@@ -143,9 +147,48 @@ Record the incident token and state transitions. The evidence must show:
 - the restored vendor app either emits readiness or remains cleanly alive through the documented
   ten-second pre-marker fallback, followed by a separately recorded healthy patched launch.
 
-An unexpected password prompt, missing PolicyKit agent, terminal that cannot wait for its command,
-unverified diagnostic path, package-script failure, process overlap, or application identity drift
-is a failed qualification, not an instruction to weaken the adapter.
+An invisible or unbranded password prompt, premature terminal, terminal that cannot wait for its
+command, unverified diagnostic path, package-script failure, process overlap, or application
+identity drift is a failed qualification, not an instruction to weaken the adapter.
+
+## Build 9275 Ubuntu ARM64 checkpoint
+
+On 2026-09-15, Ubuntu 24.04.5 LTS ARM64 in a GNOME Wayland session qualified the official
+`chatgpt` DEB version `26.908.70816` and the 16-patch local package
+`26.908.70816+tmtk1`. The pristine DEB SHA-256 was
+`d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`; the candidate DEB
+SHA-256 was `186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`;
+and the installed ASAR SHA-256 was
+`21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`.
+
+Incident `2026-09-15T09-02-17-098Z-130270ee-53da-4ee6-8be1-9dac520b3e85` proved a
+native-dialog replacement from the genuine supervisor task. The exact invoking CLI exited before
+installation, Zenity supplied both restart consent and the native password prompt for
+`sudo dpkg -i candidate.deb`, no terminal opened on the healthy path, the renderer became ready,
+and the app reopened the same task through its stock `codex://threads/<task-id>` route with Luna
+Light preserved. No
+supervisor, installer, dialog, askpass helper, or rescue-terminal process remained.
+
+Live renderer evidence also proved the project-local roster, three configured qualification-agent
+palette colors, one agent's `#4E9A51` -> `#C05A47` -> `#4E9A51` runtime reload without restart,
+model-mismatch lock and immediate restoration, sidebar collapse/expand while project navigation
+remained, named delegated attribution, observability target/metrics/CDP access, and the selected
+renderer registry. Completion attention, archive protection, terminal shortcut focus behavior, the
+greater-than-200-turn mounted window, and current native wait behavior remain explicit live gaps.
+The outgoing-receipt v5 gate passed success/failure classification, chronological placement below
+the stock **Worked for** row, collapse/expand stability, remount persistence, and full-text hover.
+Receipt-owned native timestamp/copy actions were absent and remain a live gap.
+
+A dedicated registered test ship supplied runtime identity without a package-baked client path or
+ship name. Removing the sole private observer config hot-unbound the mode-`0600` socket;
+restoring it, introducing a second valid config, and removing that ambiguity respectively rebound,
+unbound fail-closed, and rebound again through `fs.watch`/Linux inotify without rebuild or restart.
+A real loopback transmission rendered a durable outgoing **Accepted by Tinrelay** card and its
+routed incoming card with exact runtime route, body, timestamp, and copy actions. Both survived a
+task remount. A malformed coordinate exited 2 and produced no accepted card. This qualifies the
+TinRelay integration only; it is not a claim that the complete selected visual fleet has passed
+live acceptance. Controlled blank, Oops, exhaustion, and rollback fixtures were not repeated
+because no changed failure boundary required them.
 
 ## 5. Diagnostics, cleanup, and update behavior
 

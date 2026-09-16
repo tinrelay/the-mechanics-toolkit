@@ -171,11 +171,11 @@ staging, installation, restart, and live acceptance remain separate actions.
 
 The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.70816` (`9275`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
-readiness, and selected live message paths. Ubuntu ARM64 and Windows 11 ARM64 retain qualification
-for the earlier 13-patch build-8881 fleet while the current additions are ported. Ubuntu passed
-healthy supervisor adoption. Windows passed a signed-MSIX package and a deliberately broken
-three-turn rescue with known-working restoration; its ordinary cross-version rollback provenance
-remains open.
+readiness, and selected live message paths. Ubuntu ARM64 has a 16-patch build-9275 port with static
+package proof, healthy supervised adoption, and selected live renderer checks. Windows 11 ARM64
+remains on the earlier 13-patch build-8881 qualification: its signed MSIX package and deliberately
+broken three-turn rescue passed with known-working restoration, while ordinary cross-version
+rollback provenance remains open.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and
@@ -323,8 +323,9 @@ an explicit **Don't Restart** / **Relaunch Codex** dialog so active agents can r
 point and the person—not a race—chooses when the application closes.
 
 The Linux DEB adapter uses the same supervisor protocol with desktop-native dialogs, exact `/proc`
-executable identity, PolicyKit-backed package installation, and a Linux terminal handoff. Its exact
-qualified and still-open gates live in [the Linux runbook](qualification/linux.md).
+executable identity, a native askpass dialog around `sudo -A` package installation, and a Linux
+terminal handoff only after failure. Its exact qualified and still-open gates live in
+[the Linux runbook](qualification/linux.md).
 
 The Windows MSIX adapter supplies the same shared transitions through WPF dialogs, exact package
 and process identity, signed local package adoption, a PowerShell rescue surface, and strict

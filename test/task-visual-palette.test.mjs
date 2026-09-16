@@ -609,7 +609,7 @@ function uniqueAsset(pattern) {
 }
 
 async function testRosterConsumer(helperSource, appSource, appPrimarySource) {
-  const exactId = "019fa304-44d7-7922-9186-7eaaf5d33e82";
+  const exactId = "11111111-1111-4111-8111-111111111111";
   const titleRule = Object.freeze({
     key: "temporary-tamsin-color",
     kind: "task",

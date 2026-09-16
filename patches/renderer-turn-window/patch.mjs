@@ -2,6 +2,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { linuxBuild8881 } from "./profiles/linux.mjs";
+import { macBuild8881 } from "./profiles/macos.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -107,8 +109,9 @@ function inspectPristineSelector(source) {
   ]) {
     if (!source.includes(contract)) throw new Error(`Upstream changed: missing selector contract ${contract}`);
   }
-  if (isBuild8881Selector(owner)) {
-    inspectBuild8881PristineSelector(body);
+  const build8881 = build8881Profile(owner);
+  if (build8881 != null) {
+    inspectBuild8881PristineSelector(body, build8881);
   } else if (isBuild7345Selector(body)) {
     inspectBuild7345PristineSelector(body);
   } else {
@@ -129,8 +132,9 @@ function inspectAppliedSelector(source) {
   if (limit !== "UHrendererTailLimit") {
     throw new Error("Unrecognized renderer selector: wrong tail-limit owner");
   }
-  if (isBuild8881Selector(owner)) {
-    inspectBuild8881AppliedSelector(source, owner);
+  const build8881 = build8881Profile(owner);
+  if (build8881 != null) {
+    inspectBuild8881AppliedSelector(source, owner, build8881);
     return;
   }
   if (owner.body.includes("UHrendererCurrentKeys=UHrendererTail(d,UHrendererTailLimit)")) {
@@ -176,7 +180,8 @@ function inspectAppliedSelector(source) {
 
 function patchSelector(source) {
   const owner = selectorOwner(source);
-  if (isBuild8881Selector(owner)) return patchBuild8881Selector(source, owner);
+  const build8881 = build8881Profile(owner);
+  if (build8881 != null) return patchBuild8881Selector(source, owner, build8881);
   if (isBuild7345Selector(owner.body)) return patchBuild7345Selector(source, owner);
   const names = owner.header.groups;
   const declaration = selectorDeclaration(source, names.selector, owner.header.index);
@@ -248,18 +253,23 @@ function patchSelector(source) {
   return patched;
 }
 
-function isBuild8881Selector(owner) {
-  return owner.header.groups.scope != null &&
-    owner.body.includes("let i=n(VA,e)??!1,a=n(XA,e)??Opo;n(d8n,e);let o=t?n(ej,e)??null:null") &&
+function build8881Profile(owner) {
+  if (owner.header.groups.scope == null) return null;
+  const matches = [macBuild8881, linuxBuild8881].filter(profile =>
+    owner.header.groups.factory === profile.factory &&
+    owner.body.includes(build8881Prefix(profile)) &&
     owner.body.includes("return gpo({conversationRequests:a,isAeonThread:!1") &&
-    owner.body.includes("subagentParentThreadId:o,turnEntityKeys:");
+    owner.body.includes("subagentParentThreadId:o,turnEntityKeys:")
+  );
+  if (matches.length > 1) throw new Error("Upstream changed: ambiguous build-8881 renderer profile");
+  return matches[0] ?? null;
 }
 
-function inspectBuild8881PristineSelector(body) {
+function inspectBuild8881PristineSelector(body, profile) {
   for (const contract of [
-    "f=n(EV,s),p=f?.flatMap",
+    `f=n(${profile.keys},s),p=f?.flatMap`,
     "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?ppo(",
-    "g=n(EV,o==null?null:{hostId:n(sj,o),threadId:o}),_=o!=null&&h==null?g?.flatMap",
+    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap`,
     "turnEntityKeys:f?.map(({entityKey:e})=>e)"
   ]) {
     if (count(body, contract) !== 1) {
@@ -268,11 +278,11 @@ function inspectBuild8881PristineSelector(body) {
   }
 }
 
-function inspectBuild8881AppliedSelector(source, owner) {
+function inspectBuild8881AppliedSelector(source, owner, profile) {
   for (const contract of [
     "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
-    "f=n(EV,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap",
-    "g=n(EV,o==null?null:{hostId:n(sj,o),threadId:o}),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
+    `f=n(${profile.keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap`,
+    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))`,
     "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit),UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)",
     "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0",
     "_=o!=null&&h==null?UHrendererParentKeys?.flatMap",
@@ -289,27 +299,27 @@ function inspectBuild8881AppliedSelector(source, owner) {
   inspectTranscriptConsumer(source, owner.header.groups.selector, true);
 }
 
-function patchBuild8881Selector(source, owner) {
+function patchBuild8881Selector(source, owner, profile) {
   let body = owner.body;
   const before =
-    "f=n(EV,s),p=f?.flatMap(e=>{n(DV,e)?.status,n(OV,e);let i=bti(r,e);if(i==null)return[];i.turnId;" +
-    "let a=qMn(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});" +
-    "if(!a)for(let t of i.items)t!=null&&!a&&n(TV,{...e,itemId:t.id});return[i]})??kpo," +
+    `f=n(${profile.keys},s),p=f?.flatMap(e=>{n(${profile.status},e)?.status,n(${profile.detail},e);let i=${profile.getTurn}(r,e);if(i==null)return[];i.turnId;` +
+    `let a=${profile.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});` +
+    `if(!a)for(let t of i.items)t!=null&&!a&&n(${profile.item},{...e,itemId:t.id});return[i]})??kpo,` +
     "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
-    "ppo({conversationId:e,getTurn:(e,t)=>bti(r,{hostId:n(sj,e),threadId:e,entityKey:t}),historyEntries:l," +
+    `ppo({conversationId:e,getTurn:(e,t)=>${profile.getTurn}(r,{hostId:n(${profile.host},e),threadId:e,entityKey:t}),historyEntries:l,` +
     "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
-    "g=n(EV,o==null?null:{hostId:n(sj,o),threadId:o}),_=o!=null&&h==null?g?.flatMap";
+    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap`;
   const after =
-    "f=n(EV,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(e=>{n(DV,e)?.status,n(OV,e);let i=bti(r,e);if(i==null)return[];i.turnId;" +
-    "let a=qMn(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});" +
-    "if(!a)for(let t of i.items)t!=null&&!a&&n(TV,{...e,itemId:t.id});return[i]})??kpo," +
-    "g=n(EV,o==null?null:{hostId:n(sj,o),threadId:o})," +
+    `f=n(${profile.keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(e=>{n(${profile.status},e)?.status,n(${profile.detail},e);let i=${profile.getTurn}(r,e);if(i==null)return[];i.turnId;` +
+    `let a=${profile.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});` +
+    `if(!a)for(let t of i.items)t!=null&&!a&&n(${profile.item},{...e,itemId:t.id});return[i]})??kpo,` +
+    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),` +
     "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))," +
     "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)," +
     "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)," +
     "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0," +
     "h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
-    "ppo({conversationId:e,getTurn:(e,t)=>bti(r,{hostId:n(sj,e),threadId:e,entityKey:t}),historyEntries:l," +
+    `ppo({conversationId:e,getTurn:(e,t)=>${profile.getTurn}(r,{hostId:n(${profile.host},e),threadId:e,entityKey:t}),historyEntries:l,` +
     "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
     "_=o!=null&&h==null?UHrendererParentKeys?.flatMap";
   body = replaceOnce(body, before, after, "build-8881 bounded materialization");
@@ -341,6 +351,11 @@ function patchBuild8881Selector(source, owner) {
     declaration.text.replace(declaration.names, declaredNames),
     "build-8881 renderer selector declarations"
   );
+}
+
+function build8881Prefix(profile) {
+  return `let i=n(${profile.hasConversation},e)??!1,a=n(${profile.requests},e)??Opo;` +
+    `n(${profile.touch},e);let o=t?n(${profile.parent},e)??null:null`;
 }
 
 function isBuild7345Selector(body) {

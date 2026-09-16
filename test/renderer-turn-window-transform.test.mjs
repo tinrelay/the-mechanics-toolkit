@@ -61,6 +61,21 @@ try {
   assert.deepEqual(fs.readFileSync(app), build8881Once[0], "build-8881 selector is byte-identical after second application");
   assert.deepEqual(fs.readFileSync(local), build8881Once[1], "build-8881 renderer is byte-identical after second application");
 
+  fs.writeFileSync(app, build8881AppFixture(linuxBuild8881Identifiers()));
+  fs.writeFileSync(local, build8881LocalFixture("Ipo"));
+  assert.equal(run("check").state, "needs-apply", "Linux build 8881 requires the same mounted-renderer bound");
+  assert.equal(run("apply").state, "applied");
+  const linuxBuild8881Once = [fs.readFileSync(app), fs.readFileSync(local)];
+  const linuxBuild8881Probe = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
+  assert.equal(linuxBuild8881Probe.status, 0, linuxBuild8881Probe.stderr || linuxBuild8881Probe.stdout);
+  const linuxBuild8881Evidence = JSON.parse(linuxBuild8881Probe.stdout);
+  assert.equal(linuxBuild8881Evidence.nativeTurnLimit, 200);
+  assert.equal(linuxBuild8881Evidence.mountedSelectorCalls, 4);
+  assert.equal(linuxBuild8881Evidence.upstreamTransportPaginationPreserved, true);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(app), linuxBuild8881Once[0], "Linux build-8881 selector is byte-identical after second application");
+  assert.deepEqual(fs.readFileSync(local), linuxBuild8881Once[1], "Linux build-8881 renderer is byte-identical after second application");
+
   fs.writeFileSync(app, upstreamAppFixture().replace("thread/turns/list", "thread/turns/missing"));
   fs.writeFileSync(local, historicalLocalFixture("gLo"));
   const partial = spawnSync(process.execPath,
@@ -123,32 +138,49 @@ function historicalLocalFixture(selector) {
   ].join("");
 }
 
-function build8881AppFixture() {
+function build8881AppFixture(identifiers = macBuild8881Identifiers()) {
+  const id = identifiers;
   return [
     "const Q=Symbol('scope'),Opo=[],kpo=[],Ppo={visibleTurnEntries:[]};",
-    "function init(e){return e}function rm(e,t){return t}function gpo(e){return e}",
-    "var before,Ipo,after=init((()=>{Ipo=rm(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
-    "if(e==null)return Ppo;let i=n(VA,e)??!1,a=n(XA,e)??Opo;n(d8n,e);",
-    "let o=t?n(ej,e)??null:null,s={hostId:n(sj,e),threadId:e},c=n(Dti,s),l=fpo(c),",
-    "u=o==null?null:n(Dti,{hostId:n(sj,o),threadId:o}),d=fpo(u),f=n(EV,s),",
-    "p=f?.flatMap(e=>{n(DV,e)?.status,n(OV,e);let i=bti(r,e);if(i==null)return[];i.turnId;",
-    "let a=qMn(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});",
-    "if(!a)for(let t of i.items)t!=null&&!a&&n(TV,{...e,itemId:t.id});return[i]})??kpo,",
+    `function init(e){return e}function ${id.factory}(e,t){return t}function gpo(e){return e}`,
+    `var before,Ipo,after=init((()=>{Ipo=${id.factory}(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{`,
+    `if(e==null)return Ppo;let i=n(${id.hasConversation},e)??!1,a=n(${id.requests},e)??Opo;n(${id.touch},e);`,
+    `let o=t?n(${id.parent},e)??null:null,s={hostId:n(${id.host},e),threadId:e},c=n(${id.timeline},s),l=fpo(c),`,
+    `u=o==null?null:n(${id.timeline},{hostId:n(${id.host},o),threadId:o}),d=fpo(u),f=n(${id.keys},s),`,
+    `p=f?.flatMap(e=>{n(${id.status},e)?.status,n(${id.detail},e);let i=${id.getTurn}(r,e);if(i==null)return[];i.turnId;`,
+    `let a=${id.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});`,
+    `if(!a)for(let t of i.items)t!=null&&!a&&n(${id.item},{...e,itemId:t.id});return[i]})??kpo,`,
     "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?",
-    "ppo({conversationId:e,getTurn:(e,t)=>bti(r,{hostId:n(sj,e),threadId:e,entityKey:t}),historyEntries:l,",
+    `ppo({conversationId:e,getTurn:(e,t)=>${id.getTurn}(r,{hostId:n(${id.host},e),threadId:e,entityKey:t}),historyEntries:l,`,
     "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0,",
-    "g=n(EV,o==null?null:{hostId:n(sj,o),threadId:o}),_=o!=null&&h==null?g?.flatMap(e=>{",
-    "n(DV,e),n(OV,e);let t=bti(r,e);return t==null?[]:[t]})??kpo:kpo;",
+    `g=n(${id.keys},o==null?null:{hostId:n(${id.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap(e=>{`,
+    `n(${id.status},e),n(${id.detail},e);let t=${id.getTurn}(r,e);return t==null?[]:[t]})??kpo:kpo;`,
     "return gpo({conversationRequests:a,isAeonThread:!1,showPartialHistoryGaps:!1,mergeBerryDisplayTurnsForPIA:!1,",
     "preserveServerUserMessages:!1,conversationTurns:p,hasConversation:i,historyEntriesByTurnIndex:m?l:void 0,",
     "historyTimeline:m?c??void 0:void 0,isBackgroundSubagentsEnabled:t,hideReactionInputs:!1,",
-    "inheritedHistoryPositionKeys:h,liveTailHistoryPositionKey:m?n(X8n,e):null,parentConversationTurns:_,",
+    `inheritedHistoryPositionKeys:h,liveTailHistoryPositionKey:m?n(${id.liveTail},e):null,parentConversationTurns:_,`,
     "subagentParentThreadId:o,turnEntityKeys:f?.map(({entityKey:e})=>e)})});return Ipo})());",
     "async function zpo(e,{conversationId:t,isBackgroundSubagentsEnabled:n,markdownLimit:r}){",
     "let{visibleTurnEntries:i}=e.get(Ipo,{conversationId:t,isBackgroundSubagentsEnabled:n});return output(i)}",
     "function loadOlderConversationHistoryPage(){}",
     "const request={initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}},endpoint='thread/turns/list';"
   ].join("");
+}
+
+function macBuild8881Identifiers() {
+  return {
+    factory: "rm", hasConversation: "VA", requests: "XA", touch: "d8n", parent: "ej", host: "sj",
+    timeline: "Dti", keys: "EV", status: "DV", detail: "OV", getTurn: "bti", projectTurn: "qMn",
+    item: "TV", liveTail: "X8n"
+  };
+}
+
+function linuxBuild8881Identifiers() {
+  return {
+    factory: "wm", hasConversation: "Xj", requests: "aM", touch: "n6n", parent: "lM", host: "gM",
+    timeline: "oti", keys: "qV", status: "JV", detail: "YV", getTurn: "$ei", projectTurn: "Rjn",
+    item: "KV", liveTail: "V6n"
+  };
 }
 
 function build8881LocalFixture(selector) {

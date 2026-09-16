@@ -12,9 +12,9 @@ record. This ledger is not a promise to publish every historical experiment.
 | --- | --- | --- |
 | ASAR raw-header integrity | Extracted, fixture-tested, and used by the build-9275 full-fleet stage | Record the next accepted build |
 | Read-only app inspection | Extracted, fixture-tested, and exercised against pristine and staged build 9275 | Record the next accepted build |
-| Safe restart and rescue | Extracted; build-9275 healthy candidate adoption and renderer readiness green on macOS with exact package/CLI identity and no overlapping task runtime; build-8881 Ubuntu ARM64 healthy adoption, build-8576 real failed-launch return, and build-8378 real blank-renderer rescue remain useful evidence | Linux controlled-failure recovery, plus living React recovery-page exhaustion and known-working rollback, remain separate capability evidence |
+| Safe restart and rescue | Extracted; build-9275 healthy candidate adoption and renderer readiness green on macOS and Ubuntu ARM64 with exact package/CLI identity and no overlapping task runtime; build-8576 real failed-launch return and build-8378 real blank-renderer rescue remain useful evidence | Linux controlled-failure recovery, plus living React recovery-page exhaustion and known-working rollback, remain separate capability evidence |
 | Terminal toggle | Extracted; build-9275 static stage and live use green | Record the next accepted build |
-| Staging, repacking, package integrity | Extracted; macOS synthetic and build-8109/8378/8576/8690/8881/9275 stages green; Linux build-8881 DEB origin verification and ARM64 full-fleet rebuild green; the macOS build-9275 candidate completed healthy installation and launch | Record the next accepted build |
+| Staging, repacking, package integrity | Extracted; macOS synthetic and build-8109/8378/8576/8690/8881/9275 stages green; Linux build-9275 DEB origin verification, ARM64 16-patch rebuild, and healthy installation green | Record the next accepted build |
 | Native app-tools peer authorization | Extracted; current main-process profile red/green; build-9275 native delivery green and build-8881 bidirectional task messaging green | Record the next accepted build |
 | Standalone-output compaction source | Exact Codex 0.154.0-alpha.6.2 source diff, before/after hashes, focused compaction tests green, and native arm64 release binary built | Live-accept a task-message-triggered compaction boundary |
 | Patched Codex binary integration | Same-version check, staged-copy hash verification, build-9275 full-fleet stage, healthy launch, and native delivery green | Live-accept the task-message-triggered compaction boundary above |
@@ -28,7 +28,7 @@ record. This ledger is not a promise to publish every historical experiment.
 | Model identity guard | Extracted; exact-task policy and locked-composer behavior; build-9275 static stage and live protection green | Exercise the Dictate false-alarm regression specifically |
 | macOS menu title | Extracted; build-9275 bundle-metadata, static stage, and live menu bar green | Record the next accepted build |
 | Task attention policy | Extracted; build-9275 static stage green; unchanged build-8881 live mute behavior carried | Record the next accepted build |
-| Tinrelay presentation | Extracted as one patch; build-9275 direct addressed loopback rendered; build-8881 shared-bus, outgoing-order, restart, and pagination evidence plus build-8576 restart reconstruction carried | Exercise later-pagination reconstruction on build 9275 |
+| Tinrelay presentation | Extracted as one patch; build-9275 direct-addressed loopback rendered; build-8881 shared-bus, outgoing-order, restart, and pagination evidence plus build-8576 restart reconstruction carried | Exercise later-pagination reconstruction on build 9275 |
 | Sidebar action collapse | Extracted; build-9275 static stage and live use green | Record the next accepted build |
 | Patch registry | Extracted; build-9275 full-fleet composition and current live task-message/Tinrelay capability consumption green | Record the next accepted build |
 | Codex observability | Extracted; build-9275 socket, target list, metrics, and CDP paths live; build-8881 CPU-profile and timeline-trace captures carried | Capture a profile and trace on build 9275 when a live incident warrants it |
@@ -52,22 +52,23 @@ task message rendered with its sender, a three-target wait used the roster surfa
 addressed same-ship Tinrelay loopback rendered, CodexBridge reported ready, and the observability
 bridge enumerated the running targets and returned renderer metrics. Live use also accepted sidebar
 collapse, task-palette chips/room colors/background marks, the macOS menu title, and terminal toggle.
-The unchanged build-8881 result for bidirectional native messaging carries under the repository's
-owner-equivalence rule; model protection is live-accepted on build 9275. Build-9275 regression probes additionally cover the split
-renderer message bus, renderer-store capture, outgoing-radio hoist order, restart/pagination
-persistence, and composed registry ownership. Build `9275` is therefore the current qualified
-fleet; the table keeps narrower live boundaries visible where they would strengthen rather than
-redefine this qualification.
+The bidirectional native-messaging result from build 8881 still applies because its owning code is
+unchanged and the current fleet passed static proof; model protection is live-accepted on build
+9275. Build-9275 regression probes additionally cover the split renderer message bus,
+renderer-store capture, outgoing-radio hoist order, restart/pagination persistence, and composed
+registry ownership. Build `9275` is therefore the current qualified fleet; the table keeps narrower
+live boundaries visible where they would strengthen rather than redefine this qualification.
 
-The Linux DEB adapter has a narrower build-`8881` qualification on Ubuntu 24.04.5 ARM64. Its exact
-13-patch ASAR fleet passed source-signature verification, staging, repacking, second application,
-native-payload preservation, supervised installation, exact invoking-CLI exit, and real renderer
-readiness. The genuine Luna task reopened from Recents with its model and reasoning selection, and
-no supervisor, rescue agent, or toolkit-owned terminal remained. This proves healthy adoption and
-real-task CLI/Desktop non-overlap for that recorded environment; controlled blank/Oops recovery,
-exhaustion and known-good restoration, and per-feature Linux live checks remain open. Exact package
-hashes and runbook boundaries are recorded in
-[platform compatibility](platform-compatibility.md#linux-build-8881-implementation-checkpoint) and
+The Linux DEB adapter has a 16-patch build-`9275` qualification on Ubuntu 24.04.5 ARM64. Its exact
+fleet passed source-signature verification, staging, repacking, second application,
+native-payload preservation, supervised installation through a native `sudo -A` askpass dialog,
+exact invoking-CLI exit, real renderer readiness, and direct return to the genuine Luna task. No
+supervisor, installer, askpass helper, rescue agent, or toolkit-owned terminal remained. Runtime
+roster reload, palette surfaces, model mismatch protection, sidebar collapse, named attribution,
+observability, and registry checks also passed. Controlled blank/Oops recovery, exhaustion and
+known-good restoration, and the remaining live feature fixtures stay open. Exact package hashes
+and runbook boundaries are recorded in
+[platform compatibility](platform-compatibility.md#linux-build-9275-implementation-checkpoint) and
 [Linux qualification](../qualification/linux.md).
 
 The qualified desktop fleet was staged with these exact package patches:

@@ -104,7 +104,7 @@ export function prepareLinuxCandidateAdoption({
     throw new Error("Linux candidate adoption requires --candidate-source with its pristine source DEB");
   }
   if (typeof knownGoodPath !== "string" || knownGoodPath.trim() === "") {
-    throw new Error("Linux candidate adoption requires --known-good with the currently installed vendor DEB");
+    throw new Error("Linux candidate adoption requires --known-good with the currently installed known-working DEB");
   }
   const candidate = debInspector(candidatePath);
   const candidateSource = debInspector(candidateSourcePath);
@@ -137,14 +137,22 @@ export function installLinuxDeb({
   processRunner = spawnSync,
   sourceInspector = inspectLinuxDeb,
   appInspector = inspectAppBundle,
-  effectiveUserId = process.getuid?.() ?? -1
+  effectiveUserId = process.getuid?.() ?? -1,
+  environment = process.env
 }) {
   const verified = sourceInspector(source?.deb);
   requireSourceMatch(verified, source, "DEB selected when restart was armed");
   const dpkgArguments = ["--install", verified.deb];
-  const command = effectiveUserId === 0 ? "/usr/bin/dpkg" : "/usr/bin/pkexec";
-  const arguments_ = effectiveUserId === 0 ? dpkgArguments : ["/usr/bin/dpkg", ...dpkgArguments];
-  run(processRunner, command, arguments_);
+  if (effectiveUserId === 0) {
+    run(processRunner, "/usr/bin/dpkg", dpkgArguments);
+  } else {
+    if (typeof environment.SUDO_ASKPASS !== "string" || environment.SUDO_ASKPASS.trim() === "") {
+      throw new Error("Linux DEB installation requires SUDO_ASKPASS for non-root adoption");
+    }
+    run(processRunner, "/usr/bin/sudo", ["-A", "/usr/bin/dpkg", ...dpkgArguments], {
+      env: environment
+    });
+  }
 
   const installed = appInspector(targetApp, {platform: "linux"});
   requireInstalledMatch(installed, verified, "installed application");
@@ -192,8 +200,12 @@ function requireCandidateSource(candidate, source) {
 }
 
 function requireRollbackPair(candidate, knownGood) {
-  if (knownGood.packageKind !== "vendor" || knownGood.originSignature?.state !== "valid") {
-    throw new Error("Linux known-good DEB must be an authenticated vendor package");
+  const authenticatedVendor = knownGood.packageKind === "vendor" &&
+    knownGood.originSignature?.state === "valid";
+  const receiptedToolkit = knownGood.packageKind === "tmtk" && knownGood.receipt != null &&
+    knownGood.originSignature?.state === "absent-local-rebuild";
+  if (!authenticatedVendor && !receiptedToolkit) {
+    throw new Error("Linux known-good DEB must be an authenticated vendor or verified TMTK package");
   }
   if (candidate.package !== packageName || knownGood.package !== packageName ||
       candidate.architecture !== knownGood.architecture) {

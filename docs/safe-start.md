@@ -112,8 +112,9 @@ not start rescue. Automatic repair retries do not show the toolkit confirmation 
 The rollback source is not inferred from filenames, neighboring applications, or version order.
 On macOS it is the exact canonical application inspected and copied before candidate adoption. On
 Linux `--candidate-source` must be the pristine vendor DEB identified by the candidate receipt,
-while `--known-good` must be the vendor DEB whose inner identity matches the currently installed
-application. On Windows the known-good MSIX must reproduce the installed inner identity and carry
+while `--known-good` may be either an authenticated vendor DEB or a strictly inspected receipted
+TMTK DEB whose inner identity matches the currently installed application. On Windows the
+known-good MSIX must reproduce the installed inner identity and carry
 the same package family, publisher, architecture, and application ID at a higher outer package
 version. The known-good rollback is copied into the private incident and reverified before use;
 Linux also copies its candidate, while the candidate source remains evidence and need not be the
@@ -187,8 +188,11 @@ On Linux, TMTK prefers the desktop-native dialog family (`kdialog` for KDE/Plasm
 `zenity`, `yad`, then `kdialog`) and selects an installed terminal emulator without assuming one
 desktop. It launches a dedicated emulator process with its wait-for-command option when available.
 The rescue command exits its own shell and window; TMTK does not send a later broad close request
-to a terminal application it may not own. DEB installation uses `dpkg` through PolicyKit for an
-ordinary user and verifies both dpkg's installed version/architecture and the inner application.
+to a terminal application it may not own. For an ordinary user, DEB installation creates a private
+temporary helper for the selected native dialog and runs `sudo -A dpkg --install`. The helper is
+removed after success, cancellation, installation failure, or post-install verification failure;
+the healthy path never opens a terminal. TMTK then verifies both dpkg's installed
+version/architecture and the inner application.
 On the qualified Linux Desktop build, the initiating task required explicit **Full Access** because
 the ordinary task sandbox made `~/.codex/tmtk-rescue` read-only and did not permit a one-command
 escalation. The agent must explain that TMTK needs private out-of-project supervisor state, a

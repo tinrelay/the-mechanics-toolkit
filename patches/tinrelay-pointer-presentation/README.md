@@ -2,11 +2,10 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer and main-process families
-- **Patch-specific evidence:** Build `8690` full-fleet stage and live incoming/outgoing loopback
-  presentation green, including causal probes for the split renderer host bus, outgoing hoist
-  order, and restart/pagination persistence; build `8576` launch, outgoing causal order, and restart
-  reconstruction live-accepted. Build `8690` later-pagination reconstruction remains pending,
-  2026-09-11
+- **Patch-specific evidence:** Build `9275` full-fleet static composition and Ubuntu ARM64 runtime
+  identity reload plus direct-addressed incoming/outgoing loopback green; build `8881` split-bus,
+  outgoing-order, restart, and pagination probes carried; build `8576` restart reconstruction
+  live-accepted. Build `9275` later-pagination reconstruction remains pending, 2026-09-15
 
 ## Why it exists
 
@@ -58,7 +57,8 @@ Agents keep using ordinary `tinrelay --ship SHIP send`, with the complete body o
 Arguments, stdout, stderr, exit status, delivery, and outbox behavior are unchanged. After a fresh
 send is accepted and its encrypted outbox envelope is removed, a compatible Tinrelay client may
 emit the exact plaintext transmission to a private Unix socket. Codex joins that observer event to
-the ordinary acceptance JSON by transmission ID, sender ship, and recipient ship.
+the ordinary acceptance JSON by transmission ID, sender ship, and recipient ship. The event's
+sender ship must also equal the ship named by the sole selected runtime observer config.
 
 The surface means **accepted by the relay**, not received, read, or acted upon by the remote ship.
 Missing or mismatched observer evidence leaves the stock command result visible. Duplicate events
@@ -83,10 +83,13 @@ Only the client executable lives in ignored toolkit configuration:
 ```
 
 `client` must be an absolute non-root path. Ship identity is runtime data: incoming deliveries and
-pointers carry it in their exact envelope, while outgoing presentation selects the one valid
-observer configuration present at runtime. The main process rescans and serially rebinds that
+pointers carry it in their exact envelope. A pointer's supplied local ship is accepted only when
+Tinrelay inspection returns the same recipient ship and exact transmission metadata. Outgoing
+presentation selects the one valid observer configuration present at runtime and accepts only
+events whose sender ship matches that selection. The main process rescans and serially rebinds that
 selection, so changing, adding, or removing observer configuration needs neither an app restart nor
-a rebuilt patch.
+a rebuilt patch. Existing TMTK 0.1.0 configurations must remove `tinrelay.localShip`; the current
+configuration accepts only `client`.
 
 Outgoing cards require Tinrelay's observer configuration at:
 
@@ -193,7 +196,8 @@ loopback exercised the ordinary outgoing send presentation and the incoming poin
 
 - treating prose, correspondence headers, task titles, or arbitrary command output as routing data;
 - wrapping or replacing the Tinrelay CLI;
-- accepting pointers or observer events for a different local ship;
+- accepting a pointer's supplied local ship without matching Tinrelay inspection, or an observer
+  event whose sender ship differs from the sole selected runtime ship;
 - rendering active remote content;
 - retrying, acknowledging, deleting, or otherwise mutating a transmission;
 - turning Tinrelay's outbox or Codex's presentation cache into correspondence history;

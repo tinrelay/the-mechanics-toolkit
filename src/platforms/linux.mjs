@@ -7,6 +7,7 @@ import {
 } from "../linux-deb.mjs";
 
 const dialogTitle = "The Mechanic's Toolkit";
+const taskIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function resolveApplication(argument) {
   if (typeof argument !== "string" || argument.trim() === "") {
@@ -87,14 +88,18 @@ export function launchApplication({
   app,
   marker,
   appLog,
+  taskId,
   processLauncher = spawn,
   environment = process.env
 }) {
   const {executable} = applicationLayout(app);
+  if (typeof taskId !== "string" || !taskIdPattern.test(taskId)) {
+    throw new Error("Linux application launch requires a valid task ID");
+  }
   const log = fs.openSync(appLog, "a", 0o600);
   let child;
   try {
-    child = processLauncher(executable, [], {
+    child = processLauncher(executable, [`codex://threads/${taskId}`], {
       detached: true,
       stdio: ["ignore", log, log],
       env: {...environment, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: marker}
@@ -214,16 +219,64 @@ export function replaceApplicationWithVerifiedSource({
   processRunner = spawnSync,
   appInspector,
   sourceInspector,
-  effectiveUserId
+  effectiveUserId = process.getuid?.() ?? -1,
+  environment = process.env
 }) {
-  return installLinuxDeb({
-    targetApp,
-    source,
-    processRunner,
-    appInspector,
-    sourceInspector,
-    effectiveUserId
+  if (effectiveUserId === 0) {
+    return installLinuxDeb({
+      targetApp,
+      source,
+      processRunner,
+      appInspector,
+      sourceInspector,
+      effectiveUserId,
+      environment
+    });
+  }
+  const helper = createAskpassHelper({source, environment});
+  try {
+    return installLinuxDeb({
+      targetApp,
+      source,
+      processRunner,
+      appInspector,
+      sourceInspector,
+      effectiveUserId,
+      environment: {...environment, SUDO_ASKPASS: helper}
+    });
+  } finally {
+    fs.rmSync(helper, {force: true});
+  }
+}
+
+function createAskpassHelper({source, environment}) {
+  const backend = dialogBackend(environment);
+  const message = "Enter your password to authorize sudo dpkg -i candidate.deb.";
+  let arguments_;
+  if (backend.name === "kdialog") {
+    arguments_ = ["--title", dialogTitle, "--password", message];
+  } else if (backend.name === "yad") {
+    arguments_ = [
+      "--entry",
+      "--hide-text",
+      `--title=${dialogTitle}`,
+      `--text=${message}`,
+      "--button=gtk-cancel:1",
+      "--button=gtk-ok:0"
+    ];
+  } else {
+    arguments_ = ["--password", `--title=${dialogTitle} — sudo dpkg -i candidate.deb`];
+  }
+  const directory = path.dirname(path.resolve(source.deb));
+  const helper = path.join(directory, `.tmtk-sudo-askpass-${process.pid}`);
+  const command = [backend.command, ...arguments_].map(shellQuote).join(" ");
+  fs.writeFileSync(helper, `#!/bin/sh\nexec ${command} 2>/dev/null\n`, {
+    encoding: "utf8",
+    mode: 0o700,
+    flag: "wx"
   });
+  fs.chmodSync(helper, 0o700);
+  return helper;
 }
 
 function confirmChoice({message, affirmative, negative, processRunner, environment}) {
@@ -251,6 +304,7 @@ function dialogBackend(environment) {
     if (command == null) continue;
     if (name === "kdialog") {
       return {
+        name,
         command,
         cancelStatuses: [1],
         arguments: ({title, message, affirmative, negative}) => [
@@ -262,6 +316,7 @@ function dialogBackend(environment) {
       };
     }
     return {
+      name,
       command,
       cancelStatuses: name === "yad" ? [1, 252] : [1],
       arguments: ({title, message, affirmative, negative}) => [

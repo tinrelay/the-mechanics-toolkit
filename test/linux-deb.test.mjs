@@ -15,10 +15,12 @@ try {
   const candidateFile = path.join(scratch, "candidate-original.deb");
   const candidateSourceFile = path.join(scratch, "candidate-source-original.deb");
   const knownGoodFile = path.join(scratch, "known-good-original.deb");
+  const knownGoodTmtkFile = path.join(scratch, "known-good-tmtk-original.deb");
   fs.mkdirSync(incident);
   fs.writeFileSync(candidateFile, "candidate");
   fs.writeFileSync(candidateSourceFile, "candidate-source");
   fs.writeFileSync(knownGoodFile, "known-good");
+  fs.writeFileSync(knownGoodTmtkFile, "known-good-tmtk");
 
   const signedVendorFile = path.join(scratch, "signed-vendor.deb");
   const trustedKeyring = path.join(scratch, "chatgpt-archive-keyring.gpg");
@@ -87,10 +89,22 @@ try {
       }
     }
   });
+  const knownGoodTmtk = sourceReceipt({
+    packageKind: "tmtk",
+    deb: knownGoodTmtkFile,
+    debSha256: "7".repeat(64),
+    packageVersion: "26.907.40000+tmtk1",
+    version: "26.907.40000",
+    build: "8870",
+    archiveSha256: "8".repeat(64),
+    originSignature: {state: "absent-local-rebuild"},
+    receipt: {schemaVersion: 1}
+  });
   const inspectSource = file => {
     const content = fs.readFileSync(file, "utf8");
     const receipt = content === "candidate" ? candidate :
-      content === "candidate-source" ? candidateSource : knownGood;
+      content === "candidate-source" ? candidateSource :
+      content === "known-good-tmtk" ? knownGoodTmtk : knownGood;
     return {...receipt, deb: path.resolve(file)};
   };
   const installedInspector = () => applicationInspection(knownGood);
@@ -110,6 +124,56 @@ try {
   assert.equal(fs.readFileSync(candidateSourceFile, "utf8"), "candidate-source");
   assert.equal(fs.readFileSync(candidateFile, "utf8"), "candidate");
   assert.equal(fs.readFileSync(knownGoodFile, "utf8"), "known-good");
+
+  const tmtkUpgradeIncident = path.join(scratch, "tmtk-upgrade-incident");
+  fs.mkdirSync(tmtkUpgradeIncident);
+  const tmtkInspectionPaths = [];
+  const tmtkUpgrade = prepareLinuxCandidateAdoption({
+    candidatePath: candidateFile,
+    candidateSourcePath: candidateSourceFile,
+    knownGoodPath: knownGoodTmtkFile,
+    targetApp: "/usr/lib/chatgpt",
+    incidentDirectory: tmtkUpgradeIncident,
+    debInspector(file) {
+      if (fs.readFileSync(file, "utf8") === "known-good-tmtk") {
+        tmtkInspectionPaths.push(path.resolve(file));
+      }
+      return inspectSource(file);
+    },
+    appInspector: () => applicationInspection(knownGoodTmtk)
+  });
+  assert.equal(tmtkUpgrade.knownGood.packageKind, "tmtk");
+  assert.equal(fs.readFileSync(tmtkUpgrade.knownGood.deb, "utf8"), "known-good-tmtk");
+  assert.deepEqual(tmtkInspectionPaths, [
+    path.resolve(knownGoodTmtkFile),
+    path.join(tmtkUpgradeIncident, "known-good.deb")
+  ], "the copied TMTK rollback is re-inspected inside the incident");
+
+  for (const [label, rollback, installed, pattern] of [
+    ["receipt", {...knownGoodTmtk, receipt: null}, knownGoodTmtk, /verified TMTK package/],
+    ["architecture", {...knownGoodTmtk, architecture: "arm64"}, knownGoodTmtk, /package architecture/],
+    ["inner identity", knownGoodTmtk,
+      {...applicationInspection(knownGoodTmtk), archive: {sha256: "9".repeat(64)}},
+      /currently installed application/]
+  ]) {
+    const refusedIncident = path.join(scratch, `refused-tmtk-${label.replace(" ", "-")}`);
+    fs.mkdirSync(refusedIncident);
+    assert.throws(() => prepareLinuxCandidateAdoption({
+      candidatePath: candidateFile,
+      candidateSourcePath: candidateSourceFile,
+      knownGoodPath: knownGoodTmtkFile,
+      targetApp: "/usr/lib/chatgpt",
+      incidentDirectory: refusedIncident,
+      debInspector(file) {
+        const inspected = inspectSource(file);
+        return path.resolve(file) === path.resolve(knownGoodTmtkFile) ?
+          {...rollback, deb: path.resolve(file)} : inspected;
+      },
+      appInspector: () => installed
+    }), pattern);
+    assert.deepEqual(fs.readdirSync(refusedIncident), [],
+      `mismatched TMTK rollback ${label} is refused before incident copying`);
+  }
 
   assert.throws(() => prepareLinuxCandidateAdoption({
     candidatePath: candidateFile,
@@ -170,8 +234,9 @@ try {
     sourceInspector: () => prepared.candidate,
     appInspector: () => applicationInspection(prepared.candidate),
     effectiveUserId: 501,
-    processRunner(command, arguments_) {
-      installCalls.push({command, arguments_});
+    environment: {SUDO_ASKPASS: "/private/tmtk-askpass"},
+    processRunner(command, arguments_, options) {
+      installCalls.push({command, arguments_, options});
       if (command === "/usr/bin/dpkg-query") {
         return {status: 0, stdout: `${prepared.candidate.packageVersion}\tamd64\n`, stderr: ""};
       }
@@ -179,8 +244,13 @@ try {
     }
   });
   assert.deepEqual(installCalls[0], {
-    command: "/usr/bin/pkexec",
-    arguments_: ["/usr/bin/dpkg", "--install", prepared.candidate.deb]
+    command: "/usr/bin/sudo",
+    arguments_: ["-A", "/usr/bin/dpkg", "--install", prepared.candidate.deb],
+    options: {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+      env: {SUDO_ASKPASS: "/private/tmtk-askpass"}
+    }
   });
   assert.equal(installed.packageVersion, prepared.candidate.packageVersion);
   assert.equal(installed.archiveSha256, prepared.candidate.archiveSha256);
@@ -203,6 +273,18 @@ try {
     command: "/usr/bin/dpkg",
     arguments_: ["--install", prepared.knownGood.deb]
   });
+
+  assert.throws(() => installLinuxDeb({
+    targetApp: "/usr/lib/chatgpt",
+    source: prepared.candidate,
+    sourceInspector: () => prepared.candidate,
+    appInspector: () => applicationInspection(prepared.candidate),
+    effectiveUserId: 501,
+    environment: {},
+    processRunner() {
+      throw new Error("must not run without askpass");
+    }
+  }), /SUDO_ASKPASS/);
 
   assert.throws(() => installLinuxDeb({
     targetApp: "/usr/lib/chatgpt",

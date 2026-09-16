@@ -59,49 +59,56 @@ Official distribution references:
 - [Windows installation](https://learn.chatgpt.com/docs/windows/windows-app)
 - [Linux installation and supported package formats](https://learn.chatgpt.com/docs/linux/linux-app)
 
-## Linux build 8881 implementation checkpoint
+## Linux build 9275 implementation checkpoint
 
-The current official DEBs inspected on 2026-09-11 have outer and inner version
-`26.908.40834`, Codex build `8881`, and Electron `42.3.0`:
-
-| Architecture | Untouched DEB SHA-256 | Source ASAR SHA-256 |
-| --- | --- | --- |
-| AMD64 | `da37b8e7bcefaaea019c478cacbe6c73ee1ddd15e0e1ebb3c7ef0a42dd818ac2` | `6c371cc96c2cf201c0777ddd54085f156efbb5347cbb21667cd8e67ec1bb36d3` |
-| ARM64 | `bae5c5ca585625a116a8877dedc455e4c27ca02063ea93dbd6a0506ed6a12d31` | `a2ac9375f964d13563fd16954e6dd70426b78622f505927b718a43d5eace8251` |
+The official ARM64 DEB inspected on 2026-09-15 has outer and inner version
+`26.908.70816` and Codex build `9275`. Its untouched DEB SHA-256 is
+`d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`.
+This checkpoint does not make an AMD64 build-9275 claim.
 
 The exact package layout is `/usr/bin/chatgpt` -> `../lib/chatgpt/codex-launcher`, with Desktop
 at `/usr/lib/chatgpt/ChatGPT`, `resources/app.asar`, and the bundled CLI at
 `resources/codex`. TMTK checks those exact owners and compares the outer DEB, Linux package
 metadata, and inner ASAR identity instead of treating the launcher name as application identity.
 
-The ARM64 package now recognizes the complete 13-patch Linux fleet: runtime JSON reload, safe-start
-readiness, renderer registry, cross-task attribution, model identity guard, outgoing-message
-receipts, reasoning retention, sidebar collapse, task attention policy, task visual palette,
-terminal toggle, TinRelay presentation, and wait-thread roster. Shared transforms select exact
-Linux build-8881 owner profiles only where the generated code differs. The macOS-only menu-title
-and native app-tools authorization patches remain unsupported rather than being made to match a
-platform where their owned surfaces do not exist.
+The ARM64 package recognizes the complete 16-patch Linux fleet: cross-task attribution, runtime JSON
+reload, agent roster, task visual palette, reasoning retention, model identity guard, sidebar
+collapse, task attention policy, terminal toggle, outgoing-message receipts, wait-thread roster,
+TinRelay presentation, Codex observability, renderer turn window, safe-start readiness, and the
+renderer registry. Shared transforms select exact Linux build-9275 owner profiles only where the
+generated code differs. The macOS-only menu-title and native app-tools authorization patches remain
+unsupported rather than being made to match a platform where their owned surfaces do not exist.
 
 The source-only `stage-deb` adapter produced and re-extracted local
-`26.908.40834+tmtk1` candidates for both architectures, preserving native payloads, executable
-modes, inner version/build, and all non-owned package files. The initial AMD64 package-mechanics
-proof used a three-patch candidate; it is not a full-fleet claim. The final ARM64 13-patch
-candidate has SHA-256
-`8737719adee28bae1c0060a08799da914d1d99f26e6b636597ba7faaf88dec07` and inner ASAR SHA-256
-`86caf4376a7045d1c4d43fb8367c22ef9913a22a48a68f2c99195050fa69e000`. It records its pristine
-DEB hash and selected fleet in both DEB control fields and an inner receipt.
+`26.908.70816+tmtk1`, preserving native payloads, executable modes, inner version/build, and all
+non-owned package files. The 16-patch candidate SHA-256 is
+`186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`; its inner ASAR SHA-256
+is `21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`. It records the
+pristine DEB hash and selected fleet in both DEB control fields and an inner receipt.
 
-The final ARM64 candidate passed the healthy live path on Ubuntu 24.04.5 GNOME/Wayland on
-2026-09-12. A genuine GPT-5.6 Luna task froze its exact task ID, catalog directory, model, reasoning
-effort, and bundled-CLI ancestor. After the invoking CLI exited and the Codex databases accepted a
-writer, Zenity supplied the restart choice, GNOME PolicyKit authorized the verified package,
-`dpkg-query` reported `26.908.40834+tmtk1 arm64`, and the installed inner application and payload
-hashes matched the candidate receipt. The directly launched Desktop process reached its private
-renderer-ready marker. The preserved task reopened from Recents with its previous reasoning and
-model selection intact, and no supervisor, rescue agent, or toolkit-owned terminal remained. The
-application did not automatically navigate to that task, and this receipt does not qualify the
-still-open per-feature live checks or controlled-failure gates in
-[`qualification/linux.md`](../qualification/linux.md).
+The ARM64 candidate passed the healthy live path on Ubuntu 24.04.5 GNOME/Wayland on 2026-09-15. A
+genuine GPT-5.6 Luna task froze its exact task ID, project directory, model, reasoning effort, and
+bundled-CLI ancestor. After the invoking CLI exited and the Codex databases accepted a writer,
+Zenity supplied the restart choice and a second private askpass dialog titled with the recognizable
+`sudo dpkg -i candidate.deb` operation; the helper invokes exact `sudo -A dpkg --install`.
+No terminal opened on the healthy path. `dpkg-query` reported `26.908.70816+tmtk1 arm64`, the
+installed inner application and payload hashes matched the candidate receipt, and the directly
+launched Desktop process reached its private renderer-ready marker. The app used its stock
+`codex://threads/<task-id>` route to reopen the same task with Luna Light intact. No supervisor,
+installer, dialog, askpass helper, rescue agent, or toolkit-owned terminal remained.
+
+Live renderer checks also passed for project-local roster discovery, palette surfaces and hot
+reload, model mismatch protection, sidebar collapse, named attribution, observability, and the
+selected patch registry. Runtime TinRelay identity also passed: the app watched the private
+configuration tree with `fs.watch`/inotify, unbound on zero or multiple valid observer configs, and
+rebound when exactly one remained. A real accepted send and its routed delivery rendered outgoing
+and incoming cards with exact runtime ship names, timestamps, and copy actions across a task
+remount; a malformed coordinate exited 2 and produced no accepted card. Completion attention,
+archive protection, terminal shortcut focus, greater-than-200-turn mounting, current wait behavior,
+and controlled-failure gates remain open in [`qualification/linux.md`](../qualification/linux.md).
+Outgoing-receipt v5 classifies successful and failed task messages correctly and remains stable in
+its chronological send position across reasoning collapse/expand and task remount, but its
+receipt-owned timestamp/copy actions remain absent on Linux 9275.
 
 ## Windows build 8881 implementation checkpoint
 
@@ -216,8 +223,9 @@ Linux JavaScript port should cover both architectures for this exact build.
 At this initial cross-platform inventory, the dormant `full-history-drain-suppression` check
 reported `upstream-owned` on all inspected platforms, while `renderer-turn-window` and
 `task-supervisor` did not recognize the pristine profiles. The renderer window was subsequently
-reactivated and ported against the macOS build-`8881` owner after real long-lived-task stalls;
-other platform profiles remain separate qualification work.
+reactivated and ported against the macOS build-`8881` owner after real long-lived-task stalls. At
+that checkpoint, other platform profiles remained separate qualification work; the current Linux
+build-9275 result is recorded above.
 
 ## Package and installation boundaries
 
@@ -275,24 +283,31 @@ replace it. Reinstalling the pristine package for rollback is therefore an expli
 action rather than an ordinary same-version apt upgrade.
 
 Supervised adoption names three roles explicitly: the rebuilt candidate, the authenticated newer
-vendor DEB named by its receipt, and the authenticated package matching the currently installed
-known-working application. The last two may be different builds during an upgrade. TMTK verifies
+vendor DEB named by its receipt, and the package matching the currently installed known-working
+application. The last may be either an authenticated vendor DEB or a strictly inspected receipted
+TMTK DEB, and it may be a different build from the candidate source during an upgrade. TMTK verifies
 all three, copies only the candidate and rollback into the private incident before asking the
-application to quit, installs through `dpkg` (using PolicyKit when not already root), verifies dpkg
-identity and the installed application hashes, and retains the rollback for known-working
-restoration. This keeps dpkg's ownership database truthful; TMTK never patches
+application to quit, and installs through `dpkg`. An ordinary user authenticates through the
+selected native dialog and exact `sudo -A`; the private helper is removed on every outcome and no
+terminal opens on the healthy path. TMTK then verifies dpkg identity and the installed application
+hashes and retains the rollback for known-working restoration. This keeps dpkg's ownership database
+truthful; TMTK never patches
 `/usr/lib/chatgpt/resources/app.asar` in place.
 On the qualified Desktop build, a genuine initiating task required explicit **Full Access**: the
 ordinary task sandbox made `~/.codex/tmtk-rescue` read-only and invocation-scoped escalation was
 unavailable. The agent must explain that requirement and its scope before asking the person to
 enable it.
 
-Only DEB packaging is implemented. Healthy ARM64 adoption, exact real-task context, and
-CLI/Desktop non-overlap are qualified on the exact Ubuntu, desktop/session, and application build
-above. RPM packaging,
-selected live feature inspection, controlled renderer failures, terminal rescue, and known-good
-restoration remain separate qualification targets; do not broaden that measured result into a
-general Linux support claim.
+Only DEB packaging is implemented. Ubuntu 24.04.5 LTS ARM64 in GNOME Wayland qualified the official
+`26.908.70816` package and 16-patch `26.908.70816+tmtk1` rebuild. The pristine DEB SHA-256 is
+`d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`, the candidate DEB
+SHA-256 is `186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`, and the installed
+ASAR SHA-256 is `21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`.
+Healthy adoption, exact real-task return, CLI/Desktop non-overlap, runtime roster reload, palette,
+model guard, sidebar collapse, attribution, observability, registry checks, and runtime TinRelay
+incoming/outgoing presentation passed. RPM packaging, the remaining live feature fixtures,
+controlled renderer failures, terminal rescue, and known-good restoration remain separate
+qualification targets; do not broaden that measured result into a general Linux support claim.
 
 ## Porting and qualification order
 

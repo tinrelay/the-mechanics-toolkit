@@ -31,6 +31,7 @@ import {
   acquireRescueLease,
   automaticRepairPrompt,
   codexRuntimeDatabaseFiles,
+  ensurePrivateDirectory,
   explicitResumeEnvironment,
   interactiveRescuePrompt,
   launchStatus,
@@ -52,6 +53,26 @@ import {
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-safe-start-test-"));
 try {
+  const privateDirectoryCalls = [];
+  ensurePrivateDirectory("/protected/tmtk-rescue", {
+    fileSystem: {
+      mkdirSync(directory, options) {
+        privateDirectoryCalls.push({operation: "mkdir", directory, options});
+      },
+      statSync() {
+        return {mode: 0o40700};
+      },
+      chmodSync() {
+        throw Object.assign(new Error("read-only mount"), {code: "EROFS"});
+      }
+    }
+  });
+  assert.deepEqual(privateDirectoryCalls, [{
+    operation: "mkdir",
+    directory: "/protected/tmtk-rescue",
+    options: {recursive: true, mode: 0o700}
+  }]);
+
   const app = path.join(scratch, "Applications/ChatGPT.app");
   fs.mkdirSync(path.join(app, "Contents/MacOS"), {recursive: true});
   fs.mkdirSync(path.join(app, "Contents/Resources"), {recursive: true});

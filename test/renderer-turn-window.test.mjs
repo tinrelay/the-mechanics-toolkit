@@ -20,6 +20,10 @@ const build7345 = app.includes("UHrendererCurrentKeys=UHrendererTail(d,UHrendere
 const build8881 = app.includes(
   "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)"
 );
+const build8881Keys = ["EV", "qV"].filter(keys => app.includes(
+  `f=n(${keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(`
+));
+if (build8881) assert.equal(build8881Keys.length, 1, "one exact build-8881 platform key profile");
 
 if (!app.includes("UHrendererTail=(e,t)=>")) {
   const selectorContracts = app.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ? [
@@ -117,7 +121,7 @@ assert.equal(accumulatedTail[0].turnId, "paged-2305");
 assert.equal(accumulatedTail.at(-1).turnId, "paged-2504");
 
 const selectorContracts = build8881 ? [
-  "f=n(EV,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(",
+  `f=n(${build8881Keys[0]},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(`,
   "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
   "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)",
   "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)",

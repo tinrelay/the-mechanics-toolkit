@@ -2,10 +2,10 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer family
-- **Patch-specific evidence:** Build `8690` full-fleet staging, current-family causal-order probe,
-  and live task-message rendering green; build `8576` live task-message ordering and restart
-  reconstruction green; build `8109` live mounted behavior and disposable acknowledged
-  persistence/restart probes green. Build `8690` restart reconstruction remains pending, 2026-09-11
+- **Patch-specific evidence:** Build `9275` full-fleet static composition and Ubuntu ARM64 live
+  success/failure classification, causal placement, collapse/remount persistence, and full-text
+  hover green; receipt-owned timestamp/copy actions remain a Linux live gap. Build `8881` live
+  rendering and build `8576` restart reconstruction remain carried evidence, 2026-09-15
 
 ## Why it exists
 

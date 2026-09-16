@@ -33,6 +33,13 @@ const rescueKeys = new Set([
   "readyTimeoutSeconds"
 ]);
 
+export function ensurePrivateDirectory(directory, {fileSystem = fs} = {}) {
+  fileSystem.mkdirSync(directory, {recursive: true, mode: 0o700});
+  if ((fileSystem.statSync(directory).mode & 0o777) !== 0o700) {
+    fileSystem.chmodSync(directory, 0o700);
+  }
+}
+
 export function rescueConfiguration(environment, applicationArgument, {
   threadLookup = lookupThread,
   rescueFile = {},

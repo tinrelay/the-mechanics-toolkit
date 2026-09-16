@@ -15,6 +15,7 @@ import {
   defaultTerminal,
   diagnosticLocations,
   launchApplication,
+  launchSupervisor,
   openRescueTerminal,
   releaseApplicationLaunch,
   requestApplicationQuit,
@@ -22,6 +23,9 @@ import {
   rescueTerminalClosureRequired,
   resolveApplication
 } from "../src/restart-platform.mjs";
+import {
+  replaceApplicationWithVerifiedSource as replaceLinuxApplication
+} from "../src/platforms/linux.mjs";
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-linux-test-"));
 try {
@@ -115,10 +119,12 @@ try {
   launchChild.unref = () => { launchChild.unrefCalled = true; };
   const marker = path.join(scratch, "renderer.ready");
   const appLog = path.join(scratch, "app.log");
+  const taskId = "01234567-89ab-4cde-8fab-0123456789ab";
   assert.equal(launchApplication({
     app: application,
     marker,
     appLog,
+    taskId,
     platform: "linux",
     environment: {DISPLAY: ":1"},
     processLauncher(command, arguments_, options) {
@@ -127,13 +133,131 @@ try {
     }
   }), launchChild);
   assert.equal(launchCalls[0].command, executable);
-  assert.deepEqual(launchCalls[0].arguments_, []);
+  assert.deepEqual(launchCalls[0].arguments_, [`codex://threads/${taskId}`]);
   assert.equal(launchCalls[0].options.detached, true);
   assert.equal(launchCalls[0].options.env.CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH, marker);
   assert.equal(launchCalls[0].options.env.DISPLAY, ":1");
   assert.equal(launchChild.unrefCalled, true);
   releaseApplicationLaunch(launchChild, "linux");
   assert.equal(launchChild.listenerCount("exit"), 0, "releasing a Linux launch does not kill Desktop");
+
+  const supervisorCalls = [];
+  const supervisorChild = new EventEmitter();
+  supervisorChild.unrefCalled = false;
+  supervisorChild.unref = () => { supervisorChild.unrefCalled = true; };
+  const supervisorScript = path.join(scratch, "safe-start-supervisor.mjs");
+  const candidateState = path.join(scratch, "candidate-state.json");
+  const supervisorLog = path.join(scratch, "supervisor.log");
+  fs.writeFileSync(candidateState, JSON.stringify({
+    configuration: {
+      candidate: {deb: "/private/candidate.deb"},
+      terminalApp: path.join(tools, "gnome-terminal")
+    }
+  }));
+  assert.equal(launchSupervisor({
+    nodeExecutable: process.execPath,
+    supervisorScript,
+    stateFile: candidateState,
+    logFile: supervisorLog,
+    platform: "linux",
+    processLauncher(command, arguments_, options) {
+      supervisorCalls.push({command, arguments_, options});
+      return supervisorChild;
+    }
+  }), supervisorChild);
+  assert.equal(supervisorCalls[0].command, process.execPath);
+  assert.deepEqual(supervisorCalls[0].arguments_, [supervisorScript, "supervise", candidateState]);
+  assert.equal(supervisorCalls[0].options.detached, true);
+  assert.equal(supervisorCalls[0].options.stdio[0], "ignore");
+  assert.equal(supervisorCalls[0].options.stdio[1], supervisorCalls[0].options.stdio[2]);
+  assert.equal(supervisorCalls[0].options.env, process.env);
+  assert.equal(supervisorChild.unrefCalled, true);
+  assert.equal(fs.existsSync(path.join(scratch, "supervise.command")), false,
+    "healthy candidate supervision must not create or open a terminal command");
+
+  const candidateDeb = path.join(scratch, "askpass-incident/candidate.deb");
+  fs.mkdirSync(path.dirname(candidateDeb));
+  fs.writeFileSync(candidateDeb, "candidate");
+  const debSource = {
+    kind: "deb",
+    packageKind: "tmtk",
+    deb: candidateDeb,
+    debSha256: "1".repeat(64),
+    package: "chatgpt",
+    packageVersion: "26.908.40834+tmtk1",
+    architecture: "arm64",
+    version: "26.908.40834",
+    build: "8881",
+    archiveSha256: "2".repeat(64),
+    executableSha256: "3".repeat(64),
+    cliSha256: "4".repeat(64)
+  };
+  const installedDebApp = () => ({
+    version: debSource.version,
+    build: debSource.build,
+    archive: {sha256: debSource.archiveSha256},
+    executable: {sha256: debSource.executableSha256},
+    cli: {sha256: debSource.cliSha256}
+  });
+  const askpassCalls = [];
+  const installedDeb = replaceLinuxApplication({
+    targetApp: application,
+    source: debSource,
+    platform: "linux",
+    environment: gnome,
+    effectiveUserId: 1000,
+    sourceInspector: () => debSource,
+    appInspector: installedDebApp,
+    processRunner(command, arguments_, options) {
+      askpassCalls.push({command, arguments_, options});
+      if (command === "/usr/bin/sudo") {
+        const helper = options.env.SUDO_ASKPASS;
+        assert.equal(fs.statSync(helper).mode & 0o777, 0o700);
+        const source = fs.readFileSync(helper, "utf8");
+        assert.match(source, new RegExp(path.join(tools, "zenity")));
+        assert.match(source, /--password/);
+        assert.match(source, /sudo dpkg -i candidate\.deb/);
+        assert.doesNotMatch(source, /--entry|--hide-text/);
+        assert.match(source, /2>\/dev\/null/);
+        assert.doesNotMatch(source, /printf|echo/);
+      }
+      return command === "/usr/bin/dpkg-query"
+        ? {status: 0, stdout: `${debSource.packageVersion}\tarm64\n`, stderr: ""}
+        : {status: 0, stdout: "", stderr: ""};
+    }
+  });
+  const askpassFile = askpassCalls[0].options.env.SUDO_ASKPASS;
+  assert.equal(installedDeb.archiveSha256, debSource.archiveSha256);
+  assert.equal(fs.existsSync(askpassFile), false, "successful installation removes askpass");
+
+  for (const [label, sudoResult, inspected] of [
+    ["cancel", {status: 1, stdout: "", stderr: "sudo: no password was provided"}, installedDebApp],
+    ["install failure", {status: 1, stdout: "", stderr: "dpkg failed"}, installedDebApp],
+    ["verification failure", {status: 0, stdout: "", stderr: ""}, () => ({
+      ...installedDebApp(), archive: {sha256: "5".repeat(64)}
+    })]
+  ]) {
+    let helper;
+    assert.throws(() => replaceLinuxApplication({
+      targetApp: application,
+      source: debSource,
+      platform: "linux",
+      environment: gnome,
+      effectiveUserId: 1000,
+      sourceInspector: () => debSource,
+      appInspector: inspected,
+      processRunner(command, arguments_, options) {
+        if (command === "/usr/bin/sudo") {
+          helper = options.env.SUDO_ASKPASS;
+          assert.equal(fs.existsSync(helper), true);
+          return sudoResult;
+        }
+        throw new Error(`unexpected ${command}`);
+      }
+    }),
+    label === "verification failure" ? /installed application/ : /sudo .* failed/);
+    assert.equal(fs.existsSync(helper), false, `${label} removes askpass`);
+  }
 
   const processRoot = path.join(scratch, "proc");
   const shell = path.join(scratch, "bin/sh");
