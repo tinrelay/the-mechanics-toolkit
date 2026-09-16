@@ -316,11 +316,11 @@ const hostBusName = unique(
   /(?<name>[$A-Z_a-z][$\w]*)\.dispatchMessage\("mtk-outbound-receipt-remember"/g,
   "receipt host bus"
 ).groups.name;
-const nativeActionsName = unique(
-  conversationHelper,
-  /Actions:(?<name>[$A-Z_a-z][$\w]*),item:/g,
-  "native assistant action component"
-).groups.name;
+const nativeActionNames = [...conversationHelper.matchAll(/Actions:(?<name>[$A-Z_a-z][$\w]*),item:/g)]
+  .map(match => match.groups.name);
+assert.ok(nativeActionNames.length >= 1, "native assistant action component is used");
+assert.equal(new Set(nativeActionNames).size, 1, "one native assistant action component owns live and durable receipts");
+const nativeActionsName = nativeActionNames[0];
 const receiptJsxName = unique(
   conversationHelper,
   /\(0,(?<name>[$A-Z_a-z][$\w]*)\.jsx\)\("div",\{"data-mtk-outgoing-message-receipts":!0/g,
@@ -328,13 +328,14 @@ const receiptJsxName = unique(
 ).groups.name;
 const receiptDispatches = [];
 const receiptListeners = new Map();
+const receiptEffects = [];
 const receiptBus = {
   dispatchMessage(type, payload) { receiptDispatches.push({type, payload}); },
   subscribe(type, callback) { receiptListeners.set(type, callback); return () => receiptListeners.delete(type); }
 };
 const receiptReact = {
   useState(initializer) { return [typeof initializer === "function" ? initializer() : initializer, () => {}]; },
-  useEffect() {}
+  useEffect(callback) { receiptEffects.push(callback); }
 };
 const receiptJsx = {jsx(type, props, key) { return {type, props, key}; }};
 function StockActions() {}
@@ -361,13 +362,14 @@ const evaluatorBindings = new Map([
 ]);
 const conversationApi = Function(
   ...evaluatorBindings.keys(),
-  `${conversationHelper};return {component:MTKOutboundTurnReceipts,remember:MTKoutboundRemember,state:MTKoutboundReceiptState,values:MTKoutboundReceiptValues}`
+  `${conversationHelper};return {component:MTKOutboundTurnReceipts,lifecycle:MTKOutboundReceiptLifecycle,remember:MTKoutboundRemember,state:MTKoutboundReceiptState,values:MTKoutboundReceiptValues}`
 )(...evaluatorBindings.values());
 assert.equal(
   conversationApi.component({conversationId: "source-thread", turnId: "source-turn"}),
   null,
   "durable turn receipt uses the owning renderer's React hooks without local binding collisions"
 );
+receiptEffects.length = 0;
 
 const mainDirectory = path.join(root, ".vite/build");
 const mainOwners = fs.readdirSync(mainDirectory).filter(name => {
@@ -409,6 +411,15 @@ try {
     targetThreadId: "coordinator-thread"
   };
   const cache = makeCache();
+  const live = conversationApi.lifecycle({
+    item: {arguments: {hostId: "local", prompt: first.prompt, threadId: first.targetThreadId}, completed: true, success: true},
+    record: first
+  });
+  assert.equal(live.type, StockReceipt, "unacknowledged send remains on its chronological activity row");
+  assert.equal(live.props.Actions, StockActions, "live Linux receipt exposes the native action row before acknowledgment");
+  assert.equal(live.props.item.recordedAtMs, first.recordedAtMs, "live receipt uses the stable acceptance time");
+  for (const effect of receiptEffects.splice(0)) effect();
+  assert.equal(receiptDispatches.length, 1, "live receipt requests durable acknowledgment once");
   assert.equal(conversationApi.remember(first), false, "renderer waits for durable acknowledgment before hoisting");
   assert.equal(receiptDispatches.length, 1, "renderer sends one persistence request");
   assert.equal(conversationApi.remember(first), false, "a pending receipt does not dispatch twice");
@@ -433,6 +444,10 @@ try {
     record: first
   }], "main process acknowledges only the receipt it durably wrote");
   receiptListeners.get("mtk-outbound-receipt-remember-result")(mainResponses[0]);
+  assert.equal(conversationApi.lifecycle({item: {}, record: first}), null,
+    "acknowledged source receipt retires when the durable turn receipt takes ownership");
+  assert.equal(conversationApi.lifecycle({item: {}, record: {...first, recordedAtMs: first.recordedAtMs + 1}}), null,
+    "a reconstructed source receipt retires by its authoritative call identity");
   assert.deepEqual(conversationApi.values(conversationApi.state("source-thread")), [first],
     "renderer accepts the acknowledged durable record");
   const persistent = conversationApi.component({conversationId: "source-thread", turnId: "source-turn"});

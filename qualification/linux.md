@@ -12,9 +12,11 @@ TMTK patch fleet. It has two conclusions that must remain separate:
 The DEB adapter has completed healthy supervised adoption from a real Codex task on Ubuntu ARM64
 build 9275. Runtime roster reload, palette surfaces, model mismatch protection, sidebar collapse,
 cross-task attribution, observability, and the live patch registry also passed on that exact build.
-The remaining live feature fixtures and deliberate failure/recovery phase remain open. Do not
-report Linux as generally qualified from that bounded result. RPM is outside this runbook and
-remains unsupported.
+Every selected live feature fixture passed except the explicitly accepted greater-than-200-turn
+switching exercise; its deterministic and packed-candidate probes passed instead. The unchanged
+failure/recovery phase was deliberately not rerun and remains separate capability evidence, not
+live evidence for this exact candidate. Do not report Linux as generally qualified from this
+bounded result. RPM is outside this runbook and remains unsupported.
 
 Run from the Linux toolkit checkout. Keep the official DEB untouched, stage to a new file, and
 write exact commands and results to a dated ignored receipt under `.work/qualifications/`.
@@ -153,31 +155,35 @@ identity drift is a failed qualification, not an instruction to weaken the adapt
 
 ## Build 9275 Ubuntu ARM64 checkpoint
 
-On 2026-09-15, Ubuntu 24.04.5 LTS ARM64 in a GNOME Wayland session qualified the official
+On 2026-09-16, Ubuntu 24.04.5 LTS ARM64 in a GNOME Wayland session qualified the official
 `chatgpt` DEB version `26.908.70816` and the 16-patch local package
 `26.908.70816+tmtk1`. The pristine DEB SHA-256 was
 `d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`; the candidate DEB
-SHA-256 was `186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`;
+SHA-256 was `f5b58ca30f7d69655c36a4933cf1b9b96c76ef1ca8768f443dbc56bd6ae5c438`;
 and the installed ASAR SHA-256 was
-`21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`.
+`869baebb022a7f3c4385874a1ebb32d8b4dd360485485c53da76705d8faa4287`.
 
-Incident `2026-09-15T09-02-17-098Z-130270ee-53da-4ee6-8be1-9dac520b3e85` proved a
+Incident `2026-09-16T20-21-46-383Z-ca8bc416-4523-4302-8a65-704f1805d06f` proved a
 native-dialog replacement from the genuine supervisor task. The exact invoking CLI exited before
 installation, Zenity supplied both restart consent and the native password prompt for
 `sudo dpkg -i candidate.deb`, no terminal opened on the healthy path, the renderer became ready,
 and the app reopened the same task through its stock `codex://threads/<task-id>` route with Luna
-Light preserved. No
-supervisor, installer, dialog, askpass helper, or rescue-terminal process remained.
+Light preserved. No supervisor, installer, dialog, askpass helper, or rescue-terminal process
+remained.
 
 Live renderer evidence also proved the project-local roster, three configured qualification-agent
 palette colors, one agent's `#4E9A51` -> `#C05A47` -> `#4E9A51` runtime reload without restart,
 model-mismatch lock and immediate restoration, sidebar collapse/expand while project navigation
 remained, named delegated attribution, observability target/metrics/CDP access, and the selected
-renderer registry. Completion attention, archive protection, terminal shortcut focus behavior, the
-greater-than-200-turn mounted window, and current native wait behavior remain explicit live gaps.
-The outgoing-receipt v5 gate passed success/failure classification, chronological placement below
-the stock **Worked for** row, collapse/expand stability, remount persistence, and full-text hover.
-Receipt-owned native timestamp/copy actions were absent and remain a live gap.
+renderer registry. Current live acceptance also proved muted-versus-unmuted completion attention,
+exact-ID archive protection, the configured `Control+\`` terminal shortcut from both the chat
+composer and focused xterm, and a three-target native wait roster with ordered names, palette
+colors, links, explicit unknown-task fallback, and navigation. The outgoing-receipt v5 gate passed
+success/failure classification, chronological placement below the stock **Worked for** row,
+collapse/expand stability, remount and restart reconstruction, full-text hover, native timestamp,
+and native copy. The operator explicitly accepted skipping live switching with a
+greater-than-200-turn task; its packed-candidate and deterministic bounded-turn probes remain
+green.
 
 A dedicated registered test ship supplied runtime identity without a package-baked client path or
 ship name. Removing the sole private observer config hot-unbound the mode-`0600` socket;
@@ -188,7 +194,8 @@ routed incoming card with exact runtime route, body, timestamp, and copy actions
 task remount. A malformed coordinate exited 2 and produced no accepted card. This qualifies the
 TinRelay integration only; it is not a claim that the complete selected visual fleet has passed
 live acceptance. Controlled blank, Oops, exhaustion, and rollback fixtures were not repeated
-because no changed failure boundary required them.
+because no changed lifecycle boundary required them. Their earlier results remain carried
+capability evidence, not live qualification of this exact candidate.
 
 ## 5. Diagnostics, cleanup, and update behavior
 

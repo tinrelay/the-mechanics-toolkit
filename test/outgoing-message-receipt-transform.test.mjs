@@ -11,6 +11,11 @@ const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/outgoing-message-receipt.test.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoing-receipt-test-"));
+const previousLinuxLifecycle = {
+  callDependencyAfter: "t[357]!==n||t[371]!==C?",
+  callBodyAfter: "enableTimelineTargets:Se,item:n,sourceTurnId:C}",
+  callStorageAfter: "t[357]=n,t[371]=C,t[358]=e"
+};
 
 try {
   const extracted = path.join(scratch, "extracted");
@@ -36,9 +41,19 @@ try {
   fs.writeFileSync(consumerTarget, consumerFixture());
   fs.writeFileSync(styleTarget, styleFixture());
   fs.writeFileSync(mainTarget, mainFixture());
+  const linuxPristine = path.join(scratch, "linux-pristine");
+  fs.cpSync(extracted, linuxPristine, { recursive: true });
+  fs.writeFileSync(
+    path.join(linuxPristine, "webview/assets/conversation-fixture.js"),
+    linuxConversationFixture()
+  );
+  fs.writeFileSync(
+    path.join(linuxPristine, "webview/assets/conversation-turn-fixture.js"),
+    linuxTurnFixture()
+  );
 
-  assert.equal(runToolkit("check").state, "needs-apply");
-  const applied = runToolkit("apply");
+  assert.equal(runToolkit(extracted, "check").state, "needs-apply");
+  const applied = runToolkit(extracted, "apply");
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.targets, [
     path.join("webview", "assets", "app-control-fixture.js"),
@@ -63,7 +78,7 @@ try {
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], { encoding: "utf8" });
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
-  assert.equal(runToolkit("apply").state, "applied");
+  assert.equal(runToolkit(extracted, "apply").state, "applied");
   assert.deepEqual(fs.readFileSync(ownerTarget), once, "second application is byte-identical");
   assert.deepEqual(fs.readFileSync(projectionTarget), projectionOnce,
     "second success-projection application is byte-identical");
@@ -76,6 +91,8 @@ try {
   assert.deepEqual(fs.readFileSync(styleTarget), Buffer.from(styleFixture()), "stylesheet stays untouched");
   assertBuild8576SplitPresentationOrdering();
   assertBuild8881PlatformTurnSelection();
+  assertLinuxBuild9275DynamicTurnContext();
+  assertLinuxAppliedInspection(linuxPristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
   assert.equal(registry.status, 0, registry.stderr || registry.stdout);
@@ -84,13 +101,67 @@ try {
   assert.equal(registryProbe.status, 0, registryProbe.stderr || registryProbe.stdout);
   process.stdout.write("outgoing message receipt transform probe passed\n");
 
-  function runToolkit(action) {
-    const result = spawnSync(process.execPath, [toolkit, "patch", "outgoing-message-receipt", action, extracted], { encoding: "utf8" });
-    assert.equal(result.status, 0, result.stderr || result.stdout);
-    return JSON.parse(result.stdout);
-  }
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
+}
+
+function runToolkit(root, action, expectedStatus = 0) {
+  const result = spawnSync(
+    process.execPath,
+    [toolkit, "patch", "outgoing-message-receipt", action, root],
+    { encoding: "utf8" }
+  );
+  assert.equal(result.status, expectedStatus, result.stderr || result.stdout);
+  return expectedStatus === 0 ? JSON.parse(result.stdout) : result;
+}
+
+function assertLinuxAppliedInspection(pristineRoot) {
+  assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  assert.equal(runToolkit(pristineRoot, "check").state, "applied");
+
+  const missingHandoff = path.join(scratch, "missing-linux-lifecycle-handoff");
+  fs.cpSync(pristineRoot, missingHandoff, { recursive: true });
+  replaceInFixture(
+    path.join(missingHandoff, "webview/assets/conversation-fixture.js"),
+    "ReceiptLifecycle:MTKOutboundReceiptLifecycle,",
+    "",
+    "Linux lifecycle handoff"
+  );
+  assert.match(runToolkit(missingHandoff, "check", 1).stderr, /Upstream changed/,
+    "an applied Linux tree missing its lifecycle handoff fails closed");
+
+  const missingOwnerBranch = path.join(scratch, "missing-owner-lifecycle-branch");
+  fs.cpSync(pristineRoot, missingOwnerBranch, { recursive: true });
+  replaceInFixture(
+    path.join(missingOwnerBranch, "webview/assets/app-control-fixture.js"),
+    'if(typeof i.ReceiptLifecycle==="function")return(0,Z.jsx)(i.ReceiptLifecycle,{item:e,record:t});if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null',
+    'if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null',
+    "owner lifecycle branch"
+  );
+  assert.match(runToolkit(missingOwnerBranch, "check", 1).stderr, /Upstream changed/,
+    "an applied tree missing the owner lifecycle branch fails closed");
+
+  const oldSourceTurn = path.join(scratch, "old-linux-source-turn-owner");
+  fs.cpSync(pristineRoot, oldSourceTurn, { recursive: true });
+  downgradeLinuxSourceTurn(path.join(oldSourceTurn, "webview/assets/conversation-fixture.js"));
+  assert.match(runToolkit(oldSourceTurn, "check", 1).stderr, /Upstream changed/,
+    "an otherwise-current Linux tree with the old source-turn owner fails closed");
+}
+
+function downgradeLinuxSourceTurn(file) {
+  replaceInFixture(file, linuxBuild8881.dynamic.callDependencyAfter,
+    previousLinuxLifecycle.callDependencyAfter, "previous Linux source-turn dependency");
+  replaceInFixture(file, linuxBuild8881.dynamic.callBodyAfter,
+    previousLinuxLifecycle.callBodyAfter, "previous Linux source-turn body");
+  replaceInFixture(file, linuxBuild8881.dynamic.callStorageAfter,
+    previousLinuxLifecycle.callStorageAfter, "previous Linux source-turn storage");
+}
+
+function replaceInFixture(file, before, after, label) {
+  const value = fs.readFileSync(file, "utf8");
+  assert.equal(value.split(before).length - 1, 1, `${label} is unique`);
+  fs.writeFileSync(file, value.replace(before, after));
 }
 
 function assertBuild8576SplitPresentationOrdering() {
@@ -141,6 +212,38 @@ function assertBuild8881PlatformTurnSelection() {
     "macOS build 8881 does not select the Linux turn binding");
   assert.match(profile(owner("f"), linuxBuild8881.turn).after, /turnId:f/,
     "Linux build 8881 selects its exact turn binding");
+}
+
+function assertLinuxBuild9275DynamicTurnContext() {
+  const transform = fs.readFileSync(path.join(repository, "patches/outgoing-message-receipt/patch.mjs"), "utf8");
+  const dynamicRendererProfile = Function(
+    "linuxBuild8881",
+    `${sourceBetween(transform, "function containingFunction(", "function exportedAs(")}` +
+      `${sourceBetween(transform, "function uniqueMatch(", "function syntaxCheck(")}` +
+      `${sourceBetween(transform, "function dynamicRendererProfile(", "function splitTurnProfile(")}` +
+      ";return dynamicRendererProfile"
+  )(linuxBuild8881);
+  const linux = linuxBuild8881.dynamic;
+  const source = [
+    linux.before,
+    ";return u}",
+    linux.parentBefore,
+    "{conversationId:d,toolActivityTurnKey:R,turnId:C,hostId:H}=e,Y,Se,n;switch(n.type){case`dynamic-tool-call`:{let e;return ",
+    "t[354]!==Y||t[355]!==d||t[356]!==Se||t[357]!==n?",
+    linux.call,
+    ":e=t[358]}}}"
+  ].join("");
+  const profile = dynamicRendererProfile(source);
+  const patched = profile.patchedCallText;
+  assert.ok(patched.includes("t[357]!==n||t[371]!==R?"),
+    "Linux invalidates the dynamic renderer when the source turn key changes");
+  assert.ok(patched.includes(
+    'sourceTurnId:typeof R==="string"&&R.startsWith(d+"\\0")?R.slice(d.length+1):void 0'
+  ), "Linux derives the source turn from its populated tool activity key");
+  assert.ok(profile.patchedFunction.includes("ReceiptLifecycle:MTKOutboundReceiptLifecycle"),
+    "Linux hands completed receipts to the reactive acknowledgment owner");
+  assert.ok(!patched.includes("sourceTurnId:C"),
+    "Linux does not use the present-but-undefined turnId prop");
 }
 
 function sourceBetween(value, startMarker, endMarker) {
@@ -203,6 +306,35 @@ function conversationFixture() {
     "function Oy(e){let t=(0,Compiler.c)(195),{turnId:o,conversationId:p}=e,Ze=null,Qe=!1,ft,Rr=()=>null;return ft=Qe?(0,Yy.jsx)(`div`,{className:`flex w-full items-center justify-center pt-8`,children:(0,Yy.jsx)(Rr,{className:`icon-sm`})}):(0,Yy.jsxs)(Yy.Fragment,{children:[Ze,null]}),ft}",
     "function YT(e){let t=(0,Compiler.c)(349),{item:n,conversationId:d,turnId:S,enableTimelineTargets:xe}=e,Ne=null;switch(n.type){case`dynamic-tool-call`:{let e;return t[332]!==Ne||t[333]!==d||t[334]!==xe||t[335]!==n?(e=(0,Yy.jsx)(Ub,{agentActivityIcon:Ne,conversationId:d,enableTimelineTargets:xe,item:n}),t[332]=Ne,t[333]=d,t[334]=xe,t[335]=n,t[336]=e):e=t[336]}}}",
     "const toolActivityTurnKey=true;export{YT};"
+  ].join("");
+}
+
+function linuxConversationFixture() {
+  const linux = linuxBuild8881.dynamic;
+  return [
+    'import{x as x,persistent as Ih}from"./app-control-fixture.js";',
+    'import{bus as HostBus}from"./app-initial-fixture.js";',
+    "const t=e=>e,r=()=>0,Tz={jsx(){return{}},jsxs(){return{}}},$=Tz,wz={c(){return[]}},JW=wz;",
+    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,Tz.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
+    'function Bn(){return"running"}',
+    linux.before,
+    ";return u}",
+    linux.parentBefore,
+    '{conversationId:d,toolActivityTurnKey:R,turnId:C,hostId:H}=e,Y=null,Se=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    "t[354]!==Y||t[355]!==d||t[356]!==Se||t[357]!==n?",
+    linux.call,
+    ":e=t[358]}}}",
+    "const toolActivityTurnKey=true;export{NW};"
+  ].join("");
+}
+
+function linuxTurnFixture() {
+  return [
+    'import{x as x}from"./conversation-fixture.js";',
+    "const Ki={c(){return[]}},Q={jsx(){return{}}};",
+    "function bi(e){let t=(0,Ki.c)(216),{conversationId:o,turnId:f,hostId:c}=e,za=[],$=(e,t,n)=>za.push({key:e,node:t,options:n});",
+    "let Ha=za.length,Ua={};return null}",
+    "export{bi};"
   ].join("");
 }
 

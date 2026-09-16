@@ -82,11 +82,11 @@ unsupported rather than being made to match a platform where their owned surface
 The source-only `stage-deb` adapter produced and re-extracted local
 `26.908.70816+tmtk1`, preserving native payloads, executable modes, inner version/build, and all
 non-owned package files. The 16-patch candidate SHA-256 is
-`186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`; its inner ASAR SHA-256
-is `21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`. It records the
+`f5b58ca30f7d69655c36a4933cf1b9b96c76ef1ca8768f443dbc56bd6ae5c438`; its inner ASAR SHA-256
+is `869baebb022a7f3c4385874a1ebb32d8b4dd360485485c53da76705d8faa4287`. It records the
 pristine DEB hash and selected fleet in both DEB control fields and an inner receipt.
 
-The ARM64 candidate passed the healthy live path on Ubuntu 24.04.5 GNOME/Wayland on 2026-09-15. A
+The ARM64 candidate passed the healthy live path on Ubuntu 24.04.5 GNOME/Wayland on 2026-09-16. A
 genuine GPT-5.6 Luna task froze its exact task ID, project directory, model, reasoning effort, and
 bundled-CLI ancestor. After the invoking CLI exited and the Codex databases accepted a writer,
 Zenity supplied the restart choice and a second private askpass dialog titled with the recognizable
@@ -98,17 +98,22 @@ launched Desktop process reached its private renderer-ready marker. The app used
 installer, dialog, askpass helper, rescue agent, or toolkit-owned terminal remained.
 
 Live renderer checks also passed for project-local roster discovery, palette surfaces and hot
-reload, model mismatch protection, sidebar collapse, named attribution, observability, and the
-selected patch registry. Runtime TinRelay identity also passed: the app watched the private
+reload, model mismatch protection, sidebar collapse, named attribution, observability, the
+selected patch registry, muted-versus-unmuted completion attention, exact-ID archive protection,
+the configured terminal shortcut from both focused editors, and the three-target native wait
+roster including its unknown-task fallback and navigation. Runtime TinRelay identity also passed:
+the app watched the private
 configuration tree with `fs.watch`/inotify, unbound on zero or multiple valid observer configs, and
 rebound when exactly one remained. A real accepted send and its routed delivery rendered outgoing
 and incoming cards with exact runtime ship names, timestamps, and copy actions across a task
-remount; a malformed coordinate exited 2 and produced no accepted card. Completion attention,
-archive protection, terminal shortcut focus, greater-than-200-turn mounting, current wait behavior,
-and controlled-failure gates remain open in [`qualification/linux.md`](../qualification/linux.md).
-Outgoing-receipt v5 classifies successful and failed task messages correctly and remains stable in
-its chronological send position across reasoning collapse/expand and task remount, but its
-receipt-owned timestamp/copy actions remain absent on Linux 9275.
+remount; a malformed coordinate exited 2 and produced no accepted card. Outgoing-receipt v5
+classifies successful and failed task messages correctly and remains stable in its chronological
+send position across reasoning collapse/expand, task remount, and application restart; its native
+timestamp and copy actions are live-green on Linux 9275. The greater-than-200-turn live switching
+exercise was explicitly accepted as skipped; its packed-candidate and deterministic bounded-turn
+probes are green. The unchanged controlled-failure fixtures were deliberately not rerun, so their
+earlier results remain carried capability evidence rather than live evidence for this exact
+candidate. [`qualification/linux.md`](../qualification/linux.md) keeps those boundaries explicit.
 
 ## Windows build 8881 implementation checkpoint
 
@@ -301,13 +306,17 @@ enable it.
 Only DEB packaging is implemented. Ubuntu 24.04.5 LTS ARM64 in GNOME Wayland qualified the official
 `26.908.70816` package and 16-patch `26.908.70816+tmtk1` rebuild. The pristine DEB SHA-256 is
 `d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`, the candidate DEB
-SHA-256 is `186d2605b92c15b4b86e84e4aa1f03b4e7322c025a0edf5833cedd108a9c07b5`, and the installed
-ASAR SHA-256 is `21d4caf49dcdde10fb55b61002dae66bb0428f6e4e5425ab2961f96604056a37`.
+SHA-256 is `f5b58ca30f7d69655c36a4933cf1b9b96c76ef1ca8768f443dbc56bd6ae5c438`, and the installed
+ASAR SHA-256 is `869baebb022a7f3c4385874a1ebb32d8b4dd360485485c53da76705d8faa4287`.
 Healthy adoption, exact real-task return, CLI/Desktop non-overlap, runtime roster reload, palette,
-model guard, sidebar collapse, attribution, observability, registry checks, and runtime TinRelay
-incoming/outgoing presentation passed. RPM packaging, the remaining live feature fixtures,
-controlled renderer failures, terminal rescue, and known-good restoration remain separate
-qualification targets; do not broaden that measured result into a general Linux support claim.
+model guard, sidebar collapse, attribution, observability, registry checks, completion attention,
+archive protection, terminal focus behavior, native wait presentation/navigation, outgoing-message
+receipt behavior, and runtime TinRelay incoming/outgoing presentation passed. The operator accepted
+skipping live switching on a greater-than-200-turn task after its deterministic and packed-candidate
+probes passed. Controlled renderer failures, terminal rescue, and known-good restoration were not
+rerun because their lifecycle boundary was unchanged; prior results remain carried capability
+evidence. RPM packaging remains unsupported. Do not broaden this measured result into a general
+Linux support claim.
 
 ## Porting and qualification order
 
