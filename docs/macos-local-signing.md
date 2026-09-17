@@ -1,4 +1,4 @@
-# Stable local signing
+# Stable macOS local signing
 
 Ad-hoc signing gives each changed application a designated requirement tied to that exact build.
 macOS therefore treats each newly patched build as a different requester when it accesses an

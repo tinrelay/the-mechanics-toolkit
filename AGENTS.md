@@ -66,6 +66,14 @@ one bounded repair in an explicit target, and fail closed when the structure cha
 - Give each App Server/Core repair one directory under `source-patches/` with its exact diff and a
   `README.md` that states the upstream tag/commit, behavior, tests, build command, integration seam,
   and non-goals. Do not fold Rust source application into the desktop staging transform.
+- Treat port completion as one repository transaction, not a follow-up questionnaire. Before a
+  port is called review-ready, bump `package.json` and `package-lock.json` when the supported release
+  contract changes; put the matching current entry first in `UPGRADING.md`; reconcile the root
+  README, extraction ledger, and platform runbook; remove superseded build profiles, source diffs,
+  examples, empty directories, and historical current-state prose that no longer serve an explicit
+  compatibility requirement; and use platform or package-format names for platform-specific files,
+  commands, and examples. `npm test` owns the mechanical repository-hygiene checks. Git history is
+  the archive for old ports.
 - Do not commit, publish, tag, or create a remote unless the operator explicitly asks.
 
 ## Verification
@@ -80,6 +88,9 @@ one bounded repair in an explicit target, and fail closed when the structure cha
   verification, and byte-identical second application.
 - Live acceptance remains separate: launch, open a real task, and exercise the exact changed
   behavior. Static probes do not prove a usable application.
+- A port handoff is incomplete until `npm test` passes the repository-hygiene probe and its
+  campaign workspace has only one pristine package and one current candidate, with transient
+  rollback material removed after the replacement transaction ends.
 
 ## Public extraction
 

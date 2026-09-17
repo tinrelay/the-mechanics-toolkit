@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 

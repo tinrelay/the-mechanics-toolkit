@@ -2,14 +2,16 @@
 
 **State:** Upstream-owned
 
+**Fleet qualification:** Dormant; see the [extraction ledger](../../docs/extraction-ledger.md).
+
 Older Codex Desktop builds could advertise paginated history while still eagerly draining every
 remaining turn when a local task resumed. This patch made the local resume path trust the backend's
 pagination capability directly, while leaving remote-host behavior on the stock decision path.
 
-Build `7982` owns the accepted behavior itself: initial hydration requests five newest
-complete turns, older pages load explicitly, and the resume path honors the paginated-history
-contract. The local transform is therefore dormant and deliberately absent from the example
-`enabledPatches` fleet.
+The current upstream bundle owns the accepted behavior itself: initial hydration requests five
+newest complete turns, older pages load explicitly, and the resume path honors the
+paginated-history contract. The local transform is therefore dormant and deliberately absent from
+the example `enabledPatches` fleet.
 
 ## Owned seam
 

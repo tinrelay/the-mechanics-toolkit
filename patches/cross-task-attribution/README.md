@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer family
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -57,9 +57,8 @@ bubble-only styling, untouched dependency owners, syntax validity, and byte-iden
 application.
 
 The palette transform fixture applies this public patch first, then proves that palette provenance
-composition still works. The private build-`7942` implementation was separately accepted in live
-use before extraction, including correct named labels, generic fallback, colors, and source-task
-navigation.
+composition still works. Current package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -64,14 +64,13 @@ replaces a working application.
 
 ## Verification
 
-`test/task-attention-policy-transform.test.mjs` covers the historical standalone profile.
-`test/task-attention-policy.test.mjs` exercises the current build-`8881` roster consumer, exact-ID
+`test/task-attention-policy-transform.test.mjs` covers the transform's exact generated owners.
+`test/task-attention-policy.test.mjs` exercises the current roster consumer, exact-ID
 and title-pattern matching, invalid owned values, all four attention surfaces, and byte-identical
 second application.
 
-The operational build-`7942` patch was accepted in live use before extraction: ignored utility-task
-completion did not create task attention, a native notification, or a Dock badge, while an ordinary
-task still did. Build `8881` live acceptance covered the current mute behavior.
+Current package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

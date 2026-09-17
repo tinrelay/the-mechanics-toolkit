@@ -291,7 +291,7 @@ living Electron React recovery page with the real bundled Codex CLI.
 
 The ordinary agent-invoked path needs no configuration file. If the command is launched outside a
 Codex subprocess, it optionally reads `~/.codex/RESCUE-AGENT.json`. The repository includes
-[`rescue-agent.example.json`](../rescue-agent.example.json); its complete shape is:
+[`rescue-agent.example.json`](../examples/rescue-agent.example.json); its complete shape is:
 
 ```json
 {
@@ -299,7 +299,6 @@ Codex subprocess, it optionally reads `~/.codex/RESCUE-AGENT.json`. The reposito
   "cwd": "/absolute/project/directory",
   "model": "gpt-5.6-sol",
   "reasoningEffort": "high",
-  "terminalApp": "Terminal",
   "readyTimeoutSeconds": 300
 }
 ```

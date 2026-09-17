@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -48,8 +48,8 @@ replaces a working application.
 
 ## Verification
 
-`test/sidebar-action-collapse-transform.test.mjs` creates a synthetic pristine build-`7942`
-sidebar owner, proves red-to-green transformation, runs the behavioral bundled-contract probe, and
+`test/sidebar-action-collapse-transform.test.mjs` creates a synthetic pristine sidebar owner,
+proves red-to-green transformation, runs the behavioral bundled-contract probe, and
 proves a byte-identical second application. The current installed build was inspected while this
 slice was extracted, but its private operational markers intentionally do not count as proof that
 this separately namespaced public transform is installed.

@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -63,10 +63,9 @@ The repository carries two complementary probes:
 - `test/terminal-toggle.test.mjs` inspects a real extracted bundle and proves that the configured
   accelerator still reaches Codex's stock terminal action without a hard-coded shortcut.
 
-On 2026-09-05, the installed build `7942` was extracted to a temporary directory. The transform
-recognized it as already applied, and the real bundled-contract probe returned green. Older
-ownership profiles remain in the transform because they were part of the operational source, but
-this public extraction does not make a fresh compatibility claim for those builds.
+The transform and real bundled-contract probe cover the exact current owner, configured
+accelerator dispatch, and byte-identical reapplication. Current package and live evidence belongs
+in the fleet [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

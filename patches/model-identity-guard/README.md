@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8881` transform and behavioral probes green, 2026-09-14
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -52,8 +52,8 @@ configuration leaves the last valid roster in force when runtime reload is enabl
 
 ## Owned seam
 
-The transform recognizes the build-`8109` owner that jointly holds the displayed model and
-normalized reasoning effort. A small React effect publishes that exact live pair to a DOM guard.
+The transform recognizes the current owner that jointly holds the displayed model and normalized
+reasoning effort. A small React effect publishes that exact live pair to a DOM guard.
 The guard scopes itself to the existing composer root inside the exact task room and uses the stock
 model selector as the repair control. A transient composer withdrawal, including switching into
 Dictate, supplies no contrary model evidence and does not trigger the guard; a concrete published
@@ -76,8 +76,8 @@ and application replacement remain separate operations.
 
 ## Verification
 
-`test/model-identity-guard-transform.test.mjs` proves prerequisite refusal, exact build-`8109`
-ownership, syntax, idempotence, upgrade from the first guard revision, and the focused behavioral
+`test/model-identity-guard-transform.test.mjs` proves prerequisite refusal, exact current
+ownership, syntax, idempotence, and the focused behavioral
 probe. The behavioral probe verifies exact model-and-effort comparison, visible expected/current
 diagnostics, the in-editor recovery instruction, draft-preserving editor lock, submit suppression,
 selector availability, platform-native session override from both clickable surfaces, recovery

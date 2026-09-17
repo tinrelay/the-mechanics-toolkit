@@ -32,7 +32,7 @@ through the explicit `codexBinary` configuration; the integration transform plac
 For an offered update, prefer the untouched application from the official vendor installer as the
 source. The running installed application may remain open throughout staging. A staged candidate
 may be named `ChatGPT-MechanicsToolkit.app`, but it stays outside `/Applications` and unlaunched; it
-is not a second live application. See [preparing a patched Codex update](update-workflow.md).
+is not a second live application. See [preparing a patched macOS Codex update](macos-update-workflow.md).
 
 ## Static proof
 
@@ -118,7 +118,7 @@ not implemented.
 
 Windows staging runs on Windows with two exact `OpenAI.Codex` sources: an authenticated pristine
 package for the candidate and the currently installed, live-proven package for rollback. Start from
-[`toolkit.windows.example.json`](../toolkit.windows.example.json); its values are
+[`toolkit.windows.example.json`](../examples/toolkit.windows.example.json); its values are
 placeholders, not a runnable local configuration. The config's `windows` object supplies four-part
 `candidateVersion` and `knownGoodVersion` values, absolute `makeAppx` and `signTool` paths, a trusted
 SHA-1 signing-certificate thumbprint, and both native and WSL Codex binaries when the

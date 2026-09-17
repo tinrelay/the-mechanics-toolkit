@@ -15,5 +15,6 @@ identity, or an unreadable file emit a renderer diagnostic and do not replace th
 Removing all rosters disables their effects. Relative assets resolve safely below the project that
 owns the individual entry.
 
-The current qualified macOS, Linux, and Windows profiles are Desktop 26.908.70816 / build 9275.
-All three use the same roster contract; their generated-code matchers remain platform-specific.
+All qualified platforms use the same roster contract; their generated-code matchers remain
+platform-specific. The current build matrix belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).

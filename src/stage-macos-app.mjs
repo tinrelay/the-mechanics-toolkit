@@ -22,7 +22,7 @@ const expectedNativePackages = Object.freeze([
   "objc-js"
 ]);
 
-export function stageApp({sourceApp, destinationApp, configPath, repositoryRoot}) {
+export function stageMacosApp({sourceApp, destinationApp, configPath, repositoryRoot}) {
   if (process.platform !== "darwin") {
     throw new Error("macOS application staging requires macOS");
   }

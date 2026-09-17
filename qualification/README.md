@@ -14,14 +14,15 @@ Only a maintainer qualifying a changed supervisor boundary runs those destructiv
 
 Desktop qualification is platform-specific. A patch may carry earlier live evidence only when its
 current semantic owner and behavior remain equivalent; changed, uncertain, or newly composed seams
-require a current live check. Generated JavaScript may share substantial structure,
-but packaging, signing, process discovery, application shutdown, terminal rescue, storage, and
-native-module behavior do not. A platform is qualified only by its own runbook and receipt.
+require a current live check. Generated JavaScript may share substantial structure, but packaging,
+signing, process discovery, application shutdown, terminal rescue, storage, and native-module
+behavior do not. A platform is qualified only by its own runbook and receipt.
 
-- [macOS](macos.md) — implemented
-- [Windows](windows.md) — ARM64 signed-MSIX staging and a complete broken-app supervisor recovery
-  cycle qualified; ordinary cross-version rollback provenance remains open
-- [Linux](linux.md) — Ubuntu ARM64 healthy DEB adoption and real-task CLI quiescence qualified;
-  recovery gates pending
+- [macOS runbook](macos.md)
+- [Linux runbook](linux.md)
+- [Windows runbook](windows.md)
+
+The [current build matrix](../docs/extraction-ledger.md#current-build-matrix) is the sole summary of
+which platform checkpoints are current. This index does not duplicate fast-changing status.
 
 Transform recognition on another package is portability evidence, not platform qualification.

@@ -18,7 +18,7 @@ const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const asar = path.join(repository, "node_modules/.bin/asar");
 const terminalProbe = path.join(repository, "test/terminal-toggle.test.mjs");
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-stage-test-"));
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-stage-macos-test-"));
 
 try {
   const asarPatches = patchDefinitions.filter(definition => definition.scope === "asar");
@@ -63,7 +63,7 @@ try {
     const rejectedConfig = path.join(scratch, `${label}.json`);
     fs.writeFileSync(rejectedConfig, JSON.stringify({enabledPatches}));
     const rejected = runToolkitRaw([
-      "stage",
+      "stage-macos",
       source,
       path.join(scratch, `${label}.app`),
       "--config",
@@ -79,7 +79,7 @@ try {
     signingIdentity: ""
   }));
   const invalidSigning = runToolkitRaw([
-    "stage",
+    "stage-macos",
     source,
     path.join(scratch, "invalid-signing-identity.app"),
     "--config",
@@ -88,7 +88,7 @@ try {
   assert.notEqual(invalidSigning.status, 0);
   assert.match(invalidSigning.stderr, /signingIdentity must be a nonempty string/);
 
-  const result = runToolkit(["stage", source, destination, "--config", config]);
+  const result = runToolkit(["stage-macos", source, destination, "--config", config]);
   assert.equal(result.state, "staged-static-proof-green");
   assert.deepEqual(result.patches, [
     "macos-menu-title",
@@ -131,12 +131,12 @@ try {
   const probe = spawnSync(process.execPath, [terminalProbe, verified], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
-  const existing = runToolkitRaw(["stage", source, destination, "--config", config]);
+  const existing = runToolkitRaw(["stage-macos", source, destination, "--config", config]);
   assert.notEqual(existing.status, 0);
   assert.match(existing.stderr, /destination already exists/);
 
   const forbidden = runToolkitRaw([
-    "stage",
+    "stage-macos",
     source,
     "/Applications/Mechanics Toolkit Forbidden.app",
     "--config",
@@ -148,7 +148,7 @@ try {
   const applicationsAlias = path.join(scratch, "Applications Alias");
   fs.symlinkSync("/Applications", applicationsAlias);
   const forbiddenAlias = runToolkitRaw([
-    "stage",
+    "stage-macos",
     source,
     path.join(applicationsAlias, "Mechanics Toolkit Alias Forbidden.app"),
     "--config",
@@ -160,7 +160,7 @@ try {
   const incompatibleSource = path.join(scratch, "Incompatible ChatGPT.app");
   const failedDestination = path.join(scratch, "Failed Staged ChatGPT.app");
   makeSourceApp(incompatibleSource, "export const fixture=true;");
-  const failed = runToolkitRaw(["stage", incompatibleSource, failedDestination, "--config", config]);
+  const failed = runToolkitRaw(["stage-macos", incompatibleSource, failedDestination, "--config", config]);
   assert.notEqual(failed.status, 0);
   assert.equal(fs.existsSync(failedDestination), false, "a failed new staging destination is removed");
 

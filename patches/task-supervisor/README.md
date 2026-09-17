@@ -2,6 +2,8 @@
 
 **State:** Benched
 
+**Fleet qualification:** Benched; see the [extraction ledger](../../docs/extraction-ledger.md).
+
 This patch can give one exact persistent Codex task a bounded startup prompt or wake it after a
 configured idle interval. It exists for cases where an application-local task must keep servicing
 a bridge even though Codex supplies no durable service primitive for that job.
@@ -46,8 +48,8 @@ Example runtime configuration:
 
 ## Compatibility evidence
 
-Synthetic fixtures cover the exact build-`7746` and build-`7942` renderer profiles. The behavioral
-probe exercises parsing, config discovery, exact-ID precedence, ambiguous-title rejection,
+Synthetic fixtures cover the retained renderer profiles. The behavioral probe exercises parsing,
+config discovery, exact-ID precedence, ambiguous-title rejection,
 unloaded-task resume, idle wakeup, cancellation on activity, one-shot startup, duplicate ownership,
 and the rapid-completion fuse.
 
@@ -55,9 +57,9 @@ and the rapid-completion fuse.
 node test/task-supervisor-transform.test.mjs
 ```
 
-The build-`7982` stock bundle was also checked after applying its required palette and attention
-dependencies: the supervisor applied idempotently and its behavioral probe passed. This is static
-evidence, not a claim that the benched patch is installed or live-qualified.
+The stock bundle was also checked after applying its required palette and attention dependencies:
+the supervisor applied idempotently and its behavioral probe passed. This is static evidence, not
+a claim that the benched patch is installed or live-qualified.
 
 ## Non-goals
 

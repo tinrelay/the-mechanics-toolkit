@@ -96,7 +96,7 @@ function run(command, app, config) {
   return JSON.parse(result.stdout);
 }
 
-function writeFakeCodex(target, marker, reportedVersion = "codex-cli 0.153.4", invocationLog = null) {
+function writeFakeCodex(target, marker, reportedVersion, invocationLog = null) {
   const recordInvocation = invocationLog == null ? "" : `printf '%s\\n' "$0" >> '${invocationLog}'\n`;
   fs.writeFileSync(target, `#!/bin/sh\n${recordInvocation}if [ "$1" = "--version" ]; then echo "${reportedVersion}"; else echo "${marker}"; fi\n`, {mode: 0o755});
 }

@@ -3,6 +3,5 @@
   "cwd": "/absolute/project/directory",
   "model": "gpt-5.6-sol",
   "reasoningEffort": "high",
-  "terminalApp": "Terminal",
   "readyTimeoutSeconds": 300
 }

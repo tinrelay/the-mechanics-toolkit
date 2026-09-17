@@ -1,8 +1,9 @@
 # Codex Desktop package patches
 
-Each patch owns one directory. Its `README.md` is the maintenance log: what human problem the patch
-solves, which application seam it owns, how it fails when upstream changes, what evidence supports
-its current state, and how to check it without touching a working application.
+Each patch owns one directory. Its `README.md` is the stable maintenance guide: what human problem
+the patch solves, which application seam it owns, how it fails when upstream changes, and how to
+check it without touching a working application. The current Desktop build matrix and fleet-wide
+evidence live only in the [extraction ledger](../docs/extraction-ledger.md).
 
 A patch directory is not a plugin contract. The toolkit keeps an explicit, small list of the
 repairs it actually carries; adding a directory does not dynamically discover or activate code.

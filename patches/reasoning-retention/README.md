@@ -2,8 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete
-- **Patch-specific evidence:** Build `8109` static stage and live next-turn/manual-state acceptance green,
-  2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -63,8 +62,8 @@ node test/reasoning-retention.test.mjs /path/to/extracted-asar
 asynchronous policy subscription, the selected turn's expanded completion state, next-turn
 retention, preserved manual collapse, module syntax, and byte-identical second application.
 
-Live acceptance on build `8109` completed a real configured turn, sent the next message, and
-confirmed that the prior reasoning stayed open while the chevron could close and reopen it.
+Fleet-level live acceptance and remaining boundaries belong in the
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

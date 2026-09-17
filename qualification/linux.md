@@ -1,225 +1,157 @@
 # Linux desktop qualification
 
-This runbook qualifies one exact Linux Codex Desktop package, desktop/session, architecture, and
-TMTK patch fleet. It has two conclusions that must remain separate:
+This runbook qualifies one exact Linux Codex Desktop package, distribution, desktop session,
+architecture, and TMTK patch fleet. Ubuntu DEB and Fedora RPM are separate package and recovery
+boundaries even when they contain the same ASAR.
 
-- **DEB patchset qualification** proves the pristine package, local rebuild, selected transforms,
-  installation, and healthy supervised launch.
-- **Linux supervisor capability qualification** deliberately exercises blank-renderer and living
-  React-Oops failures, rescue-terminal ownership, strict CLI/Desktop non-overlap, and known-good
-  package restoration.
+The current Linux target is Codex Desktop `26.911.61220` / build `9647` with the 16-patch fleet.
+Patched Codex installations are running in the Ubuntu and Fedora ARM64 qualification VMs while
+their final live evidence records are completed. The DEB adapter supports `arm64` and `amd64`; the
+RPM adapter supports `aarch64` and `x86_64`. CPU architecture still controls package identity,
+native payloads, executables, and live qualification, but does not earn a second JavaScript profile
+when the generated ASAR owners are identical.
 
-The DEB adapter has completed healthy supervised adoption from a real Codex task on Ubuntu ARM64
-build 9275. Runtime roster reload, palette surfaces, model mismatch protection, sidebar collapse,
-cross-task attribution, observability, and the live patch registry also passed on that exact build.
-Every selected live feature fixture passed except the explicitly accepted greater-than-200-turn
-switching exercise; its deterministic and packed-candidate probes passed instead. The unchanged
-failure/recovery phase was deliberately not rerun and remains separate capability evidence, not
-live evidence for this exact candidate. Do not report Linux as generally qualified from this
-bounded result. RPM is outside this runbook and remains unsupported.
+Run from the Linux toolkit checkout. Start from an ignored private copy of
+[`examples/toolkit.linux.example.json`](../examples/toolkit.linux.example.json), replacing its
+operator-specific values. Keep one pristine vendor package and one current candidate. Record exact
+commands and compact results under an ignored `.work/qualifications/` directory; do not retain
+failed packages or extracted package trees as evidence.
 
-Run from the Linux toolkit checkout. Keep the official DEB untouched, stage to a new file, and
-write exact commands and results to a dated ignored receipt under `.work/qualifications/`.
-Start the exact build-9275 16-patch selection from
-[`toolkit.linux.example.json`](../toolkit.linux.example.json), replacing its one remaining
-operator-specific `tinrelay.client` value in an ignored private copy.
+## 1. Freeze the environment and package identity
 
-## 1. Freeze the environment and identities
-
-Record the full output of:
+For either distribution, record:
 
 ```sh
-TMTK_ROOT="$(pwd -P)"
 cat /etc/os-release
 uname -m
 printf 'desktop=%s\nsession=%s\nsession_type=%s\n' \
   "$XDG_CURRENT_DESKTOP" "$DESKTOP_SESSION" "$XDG_SESSION_TYPE"
-dpkg-deb --field "$SOURCE_DEB" Package Version Architecture Maintainer Installed-Size
-sha256sum "$SOURCE_DEB"
-ar t "$SOURCE_DEB"
-gpg --show-keys --with-colons /usr/share/keyrings/chatgpt-archive-keyring.gpg
 node bin/toolkit.mjs inspect /usr/lib/chatgpt
+sha256sum "$SOURCE_PACKAGE"
+```
+
+For Ubuntu DEB also record:
+
+```sh
+dpkg-deb --field "$SOURCE_PACKAGE" Package Version Architecture Maintainer Installed-Size
+ar t "$SOURCE_PACKAGE"
+gpg --show-keys --with-colons /usr/share/keyrings/chatgpt-archive-keyring.gpg
 dpkg-query --show --showformat='${Package}\t${Version}\t${Architecture}\n' chatgpt
 ```
 
-The package must be `chatgpt`, its architecture must match the VM, and the installed app must match
-the pristine DEB's inner version, build, ASAR hash, executable hash, and bundled-CLI hash. Record
-the exact source URL or installer provenance. Staging and adoption must verify the embedded origin
-signature with `gpgv` against this already-installed trusted APT keyring; `_gpgorigin` presence by
-itself is not authentication. A key rotation that the installed keyring does not yet trust must
-fail closed until the keyring is refreshed through an independently authenticated OpenAI
-APT/vendor path. Record whether the session is X11 or Wayland; a pass
-in one is not evidence for the other.
+For Fedora RPM also record:
+
+```sh
+rpm --query --package --queryformat '%{NAME}\t%{VERSION}\t%{RELEASE}\t%{ARCH}\n' \
+  "$SOURCE_PACKAGE"
+rpmkeys --checksig --verbose "$SOURCE_PACKAGE"
+gpg --show-keys --with-colons \
+  /etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt-3BFA0E4AE8B8CC16A2D9BA684A3B4A566C4660E4.asc
+rpm --query chatgpt
+```
+
+The package must be `chatgpt`, its architecture must match the machine, and its inner Desktop
+version/build must match the selected profile. DEB staging verifies `_gpgorigin` against the
+installed ChatGPT APT keyring. RPM staging verifies the package signature fingerprint against the
+installed ChatGPT RPM key. Presence of a signature field without the trusted-key comparison is not
+authentication. Record whether the live desktop is X11 or Wayland; a pass in one is not proof of
+the other.
 
 ## 2. Prove the candidate statically
 
-Install repository dependencies without changing the vendor package, then run:
+Install repository dependencies without modifying the vendor package, then run the complete source
+suite and the format-specific stage:
 
 ```sh
 npm install
 npm run check
 npm test
-node bin/toolkit.mjs stage-deb "$SOURCE_DEB" "$CANDIDATE_DEB" --config "$CONFIG"
-dpkg-deb --field "$CANDIDATE_DEB" Package Version Architecture Maintainer Installed-Size
-sha256sum "$SOURCE_DEB" "$CANDIDATE_DEB"
-ar t "$CANDIDATE_DEB"
+
+# Ubuntu
+node bin/toolkit.mjs stage-deb "$SOURCE_PACKAGE" "$CANDIDATE_PACKAGE" --config "$CONFIG"
+
+# Fedora
+node bin/toolkit.mjs stage-rpm "$SOURCE_PACKAGE" "$CANDIDATE_PACKAGE" --config "$CONFIG"
 ```
 
-The stage result must be `staged-deb-static-proof-green`. It must say the source was untouched,
-the second application was byte-identical, post-pack probes passed, native payload was preserved,
-and nothing was installed or launched. Record the outer candidate identity, inner application
-version/build, ASAR hash, executable and CLI hashes, selected patches, and changed generated files.
-The candidate must not contain the vendor `_gpgorigin` signature member and must identify itself as
-a local TMTK rebuild.
+The result must be `staged-deb-static-proof-green` or `staged-rpm-static-proof-green`. It must say
+the pristine source was untouched, the second patch application was byte-identical, post-pack
+probes passed, native payload was preserved, and nothing was installed or launched. Record the
+outer candidate identity, inner application version/build, ASAR hash, executable and CLI hashes,
+selected patches, and changed generated files.
 
-Read-only checks for every active transform must be retained with the receipt. A transform that
-does not recognize the exact Linux generated-code owner stays unsupported; do not widen matchers to
-turn a red inventory row green.
+The rebuilt package is explicitly a local TMTK artifact. It must not claim the vendor signature:
+the DEB omits `_gpgorigin`, and the RPM has no package signature. Read-only checks for every selected
+transform stay with the compact receipt. A transform that does not recognize the exact generated
+owner remains unsupported; do not widen its matcher merely to make an inventory green.
 
 ## 3. Healthy supervised adoption
 
-Start from the Desktop task being preserved. Confirm that the current installed app is healthy,
-that `KNOWN_GOOD_DEB` reproduces its exact installed identity, that the candidate receipt names the
-pristine `SOURCE_DEB`, and that no other task will be surprised by a restart. On the qualified
-Linux Desktop build, the initiating task also had to be set explicitly
-to **Full Access** before arming. The ordinary **Ask for approval** sandbox made
-`~/.codex/tmtk-rescue` read-only, and an invocation-scoped escalation request was rejected. Explain
-to the person that TMTK needs to write private supervisor state outside the project, survive the
-Desktop/task exit, and install the authorized package; never enable Full Access silently or treat
-it as incidental. Re-check this product boundary on later builds rather than assuming it is
-permanent. Then arm adoption:
+Begin from the Desktop task being preserved. Verify that the current installed app is healthy,
+that the known-good package reproduces its exact installed identity, and that the candidate receipt
+names the pristine source. The initiating task must have enough local authority to create private
+supervisor state, survive the Desktop exit, and invoke the native askpass path; never broaden its
+access silently.
 
 ```sh
-bin/tmtk-restart --candidate "$CANDIDATE_DEB" \
-  --candidate-source "$SOURCE_DEB" \
-  --known-good "$KNOWN_GOOD_DEB" /usr/lib/chatgpt
+bin/tmtk-restart --candidate "$CANDIDATE_PACKAGE" \
+  --candidate-source "$SOURCE_PACKAGE" \
+  --known-good "$KNOWN_GOOD_PACKAGE" /usr/lib/chatgpt
 ```
 
-After the command says the supervisor is armed, finish the invoking turn. The operator clicks
-**Relaunch Codex** in the selected native dialog. Record which backend was used (`kdialog`,
-`zenity`, or `yad`) and whether its affirmative and cancellation labels were correct.
+After the command says the supervisor is armed, finish the invoking turn and use the native
+**Relaunch Codex** dialog. Ubuntu installs through exact `sudo -A dpkg --install`; Fedora installs
+through exact `sudo -A rpm -U`. Record the dialog backend (`kdialog`, `zenity`, or `yad`) and its
+affirmative and cancellation labels.
 
 The receipt must prove:
 
-1. the exact invoking bundled CLI ancestor was frozen before Desktop quit;
-2. the exact `/usr/lib/chatgpt/ChatGPT` process quit and no name-based process kill occurred;
+1. the exact invoking bundled CLI ancestor exited before Desktop replacement;
+2. the exact `/usr/lib/chatgpt/ChatGPT` process exited without a name-based process kill;
 3. the state databases accepted a writer before package installation;
-4. an ordinary user authenticated through the selected native askpass dialog and exact
-   `sudo -A dpkg --install`, or the supervisor was already root;
-5. `dpkg-query` reports the local candidate version and architecture;
-6. the installed app matches the candidate's inner version/build and three payload hashes;
+4. package installation used the selected native askpass path or an already-root supervisor;
+5. the distribution package database reports the local candidate and exact architecture;
+6. the installed inner version/build and payload hashes match the candidate;
 7. the directly launched Desktop process reached the one-use renderer readiness marker; and
-8. the selected live patch surfaces behave as their patch READMEs require.
+8. the same task returned without supervisor, installer, dialog, askpass, or rescue-terminal
+   residue.
 
-Record `/proc/PID/exe` for the launched main process. A green static probe does not substitute for
-the selected feature checks in the real renderer.
+Record `/proc/PID/exe` for the launched main process. Static proof does not substitute for this
+runtime boundary.
 
-## 4. Qualify supervisor failures when its Linux contract changes
+## 4. Exercise current behavior
 
-This phase deliberately installs broken packages. It requires an operator present, explicit
-authorization for the complete ordered exercise, the already-verified pristine DEB, and two
-controlled candidate DEBs whose failure seams and hashes are recorded before either is installed:
+For each distribution, exercise every generated owner or platform mechanism changed by the port.
+The ordinary current gate includes:
 
-```text
-blank renderer -> agent repair -> living Oops x3 -> known-good restore -> healthy launch
-```
+- registry and observability discovery;
+- project roster, palette, policy, and runtime reload;
+- model mismatch lock and restoration;
+- exact-ID archive protection and sidebar behavior;
+- terminal open and close from both composer and focused terminal;
+- cross-task attribution, outgoing receipt success/failure, and wait roster;
+- TinRelay accepted outgoing and routed incoming presentation across remount; and
+- the separately built Codex executable when standalone-output compaction is selected.
 
-The blank fixture must fail before the stock React recovery surface can render. The living-Oops
-fixture must remain alive while visibly showing Codex's stock **ChatGPT hit a snag** page. Each
-fixture must be a complete local DEB with a valid TMTK receipt naming the same pristine source, not
-an in-place edit under `/usr/lib/chatgpt`.
+Carry an earlier live result only when the current owner and behavior are unchanged and the complete
+current fleet passes static proof plus a healthy launch. Record deliberate omissions explicitly.
+The greater-than-200-turn live fixture remains intentionally waived when its deterministic packed
+probe is current; it must not be reported as a live pass.
 
-For each phase, arm `tmtk-restart` with `--candidate BROKEN_DEB`,
-`--candidate-source "$SOURCE_DEB"`, and `--known-good "$SOURCE_DEB"`. These controlled fixtures
-are same-build replacements, so the one pristine DEB truthfully fills both vendor-package roles.
-Record the incident token and state transitions. The evidence must show:
+Supervisor failure fixtures are a separate destructive qualification. Re-run blank-renderer,
+living-Oops, exhaustion, rescue-terminal, and known-good restoration only when that lifecycle
+boundary changes or the operator explicitly requests the exercise. Every fixture must be a complete
+package with a valid receipt, never an in-place edit under `/usr/lib/chatgpt`.
 
-- early exit or missed readiness opens the selected Linux terminal emulator in the recorded
-  project;
-- the rescue terminal runs the exact bundled CLI and the same task/model/reasoning selection;
-- automatic repair attempts finish through the matching Stop receipt and durable task-complete
-  event;
-- the rescue process exits before Desktop relaunch, with no interval in which the same task is
-  live in both the CLI and Desktop;
-- the emulator's `--wait` or equivalent process returns when the rescue command ends and no
-  toolkit-owned terminal remains;
-- three exhausted living-Oops repairs offer the native **Restore Known-Working** choice;
-- restoration re-verifies and installs the private `known-good.deb` through dpkg;
-- `dpkg-query` and the installed inner hashes return exactly to the pristine package; and
-- the restored vendor app either emits readiness or remains cleanly alive through the documented
-  ten-second pre-marker fallback, followed by a separately recorded healthy patched launch.
+## 5. Close the workbench
 
-An invisible or unbranded password prompt, premature terminal, terminal that cannot wait for its
-command, unverified diagnostic path, package-script failure, process overlap, or application
-identity drift is a failed qualification, not an instruction to weaken the adapter.
+Keep the raw VM receipt private and ignored. Publish only the compact qualification summary tied to
+the accepted source revision. Preserve the pristine package and current candidate while the port is
+active. After acceptance, remove transaction-only rollback copies, failed packages, superseded
+candidates, extracted ASAR/package trees, and temporary source transfers. Retain hashes, receipts,
+logs, and source identity rather than multi-gigabyte package history.
 
-## Build 9275 Ubuntu ARM64 checkpoint
-
-On 2026-09-16, Ubuntu 24.04.5 LTS ARM64 in a GNOME Wayland session qualified the official
-`chatgpt` DEB version `26.908.70816` and the 16-patch local package
-`26.908.70816+tmtk1`. The pristine DEB SHA-256 was
-`d3ec8f1d73b92f203715c26dbf2e0e64375192d00ddaf26f7fbade7777124de8`; the candidate DEB
-SHA-256 was `f5b58ca30f7d69655c36a4933cf1b9b96c76ef1ca8768f443dbc56bd6ae5c438`;
-and the installed ASAR SHA-256 was
-`869baebb022a7f3c4385874a1ebb32d8b4dd360485485c53da76705d8faa4287`.
-
-Incident `2026-09-16T20-21-46-383Z-ca8bc416-4523-4302-8a65-704f1805d06f` proved a
-native-dialog replacement from the genuine supervisor task. The exact invoking CLI exited before
-installation, Zenity supplied both restart consent and the native password prompt for
-`sudo dpkg -i candidate.deb`, no terminal opened on the healthy path, the renderer became ready,
-and the app reopened the same task through its stock `codex://threads/<task-id>` route with Luna
-Light preserved. No supervisor, installer, dialog, askpass helper, or rescue-terminal process
-remained.
-
-Live renderer evidence also proved the project-local roster, three configured qualification-agent
-palette colors, one agent's `#4E9A51` -> `#C05A47` -> `#4E9A51` runtime reload without restart,
-model-mismatch lock and immediate restoration, sidebar collapse/expand while project navigation
-remained, named delegated attribution, observability target/metrics/CDP access, and the selected
-renderer registry. Current live acceptance also proved muted-versus-unmuted completion attention,
-exact-ID archive protection, the configured `Control+\`` terminal shortcut from both the chat
-composer and focused xterm, and a three-target native wait roster with ordered names, palette
-colors, links, explicit unknown-task fallback, and navigation. The outgoing-receipt v5 gate passed
-success/failure classification, chronological placement below the stock **Worked for** row,
-collapse/expand stability, remount and restart reconstruction, full-text hover, native timestamp,
-and native copy. The operator explicitly accepted skipping live switching with a
-greater-than-200-turn task; its packed-candidate and deterministic bounded-turn probes remain
-green.
-
-A dedicated registered test ship supplied runtime identity without a package-baked client path or
-ship name. Removing the sole private observer config hot-unbound the mode-`0600` socket;
-restoring it, introducing a second valid config, and removing that ambiguity respectively rebound,
-unbound fail-closed, and rebound again through `fs.watch`/Linux inotify without rebuild or restart.
-A real loopback transmission rendered a durable outgoing **Accepted by Tinrelay** card and its
-routed incoming card with exact runtime route, body, timestamp, and copy actions. Both survived a
-task remount. A malformed coordinate exited 2 and produced no accepted card. This qualifies the
-TinRelay integration only; it is not a claim that the complete selected visual fleet has passed
-live acceptance. Controlled blank, Oops, exhaustion, and rollback fixtures were not repeated
-because no changed lifecycle boundary required them. Their earlier results remain carried
-capability evidence, not live qualification of this exact candidate.
-
-## 5. Diagnostics, cleanup, and update behavior
-
-For every induced failure, retain the bounded diagnostic JSON, supervisor log, app standard I/O
-log, selected desktop log excerpt, and renderer error evidence. The Ubuntu intake established
-desktop logs at `~/.local/state/codex/logs` and renderer error state at
-`~/.config/Codex/sentry/scope_v3.json`; verify those same owners on every newly qualified
-distribution and application build.
-
-After restoration, record:
-
-```sh
-dpkg-query --show --showformat='${Package}\t${Version}\t${Architecture}\n' chatgpt
-apt-cache policy chatgpt
-find "$HOME/.codex/tmtk-rescue" -maxdepth 2 \
-  \( -name 'known-good.deb' -o -name 'candidate.deb' -o -name 'known-good.app' \) -print
-```
-
-The newest adoption may retain one private candidate/known-good pair for recovery. A later adoption
-must remove only older toolkit-owned package or app payloads while preserving incident metadata
-and operator-owned `.work` files. Confirm that the vendor APT repository remains configured and
-record which available future version would supersede the local `SOURCE+tmtk1` build. Do not run a
-system upgrade merely to manufacture that evidence.
-
-Publish only a concise tracked summary tied to a qualification-bearing commit. Keep the raw VM
-receipt private and ignored. Name every remaining boundary, including untested desktop/session,
-architecture, RPM packaging, and transforms that still fail closed.
+Confirm the vendor repository remains configured so a later official version can supersede the
+local `+tmtk1` DEB or `.tmtk1` RPM. Do not run a system upgrade merely to manufacture that evidence.
+The tracked record must name the distribution, package format, architecture, desktop/session,
+exact package and ASAR identities, live gates actually exercised, and anything deliberately unrun.

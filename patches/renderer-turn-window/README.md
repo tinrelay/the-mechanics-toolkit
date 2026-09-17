@@ -2,17 +2,18 @@
 
 **State:** Active
 
+**Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
+
 Older Codex Desktop builds could retain and repeatedly materialize thousands of complete native
 turn containers in one mounted conversation. This patch bounds the local renderer to the newest
 200 current and inherited-parent turns while leaving persistence, model context, older-page
 loading, and full transcript export untouched.
 
-Build `7982` added five-turn initial transport pagination, and this transform was made dormant.
-Builds `8881` and `9275` retain that transport path, but long-lived tasks can still accumulate and
-repeatedly materialize an unbounded in-memory turn list. Real build-`8881` tasks took 30–90 seconds
-to switch or locked the UI during selection, so the local mounted-renderer bound is active again.
-Transport pagination, explicit older-page loading, and the mounted projection are separate
-ownership seams.
+Upstream added five-turn initial transport pagination, and this transform was briefly dormant.
+Long-lived tasks can still accumulate and repeatedly materialize an unbounded in-memory turn list;
+real tasks took 30–90 seconds to switch or locked the UI during selection, so the local
+mounted-renderer bound is active again. Transport pagination, explicit older-page loading, and the
+mounted projection are separate ownership seams.
 
 ## Owned seam
 
@@ -26,10 +27,10 @@ turn containers intact, and suppresses the unbounded history-timeline join only 
 active. Only mounted UI consumers receive the limit. The Markdown/transcript consumer deliberately
 does not.
 
-Builds `8881` and `9275` share the qualified scope-aware selector profile and four mounted UI
-consumers. Partial markers, changed selector ownership, a changed consumer count, or an ambiguous
-asset fails closed. The five-turn initial page, older-page action, and turn-list endpoint must
-remain present alongside the mounted bound.
+The qualified scope-aware selector profile has four mounted UI consumers. Partial markers, changed
+selector ownership, a changed consumer count, or an ambiguous asset fails closed. The five-turn
+initial page, older-page action, and turn-list endpoint must remain present alongside the mounted
+bound.
 
 ## Verification
 
@@ -41,9 +42,8 @@ node test/renderer-turn-window.test.mjs /path/to/extracted-asar
 
 The fixture test proves bounded materialization, a shared parent/current budget, intact delegated
 and streaming containers, accumulated-page bounding, full transcript preservation, and
-byte-identical second application. The bundled-contract probe covers the historical upstream-owned
-state and the active build-`8881` and build-`9275` selector profiles. Live switching with more than
-200 turns remains open on build `9275`.
+byte-identical second application. The bundled-contract probe covers the current upstream and
+patched states. Live switching with more than 200 turns remains an explicit fleet-level boundary.
 
 ## Non-goals
 

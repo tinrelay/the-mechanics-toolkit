@@ -38,7 +38,7 @@ npm install
 npm run check
 npm test
 node bin/toolkit.mjs inspect "$SOURCE_APP"
-node bin/toolkit.mjs stage "$SOURCE_APP" "$CANDIDATE_APP" --config "$CONFIG"
+node bin/toolkit.mjs stage-macos "$SOURCE_APP" "$CANDIDATE_APP" --config "$CONFIG"
 ```
 
 The stage must start from a pristine signed vendor bundle, apply every configured patch together,

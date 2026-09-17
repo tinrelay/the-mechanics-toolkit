@@ -1,77 +1,57 @@
 # Extraction ledger
 
-This repository is the canonical source for the portable patches recorded below. The ledger says
-what crossed the extraction boundary and is the public fleet-wide qualification record: current
-static and live evidence, explicitly carried earlier live evidence, and the next useful evidence
-boundary. A next boundary strengthens or refreshes the record; it is not automatically a blocker to
-the qualified build named below. Raw maintainer logs and receipts remain ignored local evidence.
-Patch READMEs retain patch-specific behavioral evidence without duplicating this fast-changing
-record. This ledger is not a promise to publish every historical experiment.
+This repository is the canonical source for the portable patches recorded below. This ledger owns
+the current build matrix and fleet-wide qualification state. Patch READMEs own stable behavior,
+boundaries, and focused verification; they link here instead of repeating fast-changing Desktop
+versions or build numbers.
 
-| Area | Public state | Next evidence boundary |
+Git history preserves earlier ports and receipts. They are not active compatibility promises and
+do not remain in current patch documentation merely as historical evidence.
+
+## Current build matrix
+
+| Platform | Qualified Desktop build | Fleet | State |
+| --- | --- | --- | --- |
+| macOS ARM64 | `26.911.61220` / `9647` | 19 patches | Static stage, supervised adoption, renderer readiness, task messaging, and TinRelay loopback green |
+| Windows 11 ARM64 | `26.911.61220` / `9647` | 16 patches | Signed-MSIX stage, genuine-task supervised adoption, renderer readiness, registry, palette, observability, and selected messaging paths green |
+| Ubuntu DEB (`arm64`, `amd64`) | `26.911.61220` / `9647` | 16 patches | ARM64 patched Codex installed and running; final live qualification record in progress |
+| Fedora RPM (`aarch64`, `x86_64`) | `26.911.61220` / `9647` | 16 patches | ARM64 patched Codex installed and running; final live qualification record in progress |
+
+This table and the root README are the only current-build summaries. A port is not complete until
+both are updated in the same reviewed change. Platform runbooks retain exact hashes and boundaries:
+
+- [macOS qualification](../qualification/macos.md)
+- [Linux qualification](../qualification/linux.md)
+- [Windows qualification](../qualification/windows.md)
+
+## Current fleet evidence
+
+| Area | Current evidence | Next useful boundary |
 | --- | --- | --- |
-| ASAR raw-header integrity | Extracted, fixture-tested, and used by the build-9275 full-fleet stage | Record the next accepted build |
-| Read-only app inspection | Extracted, fixture-tested, and exercised against pristine and staged build 9275 | Record the next accepted build |
-| Safe restart and rescue | Extracted; build-9275 healthy candidate adoption and renderer readiness green on macOS and Ubuntu ARM64 with exact package/CLI identity and no overlapping task runtime; build-8576 real failed-launch return and build-8378 real blank-renderer rescue remain useful evidence | Linux controlled-failure recovery, plus living React recovery-page exhaustion and known-working rollback, remain separate capability evidence |
-| Terminal toggle | Extracted; build-9275 static stage and live use green | Record the next accepted build |
-| Staging, repacking, package integrity | Extracted; macOS synthetic and build-8109/8378/8576/8690/8881/9275 stages green; Linux build-9275 DEB origin verification, ARM64 16-patch rebuild, and healthy installation green | Record the next accepted build |
-| Native app-tools peer authorization | Extracted; current main-process profile red/green; build-9275 native delivery green and build-8881 bidirectional task messaging green | Record the next accepted build |
-| Standalone-output compaction source | Exact Codex 0.154.0-alpha.6.2 source diff, before/after hashes, focused compaction tests green, and native arm64 release binary built | Live-accept a task-message-triggered compaction boundary |
-| Patched Codex binary integration | Same-version check, staged-copy hash verification, build-9275 full-fleet stage, healthy launch, and native delivery green | Live-accept the task-message-triggered compaction boundary above |
-| Cross-task attribution | Extracted; build-9275 named delegated-message rendering green; build-8576 named and unnamed rendering green | Exercise unnamed attribution on build 9275 |
-| Outgoing send receipt | Extracted; build-9275 static composition green; build-8881 causal-order and live rendering plus build-8576 restart reconstruction carried | Exercise restart reconstruction on build 9275 |
-| Wait-thread roster | Extracted; build-9275 three-target wait rendered; build-8881 names, links, colors, and multi-target behavior live-accepted | Record the next accepted build |
-| Runtime JSON reload | Extracted; build-9275 static stage and build-8109 live save green | Live-accept on build 9275 |
-| Agent roster | Extracted; build-9275 aggregate discovery, conflict handling, live registry, and current identity projection green | Exercise a cross-project task move without changing its task ID |
-| Task palette | Extracted; build-9275 static stage and live chips, room colors, and background marks green | Live-accept JSON reload across both room and sidebar surfaces |
-| Reasoning retention | Extracted; build-9275 static stage and build-8109 live use green | Live-accept on build 9275 |
-| Model identity guard | Extracted; exact-task policy and locked-composer behavior; build-9275 static stage and live protection green | Exercise the Dictate false-alarm regression specifically |
-| macOS menu title | Extracted; build-9275 bundle-metadata, static stage, and live menu bar green | Record the next accepted build |
-| Task attention policy | Extracted; build-9275 static stage green; unchanged build-8881 live mute behavior carried | Record the next accepted build |
-| Tinrelay presentation | Extracted as one patch; build-9275 direct-addressed loopback rendered; build-8881 shared-bus, outgoing-order, restart, and pagination evidence plus build-8576 restart reconstruction carried | Exercise later-pagination reconstruction on build 9275 |
-| Sidebar action collapse | Extracted; build-9275 static stage and live use green | Record the next accepted build |
-| Patch registry | Extracted; build-9275 full-fleet composition and current live task-message/Tinrelay capability consumption green | Record the next accepted build |
-| Codex observability | Extracted; build-9275 socket, target list, metrics, and CDP paths live; build-8881 CPU-profile and timeline-trace captures carried | Capture a profile and trace on build 9275 when a live incident warrants it |
-| Task supervisor | Extracted and fixture-tested; benched and excluded from the example fleet | Requalify only if a real current use returns |
-| Full-history drain suppression | Extracted and fixture-tested; dormant upstream-owned | Requalify only if eager local resume draining returns |
-| Renderer turn window | Reactivated after real build-8881 tasks took 30–90 seconds to switch; build-9275 scope-aware selector and pristine-ASAR probes green | Live-accept task switching with the 200-turn mounted window |
+| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS, Windows, Ubuntu, and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
+| Package integrity | macOS signature and ASAR seal green; Windows signed-MSIX reconstruction, re-extraction, native-payload preservation, and source stability green; Ubuntu DEB and Fedora RPM carry the same qualified ASAR through separate package adapters | Finish the exact Linux package receipts |
+| Safe restart and rescue | Healthy supervised adoption returned to the exact originating task on macOS and Windows with no supervisor residue | Re-run controlled failure only when the lifecycle boundary changes |
+| Renderer identity and policy | Runtime roster, palette, model guard, task attention, reasoning retention, sidebar collapse, registry, and observability passed their current static gates; selected macOS and Windows live surfaces are green | Exercise only changed or still-open live surfaces |
+| Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes; macOS task messaging and TinRelay loopback are live-green, as are selected Windows paths | Finish the Ubuntu and Fedora live messaging records |
+| Renderer turn window | Current bounded selector and consumers pass deterministic probes | The greater-than-200-turn live fixture remains deliberately unrun |
+| Standalone-output compaction | Exact Codex `rust-v0.155.0-alpha.2.6` source patch and desktop binary integration pass focused source and package gates | Live-accept a task-message-triggered compaction boundary |
+| Dormant patches | Task supervisor remains benched; full-history drain suppression remains upstream-owned | Requalify only if the corresponding behavior returns |
 
-## Current build qualification
+## Current macOS qualification
 
-Codex Desktop `26.908.70816` (build `9275`) for macOS ARM64 was inspected and staged on macOS
-`26.6.2` (`25G83`) from a pristine vendor update, then adopted with the current 19-patch fleet on
-2026-09-15. The complete selected
-desktop-package fleet—including the separately built Codex 0.154.0-alpha.6.2 binary—passed every
-focused probe before and after repacking, remained byte-identical on a second application,
-preserved the native package tree and executable helper, and produced a valid code signature and
-ASAR seal. The accepted ASAR SHA-256 is
-`7082e2c652c5d54afca7247dc6d43b87c52b44f2cd0db6d75207ff710dcfa129`. The supervisor installed that
-exact candidate at the canonical path, proved its signature and ASAR seal, observed real renderer
-readiness, and returned to the originating task without an overlapping CLI writer. A native
-task message rendered with its sender, a three-target wait used the roster surface, an explicitly
-addressed same-ship Tinrelay loopback rendered, CodexBridge reported ready, and the observability
-bridge enumerated the running targets and returned renderer metrics. Live use also accepted sidebar
-collapse, task-palette chips/room colors/background marks, the macOS menu title, and terminal toggle.
-The bidirectional native-messaging result from build 8881 still applies because its owning code is
-unchanged and the current fleet passed static proof; model protection is live-accepted on build
-9275. Build-9275 regression probes additionally cover the split renderer message bus,
-renderer-store capture, outgoing-radio hoist order, restart/pagination persistence, and composed
-registry ownership. Build `9275` is therefore the current qualified fleet; the table keeps narrower
-live boundaries visible where they would strengthen rather than redefine this qualification.
+Codex Desktop `26.911.61220` (build `9647`) was staged from a pristine vendor application with the
+current 19-patch fleet on 2026-09-17. The selected transforms passed their focused probes before and
+after repacking, remained byte-identical on a second application, preserved the native package
+tree, and produced a valid code signature and ASAR seal. The accepted ASAR SHA-256 is
+`51fde579f5cc71183aa33b5b4da0ffcfaee60c93a2a64706a9d500f3e80635ee`; the integrated Codex
+executable SHA-256 is `31957ea9d8245657c39ca92fdd353ae915c79d70d2b13e2c68fc0b921b4bd930`.
 
-The Linux DEB adapter has a 16-patch build-`9275` qualification on Ubuntu 24.04.5 ARM64. Its exact
-fleet passed source-signature verification, staging, repacking, second application,
-native-payload preservation, supervised installation through a native `sudo -A` askpass dialog,
-exact invoking-CLI exit, real renderer readiness, and direct return to the genuine Luna task. No
-supervisor, installer, askpass helper, rescue agent, or toolkit-owned terminal remained. Runtime
-roster reload, palette surfaces, model mismatch protection, sidebar collapse, named attribution,
-observability, and registry checks also passed. Controlled blank/Oops recovery, exhaustion and
-known-good restoration, and the remaining live feature fixtures stay open. Exact package hashes
-and runbook boundaries are recorded in
-[platform compatibility](platform-compatibility.md#linux-build-9275-implementation-checkpoint) and
-[Linux qualification](../qualification/linux.md).
+The supervisor installed that candidate at the canonical path, observed renderer readiness, and
+returned to the originating task without an overlapping CLI writer. A normal task message and an
+addressed TinRelay loopback completed afterward. The greater-than-200-turn live fixture remains an
+explicitly accepted omission rather than an implied success.
 
-The qualified desktop fleet was staged with these exact package patches:
+The qualified macOS fleet contains:
 
 ```json
 [
@@ -97,17 +77,29 @@ The qualified desktop fleet was staged with these exact package patches:
 ]
 ```
 
-`standalone-output-compaction` integrated the separately built Codex 0.154.0-alpha.6.2 source repair named
-above. Private paths and user policy are intentionally absent from this public record. A subset on
-the same vendor build inherits only its selected patches' exact source recognition and recorded
-patch-specific evidence; it must satisfy catalog dependencies, pass staging as that subset, and
-receive its own focused live checks. It is not the full-fleet composition receipt merely because it
-contains fewer transforms.
+`standalone-output-compaction` integrates the separately built Codex
+`rust-v0.155.0-alpha.2.6` repair. Private paths and user policy are intentionally absent from this
+public record.
 
-The predecessor qualifications remain useful evidence. Build `8576` launched with the complete
-fleet and supplied the live evidence named above. Build `8109` launched successfully, and the
-configured palette, sidebar, terminal, retained reasoning, native task messaging, and incoming and
-outgoing Tinrelay presentation were exercised in live use.
+## Current Windows qualification
+
+The Windows 11 ARM64 build-`9647` candidate uses the supported 16-patch subset. Candidate package
+`OpenAI.Codex_26.911.7940.7_arm64__2p2nqsd0c76g0` has MSIX SHA-256
+`8ebf41808920a408e9f831ed8e4d9f0e6b4cf5666681abe084de9ddf2500d43b` and installed ASAR
+SHA-256 `d4533d56ded97c1b11f28835775dc3467128c300d148c4da3cb815b4d5c8db17`. A genuine task-led
+supervisor replacement reached renderer readiness, returned to the same task and model settings,
+and left no supervisor residue. The exact package procedure and retained evidence boundary belong
+in [Windows qualification](../qualification/windows.md).
+
+## Current Linux qualification
+
+Ubuntu DEB (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) are the current Linux
+build-`9647` targets. Their qualified vendor packages contain the same ASAR and use the same
+16-patch fleet; no CPU-specific JavaScript profile is baked into the port. Patched Codex
+installations are running on both ARM64 qualification VMs. Package authentication, reconstruction,
+supervised adoption, and the remaining live evidence stay separate because DEB and RPM are
+different operational boundaries. [Linux qualification](../qualification/linux.md) owns the exact
+receipts and deliberately unrun gates.
 
 ## Extraction rule
 

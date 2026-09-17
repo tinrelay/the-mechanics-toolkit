@@ -1,4 +1,4 @@
-# Preparing a patched Codex update
+# Preparing a patched macOS Codex update
 
 The preferred update has one interruption: obtain the offered vendor application, port and prove
 the selected patch fleet while the user's current Codex remains available, then quit once and wake
@@ -28,11 +28,13 @@ the selected exact commit in a separate worktree:
 
 ```sh
 git fetch origin
+qualified_version="<desktop-version>"
+qualified_build="<desktop-build>"
 selected_commit="$(git log origin/main --first-parent --format='%H' \
-  --grep='Codex 26.903.71938 build 8576' -1)"
+  --grep="Codex ${qualified_version} build ${qualified_build}" -1)"
 test -n "$selected_commit"
-git worktree add --detach ../the-mechanics-toolkit-build-8576 "$selected_commit"
-cd ../the-mechanics-toolkit-build-8576
+git worktree add --detach "../the-mechanics-toolkit-build-${qualified_build}" "$selected_commit"
+cd "../the-mechanics-toolkit-build-${qualified_build}"
 npm install
 npm run check
 npm test
@@ -73,7 +75,7 @@ filename, preserve the completed archive as the untouched vendor artifact, and u
 copy:
 
 ```sh
-offered_version="26.903.71938"
+offered_version="<desktop-version>"
 curl -fsSL https://persistent.oaistatic.com/codex-app-prod/appcast.xml -o appcast.xml
 enclosure_url="$(/usr/bin/xmllint --xpath \
   "string(/rss/channel/item[title='$offered_version']/enclosure/@url)" appcast.xml)"
@@ -98,7 +100,7 @@ Use three pieces of evidence:
 
    ```sh
    git log origin/main --first-parent --format='%H %s' \
-     --grep='Codex 26.903.71938 build 8576'
+     --grep="Codex ${qualified_version} build ${qualified_build}"
    ```
 
 Replace the example version/build with the offered artifact's exact identity. Several incremental
@@ -174,6 +176,9 @@ Use these roles instead:
 10. Exercise the narrow live checks for the selected fleet. Retain the supervisor incident until
     the new build is accepted so its diagnostics and known-working rollback remain available.
 11. [Close the workbench](#close-the-workbench) after acceptance.
+
+Record the completed port through the shared
+[maintenance contract](maintenance.md#complete-the-port-record) before merging or publishing it.
 
 ## Close the workbench
 

@@ -2,8 +2,7 @@
 
 - **Current state:** Infrastructure
 - **Public extraction:** Complete
-- **Patch-specific evidence:** Build `9275` full-fleet composition and live task-message/Tinrelay
-  capability consumption green on macOS; the selected registry also passed live on Ubuntu ARM64
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -62,9 +61,8 @@ current-fleet discovery, exact registration ownership, descriptor immutability, 
 per-realm isolation, callable capability behavior, syntax validity, and byte-identical second
 application.
 
-The equivalent private registry is green in the installed build-`7942` operational kit. That is
-historical evidence for the design, not proof that this separately namespaced public transform is
-installed.
+Current package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

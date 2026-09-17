@@ -546,7 +546,7 @@ try {
   assert.throws(() => loadRescueFile(rescueFile), /cannot parse/);
   fs.rmSync(rescueFile);
   assert.deepEqual(loadRescueFile(rescueFile), {});
-  const publicExample = loadRescueFile(path.join(repository, "rescue-agent.example.json"));
+  const publicExample = loadRescueFile(path.join(repository, "examples/rescue-agent.example.json"));
   assert.equal(publicExample.readyTimeoutSeconds, 300);
   assert.match(publicExample.taskId, /^[0-9a-f-]{36}$/);
   assert.equal(publicExample.model, model);

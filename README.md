@@ -33,7 +33,7 @@ the qualification named under [Codex Desktop package patches](#codex-desktop-pac
 the offered build is already qualified, patch that pristine update directly instead of spending a
 restart on the older installed build. If it is not an exact match, the agent must explicitly port
 and qualify the selected patches; nearby version numbers are not compatibility evidence. The full
-build-selection route is in [Preparing a patched Codex update](docs/update-workflow.md).
+build-selection route is in [Preparing a patched macOS Codex update](docs/macos-update-workflow.md).
 
 When returning to a retained checkout, the agent should inspect its Git state, fast-forward it when
 that will not overwrite local work, and refresh its local dependencies before choosing a Codex
@@ -64,17 +64,17 @@ For an exact pre-qualified macOS build, the ordinary agent-operated path is:
 git clone https://github.com/tinrelay/the-mechanics-toolkit.git
 cd the-mechanics-toolkit
 npm install
-cp toolkit.example.json toolkit.local.json
+cp examples/toolkit.macos.example.json toolkit.local.json
 
 # Replace every fictional path and select the intended patch fleet before continuing.
 node bin/toolkit.mjs inspect /path/to/Pristine-ChatGPT.app
-node bin/toolkit.mjs stage /path/to/Pristine-ChatGPT.app \
+node bin/toolkit.mjs stage-macos /path/to/Pristine-ChatGPT.app \
   /path/to/ChatGPT-MechanicsToolkit.app \
   --config toolkit.local.json
 ```
 
 `npm install` prepares this repository's tooling; it does not patch or install Codex.
-`toolkit.example.json` is a schema-bearing example with fictional absolute paths, not a runnable
+`examples/toolkit.macos.example.json` is a schema-bearing example with fictional absolute paths, not a runnable
 configuration. The agent should configure its private copy with the person, stage and prove all
 selected patches together, and explain the interruption and recovery path. After obtaining
 authority, it gives the verified candidate to the supervisor from the task that should own recovery:
@@ -105,7 +105,7 @@ old release benches are not a cache TMTK owns or prunes. Delete the accepted can
 source, remove superseded release work, and keep at most one compressed pristine vendor artifact if
 future restaging is useful. Preserve a failed run only while it supports an active diagnosis or
 qualification. The supervisor separately bounds its private recovery storage to one full rollback.
-See [Closing the workbench](docs/update-workflow.md#close-the-workbench) for the exact keep/remove
+See [Closing the workbench](docs/macos-update-workflow.md#close-the-workbench) for the exact keep/remove
 boundary.
 
 The [`qualification/`](qualification/) runbooks are for toolkit maintainers and agents actively
@@ -142,7 +142,7 @@ feature checks—not recreate the maintainer's destructive failure fixtures.
 - [For people](#for-people)
 - [For Codex agents](#for-codex-agents)
 - [Updates and restarts](#updates-and-restarts)
-- [Closing the workbench](docs/update-workflow.md#close-the-workbench)
+- [Closing the workbench](docs/macos-update-workflow.md#close-the-workbench)
 - [Repository boundary](#repository-boundary)
 
 ## Two patch layers
@@ -172,10 +172,11 @@ staging, installation, restart, and live acceptance remain separate actions.
 The current 19-patch desktop fleet is qualified against **Codex Desktop `26.911.61220` (`9647`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
 readiness, and selected live message paths. Windows 11 ARM64 has a 16-patch build-9647 port with
-signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Linux remains
-qualified at build 9275 while build-9647 DEB and RPM qualification is in progress. Each platform's
-qualification runbook records what was proved, carried from an earlier build, or deliberately not
-rerun.
+signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Ubuntu DEB
+(`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) packages use the same 16-patch
+build-9647 ASAR fleet. The current ARM64 VMs both have patched Codex installations running while
+their final live qualification records are being completed. Each platform's qualification runbook
+records what was proved, carried from an earlier build, or deliberately not rerun.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and
@@ -408,8 +409,8 @@ of evidence and working machinery.
 Treat every patch as source to inspect and port. First decide whether the repair belongs to the
 desktop package or the open-source Codex App Server/Core; follow both lanes only when a source
 repair must be compiled and packaged into Codex Desktop. Before touching the installed application,
-read the measured [desktop platform compatibility](docs/platform-compatibility.md) boundary, then
-follow the build-selection procedure in [`docs/update-workflow.md`](docs/update-workflow.md): identify any
+read the [desktop platform compatibility](docs/platform-compatibility.md) ownership boundary, then
+follow the build-selection procedure in [`docs/macos-update-workflow.md`](docs/macos-update-workflow.md): identify any
 offered official update, compare its exact version and build with current qualification and the
 repository's qualification history, then choose the newest available exact match or explicitly own
 the port to the desired newer build. When the offered update is an exact qualified match, acquire
@@ -425,7 +426,7 @@ Prefer an offered official update matching a qualified build. When possible, pre
 untouched and build a separate candidate with the selected fleet in dependency-safe order. Verify
 transforms, focused probes, ASAR integrity, signing, and composition before asking to replace or
 relaunch. The full path is documented in
-[`docs/update-workflow.md`](docs/update-workflow.md).
+[`docs/macos-update-workflow.md`](docs/macos-update-workflow.md).
 
 Repository evidence does not grant machine authority. Inspection, transformation, staging,
 replacement, launch, and live acceptance are separate actions. Explain the change and rollback,
@@ -441,7 +442,7 @@ ownership changes; each selected patch must be inspected, retired, or ported and
 Restarts interrupt the room and may trigger platform authorization prompts; macOS may also show
 permission or Storage Key prompts. Minimize them by qualifying the complete desired fleet as one
 candidate. A
-[`persistent local signing identity`](docs/local-signing.md) can stabilize permissions tied to the
+[`persistent macOS local signing identity`](docs/macos-local-signing.md) can stabilize permissions tied to the
 application's designated requirement, although Codex's Storage Key may still enforce a separate
 exact-hash policy. When the readiness patch is part of the candidate, use
 [`tmtk-restart`](docs/safe-start.md) with `--candidate` so adoption, rollback capture, and restart

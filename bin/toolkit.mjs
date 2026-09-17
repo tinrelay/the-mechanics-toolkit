@@ -7,7 +7,7 @@ import { diagnoseApp } from "../src/diagnose-app.mjs";
 import { patchDefinition } from "../src/patch-catalog.mjs";
 import { sourcePatchDefinition, sourcePatchDefinitions } from "../src/source-patch-catalog.mjs";
 import { applySourcePatch, sourcePatchState } from "../src/source-patch.mjs";
-import { stageApp } from "../src/stage-app.mjs";
+import { stageMacosApp } from "../src/stage-macos-app.mjs";
 import {stageDeb} from "../src/stage-deb.mjs";
 import {stageMsix} from "../src/stage-msix.mjs";
 
@@ -18,8 +18,8 @@ if (command === "inspect" && args.length === 1) {
   print(inspectAppBundle(args[0]));
 } else if (command === "diagnose" && args.length === 1) {
   print(diagnoseApp({app: args[0]}));
-} else if (command === "stage" && args.length === 4 && args[2] === "--config") {
-  print(stageApp({sourceApp: args[0], destinationApp: args[1], configPath: args[3], repositoryRoot: root}));
+} else if (command === "stage-macos" && args.length === 4 && args[2] === "--config") {
+  print(stageMacosApp({sourceApp: args[0], destinationApp: args[1], configPath: args[3], repositoryRoot: root}));
 } else if (command === "stage-deb" && args.length === 4 && args[2] === "--config") {
   print(stageDeb({sourceDeb: args[0], destinationDeb: args[1], configPath: args[3], repositoryRoot: root}));
 } else if (command === "stage-msix" && args.length === 6 && args[4] === "--config") {
@@ -60,7 +60,7 @@ if (command === "inspect" && args.length === 1) {
     "usage:\n" +
       "  mechanics-toolkit inspect CHATGPT_APP\n" +
       "  mechanics-toolkit diagnose CHATGPT_APP\n" +
-      "  mechanics-toolkit stage SOURCE_CHATGPT_APP STAGED_CHATGPT_APP --config TOOLKIT_CONFIG\n" +
+      "  mechanics-toolkit stage-macos SOURCE_CHATGPT_APP STAGED_CHATGPT_APP --config TOOLKIT_CONFIG\n" +
       "  mechanics-toolkit stage-deb SOURCE_CHATGPT_DEB STAGED_CHATGPT_DEB --config TOOLKIT_CONFIG\n" +
       "  mechanics-toolkit stage-msix CANDIDATE_SOURCE KNOWN_GOOD_SOURCE CANDIDATE_MSIX KNOWN_GOOD_MSIX --config TOOLKIT_CONFIG\n" +
       "  mechanics-toolkit patch PATCH_NAME check|apply PATCH_ROOT [--config TOOLKIT_CONFIG]\n" +

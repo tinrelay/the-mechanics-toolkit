@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete
-- **Qualified package:** Codex Desktop `26.908.70816` (`9275`), macOS ARM64 static, causal harness, and live list/metrics; build `8881` live profiles and traces
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 

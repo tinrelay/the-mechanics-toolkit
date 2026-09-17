@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -16,7 +16,8 @@ This patch restores that one visible label to `Codex`.
 
 The packaged application already identifies its product as Codex internally, and its native menu
 uses Electron's standard macOS application-menu role. macOS takes the visible application-menu
-title from `CFBundleName` in `Contents/Info.plist`; build `7942` sets that key to `ChatGPT`.
+title from `CFBundleName` in `Contents/Info.plist`; the recognized vendor bundle sets that key to
+`ChatGPT`.
 
 The transform changes only `CFBundleName` to `Codex`. It deliberately leaves the bundle identifier,
 executable, display name, data directories, update channel, and all ChatGPT-facing copy untouched.
@@ -32,7 +33,7 @@ node bin/toolkit.mjs patch macos-menu-title apply /path/to/Staged-ChatGPT.app
 node test/macos-menu-title.test.mjs /path/to/Staged-ChatGPT.app
 ```
 
-The normal `stage` command applies it only to the new candidate before the candidate is signed. It
+The normal `stage-macos` command applies it only to the new candidate before the candidate is signed. It
 does not alter the source or install the result.
 
 ## Verification
@@ -42,8 +43,8 @@ the surrounding bundle identity, rejects unrecognized names and bundle shapes, a
 byte-identical second application. The staged-app test proves that a mixed ASAR and bundle patch
 fleet is signed and retains valid Electron ASAR integrity.
 
-Live acceptance passed on 2026-09-05: the installed build launched, displayed `Codex` as the leading
-macOS menu, and retained the selected renderer patch fleet.
+Current staged-package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

@@ -2,7 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the standalone transform
-- **Patch-specific evidence:** Build `8109` static stage and live use green, 2026-09-07
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -70,8 +70,8 @@ replaces a working application.
 
 ## Verification
 
-`test/task-visual-palette-transform.test.mjs` covers the historical standalone profile.
-`test/task-visual-palette.test.mjs` exercises the current build-`8881` roster consumer, safe
+`test/task-visual-palette-transform.test.mjs` covers the transform's exact generated owners.
+`test/task-visual-palette.test.mjs` exercises the current roster consumer, safe
 project-owned marks, theme-specific contrast, room/sidebar/delegation behavior, archive
 suppression, invalid owned values, and byte-identical second application.
 
@@ -79,13 +79,9 @@ The current transform also keeps the sender name inside an attribution label sou
 moving toward the theme's readable endpoint only as far as contrast requires. The surrounding
 native label text retains its stock metadata color.
 
-The private build-`7942` implementation was accepted in live use before extraction: room and
-sidebar colors, source-colored delegated bubbles, optional background marks, neutral unnamed-task
-selection, and exact-ID archive protection all remained usable. Build `8881` live acceptance also
-covered the current identity chips, room colors, and background marks. The source-hued-label
-treatment is covered by the current transform and static behavioral probes until separately
-accepted in live use. Historical evidence for an earlier treatment is not a claim that this
-separately namespaced public transform is installed.
+The source-hued-label treatment is covered by the current transform and static behavioral probes.
+Current package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

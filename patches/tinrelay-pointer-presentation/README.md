@@ -2,11 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer and main-process families
-- **Patch-specific evidence:** Build `9275` full-fleet static composition, Ubuntu ARM64 runtime
-  identity reload and direct-addressed loopback, and Windows ARM64 incoming/outgoing loopback plus
-  remount green; build `8881` split-bus, outgoing-order, restart, and pagination probes carried;
-  build `8576` restart reconstruction live-accepted. The build-`9275` greater-than-200-turn fixture
-  was intentionally not rerun, 2026-09-17
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -184,20 +180,12 @@ private socket permissions, fragmented events, lookup-before-event ordering, fir
 handling, the
 20 KiB ceiling, bounded private persistence, source-task/source-turn reconstruction after process
 restart without the command activity, corrupt-cache rejection, the 256-event observer ceiling, the
-256-anchor per-task ceiling, cross-task retention isolation, and socket cleanup. Build `9275` also
-upgrades cleanly in a disposable extraction.
+256-anchor per-task ceiling, cross-task retention isolation, socket cleanup, and clean application
+to a disposable pristine extraction.
 
-The private build-`7942` implementation was accepted live for incoming loopback before extraction.
-Build `8109` stages the unified patch with all configured toolkit patches, valid signature and ASAR
-integrity, green post-repack probes, and byte-identical second application. A real build-`8109`
-loopback exercised the ordinary outgoing send presentation and the incoming pointer presentation.
-
-On Windows ARM64, the accepted build-`9275` candidate remounted a persisted eight-key incoming
-delivery and rendered a fresh nine-key loopback in both directions without switching the visible
-task. The route, body, timestamp, and Copy action survived remount. Live Codex supplied the native
-delegation time; the focused fixture separately proves fallback to Tinrelay's validated receipt
-time when the native time is absent. The greater-than-200-turn live fixture was intentionally not
-rerun.
+Current macOS, Linux, and Windows package and live evidence—including legacy-envelope remount,
+fresh loopback, timestamp precedence, and deliberately unrun gates—belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md) and platform qualification runbooks.
 
 ## Non-goals
 

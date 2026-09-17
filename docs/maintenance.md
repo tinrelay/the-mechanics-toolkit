@@ -5,10 +5,10 @@ also change the bundled open-source Codex revision. Treat every new version and 
 until the selected desktop and source patch fleets have been examined against it.
 
 When the vendor artifact for an offered update is available, perform this work before interrupting
-the current Codex. Keep the vendor artifact untouched, stage the patched candidate outside
-`/Applications`, and defer the one quit-and-relaunch seam until static proof is complete. Follow
-[preparing a patched Codex update](update-workflow.md); do not install a second live application
-with the same bundle identity.
+the current Codex. Keep the vendor artifact untouched, stage the patched candidate separately, and
+defer the one quit-and-relaunch seam until static proof is complete. On macOS, follow
+[preparing a patched Codex update](macos-update-workflow.md) and do not install a second live
+application with the same bundle identity.
 
 For each carried patch, first identify whether its owner is the desktop package under `patches/` or
 the App Server/Core source under `source-patches/`. A source repair may require both a new Rust port
@@ -24,9 +24,35 @@ Then:
 6. run focused probes and the complete selected desktop fleet against a pristine staged copy;
 7. perform narrow live checks before treating the rebuilt application as accepted.
 
+## Complete the port record
+
+A port is not complete merely because its candidate launched. In the same reviewed change that
+records the accepted source:
+
+1. bump `package.json` and `package-lock.json` when the supported release contract changes, and put
+   the matching current entry first in `UPGRADING.md`;
+2. update the root README's current platform summary;
+3. update the current build matrix and evidence in
+   [`extraction-ledger.md`](extraction-ledger.md);
+4. update the platform qualification runbook with exact hashes and deliberately unrun gates;
+5. remove superseded generated profiles, source diffs, config examples, obsolete current-state
+   prose, and empty port directories unless a current compatibility requirement explicitly owns
+   them;
+6. give platform-specific files, commands, examples, and documents an explicit platform or package
+   format name and place them under the corresponding directory; and
+7. close the campaign workbench with exactly one pristine package and one current candidate. Remove
+   failed packages, superseded candidates, extracted package trees, and transaction-only rollback
+   artifacts while retaining compact receipts, hashes, and source identity.
+
+`npm test` runs the repository-hygiene probe that enforces version alignment, the current
+`UPGRADING.md` entry, platform-named examples, relative Markdown links, fenced JSON, centralized
+build claims, and the exact source-patch catalog. Do not merge or publish a completed port while
+that probe fails or while current-state surfaces still name the prior build.
+
 Do not loosen an anchor until it happens to match or treat a green transform as proof of behavior.
-Compatibility evidence belongs in the patch README and [extraction ledger](extraction-ledger.md),
-including the exact application version and build that were inspected.
+Stable behavior and focused verification belong in the patch README. The root README gives the
+short current platform summary; the current build matrix, fleet-wide evidence, and next
+qualification boundary belong in the [extraction ledger](extraction-ledger.md).
 
 State words in the maintenance records are dispositions, not marketing promises:
 

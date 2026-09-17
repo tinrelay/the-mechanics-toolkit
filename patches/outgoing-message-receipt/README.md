@@ -2,10 +2,7 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer family
-- **Patch-specific evidence:** Build `9275` full-fleet static composition and Ubuntu ARM64 live
-  success/failure classification, causal placement, collapse/remount persistence, and full-text
-  hover green; receipt-owned timestamp/copy actions remain a Linux live gap. Build `8881` live
-  rendering and build `8576` restart reconstruction remain carried evidence, 2026-09-15
+- **Fleet qualification:** See the [extraction ledger](../../docs/extraction-ledger.md).
 
 ## Why it exists
 
@@ -78,10 +75,8 @@ permissions, restart reconstruction, flat-cache migration, first-write identity,
 rejection, independent per-task count and byte
 bounds, the global task-bucket ceiling, syntax validity, and byte-identical second application.
 
-The private build-`7942` implementation was separately accepted in live use before extraction:
-the receipt stayed visible after collapsed activity, used recipient colors when available, opened
-the target task, and exposed the full sent message on hover. That is historical evidence for the
-design, not proof that this separately namespaced public transform is installed.
+Current package and live evidence belongs in the fleet
+[extraction ledger](../../docs/extraction-ledger.md).
 
 ## Non-goals
 

@@ -29,7 +29,7 @@ the remaining Linux VM gates still control any broader DEB qualification claim.
 Inspect the installed application without modifying it:
 
 ```sh
-npm run inspect:installed
+npm run inspect:installed:macos
 ```
 
 Or name another bundle explicitly:
@@ -146,10 +146,11 @@ That form detects and rescues launch failure but has no pre-adoption app to rest
 
 ## Local configuration
 
-For macOS, copy [`toolkit.example.json`](../toolkit.example.json) to the ignored
-`toolkit.local.json`. For the exact Linux build-9275 16-patch fleet, start from
-[`toolkit.linux.example.json`](../toolkit.linux.example.json); for the exact Windows build-9275
-fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The examples
+For macOS, copy [`toolkit.macos.example.json`](../examples/toolkit.macos.example.json) to the ignored
+`toolkit.local.json`. Linux and Windows start from
+[`toolkit.linux.example.json`](../examples/toolkit.linux.example.json) and
+[`toolkit.windows.example.json`](../examples/toolkit.windows.example.json), respectively. The current
+platform/build matrix lives in the [extraction ledger](extraction-ledger.md#current-build-matrix). The examples
 contain fictional absolute paths and are not runnable until the agent replaces the applicable
 values. The Linux example has one remaining operator-specific value: `tinrelay.client`.
 `enabledPatches` selects the staged fleet; the catalog
@@ -163,7 +164,7 @@ Configuration-backed patches use these values:
   default `-` uses ad-hoc signing. A stable identity keeps the designated requirement consistent for
   permissions macOS tracks that way, but some application items add their own exact-hash or
   partition policy. Keep the certificate and private key local—only the identity name belongs in the
-  ignored configuration. See [stable local signing](local-signing.md) for the trust boundary;
+  ignored configuration. See [stable macOS local signing](macos-local-signing.md) for the trust boundary;
 - `codexBinary` names a separately built App Server/Core executable when a source repair must be
   integrated into a macOS or Linux staged desktop package. Windows instead uses
   `windows.codexBinaries.native` and `windows.codexBinaries.wsl` because the package contains both
@@ -263,7 +264,7 @@ boundary and verification of both directions.
 ## Stage a complete candidate
 
 ```sh
-node bin/toolkit.mjs stage /path/to/Pristine-ChatGPT.app \
+node bin/toolkit.mjs stage-macos /path/to/Pristine-ChatGPT.app \
   /path/to/ChatGPT-MechanicsToolkit.app \
   --config /path/to/toolkit.local.json
 ```
@@ -319,5 +320,5 @@ is finalized. No compiled binary is stored in this repository.
 A green result is a statically verified candidate, not permission to adopt it and not evidence of
 live behavior. The candidate is a staging artifact, not a second installed application; adoption
 preserves the platform's one canonical installed package identity. See
-[preparing a patched Codex update](update-workflow.md) and [staging and authority](staging.md) for
+[preparing a patched macOS Codex update](macos-update-workflow.md) and [staging and authority](staging.md) for
 the exact boundaries.
