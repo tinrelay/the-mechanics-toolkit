@@ -22,8 +22,8 @@ assert.throws(() => compareMsixVersions("26.908.4834.65536", "26.908.4834.0"),
   /out of range/);
 
 const windows = {
-  candidateVersion: "26.908.4834.1",
-  knownGoodVersion: "26.908.4834.2",
+  candidateVersion: "26.908.4834.6",
+  knownGoodVersion: "26.908.4834.7",
   makeAppx: String.raw`C:\tools\makeappx.exe`,
   signTool: String.raw`C:\tools\signtool.exe`,
   signingCertificateThumbprint: "B3521CC4DA7ED2BB47F0C0A43109428A634109B2",
@@ -49,32 +49,41 @@ assert.match(temporaryPackagePath("candidate.msix"),
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-stage-msix-test-"));
 try {
-  const source = path.join(scratch,
+  const candidateSource = path.join(scratch,
     "OpenAI.Codex_26.908.4834.0_arm64__2p2nqsd0c76g0");
+  const knownGoodSource = path.join(scratch,
+    "OpenAI.Codex_26.908.4834.5_arm64__2p2nqsd0c76g0");
   const candidate = path.join(scratch, "candidate.msix");
   const knownGood = path.join(scratch, "known-good.msix");
   const config = path.join(scratch, "toolkit.json");
-  buildSourceApplication(source);
+  buildSourceApplication(candidateSource, "26.908.4834.0", "pristine-candidate");
+  buildSourceApplication(knownGoodSource, "26.908.4834.5", "live-known-good");
   writeConfig(config, ["safe-start-readiness", "renderer-patch-registry"]);
-  const sourceBefore = installedInspection(source);
+  const candidateSourceBefore = installedInspection(candidateSource);
+  const knownGoodSourceBefore = installedInspection(knownGoodSource);
+  assert.notEqual(candidateSourceBefore.archive.sha256, knownGoodSourceBefore.archive.sha256,
+    "fixture sources deliberately have different ASARs");
   const packageContents = new Map();
   const result = stageMsix({
-    sourceApp: source,
+    candidateSourceApp: candidateSource,
+    knownGoodSourceApp: knownGoodSource,
     candidateMsix: candidate,
     knownGoodMsix: knownGood,
     configPath: config,
     repositoryRoot: repository,
     platform: "win32",
-    processRunner: fixtureRunner(sourceBefore, packageContents),
-    appInspector: installedInspection,
-    sourceInspector: packageFile => packageInspection(packageFile, packageContents),
+    processRunner: fixtureRunner(packageContents),
+    sourceInspector: source => packageContents.has(path.resolve(source))
+      ? packageInspection(source, packageContents)
+      : installedInspection(source),
     scratchParent: scratch
   });
   assert.equal(result.state, "staged-msix-static-proof-green");
   assert.deepEqual(result.patches, ["safe-start-readiness", "renderer-patch-registry"]);
-  assert.equal(result.source.asarSha256, sourceBefore.archive.sha256);
-  assert.equal(result.knownGood.asarSha256, sourceBefore.archive.sha256);
-  assert.notEqual(result.candidate.asarSha256, sourceBefore.archive.sha256);
+  assert.equal(result.candidateSource.asarSha256, candidateSourceBefore.archive.sha256);
+  assert.equal(result.knownGoodSource.asarSha256, knownGoodSourceBefore.archive.sha256);
+  assert.equal(result.knownGood.asarSha256, knownGoodSourceBefore.archive.sha256);
+  assert.notEqual(result.candidate.asarSha256, candidateSourceBefore.archive.sha256);
   assert.equal(fs.existsSync(candidate), true);
   assert.equal(fs.existsSync(knownGood), true);
   assert.deepEqual(stageScratchDirectories(), [], "successful staging removes its scratch tree");
@@ -89,33 +98,147 @@ try {
   ]);
   const refusedContents = new Map();
   assert.throws(() => stageMsix({
-    sourceApp: source,
+    candidateSourceApp: candidateSource,
+    knownGoodSourceApp: knownGoodSource,
     candidateMsix: refused,
     knownGoodMsix: refusedKnownGood,
     configPath: refusedConfig,
     repositoryRoot: repository,
     platform: "win32",
-    processRunner: fixtureRunner(sourceBefore, refusedContents),
-    appInspector: installedInspection,
-    sourceInspector: packageFile => packageInspection(packageFile, refusedContents),
+    processRunner: fixtureRunner(refusedContents),
+    sourceInspector: source => refusedContents.has(path.resolve(source))
+      ? packageInspection(source, refusedContents)
+      : installedInspection(source),
     scratchParent: scratch
-  }), /full-history-drain-suppression\/patch\.mjs check/);
+  }), /full-history-drain-suppression[\\/]patch\.mjs check/);
   assert.equal(fs.existsSync(refused), false);
   assert.equal(fs.existsSync(refusedKnownGood), false);
   assert.deepEqual(stageScratchDirectories(), [], "refusal leaves no staging scratch tree");
+
+  for (const [label, mismatch] of [
+    ["identity", inspection => ({
+      ...inspection,
+      package: {...inspection.package, familyName: "Different.Package_family"}
+    })],
+    ["inner-build", inspection => ({...inspection, build: "different-build"})]
+  ]) {
+    const mismatchedCandidate = path.join(scratch, `${label}-mismatched-candidate.msix`);
+    const mismatchedKnownGood = path.join(scratch, `${label}-mismatched-known-good.msix`);
+    assert.throws(() => stageMsix({
+      candidateSourceApp: candidateSource,
+      knownGoodSourceApp: knownGoodSource,
+      candidateMsix: mismatchedCandidate,
+      knownGoodMsix: mismatchedKnownGood,
+      configPath: config,
+      repositoryRoot: repository,
+      platform: "win32",
+      processRunner: fixtureRunner(new Map()),
+      sourceInspector: source => {
+        const inspection = installedInspection(source);
+        return source === knownGoodSource ? mismatch(inspection) : inspection;
+      },
+      scratchParent: scratch
+    }), /do not share the exact inner identity/);
+    assert.equal(fs.existsSync(mismatchedCandidate), false);
+    assert.equal(fs.existsSync(mismatchedKnownGood), false);
+  }
+
+  const manifestCandidate = path.join(scratch, "manifest-corruption-candidate.msix");
+  const manifestKnownGood = path.join(scratch, "manifest-corruption-known-good.msix");
+  const manifestContents = new Map();
+  assert.throws(() => stageMsix({
+    candidateSourceApp: candidateSource,
+    knownGoodSourceApp: knownGoodSource,
+    candidateMsix: manifestCandidate,
+    knownGoodMsix: manifestKnownGood,
+    configPath: config,
+    repositoryRoot: repository,
+    platform: "win32",
+    processRunner: fixtureRunner(manifestContents, {corruptManifestSource: knownGoodSource}),
+    sourceInspector: source => manifestContents.has(path.resolve(source))
+      ? packageInspection(source, manifestContents)
+      : installedInspection(source),
+    scratchParent: scratch
+  }), /does not preserve the exact source identity/);
+  assert.equal(fs.existsSync(manifestCandidate), false);
+  assert.equal(fs.existsSync(manifestKnownGood), false);
+
+  const diagnosticCandidate = path.join(scratch, "diagnostic-candidate.msix");
+  const diagnosticKnownGood = path.join(scratch, "diagnostic-known-good.msix");
+  const diagnosticContents = new Map();
+  assert.throws(() => stageMsix({
+    candidateSourceApp: candidateSource,
+    knownGoodSourceApp: knownGoodSource,
+    candidateMsix: diagnosticCandidate,
+    knownGoodMsix: diagnosticKnownGood,
+    configPath: config,
+    repositoryRoot: repository,
+    platform: "win32",
+    processRunner: fixtureRunner(diagnosticContents, {failSecondExtract: true}),
+    sourceInspector: source => diagnosticContents.has(path.resolve(source))
+      ? packageInspection(source, diagnosticContents)
+      : installedInspection(source),
+    scratchParent: scratch
+  }), /DISTINCTIVE-MAKEAPPX-UNPACK-DIAGNOSTIC/);
+  assert.equal(fs.existsSync(diagnosticCandidate), false);
+  assert.equal(fs.existsSync(diagnosticKnownGood), false);
+  assert.deepEqual(stageScratchDirectories(), [], "diagnostic failure cleans staging scratch");
+
+  verifyChangingSourceFails({candidateSource, knownGoodSource, config});
   process.stdout.write("Windows production MSIX staging fixture passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});
 }
 
-function buildSourceApplication(source) {
+function verifyChangingSourceFails({candidateSource, knownGoodSource, config}) {
+  for (const [label, changedSource] of [
+    ["candidate", candidateSource],
+    ["known-good", knownGoodSource]
+  ]) {
+    const candidate = path.join(scratch, `${label}-changed-candidate.msix`);
+    const knownGood = path.join(scratch, `${label}-changed-known-good.msix`);
+    const packageContents = new Map();
+    const runFixture = fixtureRunner(packageContents);
+    const changedFile = path.join(changedSource, "changed-during-staging.txt");
+    let changed = false;
+    try {
+      assert.throws(() => stageMsix({
+        candidateSourceApp: candidateSource,
+        knownGoodSourceApp: knownGoodSource,
+        candidateMsix: candidate,
+        knownGoodMsix: knownGood,
+        configPath: config,
+        repositoryRoot: repository,
+        platform: "win32",
+        processRunner(program, arguments_, options) {
+          const action = arguments_[arguments_.indexOf("-File") + 2];
+          if (!changed && action === "build-package") {
+            fs.writeFileSync(changedFile, "changed");
+            changed = true;
+          }
+          return runFixture(program, arguments_, options);
+        },
+        sourceInspector: source => packageContents.has(path.resolve(source))
+          ? packageInspection(source, packageContents)
+          : installedInspection(source),
+        scratchParent: scratch
+      }), new RegExp(`${label === "candidate" ? "Candidate" : "Known-good"} source bytes`));
+      assert.equal(fs.existsSync(candidate), false);
+      assert.equal(fs.existsSync(knownGood), false);
+    } finally {
+      fs.rmSync(changedFile, {force: true});
+    }
+  }
+}
+
+function buildSourceApplication(source, outerVersion, marker) {
   const resources = path.join(source, "app/resources");
-  const asarRoot = path.join(scratch, "asar-root");
+  const asarRoot = fs.mkdtempSync(path.join(scratch, "asar-root-"));
   fs.mkdirSync(resources, {recursive: true});
   fs.mkdirSync(path.join(asarRoot, ".vite/build"), {recursive: true});
   fs.mkdirSync(path.join(asarRoot, "webview/assets"), {recursive: true});
   fs.mkdirSync(path.join(asarRoot, "node_modules/native"), {recursive: true});
-  fs.writeFileSync(path.join(source, "AppxManifest.xml"), manifest("26.908.4834.0"));
+  fs.writeFileSync(path.join(source, "AppxManifest.xml"), manifest(outerVersion, marker));
   fs.writeFileSync(path.join(source, "app/ChatGPT.exe"), "signed-executable-fixture");
   fs.writeFileSync(path.join(resources, "codex.exe"), "native-codex-fixture");
   fs.writeFileSync(path.join(resources, "codex"), "wsl-codex-fixture");
@@ -130,6 +253,7 @@ function buildSourceApplication(source) {
   fs.writeFileSync(path.join(asarRoot, "webview/assets/app-initial-fixture.js"),
     "const H={dispatchMessage(){}};function MHs(){H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})}");
   fs.writeFileSync(path.join(asarRoot, "node_modules/native/addon.node"), "native-fixture");
+  fs.writeFileSync(path.join(asarRoot, "source-marker.txt"), marker);
   run(process.execPath, [
     path.join(repository, "node_modules/@electron/asar/bin/asar.mjs"),
     "pack", asarRoot, path.join(resources, "app.asar"),
@@ -142,30 +266,36 @@ function writeConfig(file, enabledPatches) {
   fs.writeFileSync(file, `${JSON.stringify({enabledPatches, windows})}\n`);
 }
 
-function fixtureRunner(sourceInspection, packageContents) {
+function fixtureRunner(packageContents, {
+  corruptManifestSource = null,
+  failSecondExtract = false
+} = {}) {
+  let extractionCount = 0;
   return (program, arguments_, options) => {
     if (program === process.execPath) return spawnSync(program, arguments_, options);
     assert.equal(program, "powershell.exe");
     const actionIndex = arguments_.indexOf("-File") + 2;
     const action = arguments_[actionIndex];
     const values = arguments_.slice(actionIndex + 1);
-    if (action === "validate-prerequisites") {
+    if (action === "validate-tools") {
       return ok({
-        source: {
-          packageFullName: sourceInspection.package.fullName,
-          packageFamilyName: sourceInspection.package.familyName,
-          manifest: {version: sourceInspection.package.outerVersion}
-        },
         certificate: {thumbprint: windows.signingCertificateThumbprint.toLowerCase()}
       });
     }
     if (action === "copy-package-content") {
       const [source, destination, version] = values;
       fs.cpSync(source, destination, {recursive: true, preserveTimestamps: true});
-      fs.writeFileSync(path.join(destination, "AppxManifest.xml"), manifest(version));
+      const sourceManifest = fs.readFileSync(path.join(source, "AppxManifest.xml"), "utf8");
+      const expectedManifest = replaceManifestVersion(sourceManifest, version);
+      const copiedManifest = source === corruptManifestSource
+        ? expectedManifest.replace("internetClient", "privateNetworkClientServer")
+        : expectedManifest;
+      fs.writeFileSync(path.join(destination, "AppxManifest.xml"), copiedManifest);
       return ok({
-        sourceVersion: sourceInspection.package.outerVersion,
-        manifest: fixtureManifestIdentity(version)
+        sourceVersion: installedInspection(source).package.outerVersion,
+        manifest: fixtureManifestIdentity(version),
+        manifestPreserved: copiedManifest === expectedManifest,
+        normalizedManifestSha256: "0".repeat(64)
       });
     }
     if (action === "build-package") {
@@ -181,6 +311,10 @@ function fixtureRunner(sourceInspection, packageContents) {
       });
     }
     if (action === "extract-package") {
+      extractionCount += 1;
+      if (failSecondExtract && extractionCount === 2) {
+        return failed("MakeAppx unpack failed: 1\nDISTINCTIVE-MAKEAPPX-UNPACK-DIAGNOSTIC");
+      }
       const [packageFile, destination] = values;
       const built = packageContents.get(path.resolve(packageFile));
       assert.ok(built, `missing fixture package content for ${packageFile}`);
@@ -192,6 +326,7 @@ function fixtureRunner(sourceInspection, packageContents) {
 }
 
 function installedInspection(source) {
+  const outerVersion = manifestVersion(path.join(source, "AppxManifest.xml"));
   return {
     app: source,
     identifier: "OpenAI.Codex",
@@ -199,10 +334,10 @@ function installedInspection(source) {
     build: "8881",
     electron: "42.3.0",
     package: {
-      fullName: "OpenAI.Codex_26.908.4834.0_arm64__2p2nqsd0c76g0",
+      fullName: path.basename(source),
       familyName: "OpenAI.Codex_2p2nqsd0c76g0",
       publisher: "CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B",
-      outerVersion: "26.908.4834.0",
+      outerVersion,
       architecture: "arm64",
       status: "Ok",
       signatureKind: "Store",
@@ -255,8 +390,12 @@ function fixtureManifestIdentity(version) {
   };
 }
 
-function manifest(version) {
-  return `<?xml version="1.0" encoding="utf-8"?>\n<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"><Identity Name="OpenAI.Codex" Publisher="CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B" Version="${version}" ProcessorArchitecture="arm64" ResourceId=""/><Applications><Application Id="App" Executable="app\\ChatGPT.exe" EntryPoint="Windows.FullTrustApplication"/></Applications></Package>\n`;
+function manifest(version, marker = "fixture") {
+  return `<?xml version="1.0" encoding="utf-8"?>\n<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"><Identity Name="OpenAI.Codex" Publisher="CN=50BDFD77-8903-4850-9FFE-6E8522F64D5B" Version="${version}" ProcessorArchitecture="arm64" ResourceId=""/><Applications><Application Id="App" Executable="app\\ChatGPT.exe" EntryPoint="Windows.FullTrustApplication" StartPage="${marker}.html"><Extensions><uap:Extension Category="windows.appService"><uap:AppService Name="${marker}.service"/></uap:Extension></Extensions></Application></Applications><Capabilities><Capability Name="internetClient"/></Capabilities></Package>\n`;
+}
+
+function replaceManifestVersion(value, version) {
+  return value.replace(/\bVersion="[^"]+"/, `Version="${version}"`);
 }
 
 function manifestVersion(file) {
@@ -271,6 +410,10 @@ function stageScratchDirectories() {
 
 function ok(value) {
   return {status: 0, stdout: `${JSON.stringify(value)}\n`, stderr: "", error: null};
+}
+
+function failed(message) {
+  return {status: 1, stdout: "", stderr: message, error: null};
 }
 
 function run(program, arguments_) {

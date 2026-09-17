@@ -22,12 +22,13 @@ if (command === "inspect" && args.length === 1) {
   print(stageApp({sourceApp: args[0], destinationApp: args[1], configPath: args[3], repositoryRoot: root}));
 } else if (command === "stage-deb" && args.length === 4 && args[2] === "--config") {
   print(stageDeb({sourceDeb: args[0], destinationDeb: args[1], configPath: args[3], repositoryRoot: root}));
-} else if (command === "stage-msix" && args.length === 5 && args[3] === "--config") {
+} else if (command === "stage-msix" && args.length === 6 && args[4] === "--config") {
   print(stageMsix({
-    sourceApp: args[0],
-    candidateMsix: args[1],
-    knownGoodMsix: args[2],
-    configPath: args[4],
+    candidateSourceApp: args[0],
+    knownGoodSourceApp: args[1],
+    candidateMsix: args[2],
+    knownGoodMsix: args[3],
+    configPath: args[5],
     repositoryRoot: root
   }));
 } else if (command === "patch" && (args.length === 3 || args.length === 5)) {
@@ -61,7 +62,7 @@ if (command === "inspect" && args.length === 1) {
       "  mechanics-toolkit diagnose CHATGPT_APP\n" +
       "  mechanics-toolkit stage SOURCE_CHATGPT_APP STAGED_CHATGPT_APP --config TOOLKIT_CONFIG\n" +
       "  mechanics-toolkit stage-deb SOURCE_CHATGPT_DEB STAGED_CHATGPT_DEB --config TOOLKIT_CONFIG\n" +
-      "  mechanics-toolkit stage-msix INSTALLED_CHATGPT_APP CANDIDATE_MSIX KNOWN_GOOD_MSIX --config TOOLKIT_CONFIG\n" +
+      "  mechanics-toolkit stage-msix CANDIDATE_SOURCE KNOWN_GOOD_SOURCE CANDIDATE_MSIX KNOWN_GOOD_MSIX --config TOOLKIT_CONFIG\n" +
       "  mechanics-toolkit patch PATCH_NAME check|apply PATCH_ROOT [--config TOOLKIT_CONFIG]\n" +
       "  mechanics-toolkit source-patch list\n" +
       "  mechanics-toolkit source-patch PATCH_NAME check|apply CODEX_CHECKOUT"

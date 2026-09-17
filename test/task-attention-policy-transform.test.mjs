@@ -10,10 +10,11 @@ const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/task-attention-policy.test.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attention-test-"));
+const workspaceName = platformWorkspaceName();
 
 try {
   const assets = path.join(scratch, "extracted/webview/assets");
-  const workspace = path.join(scratch, 'workspace "quoted"');
+  const workspace = path.join(scratch, workspaceName);
   const policyDirectory = path.join(workspace, ".codex");
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(policyDirectory, { recursive: true });
@@ -65,6 +66,12 @@ try {
   }
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
+}
+
+function platformWorkspaceName() {
+  if (process.platform === "win32") return "workspace with spaces";
+  if (process.platform === "darwin" || process.platform === "linux") return 'workspace "quoted"';
+  throw new Error(`unsupported platform: ${process.platform}`);
 }
 
 function initialFixture() {

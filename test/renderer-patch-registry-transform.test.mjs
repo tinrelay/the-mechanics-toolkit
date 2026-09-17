@@ -44,8 +44,8 @@ try {
     "waitThreadRoster"
   ]);
   assert.deepEqual(applied.targets, [
-    "webview/assets/app-initial-fixture.js",
-    "webview/assets/conversation-blocks-fixture.js"
+    path.join("webview", "assets", "app-initial-fixture.js"),
+    path.join("webview", "assets", "conversation-blocks-fixture.js")
   ]);
   const appOnce = fs.readFileSync(appTarget);
   const lazyOnce = fs.readFileSync(lazyTarget);

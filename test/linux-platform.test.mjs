@@ -212,9 +212,9 @@ try {
       askpassCalls.push({command, arguments_, options});
       if (command === "/usr/bin/sudo") {
         const helper = options.env.SUDO_ASKPASS;
-        assert.equal(fs.statSync(helper).mode & 0o777, 0o700);
+        if (process.platform !== "win32") assert.equal(fs.statSync(helper).mode & 0o777, 0o700);
         const source = fs.readFileSync(helper, "utf8");
-        assert.match(source, new RegExp(path.join(tools, "zenity")));
+        assert.ok(source.includes(path.join(tools, "zenity")));
         assert.match(source, /--password/);
         assert.match(source, /sudo dpkg -i candidate\.deb/);
         assert.doesNotMatch(source, /--entry|--hide-text/);

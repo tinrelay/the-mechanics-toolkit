@@ -57,7 +57,7 @@ try {
     repositoryRoot: repository,
     scratchParent: scratch,
     sourceInspector: authenticatedFixtureSource
-  }), /full-history-drain-suppression\/patch\.mjs check/);
+  }), /full-history-drain-suppression[\\/]patch\.mjs check/);
   assert.equal(fs.existsSync(refused), false);
   assert.deepEqual(stageScratchDirectories(), [], "refusal leaves no staging scratch tree");
   process.stdout.write("Linux production DEB staging fixture passed\n");

@@ -3,8 +3,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import {fileURLToPath} from "node:url";
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), "..");
+if (process.platform === "win32") {
+  console.log("standalone-output synthetic executable fixture requires POSIX script execution");
+  process.exit(0);
+}
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const script = path.join(root, "patches/standalone-output-compaction/patch.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-standalone-output-"));
 try {
@@ -63,7 +69,10 @@ try {
 
   const windowsCheck = run("check", windowsApp, windowsConfig);
   assert.equal(windowsCheck.state, "needs-apply");
-  assert.deepEqual(windowsCheck.targets, ["app/resources/codex.exe", "app/resources/codex"]);
+  assert.deepEqual(windowsCheck.targets, [
+    path.join("app", "resources", "codex.exe"),
+    path.join("app", "resources", "codex")
+  ]);
   assert.equal(run("apply", windowsApp, windowsConfig).state, "applied");
   assert.equal(fs.readFileSync(bundledNative, "utf8"), fs.readFileSync(replacementNative, "utf8"));
   assert.equal(fs.readFileSync(bundledWsl, "utf8"), fs.readFileSync(replacementWsl, "utf8"));

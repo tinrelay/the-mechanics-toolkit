@@ -11,6 +11,7 @@ try {
   const checkout = path.join(scratch, "codex");
   fs.mkdirSync(checkout);
   run(checkout, ["init", "-q"]);
+  run(checkout, ["config", "core.autocrlf", "false"]);
   run(checkout, ["config", "user.email", "test@example.invalid"]);
   run(checkout, ["config", "user.name", "TMTK Test"]);
   fs.writeFileSync(path.join(checkout, "source.txt"), "before\n");

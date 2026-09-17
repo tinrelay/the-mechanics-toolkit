@@ -2,10 +2,11 @@
 
 - **Current state:** Active
 - **Public extraction:** Complete for the current renderer and main-process families
-- **Patch-specific evidence:** Build `9275` full-fleet static composition and Ubuntu ARM64 runtime
-  identity reload plus direct-addressed incoming/outgoing loopback green; build `8881` split-bus,
-  outgoing-order, restart, and pagination probes carried; build `8576` restart reconstruction
-  live-accepted. Build `9275` later-pagination reconstruction remains pending, 2026-09-15
+- **Patch-specific evidence:** Build `9275` full-fleet static composition, Ubuntu ARM64 runtime
+  identity reload and direct-addressed loopback, and Windows ARM64 incoming/outgoing loopback plus
+  remount green; build `8881` split-bus, outgoing-order, restart, and pagination probes carried;
+  build `8576` restart reconstruction live-accepted. The build-`9275` greater-than-200-turn fixture
+  was intentionally not rerun, 2026-09-17
 
 ## Why it exists
 
@@ -38,9 +39,10 @@ renderer presents it directly without another process call. Unknown keys, malfor
 delivery for another local ship leave the delegated message untouched. The renderer shows the route
 and body through Codex's complete stock user-message bubble, including its
 safe Markdown surface, dimensions, padding, radius, **Show more** behavior after six lines, and
-native hover actions for copying the body and reading the event time. Incoming cards use the
-delegation event's recorded time; outgoing cards retain the relay-acceptance anchor time across
-active rendering, hoisting, restart, and later pagination.
+native hover actions for copying the body and reading the event time. Incoming cards prefer Codex's
+native delegation time; a new full-delivery envelope otherwise uses Tinrelay's validated receipt
+time. Persisted legacy deliveries remain compatible. Outgoing cards retain the relay-acceptance
+anchor time across active rendering, hoisting, restart, and later pagination.
 Source-style single newlines render as ordinary Markdown
 soft breaks while blank-line paragraph boundaries remain visible. Named endpoints render as
 `local@ship`; ship-wide catch-all endpoints retain their canonical `@ship` address in both
@@ -182,15 +184,20 @@ private socket permissions, fragmented events, lookup-before-event ordering, fir
 handling, the
 20 KiB ceiling, bounded private persistence, source-task/source-turn reconstruction after process
 restart without the command activity, corrupt-cache rejection, the 256-event observer ceiling, the
-256-anchor per-task ceiling, cross-task retention isolation, and socket cleanup. The current
-build-`8109` patch family also upgrades cleanly in a disposable extraction; live
-restart-plus-pagination qualification remains pending until the staged app is deliberately
-replaced.
+256-anchor per-task ceiling, cross-task retention isolation, and socket cleanup. Build `9275` also
+upgrades cleanly in a disposable extraction.
 
 The private build-`7942` implementation was accepted live for incoming loopback before extraction.
 Build `8109` stages the unified patch with all configured toolkit patches, valid signature and ASAR
 integrity, green post-repack probes, and byte-identical second application. A real build-`8109`
 loopback exercised the ordinary outgoing send presentation and the incoming pointer presentation.
+
+On Windows ARM64, the accepted build-`9275` candidate remounted a persisted eight-key incoming
+delivery and rendered a fresh nine-key loopback in both directions without switching the visible
+task. The route, body, timestamp, and Copy action survived remount. Live Codex supplied the native
+delegation time; the focused fixture separately proves fallback to Tinrelay's validated receipt
+time when the native time is absent. The greater-than-200-turn live fixture was intentionally not
+rerun.
 
 ## Non-goals
 

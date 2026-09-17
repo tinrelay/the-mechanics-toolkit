@@ -279,7 +279,7 @@ For Windows MSIX packages, from Windows:
 
 ```powershell
 node bin/toolkit.mjs stage-msix `
-  $InstalledPackageRoot $CandidateMsix $KnownGoodMsix `
+  $PristineCandidateSource $InstalledKnownGoodSource $CandidateMsix $KnownGoodMsix `
   --config $ToolkitConfig
 ```
 
@@ -292,8 +292,8 @@ implemented.
 Windows staging supports the complete ASAR fleet and, when configured, the paired native/WSL Codex
 binary replacement. It preserves the package identity, rebuilds the block map with MakeAppx, and
 signs monotonically versioned local qualification packages with SignTool and an explicitly trusted
-certificate. It does not produce a Microsoft Store artifact. The current same-source staging route
-is not an ordinary cross-version upgrade path; read
+certificate. It does not produce a Microsoft Store artifact. Candidate and rollback sources are
+separate, but must have the exact same qualified inner Desktop identity; read
 [`qualification/windows.md`](../qualification/windows.md) before adoption.
 
 The destination's parent must exist and the destination must not. macOS staging refuses a

@@ -11,7 +11,7 @@ export function observabilityEndpoint({home = os.homedir(), platform = process.p
     const suffix = crypto.createHash("sha256").update(home.toLowerCase()).digest("hex").slice(0, 24);
     return `\\\\.\\pipe\\tmtk-codex-observability-${suffix}`;
   }
-  return path.join(home, ".codex", "tmtk-observability", "control.sock");
+  return path.posix.join(home, ".codex", "tmtk-observability", "control.sock");
 }
 
 export function requestObservability(payload, {

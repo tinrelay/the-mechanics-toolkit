@@ -25,7 +25,7 @@ try {
   assert.equal(runToolkit("check").state, "needs-apply");
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
-  assert.deepEqual(applied.targets, ["webview/assets/conversation-blocks-fixture.js"]);
+  assert.deepEqual(applied.targets, [path.join("webview", "assets", "conversation-blocks-fixture.js")]);
   const once = fs.readFileSync(ownerTarget);
 
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], { encoding: "utf8" });

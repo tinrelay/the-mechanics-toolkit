@@ -28,8 +28,8 @@ try {
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.files, ["agent-roster.json"]);
   assert.deepEqual(applied.targets, [
-    ".vite/build/main-fixture.js",
-    "webview/assets/app-initial-fixture.js"
+    path.join(".vite", "build", "main-fixture.js"),
+    path.join("webview", "assets", "app-initial-fixture.js")
   ]);
   assert.ok(!fs.readFileSync(renderer, "utf8").includes("workspaceRoot:"));
   assert.ok(!fs.readFileSync(main, "utf8").includes("MTKruntimeJsonRoot="));

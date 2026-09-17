@@ -97,9 +97,9 @@ try {
     "renderer-patch-registry"
   ]);
   assert.deepEqual(result.changedTargets, [
-    ".vite/build/main-fixture.js",
-    "Contents/Info.plist",
-    "webview/assets/app-initial-fixture.js"
+    path.join(".vite", "build", "main-fixture.js"),
+    path.join("Contents", "Info.plist"),
+    path.join("webview", "assets", "app-initial-fixture.js")
   ]);
   assert.equal(result.secondApplyByteIdentical, true);
   assert.equal(result.probesPassedAfterRepack, true);

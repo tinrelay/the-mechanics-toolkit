@@ -23,7 +23,7 @@ try {
   assert.equal(runToolkit("check").state, "needs-apply");
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
-  assert.deepEqual(applied.targets, ["webview/assets/agent-activity-item-fixture.js"]);
+  assert.deepEqual(applied.targets, [path.join("webview", "assets", "agent-activity-item-fixture.js")]);
   const once = fs.readFileSync(ownerTarget);
   assert.match(once.toString(), /q as MTKwaitStoreScope/,
     "build 8690 imports the task selector's Q scope, not an unrelated BR export");

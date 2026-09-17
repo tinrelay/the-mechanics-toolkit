@@ -65,22 +65,6 @@ function Get-ManifestIdentity([string]$ContentRoot) {
   }
 }
 
-function Get-ExactInstalledPackage([string]$ApplicationRoot) {
-  $root = Require-Directory $ApplicationRoot "installed package directory"
-  $fullName = Split-Path -Leaf $root
-  if ($fullName -notmatch "^OpenAI\.Codex_\d+(?:\.\d+){3}_(?:x64|x86|arm64|neutral)_[^_]*_2p2nqsd0c76g0$") {
-    throw "installed package directory has no exact OpenAI Codex identity"
-  }
-  $packages = @(Get-AppxPackage -Name $PackageName | Where-Object {
-    $_.PackageFullName -ceq $fullName -and $_.PackageFamilyName -ceq $PackageFamily -and
-      $_.InstallLocation -and
-      [String]::Equals([IO.Path]::GetFullPath($_.InstallLocation).TrimEnd("\"), $root,
-        [StringComparison]::OrdinalIgnoreCase)
-  })
-  if ($packages.Count -ne 1) { throw "exact installed source package was not found" }
-  return $packages[0]
-}
-
 function Get-SigningCertificate([string]$Thumbprint) {
   $normalized = $Thumbprint.Replace(" ", "").ToUpperInvariant()
   if ($normalized -notmatch "^[0-9A-F]{40}$") { throw "signing certificate thumbprint is invalid" }
@@ -122,6 +106,38 @@ function Remove-GeneratedPackageFiles([string]$ContentRoot) {
   }
 }
 
+function Get-NormalizedManifest([string]$Path, [string]$Version) {
+  [xml]$manifest = Get-Content -LiteralPath $Path
+  $manifest.PreserveWhitespace = $false
+  $manifest.Package.Identity.Version = $Version
+  return $manifest.OuterXml
+}
+
+function Get-TextSha256([string]$Value) {
+  $sha256 = [Security.Cryptography.SHA256]::Create()
+  try {
+    $hash = $sha256.ComputeHash([Text.Encoding]::UTF8.GetBytes($Value))
+    return [BitConverter]::ToString($hash).Replace("-", "").ToLowerInvariant()
+  } finally {
+    $sha256.Dispose()
+  }
+}
+
+function Invoke-MakeAppx(
+  [string]$Executable,
+  [string[]]$Arguments,
+  [string]$Label
+) {
+  $output = @(& $Executable @Arguments 2>&1 | ForEach-Object { $_.ToString() })
+  $exitCode = $LASTEXITCODE
+  if ($exitCode -eq 0) { return }
+  $tail = ($output | Select-Object -Last 16) -join [Environment]::NewLine
+  $tail = [Regex]::Replace($tail, "[\x00-\x08\x0B\x0C\x0E-\x1F]", "")
+  if ($tail.Length -gt 4096) { $tail = $tail.Substring($tail.Length - 4096) }
+  $detail = if ($tail) { "`n$tail" } else { "" }
+  throw "MakeAppx $Label failed: $exitCode$detail"
+}
+
 function Copy-PackageContent([string]$SourceRoot, [string]$Destination, [string]$Version) {
   $source = Require-Directory $SourceRoot "source package directory"
   $destinationRoot = [IO.Path]::GetFullPath($Destination).TrimEnd("\")
@@ -130,6 +146,8 @@ function Copy-PackageContent([string]$SourceRoot, [string]$Destination, [string]
   $null = Require-Directory $parent "package workspace parent"
   $null = New-Item -ItemType Directory -Path $destinationRoot
   try {
+    $sourceManifestPath = Join-Path $source "AppxManifest.xml"
+    $expectedManifest = Get-NormalizedManifest $sourceManifestPath $Version
     $null = & robocopy.exe $source $destinationRoot /E /COPY:DAT /DCOPY:DAT /R:1 /W:1 /NFL /NDL /NJH /NJS /NP
     if ($LASTEXITCODE -gt 7) { throw "package copy failed: $LASTEXITCODE" }
     $null = & attrib.exe -R (Join-Path $destinationRoot "*") /S /D
@@ -141,9 +159,19 @@ function Copy-PackageContent([string]$SourceRoot, [string]$Destination, [string]
     [xml]$manifest = Get-Content -LiteralPath $manifestPath
     $manifest.Package.Identity.Version = $Version
     $manifest.Save($manifestPath)
+    $copiedManifest = Get-NormalizedManifest $manifestPath $Version
+    if ($copiedManifest -cne $expectedManifest) {
+      throw "package copy changed AppxManifest.xml beyond Identity.Version"
+    }
     $after = Get-ManifestIdentity $destinationRoot
     if ($after.version -cne $Version) { throw "manifest version replacement did not verify" }
-    return [ordered]@{sourceVersion = $before.version; content = $destinationRoot; manifest = $after}
+    return [ordered]@{
+      sourceVersion = $before.version
+      content = $destinationRoot
+      manifest = $after
+      manifestPreserved = $true
+      normalizedManifestSha256 = Get-TextSha256 $copiedManifest
+    }
   } catch {
     Remove-Item -LiteralPath $destinationRoot -Recurse -Force -ErrorAction SilentlyContinue
     throw
@@ -166,8 +194,8 @@ function Build-SignedPackage(
   $certificate = Get-SigningCertificate $Thumbprint
   $manifest = Get-ManifestIdentity $content
   try {
-    & $makeAppxPath pack /h SHA256 /d $content /p $outputPath | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "MakeAppx pack failed: $LASTEXITCODE" }
+    Invoke-MakeAppx $makeAppxPath @("pack", "/h", "SHA256", "/d", $content, "/p", $outputPath) `
+      "pack"
     & $signToolPath sign /fd SHA256 /sha1 $certificate.Thumbprint $outputPath | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "SignTool sign failed: $LASTEXITCODE" }
     & $signToolPath verify /pa /all $outputPath | Out-Null
@@ -209,8 +237,8 @@ function Extract-Package(
     throw "MSIX package does not have a valid signature for the exact package publisher"
   }
   try {
-    & $makeAppxPath unpack /p $packagePath /d $destinationRoot | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "MakeAppx unpack failed: $LASTEXITCODE" }
+    Invoke-MakeAppx $makeAppxPath @("unpack", "/p", $packagePath, "/d", $destinationRoot) `
+      "unpack"
     Remove-GeneratedPackageFiles $destinationRoot
     $manifest = Get-ManifestIdentity $destinationRoot
     return [ordered]@{content = $destinationRoot; manifest = $manifest}
@@ -221,32 +249,12 @@ function Extract-Package(
 }
 
 switch ($Action) {
-  "validate-prerequisites" {
-    Require-Arguments 4
-    $root = Require-Directory $ActionArguments[0] "installed source package"
-    $package = Get-ExactInstalledPackage $root
-    $manifest = Get-ManifestIdentity $root
-    $executable = Require-File (Join-Path $root "app\ChatGPT.exe") "source ChatGPT.exe"
-    $null = Require-File (Join-Path $root "app\resources\app.asar") "source app.asar"
-    $executableSignature = Get-AuthenticodeSignature -LiteralPath $executable
-    if ($package.Status.ToString() -ne "Ok" -or
-        -not @("Store", "Developer").Contains($package.SignatureKind.ToString()) -or
-        $executableSignature.Status.ToString() -ne "Valid") {
-      throw "installed source package signature or status is invalid"
-    }
-    $makeAppx = Get-ValidSignedTool $ActionArguments[1] "MakeAppx"
-    $signTool = Get-ValidSignedTool $ActionArguments[2] "SignTool"
-    $certificate = Get-SigningCertificate $ActionArguments[3]
+  "validate-tools" {
+    Require-Arguments 3
+    $makeAppx = Get-ValidSignedTool $ActionArguments[0] "MakeAppx"
+    $signTool = Get-ValidSignedTool $ActionArguments[1] "SignTool"
+    $certificate = Get-SigningCertificate $ActionArguments[2]
     Write-Json ([ordered]@{
-      source = [ordered]@{
-        packageFullName = $package.PackageFullName
-        packageFamilyName = $package.PackageFamilyName
-        installLocation = $root
-        status = $package.Status.ToString()
-        signatureKind = $package.SignatureKind.ToString()
-        executableSignature = $executableSignature.Status.ToString()
-        manifest = $manifest
-      }
       makeAppx = $makeAppx
       signTool = $signTool
       certificate = [ordered]@{

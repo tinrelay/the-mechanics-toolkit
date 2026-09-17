@@ -4,8 +4,9 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
 
-const repository = path.dirname(path.dirname(new URL(import.meta.url).pathname));
+const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const patch = path.join(repository, "patches/codex-observability/patch.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-observability-transform-"));
 const build = path.join(scratch, ".vite", "build");
@@ -24,7 +25,7 @@ try {
   assert.equal(run("check").state, "needs-apply");
   const applied = run("apply");
   assert.equal(applied.state, "applied");
-  assert.equal(applied.target, ".vite/build/main-current.js");
+  assert.equal(applied.target, path.join(".vite", "build", "main-current.js"));
 
   const source = fs.readFileSync(main, "utf8");
   assert.equal(count(source, 'const MTKobserveContract="tmtk-codex-observability-v1"'), 1);

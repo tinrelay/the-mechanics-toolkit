@@ -41,7 +41,13 @@ assert.deepEqual(dispatches, [], "watch roots are supplied by the roster owner")
 assert.equal(subscriptions.size, 1, "one renderer change subscription");
 
 const accepted = [];
-const roots = ["/projects/office", "/projects/other", "/projects/office"];
+const officeRoot = process.platform === "win32"
+  ? String.raw`C:\projects\office`
+  : "/projects/office";
+const otherRoot = process.platform === "win32"
+  ? String.raw`C:\projects\other`
+  : "/projects/other";
+const roots = [officeRoot, otherRoot, officeRoot];
 const unregister = realm.__MTK_RUNTIME_JSON_RELOAD__.register("agent-roster.json", roots, async metadata => {
   accepted.push(metadata);
   return true;
@@ -50,7 +56,7 @@ assert.equal(typeof unregister, "function");
 assert.equal(realm.__MTK_RUNTIME_JSON_RELOAD__.register("not-owned.json", roots, () => true), null);
 assert.deepEqual(dispatches, [{
   type: "mtk-runtime-json-watch",
-  payload: { roots: ["/projects/office", "/projects/other"] }
+  payload: { roots: [officeRoot, otherRoot] }
 }], "one normalized watch request for the active project roots");
 await drainMicrotasks();
 assert.deepEqual(accepted, [{ initial: true }], "registration performs one initial acceptance pass");
@@ -69,7 +75,7 @@ let releaseAcceptance;
 let activeAcceptances = 0;
 let maximumConcurrentAcceptances = 0;
 const serialized = [];
-realm.__MTK_RUNTIME_JSON_RELOAD__.register("agent-roster.json", ["/projects/office"], async metadata => {
+realm.__MTK_RUNTIME_JSON_RELOAD__.register("agent-roster.json", [officeRoot], async metadata => {
   activeAcceptances += 1;
   maximumConcurrentAcceptances = Math.max(maximumConcurrentAcceptances, activeAcceptances);
   serialized.push(metadata);
@@ -140,15 +146,15 @@ const windowManager = {
     messages.push(message);
   }
 };
-mainApi.start(webContents, windowManager, ["/projects/office", "/projects/other"]);
+mainApi.start(webContents, windowManager, [officeRoot, otherRoot]);
 assert.equal(watchCount, 2, "one directory watcher per project root");
-watchCallbacks.get("/projects/office/.codex")("change", "unrelated.json");
+watchCallbacks.get(path.join(officeRoot, ".codex"))("change", "unrelated.json");
 runTimers();
 assert.deepEqual(messages, [], "irrelevant directory changes stay local");
-watchCallbacks.get("/projects/other/.codex")("rename", Buffer.from("agent-roster.json"));
+watchCallbacks.get(path.join(otherRoot, ".codex"))("rename", Buffer.from("agent-roster.json"));
 runTimers();
 assert.deepEqual(messages, [{ type: "mtk-runtime-json-changed", fileName: "agent-roster.json" }]);
-watchCallbacks.get("/projects/office/.codex")("rename", null);
+watchCallbacks.get(path.join(officeRoot, ".codex"))("rename", null);
 runTimers();
 assert.deepEqual(messages.slice(1).map(message => message.fileName), ["agent-roster.json"],
   "filename-less directory events conservatively refresh the roster");

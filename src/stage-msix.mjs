@@ -6,7 +6,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {listPackage} from "@electron/asar";
 import {sha256File} from "./app-bundle.mjs";
-import {inspectApplication, inspectApplicationSource} from "./platforms/windows.mjs";
+import {inspectApplicationSource} from "./platforms/windows.mjs";
 import {
   applyPatchFleet,
   equalRecords,
@@ -32,26 +32,27 @@ const standaloneTargets = new Set([
 ]);
 
 export function stageMsix({
-  sourceApp,
+  candidateSourceApp,
+  knownGoodSourceApp,
   candidateMsix,
   knownGoodMsix,
   configPath,
   repositoryRoot,
   platform = process.platform,
   processRunner = spawnSync,
-  appInspector = inspectApplication,
   sourceInspector = inspectApplicationSource,
   scratchParent = os.tmpdir()
 }) {
   if (platform !== "win32") throw new Error("MSIX staging must run on Windows");
-  const source = path.resolve(sourceApp);
+  const candidateSource = path.resolve(candidateSourceApp);
+  const knownGoodSource = path.resolve(knownGoodSourceApp);
   const candidate = path.resolve(candidateMsix);
   const knownGood = path.resolve(knownGoodMsix);
   const configFile = path.resolve(configPath);
   const repository = path.resolve(repositoryRoot);
   const asar = path.join(repository, "node_modules/@electron/asar/bin/asar.mjs");
   requireFile(asar, "repository-local asar CLI; run npm install");
-  validateDestinations(source, candidate, knownGood);
+  validateDestinations(candidateSource, knownGoodSource, candidate, knownGood);
 
   const config = readToolkitConfig(configFile, {platformKeys: ["windows"]});
   const windows = windowsConfig(config.windows);
@@ -62,22 +63,27 @@ export function stageMsix({
     definition.name === "standalone-output-compaction"
   );
 
-  const sourceBefore = appInspector(source);
-  requireValidSource(sourceBefore);
-  if (compareMsixVersions(windows.candidateVersion, sourceBefore.package.outerVersion) <= 0) {
-    throw new Error("Windows candidate MSIX version must be newer than the installed source package");
+  const candidateSourceBefore = sourceInspector(candidateSource);
+  const knownGoodSourceBefore = sourceInspector(knownGoodSource);
+  requireValidSource(candidateSourceBefore);
+  requireValidSource(knownGoodSourceBefore);
+  requireMatchingSources(candidateSourceBefore, knownGoodSourceBefore);
+  if (compareMsixVersions(windows.candidateVersion,
+    candidateSourceBefore.package.outerVersion) <= 0 ||
+      compareMsixVersions(windows.candidateVersion,
+        knownGoodSourceBefore.package.outerVersion) <= 0) {
+    throw new Error("Windows candidate MSIX version must be newer than both source packages");
   }
   if (compareMsixVersions(windows.knownGoodVersion, windows.candidateVersion) <= 0) {
     throw new Error("Windows known-good MSIX version must be newer than the candidate package");
   }
 
-  const prerequisites = helperJson("validate-prerequisites", [
-    source,
+  const prerequisites = helperJson("validate-tools", [
     windows.makeAppx,
     windows.signTool,
     windows.signingCertificateThumbprint
   ], processRunner);
-  requirePrerequisiteMatch(prerequisites, sourceBefore, windows);
+  requirePrerequisiteMatch(prerequisites, windows);
 
   const scratch = fs.mkdtempSync(path.join(scratchParent, "mechanics-toolkit-msix-"));
   const temporaryCandidate = temporaryPackagePath(candidate);
@@ -86,20 +92,38 @@ export function stageMsix({
   let knownGoodCreated = false;
   let complete = false;
   try {
+    const candidateSourceContent = materializeSource({
+      source: candidateSource,
+      destination: path.join(scratch, "candidate-source"),
+      makeAppx: windows.makeAppx,
+      processRunner
+    });
+    const knownGoodSourceContent = materializeSource({
+      source: knownGoodSource,
+      destination: path.join(scratch, "known-good-source"),
+      makeAppx: windows.makeAppx,
+      processRunner
+    });
+    const candidateSourceSnapshot = sourceSnapshot(candidateSource);
+    const knownGoodSourceSnapshot = sourceSnapshot(knownGoodSource);
     const candidateContent = path.join(scratch, "candidate-content");
     const knownGoodContent = path.join(scratch, "known-good-content");
     const candidateCopy = helperJson("copy-package-content", [
-      source, candidateContent, windows.candidateVersion
+      candidateSourceContent, candidateContent, windows.candidateVersion
     ], processRunner);
     const knownGoodCopy = helperJson("copy-package-content", [
-      source, knownGoodContent, windows.knownGoodVersion
+      knownGoodSourceContent, knownGoodContent, windows.knownGoodVersion
     ], processRunner);
-    requireCopiedIdentity(candidateCopy, sourceBefore, windows.candidateVersion);
-    requireCopiedIdentity(knownGoodCopy, sourceBefore, windows.knownGoodVersion);
+    requireCopiedIdentity(candidateCopy, candidateSourceBefore, windows.candidateVersion);
+    requireCopiedIdentity(knownGoodCopy, knownGoodSourceBefore, windows.knownGoodVersion);
 
     const candidateBefore = treeSnapshot(candidateContent);
     const knownGoodBefore = treeSnapshot(knownGoodContent);
-    const sourceResources = path.join(source, "app/resources");
+    requireSourceCopy(treeSnapshot(candidateSourceContent), candidateBefore, "Candidate",
+      candidateCopy.manifestPreserved);
+    requireSourceCopy(treeSnapshot(knownGoodSourceContent), knownGoodBefore, "Known-good",
+      knownGoodCopy.manifestPreserved);
+    const sourceResources = path.join(candidateSourceContent, "app/resources");
     const candidateResources = path.join(candidateContent, "app/resources");
     const sourceArchive = path.join(sourceResources, "app.asar");
     const candidateArchive = path.join(candidateResources, "app.asar");
@@ -122,7 +146,7 @@ export function stageMsix({
       configFile,
       config,
       repository,
-      sourceLabel: "Installed source package"
+      sourceLabel: "Pristine candidate source package"
     });
 
     if (hasAsarPatches) {
@@ -176,10 +200,12 @@ export function stageMsix({
 
     const candidateInspection = sourceInspector(temporaryCandidate);
     const knownGoodInspection = sourceInspector(temporaryKnownGood);
-    requireBuiltPackage(candidateInspection, candidateBuild, sourceBefore, windows.candidateVersion);
-    requireBuiltPackage(knownGoodInspection, knownGoodBuild, sourceBefore, windows.knownGoodVersion);
-    if (knownGoodInspection.archive.sha256 !== sourceBefore.archive.sha256) {
-      throw new Error("Known-good package did not preserve the source app.asar");
+    requireBuiltPackage(candidateInspection, candidateBuild, candidateSourceBefore,
+      windows.candidateVersion);
+    requireBuiltPackage(knownGoodInspection, knownGoodBuild, knownGoodSourceBefore,
+      windows.knownGoodVersion);
+    if (knownGoodInspection.archive.sha256 !== knownGoodSourceBefore.archive.sha256) {
+      throw new Error("Known-good package did not preserve its source app.asar");
     }
 
     const verifiedCandidate = path.join(scratch, "verified-candidate");
@@ -217,13 +243,20 @@ export function stageMsix({
       repository
     });
 
-    const sourceAfter = appInspector(source);
-    if (sourceAfter.package.fullName !== sourceBefore.package.fullName ||
-        sourceAfter.archive.sha256 !== sourceBefore.archive.sha256 ||
-        sourceAfter.signature.state !== "valid" ||
-        !equalRecords(sourceNative, treeSnapshot(sourceUnpacked))) {
-      throw new Error("Installed source application changed while staging");
-    }
+    requireSourceUnchanged({
+      label: "Candidate source",
+      source: candidateSource,
+      before: candidateSourceBefore,
+      after: sourceInspector(candidateSource),
+      snapshot: candidateSourceSnapshot
+    });
+    requireSourceUnchanged({
+      label: "Known-good source",
+      source: knownGoodSource,
+      before: knownGoodSourceBefore,
+      after: sourceInspector(knownGoodSource),
+      snapshot: knownGoodSourceSnapshot
+    });
 
     fs.renameSync(temporaryCandidate, candidate);
     candidateCreated = true;
@@ -232,15 +265,8 @@ export function stageMsix({
     complete = true;
     return {
       state: "staged-msix-static-proof-green",
-      source: {
-        app: source,
-        packageFullName: sourceBefore.package.fullName,
-        outerVersion: sourceBefore.package.outerVersion,
-        version: sourceBefore.version,
-        build: sourceBefore.build,
-        asarSha256: sourceBefore.archive.sha256,
-        untouched: true
-      },
+      candidateSource: sourceReceipt(candidateSource, candidateSourceBefore),
+      knownGoodSource: sourceReceipt(knownGoodSource, knownGoodSourceBefore),
       candidate: {
         path: candidate,
         packageFullName: candidateInspection.package.fullName,
@@ -254,7 +280,7 @@ export function stageMsix({
         outerVersion: windows.knownGoodVersion,
         sha256: knownGoodBuild.sha256,
         asarSha256: knownGoodInspection.archive.sha256,
-        pristinePayload: true
+        sourcePayloadPreserved: true
       },
       patches: finalChecks.map(result => result.name),
       changedTargets: fleet.changedTargets,
@@ -325,17 +351,82 @@ function msixVersionParts(value) {
   return parts;
 }
 
-function validateDestinations(source, candidate, knownGood) {
-  requireDirectory(source, "installed source application");
+function validateDestinations(candidateSource, knownGoodSource, candidate, knownGood) {
+  requireSource(candidateSource, "candidate source application");
+  requireSource(knownGoodSource, "known-good source application");
   for (const [label, target] of [["candidate", candidate], ["known-good", knownGood]]) {
     if (!/\.msix$/i.test(target)) throw new Error(`Windows ${label} destination must end in .msix`);
     if (fs.existsSync(target)) throw new Error(`Windows ${label} destination already exists: ${target}`);
     requireDirectory(path.dirname(target), `Windows ${label} destination parent`);
   }
-  const normalized = [source, candidate, knownGood].map(value => value.toLowerCase());
+  const normalized = [candidateSource, knownGoodSource, candidate, knownGood]
+    .map(value => value.toLowerCase());
   if (new Set(normalized).size !== normalized.length) {
-    throw new Error("Windows source, candidate, and known-good paths must differ");
+    throw new Error("Windows source and destination paths must differ");
   }
+}
+
+function requireSource(value, label) {
+  if (!fs.existsSync(value) || (!fs.statSync(value).isDirectory() && !fs.statSync(value).isFile())) {
+    throw new Error(`Missing ${label}: ${value}`);
+  }
+}
+
+function materializeSource({source, destination, makeAppx, processRunner}) {
+  if (fs.statSync(source).isDirectory()) return source;
+  helperJson("extract-package", [source, destination, makeAppx], processRunner);
+  return destination;
+}
+
+function sourceSnapshot(source) {
+  return fs.statSync(source).isDirectory()
+    ? {type: "directory", records: treeSnapshot(source)}
+    : {type: "file", sha256: sha256File(source)};
+}
+
+function sourceReceipt(source, inspection) {
+  return {
+    app: source,
+    packageFullName: inspection.package.fullName,
+    outerVersion: inspection.package.outerVersion,
+    version: inspection.version,
+    build: inspection.build,
+    electron: inspection.electron,
+    packageSha256: inspection.artifact?.sha256 ?? null,
+    asarSha256: inspection.archive.sha256,
+    untouched: true
+  };
+}
+
+function requireMatchingSources(candidate, knownGood) {
+  if (JSON.stringify(sourceCompatibility(candidate)) !==
+      JSON.stringify(sourceCompatibility(knownGood))) {
+    throw new Error("Windows candidate and known-good sources do not share the exact inner identity");
+  }
+}
+
+function sourceCompatibility(source) {
+  return {
+    identifier: source.identifier,
+    familyName: source.package?.familyName,
+    publisher: source.package?.publisher,
+    architecture: source.package?.architecture?.toLowerCase(),
+    applicationId: source.package?.applicationId,
+    version: source.version,
+    build: source.build,
+    electron: source.electron
+  };
+}
+
+function requireSourceUnchanged({label, source, before, after, snapshot}) {
+  if (JSON.stringify(sourceReceipt(source, before)) !== JSON.stringify(sourceReceipt(source, after)) ||
+      after.signature?.state !== "valid") {
+    throw new Error(`${label} identity or signed payload changed while staging`);
+  }
+  const unchanged = snapshot.type === "directory"
+    ? equalRecords(snapshot.records, treeSnapshot(source))
+    : snapshot.sha256 === sha256File(source);
+  if (!unchanged) throw new Error(`${label} bytes changed while staging`);
 }
 
 function validatePatchScopes(selected) {
@@ -352,18 +443,15 @@ function requireValidSource(inspection) {
   if (inspection.signature?.state !== "valid" ||
       !new Set(["valid", "not-present"]).has(inspection.asarIntegrity?.state) ||
       inspection.package?.status !== "Ok" ||
-      !new Set(["Store", "Developer"]).has(inspection.package?.signatureKind)) {
-    throw new Error("Installed source package failed identity, signature, or integrity validation");
+      !new Set(["Store", "Developer", "PackageFile"]).has(inspection.package?.signatureKind)) {
+    throw new Error("Windows source package failed identity, signature, or integrity validation");
   }
 }
 
-function requirePrerequisiteMatch(result, source, windows) {
-  if (result?.source?.packageFullName !== source.package.fullName ||
-      result?.source?.packageFamilyName !== source.package.familyName ||
-      result?.source?.manifest?.version !== source.package.outerVersion ||
-      result?.certificate?.thumbprint !== windows.signingCertificateThumbprint
+function requirePrerequisiteMatch(result, windows) {
+  if (result?.certificate?.thumbprint !== windows.signingCertificateThumbprint
         .replaceAll(" ", "").toLowerCase()) {
-    throw new Error("Windows package prerequisites do not match the inspected source and configuration");
+    throw new Error("Windows package tools do not match the configured signing certificate");
   }
 }
 
@@ -372,7 +460,8 @@ function requireCopiedIdentity(copy, source, version) {
   if (copy?.sourceVersion !== source.package.outerVersion || manifest?.version !== version ||
       manifest?.name !== source.identifier || manifest?.publisher !== source.package.publisher ||
       manifest?.architecture !== source.package.architecture.toLowerCase() ||
-      manifest?.applicationId !== source.package.applicationId) {
+      manifest?.applicationId !== source.package.applicationId || copy?.manifestPreserved !== true ||
+      !/^[0-9a-f]{64}$/.test(copy?.normalizedManifestSha256 ?? "")) {
     throw new Error("Copied package content does not preserve the exact source identity");
   }
 }
@@ -388,6 +477,25 @@ function requireBuiltPackage(inspection, build, source, version) {
       inspection.artifact?.sha256 !== build?.sha256 || build?.signature !== "Valid") {
     throw new Error("Built MSIX failed package, application, or signature verification");
   }
+}
+
+function requireSourceCopy(source, copy, label, manifestPreserved) {
+  const names = [...new Set([...Object.keys(source), ...Object.keys(copy)])].sort();
+  const unexpected = names.filter(name => {
+    const relative = normalizedRelative(name);
+    if (relative === "AppxManifest.xml") return manifestPreserved !== true;
+    return !isGeneratedPackagePath(relative) &&
+      JSON.stringify(source[name]) !== JSON.stringify(copy[name]);
+  });
+  if (unexpected.length > 0) {
+    throw new Error(`${label} package copy changed source payloads: ${
+      unexpected.slice(0, 8).join(", ")}`);
+  }
+}
+
+function isGeneratedPackagePath(relative) {
+  return [...generatedPackagePaths].some(value =>
+    relative === value || relative.startsWith(`${value}/`));
 }
 
 function verifyAllowedContentChanges(before, after, {standaloneRepair}) {

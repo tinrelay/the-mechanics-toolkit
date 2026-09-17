@@ -116,8 +116,9 @@ not implemented.
 
 ### Windows MSIX staging and adoption
 
-Windows staging runs on Windows against one exact installed or extracted `OpenAI.Codex` package
-root. Start from [`toolkit.windows.example.json`](../toolkit.windows.example.json); its values are
+Windows staging runs on Windows with two exact `OpenAI.Codex` sources: an authenticated pristine
+package for the candidate and the currently installed, live-proven package for rollback. Start from
+[`toolkit.windows.example.json`](../toolkit.windows.example.json); its values are
 placeholders, not a runnable local configuration. The config's `windows` object supplies four-part
 `candidateVersion` and `knownGoodVersion` values, absolute `makeAppx` and `signTool` paths, a trusted
 SHA-1 signing-certificate thumbprint, and both native and WSL Codex binaries when the
@@ -125,7 +126,7 @@ standalone-output repair is selected.
 
 ```powershell
 node bin/toolkit.mjs stage-msix `
-  $InstalledPackageRoot $CandidateMsix $KnownGoodMsix `
+  $PristineCandidateSource $InstalledKnownGoodSource $CandidateMsix $KnownGoodMsix `
   --config $ToolkitConfig
 ```
 
@@ -142,11 +143,13 @@ node bin/tmtk-restart `
   -- $InstalledPackageRoot
 ```
 
-The current stager derives both outputs from the same source package. It is qualified for
-same-inner-build lifecycle testing, including a complete broken-app rescue and restoration, but not
-for preserving an older installed build while staging a newer offered build. Adoption rechecks that
-the supplied known-good package reproduces the currently installed inner identity and fails before
-restart when it does not. See [`qualification/windows.md`](../qualification/windows.md).
+The sources must have the exact same package family, publisher, architecture, application identity,
+and inner Desktop version/build/Electron. The candidate receives the selected canonical patch fleet
+from pristine bytes. The known-good output preserves the installed source payload while changing
+only package reconstruction metadata, its monotonic outer version, and its local signature.
+Adoption rechecks that the supplied known-good package reproduces the currently installed inner
+identity and fails before restart when it does not. See
+[`qualification/windows.md`](../qualification/windows.md).
 
 The staging command removes its own extracted-ASAR scratch tree on both success and failure. The
 explicit destination candidate remains operator-owned. The restart supervisor bounds its private

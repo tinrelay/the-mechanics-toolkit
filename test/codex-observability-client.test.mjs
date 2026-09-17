@@ -6,8 +6,10 @@ import os from "node:os";
 import path from "node:path";
 import {observabilityContract, observabilityEndpoint, runObservabilityCli} from "../src/codex-observability-client.mjs";
 
-const scratch = fs.mkdtempSync("/tmp/tmtk-observe-client-");
-const endpoint = path.join(scratch, "control.sock");
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-observe-client-"));
+const endpoint = process.platform === "win32"
+  ? `\\\\.\\pipe\\tmtk-observe-client-${process.pid}-${path.basename(scratch)}`
+  : path.join(scratch, "control.sock");
 const output = {value: ""};
 const stdout = {write(value) { output.value += value; }};
 const requests = [];
@@ -47,7 +49,7 @@ try {
   const cpuFile = path.join(scratch, "vera.cpuprofile");
   await runObservabilityCli(["cpu-profile", "7", "0.001", cpuFile], {endpoint, stdout});
   assert.deepEqual(JSON.parse(fs.readFileSync(cpuFile, "utf8")), {nodes: [{id: 1}]});
-  assert.equal(fs.statSync(cpuFile).mode & 0o777, 0o600);
+  if (process.platform !== "win32") assert.equal(fs.statSync(cpuFile).mode & 0o777, 0o600);
   await assert.rejects(runObservabilityCli(["cpu-profile", "7", "1", cpuFile], {endpoint, stdout}), /exist/i);
 
   const traceFile = path.join(scratch, "vera-trace.json");

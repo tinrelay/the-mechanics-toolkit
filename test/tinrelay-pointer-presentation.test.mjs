@@ -83,17 +83,51 @@ const deliveryText = `TINRELAY MESSAGE DELIVERY\n${JSON.stringify(delivery)}`;
 assert.deepEqual(parsers.delivery(deliveryText), delivery);
 assert.deepEqual(parsers.delivery(`${deliveryText}\n`), delivery, "one final LF is allowed");
 assert.equal(parsePointer(deliveryText), null, "a delivery is not a local pointer");
+const receivedAt = 1_789_605_582;
+const receivedDelivery = {...delivery, received_at: receivedAt};
+const receivedDeliveryText = `TINRELAY MESSAGE DELIVERY\n${JSON.stringify(receivedDelivery)}`;
+assert.deepEqual(parsers.delivery(receivedDeliveryText), {...delivery, receivedAtMs: receivedAt * 1000},
+  "a full delivery canonicalizes its authoritative receipt time");
 for (const [label, text] of [
   ["pointer presented as delivery", pointerText.replace("LOCAL POINTER", "MESSAGE DELIVERY")],
   ["unknown key", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, extra: true})}`],
   ["empty author", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: ""})}`],
   ["non-string body", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, body: null})}`],
+  ["zero receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, received_at: 0})}`],
+  ["fractional receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, received_at: 1.5})}`],
+  ["string receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, received_at: "1789605582"})}`],
+  ["overflowing receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({
+    ...delivery,
+    received_at: Math.floor(Number.MAX_SAFE_INTEGER / 1000) + 1
+  })}`],
   ["literal extra line", `${deliveryText}\nnot-json`]
 ]) assert.equal(parsers.delivery(text), null, `delivery ${label}`);
 assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, local_ship: "other-ship"})}`),
   {...delivery, local_ship: "other-ship"}, "delivery identity comes from the runtime message");
 assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: null})}`),
   {...delivery, author_label: null}, "an unlabeled delivery is valid");
+
+const pointerNodeStart = rendererEnd;
+const pointerNodeEnd = rendererSource.indexOf("function MTKtinrelayAddress(", pointerNodeStart);
+assert.ok(pointerNodeEnd > pointerNodeStart, "localized renderer pointer node");
+const pointerNodeSource = rendererSource.slice(pointerNodeStart, pointerNodeEnd);
+const pointerNodeJsx = uniqueMatch(
+  pointerNodeSource,
+  /\(0,(?<jsx>[$A-Z_a-z][$\w]*)\.jsx\)\(MTKtinrelayDeliveryView/g,
+  "renderer pointer-node jsx runtime"
+).groups.jsx;
+const pointerNode = Function(
+  `${rendererSource.slice(rendererStart, rendererEnd)};
+   const ${pointerNodeJsx}={jsx:(type,props)=>({type,props})};
+   function MTKtinrelayPointerView(){} function MTKtinrelayDeliveryView(){}
+   ${pointerNodeSource};return MTKtinrelayPointerNode`
+)();
+assert.equal(pointerNode(receivedDeliveryText, null).props.sentAtMs, receivedAt * 1000,
+  "receipt time supplies the stock timestamp when the native time is absent");
+assert.equal(pointerNode(receivedDeliveryText, 1_789_605_296_000).props.sentAtMs, 1_789_605_296_000,
+  "a valid native timestamp remains authoritative");
+assert.equal(pointerNode(deliveryText, null).props.sentAtMs, null,
+  "persisted legacy deliveries retain their native timestamp semantics");
 
 const helpersStart = mainSource.indexOf("const MTKtinrelayClient=");
 const helpersEnd = [
@@ -277,8 +311,8 @@ assert.ok(rendererHelpers.includes("function MTKtinrelayPointerNode(e,t)") &&
   rendererHelpers.includes("MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}"),
 "incoming pointers preserve their native delegation time");
 assert.ok(rendererHelpers.includes("function MTKtinrelayDeliveryFromMessage(e)") &&
-  rendererHelpers.includes("MTKtinrelayDeliveryView,{delivery:n,sentAtMs:t}"),
-"full deliveries use the same native delegation time without local inspection");
+  rendererHelpers.includes("MTKtinrelayDeliveryView,{delivery:n,sentAtMs:Number.isSafeInteger(t)&&t>0?t:n.receivedAtMs??null}"),
+"full deliveries prefer a valid native time and otherwise use authoritative receipt time");
 assert.ok(rendererHelpers.includes('MTKtinrelayAddress(e.author_label,e.sender_ship)+" → "+MTKtinrelayAddress(e.attention_label,e.local_ship)'),
   "full deliveries render their exact sender and recipient attribution");
 assert.ok(rendererHelpers.includes('useState({status:"loading"})'),

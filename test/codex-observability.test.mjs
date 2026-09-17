@@ -5,12 +5,13 @@ import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
 
-const repository = path.dirname(path.dirname(new URL(import.meta.url).pathname));
+const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const patch = path.join(repository, "patches/codex-observability/patch.mjs");
 const suppliedRoot = process.argv[2] == null ? null : path.resolve(process.argv[2]);
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-observability-probe-"));
-const fakeHome = fs.mkdtempSync("/tmp/tmtk-observe-home-");
+const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), "to-"));
 const build = path.join(scratch, ".vite", "build");
 const main = path.join(build, "main-current.js");
 

@@ -11,11 +11,12 @@ const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/task-visual-palette.test.mjs");
 const examplePalette = path.join(repository, "patches/task-visual-palette/palette.example.json");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-palette-test-"));
+const workspaceName = platformWorkspaceName();
 
 try {
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");
-  const workspace = path.join(scratch, 'workspace "quoted"');
+  const workspace = path.join(scratch, workspaceName);
   const paletteDirectory = path.join(workspace, ".codex");
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(paletteDirectory, { recursive: true });
@@ -44,10 +45,10 @@ try {
   const applied = runToolkit("apply");
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.targets.sort(), [
-    "webview/assets/app-initial-fixture.js",
-    "webview/assets/app-primary-fixture.js",
-    "webview/assets/conversation-blocks-fixture.js",
-    "webview/assets/local-conversation-page-fixture.js"
+    path.join("webview", "assets", "app-initial-fixture.js"),
+    path.join("webview", "assets", "app-primary-fixture.js"),
+    path.join("webview", "assets", "conversation-blocks-fixture.js"),
+    path.join("webview", "assets", "local-conversation-page-fixture.js")
   ]);
   const once = [initialTarget, primaryTarget, localTarget, delegationTarget].map(target => fs.readFileSync(target));
   assert.ok(once[0].includes(`t=${JSON.stringify(workspace)}`), "configured workspace root is embedded as a quoted literal");
@@ -196,6 +197,12 @@ try {
   }
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
+}
+
+function platformWorkspaceName() {
+  if (process.platform === "win32") return "workspace with spaces";
+  if (process.platform === "darwin" || process.platform === "linux") return 'workspace "quoted"';
+  throw new Error(`unsupported platform: ${process.platform}`);
 }
 
 function initialFixture() {
