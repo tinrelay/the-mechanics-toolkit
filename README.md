@@ -169,13 +169,13 @@ staging, installation, restart, and live acceptance remain separate actions.
 
 ## Codex Desktop package patches
 
-The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.70816` (`9275`)**
+The current 19-patch desktop fleet is qualified against **Codex Desktop `26.911.61220` (`9647`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
-readiness, and selected live message paths. Ubuntu ARM64 has a 16-patch build-9275 port with static
-package proof, healthy supervised adoption, and selected live renderer checks. Windows 11 ARM64
-also has a 16-patch build-9275 port with signed-MSIX proof, healthy supervised adoption, and
-selected live renderer checks. Each platform's qualification runbook records what was proved,
-carried from an earlier build, or deliberately not rerun.
+readiness, and selected live message paths. Windows 11 ARM64 has a 16-patch build-9647 port with
+signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Linux remains
+qualified at build 9275 while build-9647 DEB and RPM qualification is in progress. Each platform's
+qualification runbook records what was proved, carried from an earlier build, or deliberately not
+rerun.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and
@@ -213,7 +213,7 @@ desktop-package transforms above.
 
 | Source patch | Qualified source | What it repairs |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.154.0-alpha.6.2` / Desktop `26.908.70816` (`9275`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.2.6` / Desktop `26.911.61220` (`9647`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
 
 ## See the patches
 
