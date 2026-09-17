@@ -22,6 +22,17 @@ one bounded repair in an explicit target, and fail closed when the structure cha
   Candidate adoption belongs only to the restart supervisor: it requires an explicit operator
   action, verifies the platform's exact rollback before replacement, and preserves that
   known-working artifact through live acceptance.
+- Large qualification artifacts are disposable working material, not evidence. Preserve compact
+  receipts, hashes, logs, and source identity; do not preserve superseded application copies,
+  packages, extracted trees, VM images, or build directories merely because they once passed.
+  Before creating a full application or package copy, inspect free space and the exact campaign
+  workspace. Keep exactly one pristine application or package being ported and one current
+  candidate per platform campaign. Failed and superseded multi-gigabyte outputs are deleted
+  immediately; they are not a speculative build history. A supervisor may hold one rollback copy
+  only while its replacement transaction is active, and must remove it when that transaction ends.
+  If current authority does not permit required removal, stop before the next build and return the
+  exact paths and sizes for disposition. A handoff, review, commit, or campaign pause is not
+  complete while obsolete bulk remains behind.
 - Prefer acquiring an offered vendor application before interrupting the running app. Keep that
   vendor bundle untouched, stage and prove the complete selected fleet while the current app stays
   available, then ask for one final quit-and-relaunch seam.

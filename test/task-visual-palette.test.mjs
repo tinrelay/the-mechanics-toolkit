@@ -11,7 +11,7 @@ const projectRoot = process.argv[3] == null ? null : path.resolve(process.argv[3
 const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
-const localPage = uniqueAsset(/^local-conversation-page-.*\.js$/);
+const localPage = uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
 const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/);
 const source = readAsset(appInitial);
 const build7345 = source.includes("function g$c(e){MTKusePaletteBootstrap();") || source.includes("function g$c(e){MTKuseAttentionBootstrap7345();MTKusePaletteBootstrap();");
@@ -32,7 +32,7 @@ const rendererSource = source + primarySource;
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
 const helperTail = source.slice(helperStart);
 const helperBoundary = helperTail.match(
-  /function [$A-Z_a-z][$\w]*\((?:e)?\)\{(?:MTKuseAttentionBootstrap(?:7345|7746|7942|8109|8378|8576|8690|8881|8881Linux)?\(\);)?(?:MTKuseAgentRoster\(\);)?MTKusePaletteBootstrap\(\);/
+  /function [$A-Z_a-z][$\w]*\((?:e)?\)\{(?:MTKuseAttentionBootstrap(?:7345|7746|7942|8109|8378|8576|8690|8881|8881Linux|9647)?\(\);)?(?:MTKuseAgentRoster\(\);)?MTKusePaletteBootstrap\(\);/
 );
 const rootBoundary = helperBoundary == null ? -1 : helperStart + helperBoundary.index;
 const attentionBoundaries = [
@@ -608,8 +608,9 @@ function parse(value) {
   return api.MTKparsePalette(Buffer.from(JSON.stringify(value)).toString("base64"), client, owner);
 }
 
-function uniqueAsset(pattern) {
-  const matches = assetNames.filter(name => pattern.test(name));
+function uniqueAsset(pattern, marker = null) {
+  const matches = assetNames.filter(name => pattern.test(name) &&
+    (marker == null || readAsset(name).includes(marker)));
   assert.equal(matches.length, 1, `unique asset ${pattern}`);
   return matches[0];
 }

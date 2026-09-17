@@ -103,6 +103,7 @@ assert.equal(
     turn.source.includes("preventAutoCollapse:At||xr||MTKreasoningRetained") ||
     turn.source.includes("preventAutoCollapse:Ot||Sr||MTKreasoningRetained") ||
     turn.source.includes("preventAutoCollapse:jt||Sr||MTKreasoningRetained") ||
+    turn.source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
     turn.source.includes(linuxBuild8881.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"

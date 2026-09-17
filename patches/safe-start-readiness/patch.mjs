@@ -32,7 +32,8 @@ process.stdout.write(`${JSON.stringify({
 
 function inspectState(mainValue, rendererValue) {
   verifyStockContracts(mainValue, rendererValue);
-  return markerVariables(mainValue).some(marker => mainValue.includes(readinessStatement(marker)))
+  const profile = safeStartProfile(mainValue);
+  return mainValue.includes(readinessStatement(profile.marker, profile.writer))
     ? "applied"
     : "needs-apply";
 }
@@ -41,11 +42,16 @@ function verifyStockContracts(mainValue, rendererValue) {
   const rendererReady = [
     "H.dispatchMessage(`ready`,{persistedStateResponsePriority:G7?`critical`:void 0})",
     "H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})",
-    "h.dispatchMessage(`ready`,{persistedStateResponsePriority:i7?`critical`:void 0})"
+    "h.dispatchMessage(`ready`,{persistedStateResponsePriority:i7?`critical`:void 0})",
+    "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
   ];
+  const profile = safeStartProfile(mainValue);
+  const writerContracts = profile.writer === "P"
+    ? ["requestDevRelaunch:P=Aie}=e", "requestDevRelaunch:P=Moe}=e"]
+    : [`function ${profile.writer}(`];
   const contractFamilies = [
-    ["relaunch marker environment", ["Tie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`", "Doe=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`"]],
-    ["development relaunch owner", ["requestDevRelaunch:P=Aie}=e", "requestDevRelaunch:P=Moe}=e"]],
+    ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
+    ["development relaunch writer", writerContracts],
     ["trusted renderer message guard", ["if(!N(t))return;"]]
   ];
   for (const [label, variants] of contractFamilies) {
@@ -59,26 +65,33 @@ function verifyStockContracts(mainValue, rendererValue) {
 }
 
 function patchMain(value) {
-  const marker = markerVariables(value)[0];
+  const {marker, writer} = safeStartProfile(value);
   const previous = "if(!N(t))return;s.type===`ready`&&P();";
   if (count(value, previous) === 1) {
-    return replaceOnce(value, previous, readinessStatement(marker), "earlier safe-start readiness patch");
+    return replaceOnce(value, previous, readinessStatement(marker, writer), "earlier safe-start readiness patch");
   }
   return replaceOnce(
     value,
     "if(!N(t))return;",
-    readinessStatement(marker),
+    readinessStatement(marker, writer),
     "trusted stock renderer readiness message"
   );
 }
 
-function markerVariables(value) {
-  return ["Tie", "Doe"].filter(variable =>
+function safeStartProfile(value) {
+  const marker = ["Tie", "Doe", "vae"].filter(variable =>
     count(value, `${variable}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) === 1
   );
+  if (marker.length !== 1) throw new Error("Upstream changed: safe-start relaunch marker environment is not unique");
+  if (marker[0] !== "vae") return {marker: marker[0], writer: "P"};
+  const match = [...value.matchAll(new RegExp(
+    `function (?<writer>[$A-Z_a-z][$\\w]*)\\(\\{markerPath:e=process\\.env\\[${marker[0]}\\]\\?\\.trim\\(\\),writeMarker:t=`, "g"
+  ))];
+  if (match.length !== 1) throw new Error("Upstream changed: safe-start relaunch writer is not unique");
+  return {marker: marker[0], writer: match[0].groups.writer};
 }
 
-function readinessStatement(marker) {
+function readinessStatement(marker, writer) {
   return "if(!N(t))return;s.type===`ready`&&(()=>{" +
     "let e=process.argv.filter(e=>e.startsWith(`--tmtk-safe-start-marker=`));" +
     "if(e.length===1){let t=Buffer.from(e[0].slice(`--tmtk-safe-start-marker=`.length)," +
@@ -87,7 +100,7 @@ function readinessStatement(marker) {
     "n=i.slice(r.length).split(`\\\\`);" +
     `i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])&&` +
     `n[1]===\`renderer.ready\`&&(process.env[${marker}]=t)}` +
-    "P()})();";
+    `${writer}()})();`;
 }
 
 function uniqueAsset(directory, pattern) {

@@ -87,7 +87,7 @@ function appFixture() {
     "function MTKusePaletteBootstrap(){}",
     "function MTKinstallRuntimeJsonReload(){}",
     "function MTKreasoningShouldStayOpen(){}",
-    "function MTKattentionIgnoredThread8378(){}",
+    "function MTKattentionIgnoredThread9647(){}",
     "const terminal={descriptionIntlId:`codex.commandDescription.toggleTerminal`,requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`};",
     "export const fixture=true;"
   ].join("");

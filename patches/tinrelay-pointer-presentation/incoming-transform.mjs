@@ -281,20 +281,14 @@ function inspectAppliedRendererBase(source) {
 }
 
 function inspectPristineMain(source) {
+  mainProcessProfile(source);
   for (const contract of [
-    'let x=require("node:child_process")',
     "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
     "case`electron-add-new-workspace-root-option`:"
   ]) {
     if (count(source, contract) !== 1) {
       throw new Error(`Upstream changed: Tinrelay main-process contract is not unique: ${contract}`);
     }
-  }
-  if (count(source, "var dQ=i.i(`electron-message-handler`)") +
-      count(source, "var mQ=i.i(`electron-message-handler`)") +
-      count(source, "var pQ=i.i(`electron-message-handler`)") +
-      count(source, "var fQ=i.i(`electron-message-handler`)") !== 1) {
-    throw new Error("Upstream changed: Tinrelay main helper owner is not unique");
   }
 }
 
@@ -312,8 +306,9 @@ function inspectAppliedMain(source) {
 
 function inspectAppliedMainBase(source) {
   const helpers = mainHelperSlice(source);
+  const mainProfile = mainProcessProfile(source);
   for (const contract of [
-    'x.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id]',
+    `${mainProfile.childProcess}.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id]`,
     "shell:!1",
     "timeout:8e3",
     "maxBuffer:1048576",
@@ -338,6 +333,18 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
+  if (value.includes("function MS(") && value.includes("function CS(")) {
+    const moduleBefore = "var wS,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),TS=Y(),ES=2}))";
+    const moduleAfter = "var wS,MTKtinrelayReact,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),MTKtinrelayReact=t(r(),1),TS=Y(),ES=2}))";
+    if (value.includes(moduleBefore) || value.includes(moduleAfter)) {
+      return {
+        cache: "wS", collapsedLines: "ES", delegation: "MS", delegationJsx: "PS",
+        helperJsx: "TS", jsx: "TS", message: "CS", messageComponent: "uh",
+        moduleBefore, moduleAfter,
+        labelClass: "text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description"
+      };
+    }
+  }
   if (value.includes("function rz(") && value.includes("function JR(")) {
     const build8881Before = "var YR,XR,ZR,QR=e((()=>{YR=i(),vl(),C_(),XR=Z(),ZR=2}))";
     const build8881After = "var YR,MTKtinrelayReact,XR,ZR,QR=e((()=>{YR=i(),vl(),C_(),MTKtinrelayReact=t(r(),1),XR=Z(),ZR=2}))";
@@ -643,13 +650,12 @@ function migrateRendererPresentation(value) {
 }
 
 function patchMain(value, config) {
-  const helperOwner = ["var dQ=i.i(`electron-message-handler`)", "var mQ=i.i(`electron-message-handler`)", "var pQ=i.i(`electron-message-handler`)",
-    "var fQ=i.i(`electron-message-handler`)"].find(owner => value.includes(owner));
-  if (helperOwner == null) throw new Error("Upstream changed: Tinrelay main helper owner is not recognized");
+  const profile = mainProcessProfile(value);
+  const helperOwner = profile.helperOwner;
   let patched = replaceOnce(
     value,
     helperOwner,
-    `${mainHelpers(config)}${helperOwner}`,
+    `${mainHelpers(config, profile.childProcess)}${helperOwner}`,
     "Tinrelay main helper owner"
   );
   patched = replaceOnce(
@@ -661,8 +667,22 @@ function patchMain(value, config) {
   return patched;
 }
 
-function mainHelpers(config) {
-  return String.raw`const MTKtinrelayClient=${JSON.stringify(config.client)};function MTKtinrelayMainPointer(e){if(typeof e?.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(e.requestId)||typeof e.pointerText!=="string"||e.pointerText.includes("\r"))throw Error("Invalid local Tinrelay pointer.");let t=e.pointerText.endsWith("\n")?e.pointerText.slice(0,-1):e.pointerText,n=t.split("\n");if(n.length!==2||n[0]!=="TINRELAY LOCAL POINTER")throw Error("Invalid local Tinrelay pointer.");let r;try{r=JSON.parse(n[1])}catch{throw Error("Invalid local Tinrelay pointer.")}let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(r==null||typeof r!=="object"||Array.isArray(r)||Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||typeof r.local_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.local_ship)||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string")throw Error("Invalid local Tinrelay pointer.");return r}function MTKtinrelayExec(e){return new Promise((t,n)=>{x.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id],{encoding:"utf8",maxBuffer:1048576,shell:!1,timeout:8e3,windowsHide:!0},(r,i)=>{if(r){n(Error(r.code==="ENOENT"?"Tinrelay client is unavailable.":"Tinrelay could not inspect this transmission."));return}t(i)})})}async function MTKtinrelayInspect(e){let t=MTKtinrelayMainPointer(e),n=await MTKtinrelayExec(t),r;try{r=JSON.parse(n)}catch{throw Error("Tinrelay returned an invalid inspection.")}if(r==null||typeof r!=="object"||Array.isArray(r)||r.contract!=="tinrelay-inspected-inbox-v1"||r.kind!=="transmission"||r.signed_transmission==null||typeof r.signed_transmission!=="object"||Array.isArray(r.signed_transmission))throw Error("Tinrelay inspection did not match this pointer.");let i=r.signed_transmission,a=r.author_label,o=i.from_label,s=typeof a==="string"&&a.length>0&&typeof o==="string"&&o===a||a===null&&(o===void 0||o===null);if(r.local_id!==t.local_id||r.recipient_ship!==t.local_ship||r.sender_ship!==t.sender_ship||r.attention_label!==t.attention_label||!s||r.sender_ship!==i.sender_ship||r.recipient_ship!==i.recipient_ship||r.attention_label!==i.to_label||typeof i.body!=="string")throw Error("Tinrelay inspection did not match this pointer.");return{localId:r.local_id,localShip:r.recipient_ship,senderShip:r.sender_ship,attentionLabel:r.attention_label,authorLabel:a,body:i.body}}`;
+function mainHelpers(config, childProcess) {
+  return String.raw`const MTKtinrelayClient=${JSON.stringify(config.client)};function MTKtinrelayMainPointer(e){if(typeof e?.requestId!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(e.requestId)||typeof e.pointerText!=="string"||e.pointerText.includes("\r"))throw Error("Invalid local Tinrelay pointer.");let t=e.pointerText.endsWith("\n")?e.pointerText.slice(0,-1):e.pointerText,n=t.split("\n");if(n.length!==2||n[0]!=="TINRELAY LOCAL POINTER")throw Error("Invalid local Tinrelay pointer.");let r;try{r=JSON.parse(n[1])}catch{throw Error("Invalid local Tinrelay pointer.")}let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(r==null||typeof r!=="object"||Array.isArray(r)||Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||typeof r.local_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.local_ship)||typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)||typeof r.attention_label!=="string")throw Error("Invalid local Tinrelay pointer.");return r}function MTKtinrelayExec(e){return new Promise((t,n)=>{${childProcess}.execFile(MTKtinrelayClient,["--ship",e.local_ship,"inbox","show",e.local_id],{encoding:"utf8",maxBuffer:1048576,shell:!1,timeout:8e3,windowsHide:!0},(r,i)=>{if(r){n(Error(r.code==="ENOENT"?"Tinrelay client is unavailable.":"Tinrelay could not inspect this transmission."));return}t(i)})})}async function MTKtinrelayInspect(e){let t=MTKtinrelayMainPointer(e),n=await MTKtinrelayExec(t),r;try{r=JSON.parse(n)}catch{throw Error("Tinrelay returned an invalid inspection.")}if(r==null||typeof r!=="object"||Array.isArray(r)||r.contract!=="tinrelay-inspected-inbox-v1"||r.kind!=="transmission"||r.signed_transmission==null||typeof r.signed_transmission!=="object"||Array.isArray(r.signed_transmission))throw Error("Tinrelay inspection did not match this pointer.");let i=r.signed_transmission,a=r.author_label,o=i.from_label,s=typeof a==="string"&&a.length>0&&typeof o==="string"&&o===a||a===null&&(o===void 0||o===null);if(r.local_id!==t.local_id||r.recipient_ship!==t.local_ship||r.sender_ship!==t.sender_ship||r.attention_label!==t.attention_label||!s||r.sender_ship!==i.sender_ship||r.recipient_ship!==i.recipient_ship||r.attention_label!==i.to_label||typeof i.body!=="string")throw Error("Tinrelay inspection did not match this pointer.");return{localId:r.local_id,localShip:r.recipient_ship,senderShip:r.sender_ship,attentionLabel:r.attention_label,authorLabel:a,body:i.body}}`;
+}
+
+function mainProcessProfile(source) {
+  const child = uniqueMatch(
+    source,
+    /let (?<child>[$A-Z_a-z][$\w]*)=require\("node:child_process"\)/g,
+    "Tinrelay child-process owner"
+  ).groups.child;
+  const helper = uniqueMatch(
+    source,
+    /var (?<helper>[$A-Z_a-z][$\w]*)=i\.i\(`electron-message-handler`\)/g,
+    "Tinrelay main helper owner"
+  );
+  return {childProcess: child, helperOwner: helper[0]};
 }
 
 function patchTinrelayLabelOwner(value, profile = incomingRendererProfile(value)) {
@@ -734,11 +754,7 @@ function helperSlice(source) {
 
 function mainHelperSlice(source) {
   const start = source.indexOf("const MTKtinrelayClient=");
-  const boundaries = ["var dQ=i.i(`electron-message-handler`)", "var mQ=i.i(`electron-message-handler`)", "var pQ=i.i(`electron-message-handler`)",
-    "var fQ=i.i(`electron-message-handler`)"]
-    .map(marker => source.indexOf(marker, start))
-    .filter(index => index >= 0);
-  const end = boundaries.length === 1 ? boundaries[0] : -1;
+  const end = source.indexOf(mainProcessProfile(source).helperOwner, start);
   if (start < 0 || end < 0) throw new Error("Tinrelay main helper boundary is missing");
   return source.slice(start, end);
 }

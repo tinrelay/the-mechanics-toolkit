@@ -24,6 +24,7 @@ assert.equal(
   "the terminal command is allowed while the composer or xterm editable owns focus"
 );
 const build8881 = source.includes("jQr=()=>{pMt.run({action:{type:`windows.terminal.toggle`,windowId:wh}})");
+const build9647 = source.includes("$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})");
 const build7345 = source.includes("ccr=()=>{K9t.run({action:{type:`windows.terminal.toggle`,windowId:hx}})");
 const build7746 = source.includes("$bi=()=>{u1t.run({action:{type:`windows.terminal.toggle`,windowId:Wx}})");
 const build7942 = source.includes("pxi=()=>{d1t.run({action:{type:`windows.terminal.toggle`,windowId:Ux}})");
@@ -32,7 +33,7 @@ const build8378 = source.includes("qTi=()=>{C1t.run({action:{type:`windows.termi
 const build8576 = source.includes("rEi=()=>{w1t.run({action:{type:`windows.terminal.toggle`,windowId:Vx}})");
 const build8690 = source.includes("YXr=()=>{jAt.run({action:{type:`windows.terminal.toggle`,windowId:Eh}})");
 const build8881Linux = source.includes(linuxBuild8881Contracts[2]);
-if (!build8881Linux && !build8881 && !build7345 && !build7746 && !build7942 && !build8109 && !build8378 && !build8576 && !build8690) assert.equal(count(source, "i=_s(uW,r)"), 1, "shortcut dispatch reads configured accelerators");
+if (!build9647 && !build8881Linux && !build8881 && !build7345 && !build7746 && !build7942 && !build8109 && !build8378 && !build8576 && !build8690) assert.equal(count(source, "i=_s(uW,r)"), 1, "shortcut dispatch reads configured accelerators");
 assert.equal(
   count(source, "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u"),
   1,
@@ -43,7 +44,12 @@ assert.equal(
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build8881Linux) {
+if (build9647) {
+  assert.equal(count(source, "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})"), 1,
+    "the command keeps the stock terminal action owner");
+  assert.equal(count(source, "[`toggleTerminal`,$wi]"), 1,
+    "the configurable command remains routed through the stock terminal toggle action");
+} else if (build8881Linux) {
   assert.equal(count(source, linuxBuild8881Contracts[2]), 1,
     "the Linux command keeps the stock terminal action owner");
   assert.equal(count(source, linuxBuild8881Contracts[3]), 1,

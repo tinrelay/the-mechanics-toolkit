@@ -336,7 +336,8 @@ const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
 const mainEnd = [mainSource.indexOf("var dQ=i.i(`electron-message-handler`)", mainStart),
   mainSource.indexOf("var mQ=i.i(`electron-message-handler`)", mainStart),
   mainSource.indexOf("var pQ=i.i(`electron-message-handler`)", mainStart),
-  mainSource.indexOf("var fQ=i.i(`electron-message-handler`)", mainStart)].find(index => index >= 0);
+  mainSource.indexOf("var fQ=i.i(`electron-message-handler`)", mainStart),
+  mainSource.indexOf('const MTKobserveContract="tmtk-codex-observability-v1"', mainStart)].find(index => index >= 0);
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "outgoing main helpers are localized");
 assert.ok(mainSource.slice(mainStart, mainEnd).includes('process.platform==="win32"'),
   "the outgoing observer carries its explicit Windows transport and ACL boundary");

@@ -289,7 +289,7 @@ if (presentation.includes('$(`mtk-outbound-turn-receipts`')) {
   const userPresentation = presentation.indexOf('$(`user-item-');
   const taskPresentation = presentation.indexOf('$(`mtk-outbound-turn-receipts`');
   const tinrelayPresentation = presentation.indexOf('$(`mtk-tinrelay-outgoing-turn`');
-  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length"]
+  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -381,6 +381,7 @@ const main = fs.readFileSync(path.join(mainDirectory, mainOwners[0]), "utf8");
 const mainStart = main.indexOf('const MTKoutboundReceiptContract=');
 const mainEnds = [
   main.indexOf("const MTKtinrelayClient=", mainStart),
+  main.indexOf("const MTKtinrelayOutgoingContract=", mainStart),
   main.indexOf("var mQ=i.i(`electron-message-handler`)", mainStart),
   main.indexOf("var pQ=i.i(`electron-message-handler`)", mainStart),
   main.indexOf("var fQ=i.i(`electron-message-handler`)", mainStart)

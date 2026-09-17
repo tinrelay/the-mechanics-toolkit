@@ -59,7 +59,7 @@ Official distribution references:
 - [Windows installation](https://learn.chatgpt.com/docs/windows/windows-app)
 - [Linux installation and supported package formats](https://learn.chatgpt.com/docs/linux/linux-app)
 
-## Linux build 9275 implementation checkpoint
+## Linux build 9275 qualification
 
 The official ARM64 DEB inspected on 2026-09-15 has outer and inner version
 `26.908.70816` and Codex build `9275`. Its untouched DEB SHA-256 is
@@ -115,27 +115,17 @@ probes are green. The unchanged controlled-failure fixtures were deliberately no
 earlier results remain carried capability evidence rather than live evidence for this exact
 candidate. [`qualification/linux.md`](../qualification/linux.md) keeps those boundaries explicit.
 
-## Windows build 8881 implementation checkpoint
+## Windows build 9275 qualification
 
-The Windows 11 ARM64 checkpoint uses Store package
-`OpenAI.Codex_26.908.4834.0_arm64__2p2nqsd0c76g0`, whose inner application is
-`26.908.40834`, Codex build `8881`, Electron `42.3.0`. Its pristine ASAR SHA-256 is
-`565c348c9b736b920d08fb647a3246189d959bf10ef81905ec6b7d20dcb792aa`. The complete
-13-patch Windows-supported ASAR fleet passed exact source inspection, catalog-order application,
-focused probes, byte-identical second application, native payload preservation, MakeAppx
-reconstruction, SignTool verification, and full re-extraction. The measured artifact also carried
-the macOS-only native app-tools authorization transform; because the Windows package has no owned
-native authorization module, that transform is excluded from the public Windows fleet. Windows
-uses the same semantic patch owners as the frontier macOS port; only actual generated-owner and
-runtime differences are platform-profiled.
+Windows 11 ARM64 has a qualified 16-patch fleet for Desktop `26.908.70816` / build `9275`. The
+signed MSIX passed static package proof, healthy supervised adoption, and selected live renderer
+checks. The package does not contain owned surfaces for the macOS-only menu-title or native
+app-tools authorization patches, and standalone-output integration requires separate native and
+WSL executables, so those patches remain excluded rather than being forced through unrelated
+owners.
 
-The adapter also passed a complete deliberately broken supervisor cycle on Windows 11 Pro ARM64:
-native WPF consent, exact invoking-CLI exit, signed MSIX installation, exact AUMID/PID activation,
-three bounded repair turns in the original task, incident-scoped PowerShell closure receipts,
-repair exhaustion, **Restore Known-Working**, exact task deep-link return, renderer readiness, and
-absence of toolkit-owned terminals, helpers, or scheduled tasks. Exact artifacts and the remaining
-cross-version rollback boundary are recorded in
-[`qualification/windows.md`](../qualification/windows.md).
+The exact package identities, hashes, live evidence, carried recovery evidence, and deliberately
+unrun checks belong in [`qualification/windows.md`](../qualification/windows.md).
 
 ## What is shared
 
@@ -244,7 +234,7 @@ implemented DEB adapter below.
 ### Windows: local signed MSIX staging and recovery implemented
 
 Electron 42 can validate ASAR integrity on Windows by storing the ASAR header hash in an
-`Integrity` / `ElectronAsar` executable resource. The inspected build-8881 `ChatGPT.exe` did not
+`Integrity` / `ElectronAsar` executable resource. The inspected build-9275 `ChatGPT.exe` did not
 expose that resource. The adapter inspects the optional seal and fails closed if its shape changes
 rather than assuming it remains disabled.
 
@@ -259,17 +249,16 @@ qualification certificate through SignTool. The result is a local qualification/
 not a Microsoft Store package or a distributable OpenAI update. The supervisor installs it only
 after native consent and verifies the exact installed package, executable, ASAR, and activation PID.
 
-The current staging command derives both outputs from one selected source package. It therefore
-supports same-inner-build qualification but does not yet preserve an older installed build while
-staging a newer offered build. At adoption time the supplied known-working MSIX must reproduce the
-currently installed inner version, build, and ASAR and have the same package identity; a mismatch
-fails before the restart dialog. This refusal is the honest current boundary, not cross-version
-upgrade support.
+The staging command takes a pristine candidate source and a separately preserved installed,
+live-proven known-good source with the same inner Desktop identity. It patches only the pristine
+source and rebuilds both packages with monotonic outer versions and local signatures. A mismatch in
+inner identity, package family, publisher, or known-good provenance fails before the restart
+dialog.
 
 Electron's exact platform seal formats are documented in
 [ASAR Integrity](https://www.electronjs.org/docs/latest/tutorial/asar-integrity).
 
-### Linux: DEB rebuild, healthy adoption, and real-task quiescence qualified; recovery pending
+### Linux: DEB rebuild and supervised adoption qualified
 
 Electron does not provide the macOS/Windows embedded ASAR-header validation feature on Linux. The
 official DEB nevertheless carries package provenance and installs a signed APT repository for

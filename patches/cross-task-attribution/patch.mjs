@@ -14,13 +14,14 @@ const id = "[$A-Z_a-z][$\\w]*";
 const attributionNameMarker = '"data-mtk-palette-attribution-name":!0';
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
-let state = inspectState(owner.source);
+let state = inspectState(owner);
 
 if (command === "apply" && state === "name-scope-upgrade") {
   const patched = upgradeAttributionName(owner.source);
   fs.writeFileSync(owner.file, patched);
   syntaxCheck(owner.file);
-  state = inspectState(patched);
+  owner.source = patched;
+  state = inspectState(owner);
   if (state !== "applied") throw new Error("cross-task attribution name-scope upgrade did not verify");
 }
 
@@ -28,7 +29,8 @@ if (command === "apply" && state === "label-capability-upgrade") {
   const patched = replaceOnce(owner.source, legacyHelper(), currentHelper(), "shared task-label helper upgrade");
   fs.writeFileSync(owner.file, patched);
   syntaxCheck(owner.file);
-  state = inspectState(patched);
+  owner.source = patched;
+  state = inspectState(owner);
   if (state !== "applied") throw new Error("cross-task attribution label-capability upgrade did not verify");
 }
 
@@ -36,22 +38,27 @@ if (command === "apply" && state === "plain-title-fallback-upgrade") {
   const patched = replaceOnce(owner.source, genericPlainTitleHelper(), currentHelper(), "plain task-title fallback upgrade");
   fs.writeFileSync(owner.file, patched);
   syntaxCheck(owner.file);
-  state = inspectState(patched);
+  owner.source = patched;
+  state = inspectState(owner);
   if (state !== "applied") throw new Error("cross-task attribution plain-title fallback upgrade did not verify");
 }
 
 if (command === "apply" && state === "needs-apply") {
-  const details = inspectPristine(owner.source);
+  const details = inspectPristine(owner.source, owner.bubbleSource);
   const patched = patchAttribution(owner.source, owner.file, details);
-  fs.writeFileSync(owner.file, patched);
+  fs.writeFileSync(owner.file, patched.source);
+  if (patched.bubbleSource != null) fs.writeFileSync(details.bubbleFile, patched.bubbleSource);
   syntaxCheck(owner.file);
-  state = inspectState(patched);
+  if (details.bubbleFile != null) syntaxCheck(details.bubbleFile);
+  owner.source = patched.source;
+  owner.bubbleSource = patched.bubbleSource;
+  state = inspectState(owner);
   if (state !== "applied") throw new Error("cross-task attribution transform did not verify");
 }
 
 process.stdout.write(`${JSON.stringify({
   state,
-  targets: [path.relative(root, owner.file)]
+  targets: [owner.file, owner.bubbleFile].filter(Boolean).map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
 function findOwner() {
@@ -68,7 +75,13 @@ function findOwner() {
         source.includes("sourceThreadId")) {
       const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
       if (containingFunction(source, labelAt).text.includes("sourceThreadId")) {
-        candidates.push({ file, source });
+        const bubbleImport = source.match(/import\{[^}]*\bt as (?<local>[$\w]+)[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/);
+        if (bubbleImport?.groups?.local === "uh") {
+          const bubbleFile = ownedImport(file, bubbleImport.groups.relative);
+          candidates.push({ file, source, bubbleFile, bubbleSource: fs.readFileSync(bubbleFile, "utf8") });
+        } else {
+          candidates.push({ file, source, bubbleFile: null, bubbleSource: null });
+        }
       }
     }
   }
@@ -78,7 +91,9 @@ function findOwner() {
   return candidates[0];
 }
 
-function inspectState(source) {
+function inspectState(owner) {
+  const source = owner.source;
+  const completeSource = source + (owner.bubbleSource ?? "");
   const legacyMarkers = [
     "var MTKdelegatedBubbleStyle=",
     "function MTKsender(",
@@ -88,7 +103,7 @@ function inspectState(source) {
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
   ];
-  const present = legacyMarkers.map(marker => source.includes(marker));
+  const present = legacyMarkers.map(marker => completeSource.includes(marker));
   if (present.every(Boolean)) {
     if (count(source, "function MTKsender(") !== 1 || count(source, "messageBubbleStyle:MTKdelegatedBubbleStyle") !== 1) {
       throw new Error("Unrecognized attribution patch: helper or style handoff is ambiguous");
@@ -107,11 +122,11 @@ function inspectState(source) {
     throw new Error("Unrecognized attribution patch: shared task-label helper is partial");
   }
   if (present.some(Boolean)) throw new Error("Unrecognized attribution patch: partial markers");
-  inspectPristine(source);
+  inspectPristine(source, owner.bubbleSource);
   return "needs-apply";
 }
 
-function inspectPristine(source) {
+function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
   const profile = [
@@ -174,27 +189,60 @@ function inspectPristine(source) {
         "t[43]=_e,t[44]=fe,t[45]=Ce,t[46]=we",
         "t[43]=_e,t[44]=fe,t[45]=Ce,t[135]=MTKbubbleStyleOverride,t[46]=we"
       ]
+    },
+    {
+      delegation: "MS", delegationCache: "NS", delegationJsx: "PS",
+      wrapper: "CS", wrapperCache: "wS", wrapperJsx: "TS",
+      bubble: "bt", wrapperBubble: "uh", bubbleCache: "St", collapsedLines: "ES",
+      bubbleCacheSize: 152,
+      externalBubble: true,
+      bubbleOwner: [
+        "turnId:C,cwd:w,hostId:T}=e,",
+        "turnId:C,cwd:w,hostId:T,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+      ],
+      bubbleDependency: [
+        "t[45]!==G||t[46]!==U||t[47]!==Ke){",
+        "t[45]!==G||t[46]!==U||t[47]!==Ke||t[152]!==MTKbubbleStyleOverride){"
+      ],
+      bubbleStorage: [
+        "t[45]=G,t[46]=U,t[47]=Ke,t[48]=q",
+        "t[45]=G,t[46]=U,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
+      ]
     }
   ].find(candidate => delegation.text.startsWith(`function ${candidate.delegation}(`) &&
-    source.includes(`function ${candidate.bubble}(`) &&
+    (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
     (candidate.marker == null || source.includes(candidate.marker)));
   if (profile == null) throw new Error("Upstream changed: attribution component family is unknown");
   const wrapper = functionAt(source, source.indexOf(`function ${profile.wrapper}(`));
-  const bubble = functionAt(source, source.indexOf(`function ${profile.bubble}(`));
+  const bubbleSource = profile.externalBubble ? externalBubbleSource : source;
+  const bubble = functionAt(bubbleSource, bubbleSource.indexOf(`function ${profile.bubble}(`));
+  const completeSource = source + (profile.externalBubble ? bubbleSource : "");
   for (const contract of [
     `function ${profile.delegation}(e){let t=(0,${profile.delegationCache}.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,`,
     `h=(0,${profile.delegationJsx}.jsx)(${profile.wrapper},{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m})`,
     `function ${profile.wrapper}(e){let t=(0,${profile.wrapperCache}.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,`,
-    `m=f?(0,${profile.wrapperJsx}.jsx)(${profile.bubble},{message:i,sentAtMs:a,collapsedLineCount:${profile.collapsedLines},compactActions:u,cwd:o,hostId:s,threadId:r}):null`,
+    `m=f?(0,${profile.wrapperJsx}.jsx)(${profile.wrapperBubble ?? profile.bubble},{message:i,sentAtMs:a,collapsedLineCount:${profile.collapsedLines},compactActions:u,cwd:o,hostId:s,threadId:r}):null`,
     `function ${profile.bubble}(e){let t=(0,${profile.bubbleCache}.c)(${profile.bubbleCacheSize ?? 127}),`,
     '"data-user-message-bubble":!0,className:'
   ]) {
-    if (!source.includes(contract)) throw new Error(`Upstream changed: attribution contract ${contract}`);
+    if (!completeSource.includes(contract)) throw new Error(`Upstream changed: attribution contract ${contract}`);
   }
   if (!new RegExp(`d=${id}\\(\\)\\?\`/hotkey-window/thread/\\$\\{r\\}\`:\`/local/\\$\\{r\\}\``).test(delegation.text)) {
     throw new Error("Upstream changed: attribution destination route");
   }
-  return { delegation, wrapper, bubble, profile };
+  return {
+    delegation,
+    wrapper,
+    bubble,
+    profile,
+    bubbleFile: profile.externalBubble ? ownerBubbleFile() : null,
+    bubbleSource
+  };
+
+  function ownerBubbleFile() {
+    const imported = uniqueMatch(source, /import\{[^}]*\bt as uh[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/g, "user-message bubble import");
+    return ownedImport(owner.file, imported.groups.relative);
+  }
 }
 
 function patchAttribution(source, ownerFile, details) {
@@ -257,10 +305,13 @@ function patchAttribution(source, ownerFile, details) {
   const helper = currentHelper() +
     `const MTKcrossTaskStoreHook=${imports.storeHook},MTKcrossTaskStoreScope=${imports.storeScope};`;
 
-  source = replaceOnce(source, details.bubble.text, bubble, "bubble component");
+  let bubbleSource = null;
+  if (details.bubbleFile == null) source = replaceOnce(source, details.bubble.text, bubble, "bubble component");
+  else bubbleSource = replaceOnce(details.bubbleSource, details.bubble.text, bubble, "bubble component");
   source = replaceOnce(source, details.wrapper.text, wrapper, "delegation wrapper component");
   source = replaceOnce(source, details.delegation.text, helper + delegation, "delegation component");
-  return replaceOnce(source, imports.before, imports.after, "attribution imports");
+  source = replaceOnce(source, imports.before, imports.after, "attribution imports");
+  return {source, bubbleSource};
 }
 
 function upgradeAttributionName(source) {
@@ -341,7 +392,7 @@ function resolveImports(ownerSource, ownerFile) {
   const titleMarker = appPrimary.indexOf("localTitle:r})})}));");
   if (titleMarker >= 0) {
     const beforeTitle = appPrimary.slice(Math.max(0, titleMarker - 1600), titleMarker);
-    const candidates = [...beforeTitle.matchAll(new RegExp(`(?<atom>${id})=(?:iS|wx)\\((?<scope>${id}),`, "g"))];
+    const candidates = [...beforeTitle.matchAll(new RegExp(`(?<atom>${id})=(?:iS|wx|Rt)\\((?<scope>${id}),`, "g"))];
     const titleSelector = candidates.at(-1);
     if (titleSelector == null || !beforeTitle.slice(titleSelector.index).includes("hasConversation")) {
       throw new Error("Upstream changed: current task-title selector owner is ambiguous");

@@ -186,8 +186,9 @@ function inspectState() {
   ];
   const rendererApplied = rendererMarkers.every(marker => rendererSource.includes(marker));
   const activityApplied = activityMarkers.every(marker => activitySource.includes(marker));
+  const startup = mainStartup(mainSource);
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker)) &&
-    /[$A-Z_a-z][$\w]*\.add\(await MTKtinrelayStartOutgoingObserver\(l\.app\.getPath\("userData"\)\)\)/.test(mainSource);
+    startup.groups.observer != null;
   if (rendererApplied && activityApplied && mainApplied) {
     if (!new Set(["embedded-identity-applied", "applied"]).has(dependencyState)) {
       throw new Error("Tinrelay outgoing presentation is applied without its pointer-presentation dependency");
@@ -325,12 +326,7 @@ function inspectPristineMain(source) {
   if (count(source, "case`electron-add-new-workspace-root-option`:") !== 1) {
     throw new Error("Upstream changed: Tinrelay outgoing main message seam is not unique");
   }
-  if (count(source, "var dQ=i.i(`electron-message-handler`)") +
-      count(source, "var mQ=i.i(`electron-message-handler`)") +
-      count(source, "var pQ=i.i(`electron-message-handler`)") +
-      count(source, "var fQ=i.i(`electron-message-handler`)") !== 1) {
-    throw new Error("Upstream changed: Tinrelay outgoing main helper owner is not unique");
-  }
+  mainHelperOwner(source);
 }
 
 function inspectAppliedRenderer(source) {
@@ -377,6 +373,10 @@ function inspectAppliedActivity(source) {
 }
 
 function inspectAppliedMain(source) {
+  const startup = mainStartup(source);
+  if (startup.groups.observer == null) {
+    throw new Error("Tinrelay outgoing main observer startup is missing");
+  }
   const helpers = mainHelperSlice(source);
   for (const marker of [
     '".config","tinrelay"',
@@ -414,7 +414,7 @@ function inspectAppliedMain(source) {
   for (const forbidden of ["console.", "process.env", 'require("node:child_process")', "execFile(", "spawn(", "appendFile", "TINRELAY OUTGOING RECEIPT"]) {
     if (helpers.includes(forbidden)) throw new Error(`Tinrelay outgoing main helper uses forbidden surface: ${forbidden}`);
   }
-  if (countMatches(source, /[$A-Z_a-z][$\w]*\.add\(await MTKtinrelayStartOutgoingObserver\(l\.app\.getPath\("userData"\)\)\)/g) !== 1 ||
+  if (count(source, "MTKtinrelayStartOutgoingObserver(") !== 2 ||
       count(source, "case`mtk-tinrelay-outgoing-lookup`:") !== 1) {
     throw new Error("Tinrelay outgoing main integration is not unique");
   }
@@ -549,8 +549,7 @@ function patchActivity(value) {
 }
 
 function patchMain(value) {
-  const helperOwner = ["var dQ=i.i(`electron-message-handler`)", "var mQ=i.i(`electron-message-handler`)", "var pQ=i.i(`electron-message-handler`)", "var fQ=i.i(`electron-message-handler`)"].find(owner => value.includes(owner));
-  if (helperOwner == null) throw new Error("Upstream changed: Tinrelay outgoing main helper owner is not recognized");
+  const helperOwner = mainHelperOwner(value);
   let patched = replaceOnce(value, helperOwner, `${mainHelpers()}${helperOwner}`, "Tinrelay outgoing main helper owner");
   patched = replaceOnce(
     patched,
@@ -562,7 +561,7 @@ function patchMain(value) {
   return replaceOnce(
     patched,
     startup[0],
-    `${startup.groups.prefix}${startup.groups.disposers}.add(await MTKtinrelayStartOutgoingObserver(l.app.getPath("userData"))),${startup.groups.log}`,
+    `${startup.groups.prefix}${startup.groups.disposers}.add(await MTKtinrelayStartOutgoingObserver(${startup.groups.electron}.app.getPath("userData"))),${startup.groups.log}`,
     "Tinrelay outgoing observer startup"
   );
 }
@@ -775,7 +774,7 @@ function turnCompletionExpression(value, position) {
     /isTurnInProgress:(?<value>[$A-Z_a-z][$\w]*)(?=[,}])/g
   )].map(match => match.groups.value))];
   const assistantBindings = [...new Set([...owner.text.matchAll(new RegExp(
-    `\\{userItems:${id},assistantItem:(?<value>${id}),systemEventItem:${id},`, "g"
+    `\\{userItems:${id},assistantItem:(?<value>${id}),[^{}]{0,800}?systemEventItem:${id},[^{}]{0,1600}?\\}=${id}`, "g"
   ))].map(match => match.groups.value))];
   if (turnBindings.length !== 1 || progressBindings.length !== 1 || assistantBindings.length !== 1) {
     throw new Error(
@@ -987,9 +986,17 @@ function activityHelperSlice(source) {
 
 function mainHelperSlice(source) {
   const start = source.indexOf("const MTKtinrelayOutgoingContract=");
-  const owners = [source.indexOf("var dQ=i.i(`electron-message-handler`)", start), source.indexOf("var mQ=i.i(`electron-message-handler`)", start), source.indexOf("var pQ=i.i(`electron-message-handler`)", start), source.indexOf("var fQ=i.i(`electron-message-handler`)", start)].filter(index => index >= 0);
-  if (start < 0 || owners.length !== 1 || owners[0] <= start) throw new Error("Tinrelay outgoing main helper is not localized");
-  return source.slice(start, owners[0]);
+  const owner = source.indexOf(mainHelperOwner(source), start);
+  if (start < 0 || owner <= start) throw new Error("Tinrelay outgoing main helper is not localized");
+  return source.slice(start, owner);
+}
+
+function mainHelperOwner(source) {
+  return uniqueMatch(
+    source,
+    /var [$A-Z_a-z][$\w]*=i\.i\(`electron-message-handler`\)/g,
+    "Tinrelay outgoing main helper owner"
+  )[0];
 }
 
 function outgoingEventParserState(source) {
@@ -1031,6 +1038,9 @@ function resolveHostBus(source) {
 }
 
 function rendererProfile(source) {
+  if (source.includes("function CS(") && source.includes("function MS(") && source.includes("MTKtinrelayReact=t(r(),1)")) {
+    return {jsx: "TS", boundary: "function MS(", splitTurn: turnRenderer != null};
+  }
   if (source.includes("function JR(") && source.includes("function rz(") && source.includes("MTKtinrelayReact=t(r(),1)")) {
     return {jsx: "XR", boundary: "function rz(", splitTurn: turnRenderer != null};
   }
@@ -1057,21 +1067,26 @@ function jsxDialect(value, jsx) {
 function mainStartup(source) {
   const startup = uniqueMatch(
     source,
-    new RegExp("(?<prefix>await (?<electron>" + id + ")\\.app\\.whenReady\\(\\),)(?<log>" + id + "\\(`main app\\.whenReady resolved`," + id + "\\))", "g"),
+    new RegExp("(?<prefix>await (?<electron>" + id + ")\\.app\\.whenReady\\(\\),)(?:(?<observer>(?<observerDisposers>" + id + ")\\.add\\(await MTKtinrelayStartOutgoingObserver\\((?<observerElectron>" + id + ")\\.app\\.getPath\\(\\\"userData\\\"\\)\\)\\),))?(?<log>" + id + "\\(`main app\\.whenReady resolved`," + id + "\\))", "g"),
     "Tinrelay outgoing app-ready startup"
   );
   const before = source.slice(0, startup.index);
   const candidates = [...before.matchAll(new RegExp(`(?:let |,)(?<disposers>${id})=new ${id}\\.${id};`, "g"))]
     .filter(match => before.slice(match.index, match.index + 300).includes(`${match.groups.disposers}.add(`));
   const owner = candidates.at(-1);
-  if (owner == null && startup[0] === "await l.app.whenReady(),P(`main app.whenReady resolved`,R)") {
+  if (owner == null && startup.groups.electron === "l" && startup.groups.log === "P(`main app.whenReady resolved`,R)" &&
+      (startup.groups.observerDisposers == null || startup.groups.observerDisposers === "L")) {
     startup.groups.disposers = "L";
-    return startup;
-  }
-  if (owner == null || startup.index - owner.index > 5000) {
+  } else if (owner == null || startup.index - owner.index > 5000) {
     throw new Error("Upstream changed: Tinrelay outgoing disposer owner is not adjacent to app readiness");
+  } else {
+    startup.groups.disposers = owner.groups.disposers;
   }
-  startup.groups.disposers = owner.groups.disposers;
+  if (startup.groups.observer != null &&
+      (startup.groups.observerDisposers !== startup.groups.disposers ||
+       startup.groups.observerElectron !== startup.groups.electron)) {
+    throw new Error("Upstream changed: Tinrelay outgoing observer does not use its app-ready owner bindings");
+  }
   return startup;
 }
 

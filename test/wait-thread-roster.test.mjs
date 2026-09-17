@@ -214,7 +214,7 @@ function presentationProfile(value) {
     classNames: uniqueMatch(component, /className:(?<name>[$A-Z_a-z][$\w]*)\("text-size-chat"/g, "class-name helper").groups.name,
     iconFunction: uniqueMatch(component, /"summary-text"\?null:(?<name>[$A-Z_a-z][$\w]*)\(e\)/g, "activity icon helper").groups.name,
     spinner: uniqueMatch(component, new RegExp(`\\(0,${jsxName}\\.jsx\\)\\((?<name>[$A-Z_a-z][$\\w]*),\\{active:!e\\.completed`), "spinner component").groups.name,
-    summaryWrapper: uniqueMatch(component, new RegExp(`return s\\?\\(0,${jsxName}\\.jsx\\)\\((?<name>[$A-Z_a-z][$\\w]*),\\{icon:n,summary:u\\}\\):u`), "summary wrapper").groups.name,
+    summaryWrapper: uniqueMatch(component, new RegExp(`return (?:s|MTKwaitSummaryMode)\\?\\(0,${jsxName}\\.jsx\\)\\((?<name>[$A-Z_a-z][$\\w]*),\\{icon:n,summary:u\\}\\):u`), "summary wrapper").groups.name,
     ...uniqueMatch(functionSource(value, "MTKwaitNavigate"), /let t=(?<normalize>[$A-Z_a-z][$\w]*)\(e\);(?<hostBridge>[$A-Z_a-z][$\w]*)\.dispatchHostMessage\(\{type:"navigate-to-route",path:(?<routeFlag>[$A-Z_a-z][$\w]*)\(\)\?(?<newRoute>[$A-Z_a-z][$\w]*)\(t\):(?<oldRoute>[$A-Z_a-z][$\w]*)\(t\)\}\)/g, "navigation bindings").groups
   };
 }

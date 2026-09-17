@@ -67,7 +67,8 @@ const expectedNames = [
     source.includes("function MTKattentionIgnoredThread7345(") || source.includes("function MTKattentionIgnoredThread7746(") ||
     source.includes("function MTKattentionIgnoredThread7942(") || source.includes("function MTKattentionIgnoredThread8109(") ||
     source.includes("function MTKattentionIgnoredThread8378(") || source.includes("function MTKattentionIgnoredThread8576(") ||
-    source.includes("function MTKattentionIgnoredThread8690(") || source.includes("function MTKattentionIgnoredThread8881(")],
+    source.includes("function MTKattentionIgnoredThread8690(") || source.includes("function MTKattentionIgnoredThread8881(") ||
+    source.includes("function MTKattentionIgnoredThread9647(")],
   ["taskVisualPalette", source => source.includes("function MTKusePaletteBootstrap(")],
   ["tinrelayPointerPresentation", source => source.includes("function MTKtinrelayPointerFromMessage(") &&
     source.includes("data-mtk-tinrelay-pointer")],

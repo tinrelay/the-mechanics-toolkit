@@ -148,7 +148,7 @@ That form detects and rescues launch failure but has no pre-adoption app to rest
 
 For macOS, copy [`toolkit.example.json`](../toolkit.example.json) to the ignored
 `toolkit.local.json`. For the exact Linux build-9275 16-patch fleet, start from
-[`toolkit.linux.example.json`](../toolkit.linux.example.json); for the exact Windows build-8881
+[`toolkit.linux.example.json`](../toolkit.linux.example.json); for the exact Windows build-9275
 fleet, start from [`toolkit.windows.example.json`](../toolkit.windows.example.json). The examples
 contain fictional absolute paths and are not runnable until the agent replaces the applicable
 values. The Linux example has one remaining operator-specific value: `tinrelay.client`.

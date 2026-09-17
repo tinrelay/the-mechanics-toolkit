@@ -67,6 +67,21 @@ try {
   const activityOnce = fs.readFileSync(activityTarget);
   const mainOnce = fs.readFileSync(mainTarget);
   const mainText = mainOnce.toString("utf8");
+  assert.ok(mainText.includes('await d.app.whenReady(),L.add(await MTKtinrelayStartOutgoingObserver(d.app.getPath("userData")))'),
+    "outgoing observer startup reuses the Electron binding from its exact app-ready owner");
+  assert.ok(!mainText.includes('MTKtinrelayStartOutgoingObserver(l.app.getPath("userData"))'),
+    "an unrelated Electron-shaped binding cannot capture outgoing observer startup");
+  const mismatchedStartup = mainText.replace(
+    'MTKtinrelayStartOutgoingObserver(d.app.getPath("userData"))',
+    'MTKtinrelayStartOutgoingObserver(l.app.getPath("userData"))'
+  );
+  fs.writeFileSync(mainTarget, mismatchedStartup);
+  const mismatchedStartupResult = runOutgoingTransformFailure("apply");
+  assert.match(mismatchedStartupResult.stderr, /does not use its app-ready owner bindings/,
+    "an observer wired to a different Electron binding fails closed");
+  assert.equal(fs.readFileSync(mainTarget, "utf8"), mismatchedStartup,
+    "a mismatched observer binding fails before mutation");
+  fs.writeFileSync(mainTarget, mainOnce);
   const currentOutgoingEvent = functionSource(mainText, "MTKtinrelayOutgoingEvent");
   const legacyOutgoingEvent = legacyRequiredAuthorOutgoingEvent();
 
@@ -326,10 +341,10 @@ function mainFixture() {
   return [
     'let x=require("node:child_process");',
     "const i={i(){return null}};",
-    "const l={app:{whenReady(){return Promise.resolve()},getPath(e){return `/app/${e}`}}},L={add(){}},P=()=>{},R=0;",
+    "const d={app:{whenReady(){return Promise.resolve()},getPath(e){return `/app/${e}`}}},l={app:void 0},q={Set:class{}},P=()=>{},R=0;",
     "var mQ=i.i(`electron-message-handler`);",
     "async function handler(e,t){switch(t.type){case`show-plan-summary`:break;case`update-diff-if-open`:break;case`electron-add-new-workspace-root-option`:break}}",
-    "async function startup(){await l.app.whenReady(),P(`main app.whenReady resolved`,R)}",
+    "async function startup(){let L=new q.Set;L.add(()=>{});await d.app.whenReady(),P(`main app.whenReady resolved`,R)}",
     "export const fixture=true;"
   ].join("");
 }

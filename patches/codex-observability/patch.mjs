@@ -59,16 +59,12 @@ function patchMain(value) {
 }
 
 function mainProfile(value) {
-  const helperOwners = [
-    "var dQ=i.i(`electron-message-handler`)",
-    "var mQ=i.i(`electron-message-handler`)",
-    "var pQ=i.i(`electron-message-handler`)",
-    "var fQ=i.i(`electron-message-handler`)"
-  ].filter(owner => count(value, owner) === 1);
-  if (helperOwners.length !== 1) {
-    throw new Error(`Upstream changed: found ${helperOwners.length} Codex observability main helper owners`);
-  }
   const id = "[$A-Z_a-z][$\\w]*";
+  const helperOwner = uniqueMatch(
+    value,
+    new RegExp("var " + id + "=i\\.i\\(`electron-message-handler`\\)", "g"),
+    "Codex observability main helper owner"
+  );
   const startup = uniqueMatch(
     value,
     new RegExp("(?<log>" + id + "\\(`main app\\.whenReady resolved`," + id + "\\))", "g"),
@@ -86,7 +82,7 @@ function mainProfile(value) {
     throw new Error("Upstream changed: Codex observability disposer owner is not adjacent to app readiness");
   }
   return {
-    helperOwner: helperOwners[0],
+    helperOwner: helperOwner[0],
     startup: startup.groups.log,
     electron: readinessOwners[0].groups.electron,
     disposers: owner.groups.disposers

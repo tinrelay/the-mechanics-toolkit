@@ -173,9 +173,9 @@ The current 19-patch desktop fleet is qualified against **Codex Desktop `26.908.
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
 readiness, and selected live message paths. Ubuntu ARM64 has a 16-patch build-9275 port with static
 package proof, healthy supervised adoption, and selected live renderer checks. Windows 11 ARM64
-remains on the earlier 13-patch build-8881 qualification: its signed MSIX package and deliberately
-broken three-turn rescue passed with known-working restoration, while ordinary cross-version
-rollback provenance remains open.
+also has a 16-patch build-9275 port with signed-MSIX proof, healthy supervised adoption, and
+selected live renderer checks. Each platform's qualification runbook records what was proved,
+carried from an earlier build, or deliberately not rerun.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and

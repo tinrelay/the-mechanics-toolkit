@@ -93,7 +93,8 @@ function ownershipProfile(value) {
     { owner: "Tse", authorizer: "Dl", envConst: "vse", addonConst: "yse", addon: "i" },
     { owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie", addon: "i" },
     { owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie", addon: "i" },
-    { owner: "Cae", authorizer: "gd", envConst: "gae", addonConst: "_ae", addon: "i" }
+    { owner: "Cae", authorizer: "gd", envConst: "gae", addonConst: "_ae", addon: "i" },
+    { owner: "goe", authorizer: "Gu", envConst: "loe", addonConst: "uoe", addon: "i" }
   ];
   const pristine = profiles.filter(profile =>
     value.includes(`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
