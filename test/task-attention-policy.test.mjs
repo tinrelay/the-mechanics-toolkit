@@ -349,8 +349,10 @@ function count(haystack, needle) {
 
 function testRosterAttention(appSource, appPrimarySource) {
   const start = appSource.indexOf("const MTKattentionRosterBridge=1");
-  const suffix = build8881Linux ? linuxBuild8881.suffix : "8881";
-  const boundary = appSource.indexOf(`function Jcs(){MTKuseAttentionBootstrap${suffix}();`, start);
+  const build9647 = appSource.includes("function MTKuseAttentionBootstrap9647(");
+  const suffix = build9647 ? "9647" : build8881Linux ? linuxBuild8881.suffix : "8881";
+  const root = build9647 ? "function PYs(){" : "function Jcs(){";
+  const boundary = appSource.indexOf(`${root}MTKuseAttentionBootstrap${suffix}();`, start);
   assert.ok(start >= 0 && boundary > start, "roster attention helper seam");
   const helper = appSource.slice(start, boundary).replaceAll(suffix, "");
   const diagnostics = [];
@@ -368,9 +370,12 @@ function testRosterAttention(appSource, appPrimarySource) {
   };
   const KB = Symbol("macOS task atom");
   const hV = Symbol("Linux task atom");
-  const expectedTaskAtom = build8881Linux ? hV : KB;
-  const api = Function("globalThis", "KB", "hV", "gm", "Q", "Qcs", `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`)(
-    {__MTK_AGENT_ROSTER__: roster}, KB, hV, () => ({set() {}}), Symbol("scope"), {useEffect() {}}
+  const Nj = key => key === "local"
+    ? entries.get("local")
+    : key === "remote" ? entries.get("remote") : null;
+  const expectedTaskAtom = build8881Linux ? hV : build9647 ? Symbol.for("build-9647-task-atom") : KB;
+  const api = Function("globalThis", "KB", "hV", "Nj", "Y", "nm", "Q", "RYs", "gm", "Qcs", `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`)(
+    {__MTK_AGENT_ROSTER__: roster}, KB, hV, Nj, () => expectedTaskAtom, () => ({set() {}}), Symbol("scope"), {useEffect() {}}, () => ({set() {}}), {useEffect() {}}
   );
   assert.equal(api.ignored("Tamsin — Portfolio Secretary", "tamsin-id"), true,
     "a matching title rule can mute an exact named agent");
@@ -386,11 +391,19 @@ function testRosterAttention(appSource, appPrimarySource) {
   assert.equal(api.thread(select, "local"), true);
   assert.equal(api.thread(select, "remote"), true);
   for (const contract of [
-    `MTKattentionPolicyAtom=${build8881Linux ? "vm" : "Zp"}(Q,0)`,
-    `s=s.filter(t=>!MTKattentionIgnoredThread${suffix}(e,t,c))`,
+    `MTKattentionPolicyAtom=${build9647 ? "Ip" : build8881Linux ? "vm" : "Zp"}(Q,0)`,
+    build9647
+      ? `s=s.filter(t=>!MTKattentionIgnoredThread${suffix}(e,t))`
+      : `s=s.filter(t=>!MTKattentionIgnoredThread${suffix}(e,t,c))`,
     "[desktop-notifications] suppressed task-attention-policy turn-complete"
   ]) assert.ok(appSource.includes(contract), `roster attention app contract: ${contract}`);
-  const rowContracts = build8881Linux ? linuxBuild8881.applied.primary : [
+  const rowContracts = build9647 ? [
+    "MTKattentionIgnoredForTask=MTKuseTaskAttention9647(_t,n)",
+    "let Rt=MTKattentionIgnoredForTask?{...Lt,unread:!1,unreadCount:0}:Lt",
+    "Ht=MTKattentionIgnoredForTask?[]:Vt==null?[]:[Vt]",
+    "let Jt=MTKattentionIgnoredForTask?void 0:qt",
+    "hasUnreadTurn:!MTKattentionIgnoredForTask&&!At&&tt===!0"
+  ] : build8881Linux ? linuxBuild8881.applied.primary : [
     "MTKattentionIgnoredForTask=MTKuseTaskAttention8881(vt,n)",
     "let Rt=MTKattentionIgnoredForTask?{...Lt,unread:!1,unreadCount:0}:Lt",
     "Ht=MTKattentionIgnoredForTask?[]:Vt==null?[]:[Vt]",

@@ -12,11 +12,11 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const turn = uniqueOwner(source =>
-  source.includes("preventAutoCollapse:kt||yr") || source.includes("preventAutoCollapse:Ot||yr") || source.includes("preventAutoCollapse:Dt||br") || source.includes("preventAutoCollapse:At||xr") || source.includes("preventAutoCollapse:Ot||Sr") || source.includes("preventAutoCollapse:jt||Sr") || source.includes(linuxBuild8881.turn.owner) || source.includes("function MTKuseReasoningRetention("),
+  source.includes("preventAutoCollapse:kt||yr") || source.includes("preventAutoCollapse:Ot||yr") || source.includes("preventAutoCollapse:Dt||br") || source.includes("preventAutoCollapse:At||xr") || source.includes("preventAutoCollapse:Ot||Sr") || source.includes("preventAutoCollapse:jt||Sr") || source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild8881.turn.owner) || source.includes("function MTKuseReasoningRetention("),
   "local reasoning-collapse owner"
 );
 const thread = uniqueOwner(source =>
-  source.includes("Ue.current=G},[e,c,G,b,fe])") || source.includes("qe.current=G},[e,l,G,x,pe])") || source.includes("We.current=ue},[e,u,ue,x,pe])") || source.includes("Ke.current=ce},[e,l,ce,x,q])") || source.includes("Ue.current=le},[e,l,le,y,fe])") || source.includes(linuxBuild8881.thread.owner) || source.includes("function MTKuseReasoningThreadRetention("),
+  source.includes("Ue.current=G},[e,c,G,b,fe])") || source.includes("qe.current=G},[e,l,G,x,pe])") || source.includes("We.current=ue},[e,u,ue,x,pe])") || source.includes("Ke.current=ce},[e,l,ce,x,q])") || source.includes("Ue.current=le},[e,l,le,y,fe])") || source.includes("Ve.current=le},[e,l,le,y,fe])") || source.includes(linuxBuild8881.thread.owner) || source.includes("function MTKuseReasoningThreadRetention("),
   "local thread auto-collapse owner"
 );
 const collapse = uniqueOwner(source =>
@@ -49,14 +49,14 @@ function inspectState() {
   const source = fs.readFileSync(turn.file, "utf8");
   const turnMarkers = [
     source.includes("function MTKuseReasoningRetention("),
-    source.includes("MTKreasoningRetained=MTKuseReasoningRetention(a)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(c)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(s)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(o)"),
-    source.includes("preventAutoCollapse:kt||yr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Ot||yr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Dt||br||MTKreasoningRetained") || source.includes("preventAutoCollapse:At||xr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Ot||Sr||MTKreasoningRetained") || source.includes("preventAutoCollapse:jt||Sr||MTKreasoningRetained") || source.includes(linuxBuild8881.turn.appliedOwner)
+    source.includes("MTKreasoningRetained=MTKuseReasoningRetention(a)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(c)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(s)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(o)") || source.includes("MTKreasoningRetained=MTKuseReasoningRetention(l)"),
+    source.includes("preventAutoCollapse:kt||yr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Ot||yr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Dt||br||MTKreasoningRetained") || source.includes("preventAutoCollapse:At||xr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Ot||Sr||MTKreasoningRetained") || source.includes("preventAutoCollapse:jt||Sr||MTKreasoningRetained") || source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") || source.includes(linuxBuild8881.turn.appliedOwner)
   ];
   const threadSource = fs.readFileSync(thread.file, "utf8");
   const threadMarkers = [
     threadSource.includes("function MTKuseReasoningThreadRetention("),
     threadSource.includes("MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e)"),
-    threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)EE(b,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)bD(x,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)wk(x,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)wk(y,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes(linuxBuild8881.thread.appliedCollapse),
+    threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)EE(b,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)bD(x,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)wk(x,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)wk(y,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes(linuxBuild8881.thread.appliedCollapse),
     threadSource.includes("[e,c,G,b,fe,MTKreasoningThreadRetained]") || threadSource.includes("[e,l,G,x,pe,MTKreasoningThreadRetained]") || threadSource.includes("[e,u,ue,x,pe,MTKreasoningThreadRetained]") || threadSource.includes("[e,l,ce,x,q,MTKreasoningThreadRetained]") || threadSource.includes("[e,l,le,y,fe,MTKreasoningThreadRetained]") || threadSource.includes(linuxBuild8881.thread.appliedDependencies)
   ];
   const turnApplied = turnMarkers.every(Boolean);
@@ -83,16 +83,18 @@ function inspectState() {
   const build8576 = source.includes("function _i(e){let t=(0,Hi.c)(208),") && source.includes("preventAutoCollapse:At||xr");
   const build8690 = source.includes("function bi(e){let t=(0,Ki.c)(216),") && source.includes("preventAutoCollapse:Ot||Sr");
   const build8881 = source.includes("function bi(e){let t=(0,Ki.c)(216),") && source.includes("preventAutoCollapse:jt||Sr");
+  const build9647 = source.includes("function Z(e){let t=(0,Ba.c)(182),") && source.includes("preventAutoCollapse:Ct||ir");
   const linuxBuild = source.includes(linuxBuild8881.turn.ownerFunction) && source.includes(linuxBuild8881.turn.owner);
-  if ((!source.includes("function _i(e){let t=(0,Vi.c)(207),") && !build8378 && !build8576 && !build8690 && !build8881 && !linuxBuild) || (!legacy && !current && !build8378 && !build8576 && !build8690 && !build8881 && !linuxBuild)) {
+  if ((!source.includes("function _i(e){let t=(0,Vi.c)(207),") && !build8378 && !build8576 && !build8690 && !build8881 && !build9647 && !linuxBuild) || (!legacy && !current && !build8378 && !build8576 && !build8690 && !build8881 && !build9647 && !linuxBuild)) {
     throw new Error("Upstream changed: missing reasoning turn ownership contract");
   }
   const currentThread = threadSource.includes("function zk({conversationId:e,") &&
     (threadSource.includes("qe.current=G},[e,l,G,x,pe])") || threadSource.includes("We.current=ue},[e,u,ue,x,pe])"));
   const build8690Thread = threadSource.includes("function Uj({conversationId:e,") && threadSource.includes("Ke.current=ce},[e,l,ce,x,q])");
   const build8881Thread = threadSource.includes("function Uj({conversationId:e,") && threadSource.includes("Ue.current=le},[e,l,le,y,fe])");
+  const build9647Thread = threadSource.includes("function bM({conversationId:e,") && threadSource.includes("Ve.current=le},[e,l,le,y,fe])");
   const linuxBuildThread = threadSource.includes(linuxBuild8881.thread.ownerFunction) && threadSource.includes(linuxBuild8881.thread.owner);
-  if ((!threadSource.includes("function GO({conversationId:e,") || !threadSource.includes("Ue.current=G},[e,c,G,b,fe])")) && !currentThread && !build8690Thread && !build8881Thread && !linuxBuildThread) {
+  if ((!threadSource.includes("function GO({conversationId:e,") || !threadSource.includes("Ue.current=G},[e,c,G,b,fe])")) && !currentThread && !build8690Thread && !build8881Thread && !build9647Thread && !linuxBuildThread) {
     throw new Error("Upstream changed: missing local thread auto-collapse contract");
   }
   verifyCollapseContract();
@@ -110,6 +112,7 @@ function verifyCollapseContract() {
       !source.includes("onToggle:e=>{let t=!Y;if(F.current=e,f==null){N(t);return}f(t)}") &&
       !source.includes("onToggle:e=>{let t=!Y;if(F.current=e,d==null){N(t);return}d(t)}") &&
       !source.includes("onToggle:e=>{let t=!J;if(P.current=e,d==null){M(t);return}d(t)}") &&
+      !source.includes("onToggle:e=>{let t=!K;if(M.current=e,d==null){A(t);return}d(t)}") &&
       !source.includes(linuxBuild8881.activityToggle)) {
     throw new Error("Upstream changed: missing agent-activity toggle contract");
   }
@@ -148,6 +151,14 @@ function reasoningThreadHook(react, roster) {
 function patchTurn(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningRetention(")) return;
+  if (source.includes("function Z(e){let t=(0,Ba.c)(182),")) {
+    const helper = reasoningHook("Ha", roster);
+    source = replaceOnce(source, "function Z(e){let t=(0,Ba.c)(182),", `${helper}function Z(e){let t=(0,Ba.c)(182),`, "build-9647 reasoning turn hook");
+    source = replaceOnce(source, "let R=xt,Ct=I(Ir,R)", "let R=xt,MTKreasoningRetained=MTKuseReasoningRetention(l),Ct=I(Ir,R)", "build-9647 reasoning task decision");
+    source = replaceOnce(source, "preventAutoCollapse:Ct||ir", "preventAutoCollapse:Ct||ir||MTKreasoningRetained", "build-9647 reasoning auto-collapse gate");
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (source.includes("function bi(e){let t=(0,Ki.c)(216),")) {
     const helper = reasoningHook("Ji", roster);
     source = replaceOnce(source, "function bi(e){let t=(0,Ki.c)(216),", `${helper}function bi(e){let t=(0,Ki.c)(216),`, "build-8690 reasoning turn hook");
@@ -192,6 +203,19 @@ function patchTurn(file, roster = false) {
 function patchThread(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningThreadRetention(")) return;
+  if (source.includes("function bM({conversationId:e,")) {
+    const helper = reasoningThreadHook("wM", roster);
+    source = replaceOnce(source, "function bM({conversationId:e,", `${helper}function bM({conversationId:e,`, "build-9647 reasoning thread hook");
+    source = replaceOnce(source, "usesUnifiedTimeline:v}){let y=_s(qn)", "usesUnifiedTimeline:v}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),y=_s(qn)", "build-9647 reasoning thread decision");
+    source = replaceOnce(
+      source,
+      "for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0);Ve.current=le},[e,l,le,y,fe])",
+      "if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0);Ve.current=le},[e,l,le,y,fe,MTKreasoningThreadRetained])",
+      "build-9647 next-turn auto-collapse gate"
+    );
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (source.includes("function Uj({conversationId:e,")) {
     const helper = reasoningThreadHook("qj", roster);
     source = replaceOnce(source, "function Uj({conversationId:e,", `${helper}function Uj({conversationId:e,`, "build-8690 reasoning thread hook");

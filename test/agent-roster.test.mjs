@@ -12,6 +12,10 @@ const start = source.indexOf('const MTKagentRosterRelativePath=');
 const end = source.indexOf("function MTKuseAgentRoster()", start);
 assert.ok(start >= 0 && end > start, "agent roster helper boundary");
 const helper = source.slice(start, end);
+const loaderBindings = helper.match(
+  /try\{e\.get\((?<ready>[$A-Z_a-z][$\w]*)\)==null&&await e\.when\(\(\{get:e\}\)=>e\((?:[$A-Z_a-z][$\w]*)\)!=null\);let n=(?<client>[$A-Z_a-z][$\w]*)\(e,"local"\)/
+);
+assert.ok(loaderBindings?.groups, "agent roster loader bindings");
 
 const files = new Map();
 const metadata = new Map();
@@ -35,17 +39,13 @@ const state = { get: () => true, when: async () => {} };
 const realm = {};
 const quietConsole = { error() {} };
 const api = Function(
-  "globalThis", "atob", "TextDecoder", "console", "Om", "Dm", "b6", "P6", "Ym", "Jm",
+  "globalThis", "atob", "TextDecoder", "console", loaderBindings.groups.ready, loaderBindings.groups.client,
   `${helper};return {parse:MTKparseAgentRoster,load:MTKloadAgentRoster,install:MTKinstallAgentRoster,reload:MTKreloadAgentRoster,service:globalThis.__MTK_AGENT_ROSTER__}`
 )(
   realm,
   atob,
   TextDecoder,
   quietConsole,
-  Symbol("ready"),
-  () => client,
-  Symbol("ready"),
-  () => client,
   Symbol("ready"),
   () => client
 );

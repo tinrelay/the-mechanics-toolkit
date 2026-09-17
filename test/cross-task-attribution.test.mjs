@@ -17,6 +17,12 @@ const owners = fs.readdirSync(assets).filter(name => {
 assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
+const externalBubbleImport = source.match(
+  /import\{[^}]*\bt as uh[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
+);
+const completeSource = externalBubbleImport?.groups?.relative == null
+  ? source
+  : source + fs.readFileSync(path.resolve(path.dirname(ownerPath), externalBubbleImport.groups.relative), "utf8");
 
 const helperStart = source.indexOf("var MTKdelegatedBubbleStyle=");
 const helperTail = source.slice(helperStart);
@@ -73,6 +79,11 @@ if (source.includes("MTKstore.get(MTKtitleAtom")) {
       titleOwner.includes("localTitle:r") &&
       titleOwner.includes(`${selector.helper}({...n,localTitle:r})`),
     "Linux build-8881 title atom retains its stock live-title selector owner");
+  } else if (titleInternal === "GEn") {
+    assert.ok(titleOwner.includes("GEn=Rt(ns,") && titleOwner.includes("hasConversation") &&
+      titleOwner.includes("liveTitle") && titleOwner.includes("localTitle:r") &&
+      titleOwner.includes("UEn({...n,localTitle:r})"),
+    "build-9647 title atom retains its stock live-title selector owner");
   } else {
     assert.ok(["SOn", "EI", "xNn"].includes(titleInternal), "title atom retains its stock ESM export owner");
   }
@@ -137,7 +148,7 @@ for (const contract of [
   '"data-mtk-palette-attribution-name":!0',
   "messageBubbleStyle:MTKdelegatedBubbleStyle",
   '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
-]) assert.equal(count(source, contract), 1, `attribution contract: ${contract}`);
+]) assert.equal(count(completeSource, contract), 1, `attribution contract: ${contract}`);
 assert.ok(!source.includes("MTKselectorStateInit") && !source.includes("MTKstoreStateInit") &&
   !source.includes("MTKtaskStateInit") && !source.includes("MTKprojectStateInit") &&
   !source.includes("zm(MTKtaskAtom"), "attribution imports no private selector hook or injected initializer");

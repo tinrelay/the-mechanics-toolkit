@@ -45,7 +45,10 @@ try {
 
   const legacySpacing = once.toString()
     .replace("let u=", 'e.completed||l.unshift(" ");let u=')
-    .replace('children:o})," ",...l,e.completed?null:"…"]})', 'children:o}),...l,e.completed?null:"…"]})');
+    .replace(
+      'children:MTKwaitStatusLabel})," ",...l,e.completed?null:"…"]})',
+      'children:MTKwaitStatusLabel}),...l,e.completed?null:"…"]})'
+    );
   assert.notEqual(legacySpacing, once.toString(), "legacy active-spacing fixture differs");
   fs.writeFileSync(ownerTarget, legacySpacing);
   assert.equal(runToolkit("check").state, "legacy-active-spacing");

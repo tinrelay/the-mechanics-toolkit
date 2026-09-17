@@ -44,11 +44,11 @@ results discardable.
 
 ## Qualified source
 
-[`codex-0.154.0-alpha.6.2.patch`](codex-0.154.0-alpha.6.2.patch) applies only to OpenAI Codex tag
-`rust-v0.154.0-alpha.6.2`, commit `b5bffd3ec4db487e7e3dec59663875b0ef7b72ca`. Codex Desktop
-`26.908.70816` (build `9275`) bundles that same CLI version, as did the preceding qualified build
-`8881`, and the qualified desktop fleet integrates the patched binary. The source-patch command
-verifies the exact commit and every target file's qualified before or after hash.
+[`codex-0.155.0-alpha.2.6.patch`](codex-0.155.0-alpha.2.6.patch) applies only to OpenAI Codex tag
+`rust-v0.155.0-alpha.2.6`, commit `bf6f0a4ec97919bf697cdc532e7b8af4ec482fc6`. Codex Desktop
+`26.911.61220` (build `9647`) bundles that same CLI version, and the qualified desktop fleet
+integrates the patched binary. The source-patch command verifies the exact commit and every target
+file's qualified before or after hash.
 
 ```sh
 node bin/toolkit.mjs source-patch standalone-output-compaction check /path/to/codex
@@ -65,7 +65,6 @@ From the patched checkout:
 ```sh
 cd codex-rs
 just test -p codex-core compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
-just test -p codex-core compact_remote::metadata_tests::compacted_history_keeps_only_standalone_function_outputs
 just test -p codex-core compact::tests::insert_initial_context_before_standalone_function_output
 cargo build --release --bin codex
 ```

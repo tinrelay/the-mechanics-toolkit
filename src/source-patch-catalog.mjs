@@ -1,31 +1,23 @@
 const definitions = [
   {
     name: "standalone-output-compaction",
-    patch: "source-patches/standalone-output-compaction/codex-0.154.0-alpha.6.2.patch",
+    patch: "source-patches/standalone-output-compaction/codex-0.155.0-alpha.2.6.patch",
     upstream: "https://github.com/openai/codex",
-    tag: "rust-v0.154.0-alpha.6.2",
-    commit: "b5bffd3ec4db487e7e3dec59663875b0ef7b72ca",
-    desktop: {version: "26.908.70816", build: "9275"},
+    tag: "rust-v0.155.0-alpha.2.6",
+    commit: "bf6f0a4ec97919bf697cdc532e7b8af4ec482fc6",
+    desktop: {version: "26.911.61220", build: "9647"},
     files: {
       "codex-rs/core/src/compact.rs": {
-        before: "67c16bf477530a1cad9e4f0643b9fe797fe66f05ca0c4154dec06e6f18277383",
-        after: "a26c6c01f5f5d59b885bd895b4fa4ffc05062b6300920d52a840fd0f52e72054"
-      },
-      "codex-rs/core/src/compact_remote.rs": {
-        before: "f309fd541d8399696c6f75bb40d9f76a8be6d0b49a12630efadf8d07352f71c5",
-        after: "3215dd11fbb57273f5be612be075e0b5edc48f7864951b97810decf4fd9421fc"
-      },
-      "codex-rs/core/src/compact_remote_metadata_tests.rs": {
-        before: "36eb1f76ab4ee09e013851a03490cbfc3335c419d4c6c0fffc709cd1ce4ae480",
-        after: "324ef81fcbafc2b8d5e8b73a438c415afec10f15e617689fe02a7ad3dd10867c"
+        before: "a8f9d29ec56ff5371c1efafb408ed149e9a14a87a44dfc6d461b9068389278c4",
+        after: "e9bfdb1346d52cd0bf4c5de23813f9ecc2b62a7ceb1c47890b3d74ac2c4b7f76"
       },
       "codex-rs/core/src/compact_remote_v2.rs": {
-        before: "12adeab8d1e307c6cf35dea979a891a7bcd027ea3eac2e7728751f8f1887da61",
-        after: "b04531ef34a2aa25030bdf61588d1a82271fb5ce317389ad0f992240f24b07ea"
+        before: "34cb3b7b3cd172d8e2125feca408fe8e314c39f4dd29721ed54f92462ca4f25c",
+        after: "221053aa574cfced0b2702124cb1296251af9b5c1dc468394faa18497cc2c7da"
       },
       "codex-rs/core/src/compact_tests.rs": {
-        before: "b80f08be1d21be450bde096522704c17fa181b13045a93e2913cb2794e4eff23",
-        after: "af40a0a2a6f603408771af90986ff537a3ca818d31409dc9f1bcfb679f6edaf7"
+        before: "c43a034ae9b7eba2b931d1f1b839c1d182775eb8e0a65f7773986a0bf7bfd868",
+        after: "c8f5f60556b3c34152536f534517590efc135d48d764f7101026327480d8fa40"
       }
     }
   }

@@ -20,10 +20,13 @@ const build7345 = app.includes("UHrendererCurrentKeys=UHrendererTail(d,UHrendere
 const build8881 = app.includes(
   "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)"
 );
+const build9647 = app.includes(
+  "f=n(cU,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit)"
+);
 const build8881Keys = ["EV", "qV"].filter(keys => app.includes(
   `f=n(${keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(`
 ));
-if (build8881) assert.equal(build8881Keys.length, 1, "one exact build-8881 platform key profile");
+if (build8881 && !build9647) assert.equal(build8881Keys.length, 1, "one exact build-8881 platform key profile");
 
 if (!app.includes("UHrendererTail=(e,t)=>")) {
   const selectorContracts = app.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ? [
@@ -57,12 +60,12 @@ if (!app.includes("UHrendererTail=(e,t)=>")) {
 const tailSource = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)";
 const projectionSource = "UHrendererProjection=(e,t)=>{let n=UHrendererTail(e.visibleTurnEntries,t);return n===e.visibleTurnEntries?e:{...e,historyTimeline:null,latestVisibleTurnId:n.at(-1)?.turnId??null,visibleTurnEntries:n}}";
 assert.equal(count(app, tailSource), 1, "one renderer-tail helper");
-assert.equal(count(app, projectionSource), build7345 || build8881 ? 0 : 1,
+assert.equal(count(app, projectionSource), build7345 || build8881 || build9647 ? 0 : 1,
   "final projection helper matches selector generation");
-assert.ok(build7345 || build8881 ? app.includes(",UHrendererTail,") : app.includes(`,${tailSource},${projectionSource},`),
+assert.ok(build7345 || build8881 || build9647 ? app.includes(",UHrendererTail,") : app.includes(`,${tailSource},${projectionSource},`),
   "helpers remain declarations inside the selector's existing var owner");
 assert.ok(!app.includes(",function UHrendererTail"), "function declarations cannot split the var owner");
-if (!build7345 && !build8881) assert.match(app, /var [$A-Z_a-z][$\w]*(?:,[$A-Z_a-z][$\w]*)*,UHrendererTail,UHrendererProjection,[$A-Z_a-z][$\w]*(?:,[$A-Z_a-z][$\w]*)*=[$A-Z_a-z][$\w]*\(\(\(\)=>\{/,
+if (!build7345 && !build8881 && !build9647) assert.match(app, /var [$A-Z_a-z][$\w]*(?:,[$A-Z_a-z][$\w]*)*,UHrendererTail,UHrendererProjection,[$A-Z_a-z][$\w]*(?:,[$A-Z_a-z][$\w]*)*=[$A-Z_a-z][$\w]*\(\(\(\)=>\{/,
   "helper assignments have declarations in the owning initialization group");
 const { UHrendererTail, UHrendererProjection } = Function(
   `var ${tailSource},${projectionSource};return {UHrendererTail,UHrendererProjection}`
@@ -120,7 +123,15 @@ assert.equal(accumulatedTail.length, 200, "loaded pages cannot grow the mounted 
 assert.equal(accumulatedTail[0].turnId, "paged-2305");
 assert.equal(accumulatedTail.at(-1).turnId, "paged-2504");
 
-const selectorContracts = build8881 ? [
+const selectorContracts = build9647 ? [
+  "f=n(cU,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(",
+  "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
+  "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)",
+  "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)",
+  "m=!UHrendererWindowActive&&",
+  "_=o!=null&&h==null?UHrendererParentKeys?.flatMap(",
+  "turnEntityKeys:UHrendererCurrentKeys?.map("
+] : build8881 ? [
   `f=n(${build8881Keys[0]},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(`,
   "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
   "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)",

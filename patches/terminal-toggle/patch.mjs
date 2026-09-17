@@ -61,6 +61,13 @@ function inspectState(value) {
 }
 
 function verifyOwnedBehavior(value) {
+  const build9647Contracts = [
+    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
+    "allowWithinEditable:c,enabled:a,onKeyDown:l",
+    "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})",
+    "[`toggleTerminal`,$wi]"
+  ];
+  if (build9647Contracts.every(contract => count(value, contract) === 1)) return;
   if (linuxBuild8881Contracts.every(contract => count(value, contract) === 1)) return;
   const build8881Contracts = [
     "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",

@@ -24,10 +24,11 @@ if (command === "apply" && state === "needs-apply") {
   const profile = currentProfile(source);
   if (profile == null) throw new Error("Upstream changed: agent roster owner is not recognized");
   const helper = rosterHelper(profile);
+  const bootstrap = profile.seam.replace(/^(function [$\w]+\(\)\{)/, "$1MTKuseAgentRoster();");
   source = replaceOnce(
     source,
     profile.seam,
-    helper + profile.seam.replace("function Jcs(){", "function Jcs(){MTKuseAgentRoster();"),
+    helper + bootstrap,
     "agent roster bootstrap"
   );
   fs.writeFileSync(target, source);
@@ -61,6 +62,25 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
+  const build9647Seam = "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),";
+  if (value.includes(build9647Seam)) {
+    const contracts = [
+      build9647Seam,
+      "function C_(e,t){let n=e.get(w_);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+      "r(VFi)"
+    ];
+    if (!contracts.every(contract => count(value, contract) === 1)) {
+      throw new Error("Upstream changed: build-9647 agent roster owner is not unique");
+    }
+    return {
+      seam: build9647Seam,
+      scope: "nm(Q)",
+      react: "RYs",
+      projectsAtom: "VFi",
+      readyAtom: "w_",
+      client: "C_"
+    };
+  }
   const seam = "function Jcs(){let e=(0,Zcs.c)(12),";
   if (!value.includes(seam)) return null;
   if (value.includes(linuxBuild9275.selector)) {

@@ -132,6 +132,7 @@ assert.equal(pointerNode(deliveryText, null).props.sentAtMs, null,
 const helpersStart = mainSource.indexOf("const MTKtinrelayClient=");
 const helpersEnd = [
   "const MTKtinrelayOutgoingContract=",
+  "const MTKoutboundReceiptContract=",
   "var mQ=i.i(`electron-message-handler`)",
   "var pQ=i.i(`electron-message-handler`)"
 ]
@@ -141,6 +142,11 @@ const helpersEnd = [
 assert.ok(helpersStart >= 0 && helpersEnd > helpersStart, "localized main-process helpers");
 const helperSource = mainSource.slice(helpersStart, helpersEnd);
 assert.ok(!helperSource.includes("MTKtinrelayLocalShip"), "incoming main helpers contain no build-time ship identity");
+const execBinding = uniqueMatch(
+  helperSource,
+  /(?<exec>[$A-Z_a-z][$\w]*)\.execFile\(MTKtinrelayClient/g,
+  "incoming Tinrelay exec binding"
+).groups.exec;
 const calls = [];
 let executorResult;
 const x = {execFile(...args) {
@@ -149,7 +155,7 @@ const x = {execFile(...args) {
   if (executorResult instanceof Error) callback(executorResult, "", "secret stderr");
   else callback(null, JSON.stringify(executorResult), "");
 }};
-const mainHelpers = Function("x", `${helperSource};return {parse:MTKtinrelayMainPointer,inspect:MTKtinrelayInspect}`)(x);
+const mainHelpers = Function(execBinding, `${helperSource};return {parse:MTKtinrelayMainPointer,inspect:MTKtinrelayInspect}`)(x);
 const request = {
   requestId: "01234567-89ab-4cde-8fab-0123456789ab",
   pointerText

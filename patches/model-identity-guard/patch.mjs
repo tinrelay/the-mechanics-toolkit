@@ -17,6 +17,7 @@ const owner = uniqueOwner(source =>
    (source.includes("function Rqr(e){let t=(0,Jqr.c)(232),") && source.includes("Re=Ogr(R.reasoningEffort,Pe)")) ||
    (source.includes("function Onr(e){let t=(0,znr.c)(240),") && source.includes("Ye=I1(ee.reasoningEffort,Ge)")) ||
    (source.includes("function Inr(e){let t=(0,qnr.c)(242),") && source.includes("Ze=B1(ee.reasoningEffort,qe)")) ||
+   (source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke)")) ||
    (source.includes(linuxBuild8881.ownerFunction) &&
     (source.includes(linuxBuild8881.publicationBefore) || source.includes(linuxBuild8881.appliedPublication)))) &&
   source.includes('"data-codex-intelligence-trigger"'),
@@ -43,7 +44,7 @@ function inspectState() {
   const markers = [
     source.includes("function MTKinstallModelIdentityGuard("),
     source.includes("function MTKuseModelIdentityGuard("),
-    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,U,Ie)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Le)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Re)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ye,Ye)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,xe,Ze)"),
+    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,U,Ie)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Le)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Re)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ye,Ye)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,xe,Ze)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)"),
     source.includes('data-mtk-model-guard-mismatch'),
     source.includes('content:"BAD MODEL"'),
     source.includes('data-mtk-model-guard-message'),
@@ -63,8 +64,9 @@ function inspectState() {
   const build8576 = source.includes("function Rqr(e){let t=(0,Jqr.c)(232),") && source.includes("Re=Ogr(R.reasoningEffort,Pe),ze=");
   const build8690 = source.includes("function Onr(e){let t=(0,znr.c)(240),") && source.includes("Ye=I1(ee.reasoningEffort,Ge),Xe=");
   const build8881 = source.includes("function Inr(e){let t=(0,qnr.c)(242),") && source.includes("Ze=B1(ee.reasoningEffort,qe),Qe=");
+  const build9647 = source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke),Ze=");
   const linuxBuild = source.includes(linuxBuild8881.ownerFunction) && source.includes(linuxBuild8881.publicationBefore);
-  if (!build8109 && !build8378 && !build8576 && !build8690 && !build8881 && !linuxBuild) {
+  if (!build8109 && !build8378 && !build8576 && !build8690 && !build8881 && !build9647 && !linuxBuild) {
     throw new Error("Upstream changed: missing build-8109 model selector contract");
   }
   return "needs-apply";
@@ -133,6 +135,20 @@ function patchOwner(file, state, roster = false) {
         linuxBuild8881.publicationBefore,
         linuxBuild8881.publicationAfter,
         "Linux build-8881 live model and effort publication"
+      );
+    } else if (source.includes("function Hcr(e){let t=(0,$cr.c)(242),")) {
+      const helper = modelGuardHelper(roster).replace("S7.useEffect", "L5.useEffect");
+      source = replaceOnce(
+        source,
+        "function Hcr(e){let t=(0,$cr.c)(242),",
+        `${helper}function Hcr(e){let t=(0,$cr.c)(242),`,
+        "build-9647 composer model guard helper"
+      );
+      source = replaceOnce(
+        source,
+        "Xe=TH(q.reasoningEffort,Ke),Ze=",
+        "Xe=TH(q.reasoningEffort,Ke),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe),Ze=",
+        "build-9647 live model and effort publication"
       );
     } else if (source.includes("function Inr(e){let t=(0,qnr.c)(242),")) {
       const helper = modelGuardHelper(roster).replace("S7.useEffect", "F8.useEffect");

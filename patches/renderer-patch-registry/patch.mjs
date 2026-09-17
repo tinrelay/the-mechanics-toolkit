@@ -74,7 +74,8 @@ function activePackages() {
     appSource.includes("function MTKattentionIgnoredThread8378(") ||
     appSource.includes("function MTKattentionIgnoredThread8576(") ||
     appSource.includes("function MTKattentionIgnoredThread8690(") ||
-    appSource.includes("function MTKattentionIgnoredThread8881("), {
+    appSource.includes("function MTKattentionIgnoredThread8881(") ||
+    appSource.includes("function MTKattentionIgnoredThread9647("), {
     name: "taskAttentionPolicy",
     file: appInitial,
     call: `MTKpatchRegistry?.register("taskAttentionPolicy",{version:1});`

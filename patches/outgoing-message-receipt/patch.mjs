@@ -375,12 +375,7 @@ function inspectPristineMain(value) {
   if (count(value, "case`electron-add-new-workspace-root-option`:") !== 1) {
     throw new Error("Upstream changed: outgoing receipt main message seam is not unique");
   }
-  if (count(value, "var dQ=i.i(`electron-message-handler`)") +
-      count(value, "var mQ=i.i(`electron-message-handler`)") +
-      count(value, "var pQ=i.i(`electron-message-handler`)") +
-      count(value, "var fQ=i.i(`electron-message-handler`)") !== 1) {
-    throw new Error("Upstream changed: outgoing receipt main helper owner is not unique");
-  }
+  mainHelperOwner(value);
   uniqueMatch(value, new RegExp(`await (?<electron>${id})\\.app\\.whenReady\\(\\)`, "g"), "Electron app owner");
 }
 
@@ -450,19 +445,13 @@ function upgradeConversationCache(value) {
 
 function upgradeMainCache(value) {
   const start = value.indexOf("const MTKoutboundReceiptContract=");
-  const ends = [
-    value.indexOf("var dQ=i.i(`electron-message-handler`)", start),
-    value.indexOf("var mQ=i.i(`electron-message-handler`)", start),
-    value.indexOf("var pQ=i.i(`electron-message-handler`)", start),
-    value.indexOf("var fQ=i.i(`electron-message-handler`)", start)
-  ]
-    .filter(index => index > start);
-  if (start < 0 || ends.length !== 1 || value.indexOf("const MTKoutboundReceiptContract=", start + 1) >= 0 ||
-      value.slice(start, ends[0]).includes("MTKoutboundReceiptTaskBucketLimit")) {
+  const end = mainHelperOwner(value).index;
+  if (start < 0 || end <= start || value.indexOf("const MTKoutboundReceiptContract=", start + 1) >= 0 ||
+      value.slice(start, end).includes("MTKoutboundReceiptTaskBucketLimit")) {
     throw new Error("Upstream changed: flat main-process receipt cache is not uniquely localized");
   }
   const electron = uniqueMatch(value, new RegExp(`await (?<electron>${id})\\.app\\.whenReady\\(\\)`, "g"), "Electron app owner").groups.electron;
-  return value.slice(0, start) + mainHelpers(electron) + value.slice(ends[0]);
+  return value.slice(0, start) + mainHelpers(electron) + value.slice(end);
 }
 
 function ownerImportProfile(value) {
@@ -662,6 +651,45 @@ function dynamicRendererProfile(value) {
       jsx: "_x"
     };
   }
+  if (value.includes("function QS(") && value.includes("bh(o)") && value.includes("e?.render?.(o,l,i,c)")) {
+    const start = value.indexOf("function QS(");
+    const owner = functionAt(value, start);
+    const patchedFunction = replaceOnce(
+      owner.text,
+      "function QS(e){let t=(0,$S.c)(17),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ra(`off`,n)===`stopped`)return null;let u,d;if(t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l){d=Symbol.for(`react.early_return_sentinel`);bb0:{let e=bh(o);if(e?.hiddenInConversation===!0){d=null;break bb0}u=e?.render?.(o,l,i,c)}t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u,t[5]=d}else u=t[4],d=t[5]",
+      "function QS(e){let t=(0,$S.c)(18),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ra(`off`,n)===`stopped`)return null;let u,d;if(t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[17]!==h){d=Symbol.for(`react.early_return_sentinel`);bb0:{let e=bh(o);if(e?.hiddenInConversation===!0){d=null;break bb0}u=e?.render?.(o,l,i,c,{conversationId:n,turnId:h})}t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[17]=h,t[4]=u,t[5]=d}else u=t[4],d=t[5]",
+      "build-9647 dynamic renderer context body"
+    );
+    const call = uniqueMatch(
+      value,
+      /\(e=\(0,\$\.jsx\)\(QS,\{agentActivityIcon:J,conversationId:f,enableTimelineTargets:Oe,item:n\}\),t\[375\]=J,t\[376\]=f,t\[377\]=Oe,t\[378\]=n,t\[379\]=e\)/g,
+      "build-9647 conversation dynamic renderer call"
+    );
+    const parent = containingFunction(value, call.index);
+    if (!parent.text.startsWith("function cO(e){let t=(0,wO.c)(392),") || !parent.text.includes("turnId:w,")) {
+      throw new Error("Upstream changed: build-9647 source-turn owner is ambiguous");
+    }
+    const patchedParent = replaceOnce(
+      parent.text,
+      "function cO(e){let t=(0,wO.c)(392),",
+      "function cO(e){let t=(0,wO.c)(393),",
+      "build-9647 source-turn cache size"
+    );
+    const patchedCall = call[0]
+      .replace("t[378]!==n?", "t[378]!==n||t[392]!==w?")
+      .replace("enableTimelineTargets:Oe,item:n}", "enableTimelineTargets:Oe,item:n,sourceTurnId:w}")
+      .replace("t[378]=n,t[379]=e", "t[378]=n,t[392]=w,t[379]=e");
+    return {
+      variant: "split-9647",
+      functionText: owner.text,
+      patchedFunction,
+      callText: parent.text,
+      patchedCallText: replaceOnce(patchedParent, call[0], patchedCall, "build-9647 source-turn call"),
+      helperBoundary: "function QS(",
+      react: "t(r(),1)",
+      jsx: "$"
+    };
+  }
   const start = value.indexOf("function Ub(");
   const owner = functionAt(value, start);
   if (!owner.text.includes("rh(o)?.render(o,l,i,c)")) {
@@ -700,6 +728,15 @@ function splitTurnProfile(value, linux) {
       importText: imported[0], specifiers: imported.groups.specifiers, relative,
       before,
       after: `$(\`mtk-outbound-turn-receipts\`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:${linux.conversationId},turnId:${linux.turnId}}),{canOwnLatestTurnFollowContent:!1});${before}`
+    };
+  }
+  if (value.includes("function Z(e){let t=(0,Ba.c)(182),") && value.includes("conversationId:l") &&
+      value.includes("turnId:_,") && value.includes("let to=Qa.length,no={")) {
+    const before = "let to=Qa.length,no={";
+    return {
+      importText: imported[0], specifiers: imported.groups.specifiers, relative,
+      before,
+      after: '$(\`mtk-outbound-turn-receipts\`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:l,turnId:_}),{canOwnLatestTurnFollowContent:!1});let to=Qa.length,no={'
     };
   }
   if (!value.includes("function _i(") || !value.includes("{conversationId:s")) {
@@ -763,6 +800,7 @@ function nativeActionsProfile(value) {
 }
 
 function conversationHelperBoundary(value) {
+  if (value.includes("function QS(")) return "function QS(";
   if (value.includes("function Cz(")) return "function Cz(";
   if (value.includes("function gx(")) return "function gx(";
   if (value.includes("function hx(")) return "function hx(";
@@ -842,19 +880,21 @@ function upgradeConversationAcknowledgment(value) {
 
 function patchMain(value) {
   const electron = uniqueMatch(value, new RegExp(`await (?<electron>${id})\\.app\\.whenReady\\(\\)`, "g"), "Electron app owner").groups.electron;
-  const helperOwner = [
-    "var dQ=i.i(`electron-message-handler`)",
-    "var mQ=i.i(`electron-message-handler`)",
-    "var pQ=i.i(`electron-message-handler`)",
-    "var fQ=i.i(`electron-message-handler`)"
-  ].find(marker => value.includes(marker));
-  if (helperOwner == null) throw new Error("Upstream changed: outgoing receipt main helper owner is not recognized");
+  const helperOwner = mainHelperOwner(value)[0];
   let patched = replaceOnce(value, helperOwner, `${mainHelpers(electron)}${helperOwner}`, "outgoing receipt main helper owner");
   return replaceOnce(
     patched,
     "case`electron-add-new-workspace-root-option`:",
     `${currentMainHandlers()}case\`electron-add-new-workspace-root-option\`:`,
     "outgoing receipt main message handler"
+  );
+}
+
+function mainHelperOwner(value) {
+  return uniqueMatch(
+    value,
+    new RegExp("var (?<helper>" + id + ")=i\\.i\\(`electron-message-handler`\\)", "g"),
+    "outgoing receipt main helper owner"
   );
 }
 
@@ -1124,6 +1164,13 @@ function assertPersistentActivityContract(activitySource) {
   if (!value.includes(`i.type===\`dynamic-tool-call\`&&${localClassifier}(i)`)) {
     throw new Error("Upstream changed: dynamic tools no longer consult the persistence classifier");
   }
+  const build9647Contracts = [
+    "let ee=H,te;",
+    "se=ee.length===0?null:(0,yk.jsx)(BO,{...i,units:ee})",
+    "let ce=se,le;",
+    "children:[oe,de,fe,pe,ce,he]"
+  ];
+  if (build9647Contracts.every(contract => value.includes(contract))) return owner;
   const persistentUnits = uniqueMatch(
     value,
     new RegExp(`(?<units>${id})=${id}!=null&&${id}\\.isCollapsed\\?${id}\\.persistentUnits:\\[\\]`, "g"),
@@ -1318,6 +1365,21 @@ function resolveTaskImports(ownerSource) {
       storeScope: "MTKoutboundStoreScope"
     };
   }
+  if (appInitial.includes("function PYs(){") && appInitial.includes("AH=Hp(Q,")) {
+    const additions = [
+      `${exportedAs(appInitial, "nm")} as MTKoutboundStoreHook`,
+      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
+      `${exportedAs(appInitial, "AH")} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, "jj")} as MTKoutboundLocalThreadKey`,
+      `${exportedAs(appInitial, "Mj")} as MTKoutboundRemoteThreadKey`
+    ];
+    return {
+      before: importMatch[0],
+      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
+      storeHook: "MTKoutboundStoreHook",
+      storeScope: "MTKoutboundStoreScope"
+    };
+  }
   const projectUse = uniqueMatch(
     appInitial,
     new RegExp(`projectId:${id}\\.get\\((?<project>${id}),(?<keyForHost>${id})\\(${id}\\.id,${id}\\.hostId\\)\\)\\?\\.projectId\\?\\?null`, "g"),
@@ -1385,12 +1447,19 @@ function requiresDedicatedTitleSelector(ownerSource) {
 }
 
 function resolvePresentationOwners(ownerSource) {
-  const appImports = [...ownerSource.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-(?:initial|primary)-[^"]+\.js)";/g)];
-  const hoverOwners = appImports.map(appImport => {
+  const imports = [...ownerSource.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/[^"]+\.js)";/g)];
+  let hoverOwners = imports.map(appImport => {
     const file = path.resolve(path.dirname(target), appImport.groups.relative);
     if (!file.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
     return { appImport, file, source: fs.readFileSync(file, "utf8") };
   }).filter(owner => owner.source.includes("skipDelayKey:`diff-preview`"));
+  if (hoverOwners.length === 0) {
+    hoverOwners = assetFiles().filter(file => fs.readFileSync(file, "utf8").includes("skipDelayKey:`diff-preview`")).map(file => ({
+      appImport: { groups: { relative: `./${path.basename(file)}` } },
+      file,
+      source: fs.readFileSync(file, "utf8")
+    }));
+  }
   if (hoverOwners.length !== 1) throw new Error(`Upstream changed: found ${hoverOwners.length} imported native diff hover owners`);
   const { appImport, source: appInitial } = hoverOwners[0];
   const diffPreview = uniqueMatch(
@@ -1570,6 +1639,7 @@ function uniqueConversationOwner() {
     const split = (value.includes("function Cz(") && (value.includes("Ih(o)?.render?.(o,l,i,c)") || value.includes("wh(o)?.render?.(o,l,i,c)"))) ||
       (value.includes("function hx(") && value.includes("Mh(o)?.render?.(o,l,i,c)")) ||
       (value.includes("function gx(") && value.includes("Nh(o)?.render?.(o,l,i,c)")) ||
+      (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
     return (combined || split) && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
@@ -1585,9 +1655,11 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes("function _i(") || value.includes("function bi(e){let t=(0,Ki.c)(216),")) &&
+    return (value.includes("function _i(") || value.includes("function bi(e){let t=(0,Ki.c)(216),") ||
+      value.includes("function Z(e){let t=(0,")) &&
       (value.includes("children:[qt,Va,Ha,Ua]") || value.includes("children:[Jt,Va,Ha,Ua]") ||
        value.includes("let Ha=za.length,Ua={") ||
+       value.includes("let to=Qa.length,no={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:s,turnId:d}") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:s,turnId:f}")) &&
       value.includes(`from"./${basename}"`);

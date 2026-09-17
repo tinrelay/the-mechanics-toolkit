@@ -112,6 +112,8 @@ function inspectPristineSelector(source) {
   const build8881 = build8881Profile(owner);
   if (build8881 != null) {
     inspectBuild8881PristineSelector(body, build8881);
+  } else if (isBuild9647Selector(body)) {
+    inspectBuild9647PristineSelector(body);
   } else if (isBuild7345Selector(body)) {
     inspectBuild7345PristineSelector(body);
   } else {
@@ -135,6 +137,11 @@ function inspectAppliedSelector(source) {
   const build8881 = build8881Profile(owner);
   if (build8881 != null) {
     inspectBuild8881AppliedSelector(source, owner, build8881);
+    return;
+  }
+  if (owner.body.includes("UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)") &&
+      owner.body.includes("return Uds({conversationRequests:a,isAeonThread:!1")) {
+    inspectBuild9647AppliedSelector(source, owner);
     return;
   }
   if (owner.body.includes("UHrendererCurrentKeys=UHrendererTail(d,UHrendererTailLimit)")) {
@@ -182,6 +189,7 @@ function patchSelector(source) {
   const owner = selectorOwner(source);
   const build8881 = build8881Profile(owner);
   if (build8881 != null) return patchBuild8881Selector(source, owner, build8881);
+  if (isBuild9647Selector(owner.body)) return patchBuild9647Selector(source, owner);
   if (isBuild7345Selector(owner.body)) return patchBuild7345Selector(source, owner);
   const names = owner.header.groups;
   const declaration = selectorDeclaration(source, names.selector, owner.header.index);
@@ -356,6 +364,93 @@ function patchBuild8881Selector(source, owner, profile) {
 function build8881Prefix(profile) {
   return `let i=n(${profile.hasConversation},e)??!1,a=n(${profile.requests},e)??Opo;` +
     `n(${profile.touch},e);let o=t?n(${profile.parent},e)??null:null`;
+}
+
+function isBuild9647Selector(body) {
+  return body.includes("let i=n(eN,e)??!1,a=n(lN,e)??tfs;n(NOr,e);let o=t?n(pN,e)??null:null") &&
+    body.includes("f=n(cU,s),p=f?.flatMap") &&
+    body.includes("g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o}),_=o!=null&&h==null?g?.flatMap") &&
+    body.includes("return Uds({conversationRequests:a,isAeonThread:!1") &&
+    body.includes("turnEntityKeys:f?.map(({entityKey:e})=>e)");
+}
+
+function inspectBuild9647PristineSelector(body) {
+  for (const contract of [
+    "f=n(cU,s),p=f?.flatMap",
+    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?Bds(",
+    "g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o}),_=o!=null&&h==null?g?.flatMap",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+  ]) {
+    if (count(body, contract) !== 1) throw new Error(`Upstream changed: build-9647 selector contract ${contract}`);
+  }
+}
+
+function inspectBuild9647AppliedSelector(source, owner) {
+  for (const contract of [
+    "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
+    "f=n(cU,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap",
+    "g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o}),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
+    "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit),UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)",
+    "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0",
+    "_=o!=null&&h==null?UHrendererParentKeys?.flatMap",
+    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)"
+  ]) {
+    if (count(source, contract) !== 1) throw new Error(`Unrecognized build-9647 renderer window: missing ${contract}`);
+  }
+  const declaration = selectorDeclaration(source, owner.header.groups.selector, owner.header.index);
+  if (count(declaration.names, "UHrendererTail") !== 1) {
+    throw new Error("Unrecognized build-9647 renderer window: helper declaration ownership changed");
+  }
+  inspectTranscriptConsumer(source, owner.header.groups.selector, true);
+}
+
+function patchBuild9647Selector(source, owner) {
+  let body = owner.body;
+  const before =
+    "f=n(cU,s),p=f?.flatMap(e=>{n(lU,e)?.status,n(uU,e);let i=gRi(r,e);if(i==null)return[];i.turnId;" +
+    "let a=Aer(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});" +
+    "if(!a)for(let t of i.items)t!=null&&!a&&n(sU,{...e,itemId:t.id});return[i]})??nfs," +
+    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
+    "Bds({conversationId:e,getTurn:(e,t)=>gRi(r,{hostId:n(bN,e),threadId:e,entityKey:t}),historyEntries:l," +
+    "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
+    "g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o}),_=o!=null&&h==null?g?.flatMap";
+  const after =
+    "f=n(cU,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(e=>{n(lU,e)?.status,n(uU,e);let i=gRi(r,e);if(i==null)return[];i.turnId;" +
+    "let a=Aer(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});" +
+    "if(!a)for(let t of i.items)t!=null&&!a&&n(sU,{...e,itemId:t.id});return[i]})??nfs," +
+    "g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o})," +
+    "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))," +
+    "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)," +
+    "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)," +
+    "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0," +
+    "h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
+    "Bds({conversationId:e,getTurn:(e,t)=>gRi(r,{hostId:n(bN,e),threadId:e,entityKey:t}),historyEntries:l," +
+    "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
+    "_=o!=null&&h==null?UHrendererParentKeys?.flatMap";
+  body = replaceOnce(body, before, after, "build-9647 bounded materialization");
+  body = replaceOnce(
+    body,
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)",
+    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)",
+    "build-9647 bounded entity keys"
+  );
+  const names = owner.header.groups;
+  const headerAfter = owner.header[0].replace(
+    `isBackgroundSubagentsEnabled:${names.background}}`,
+    `isBackgroundSubagentsEnabled:${names.background},rendererTailLimit:UHrendererTailLimit}`
+  );
+  const helper = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t),";
+  const patchedOwner = helper + owner.text.replace(owner.header[0], headerAfter).replace(owner.body, body);
+  let patched = replaceOnce(source, owner.text, patchedOwner, "build-9647 renderer selector owner");
+  const declaration = selectorDeclaration(source, names.selector, owner.header.index);
+  const declaredNames = declaration.names.replace(`,${names.selector},`, `,UHrendererTail,${names.selector},`);
+  if (declaredNames === declaration.names) throw new Error("Upstream changed: build-9647 selector declaration shape");
+  return replaceOnce(
+    patched,
+    declaration.text,
+    declaration.text.replace(declaration.names, declaredNames),
+    "build-9647 renderer selector declarations"
+  );
 }
 
 function isBuild7345Selector(body) {

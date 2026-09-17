@@ -183,6 +183,17 @@ maintainer's `.work` tree. That boundary prevents a public tool from guessing wh
 copy is valuable, but it also means an agent that never closes a release can accumulate several
 gigabytes per update.
 
+Do not defer all disposal until the final acceptance pass. A successful candidate is working
+material, not durable evidence. As soon as another candidate supersedes it, preserve the compact
+receipt and hashes, then remove the old application copy and any extracted tree before staging the
+next full copy. During an active campaign, retain exactly one pristine application being ported and
+one current candidate. Failed and superseded multi-gigabyte outputs are not historical evidence and
+must be removed immediately. A supervisor-created rollback may exist only for the duration of its
+active replacement transaction and is removed when that transaction ends. Before every full bundle
+copy, inspect both available disk space and the exact workbench size. If removal requires authority
+the current task does not have, stop before creating another candidate and return the exact obsolete
+paths and sizes for disposition.
+
 After live acceptance, keep:
 
 - the canonical installed `/Applications/ChatGPT.app`;
