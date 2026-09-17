@@ -58,17 +58,10 @@ const expectedNames = [
   ["outgoingMessageReceipt", source => source.includes("function MTKOutboundMessageReceipt(")],
   ["modelIdentityGuard", source => source.includes("function MTKinstallModelIdentityGuard(") &&
     source.includes("data-mtk-model-guard-mismatch")],
-  ["sidebarActionCollapse", source => source.includes("function MTKsidebarActionDisclosure(") ||
-    source.includes("function MTKsidebarActionDisclosure7345(") || source.includes("function MTKsidebarActionDisclosure7746(") ||
-    source.includes("function MTKsidebarActionDisclosure7942(") || source.includes("function MTKsidebarActionDisclosure8109(") ||
-    source.includes("function MTKsidebarActionDisclosure8378(") || source.includes("function MTKsidebarActionDisclosure8576(") ||
-    source.includes("function MTKsidebarActionDisclosure8690(")],
-  ["taskAttentionPolicy", source => source.includes("function MTKattentionIgnoredThread(") ||
-    source.includes("function MTKattentionIgnoredThread7345(") || source.includes("function MTKattentionIgnoredThread7746(") ||
-    source.includes("function MTKattentionIgnoredThread7942(") || source.includes("function MTKattentionIgnoredThread8109(") ||
-    source.includes("function MTKattentionIgnoredThread8378(") || source.includes("function MTKattentionIgnoredThread8576(") ||
-    source.includes("function MTKattentionIgnoredThread8690(") || source.includes("function MTKattentionIgnoredThread8881(") ||
-    source.includes("function MTKattentionIgnoredThread9647(")],
+  ["sidebarActionCollapse", source => source.includes(
+    'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"')],
+  ["taskAttentionPolicy", source => source.includes("const MTKattentionRosterBridge=1") ||
+    source.includes('const MTKattentionRelativePath=".codex/task-attention-policy.json"')],
   ["taskVisualPalette", source => source.includes("function MTKusePaletteBootstrap(")],
   ["tinrelayPointerPresentation", source => source.includes("function MTKtinrelayPointerFromMessage(") &&
     source.includes("data-mtk-tinrelay-pointer")],
@@ -77,7 +70,7 @@ const expectedNames = [
     source.includes("data-mtk-wait-thread-roster")],
   ["nativeAppToolsPeerAuthorization", source => source.includes("function MTKnativeAppToolsPeerAuthorizer(")],
   ["codexObservability", source => source.includes('const MTKobserveContract="tmtk-codex-observability-v1"')],
-  ["safeStartReadiness", source => source.includes("s.type===`ready`&&P();")]
+  ["safeStartReadiness", source => source.includes("--tmtk-safe-start-marker=")]
 ].filter(([, active]) => [...allSources, mainSource].some(active)).map(([name]) => name).sort();
 assert.deepEqual(names, expectedNames);
 assert.equal(new Set(names).size, names.length, "one owner registers each active package");

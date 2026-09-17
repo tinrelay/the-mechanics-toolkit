@@ -14,6 +14,13 @@ const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
 const mainProcess = uniqueMainAsset(/^main-.*\.js$/);
+const sidebarActionCollapseMarker =
+  'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"';
+const taskAttentionPolicyMarkers = [
+  "const MTKattentionRosterBridge=1",
+  'const MTKattentionRelativePath=".codex/task-attention-policy.json"'
+];
+const safeStartReadinessMarker = "--tmtk-safe-start-marker=";
 let state = inspectState();
 if (command === "apply" && state === "needs-apply") {
   applyRegistry();
@@ -54,28 +61,12 @@ function activePackages() {
     file: appInitial,
     call: `MTKpatchRegistry?.register("reasoningRetention",{version:1,policy:"exact-task-opt-in"});`
   });
-  addIf(packages, appSource.includes("function MTKsidebarActionDisclosure(") ||
-    appSource.includes("function MTKsidebarActionDisclosure7345(") ||
-    appSource.includes("function MTKsidebarActionDisclosure7746(") ||
-    appSource.includes("function MTKsidebarActionDisclosure7942(") ||
-    appSource.includes("function MTKsidebarActionDisclosure8109(") ||
-    appSource.includes("function MTKsidebarActionDisclosure8378(") ||
-    appSource.includes("function MTKsidebarActionDisclosure8576(") ||
-    appSource.includes("function MTKsidebarActionDisclosure8690("), {
+  addIf(packages, appSource.includes(sidebarActionCollapseMarker), {
     name: "sidebarActionCollapse",
     file: appInitial,
     call: `MTKpatchRegistry?.register("sidebarActionCollapse",{version:1});`
   });
-  addIf(packages, appSource.includes("function MTKattentionIgnoredThread(") ||
-    appSource.includes("function MTKattentionIgnoredThread7345(") ||
-    appSource.includes("function MTKattentionIgnoredThread7746(") ||
-    appSource.includes("function MTKattentionIgnoredThread7942(") ||
-    appSource.includes("function MTKattentionIgnoredThread8109(") ||
-    appSource.includes("function MTKattentionIgnoredThread8378(") ||
-    appSource.includes("function MTKattentionIgnoredThread8576(") ||
-    appSource.includes("function MTKattentionIgnoredThread8690(") ||
-    appSource.includes("function MTKattentionIgnoredThread8881(") ||
-    appSource.includes("function MTKattentionIgnoredThread9647("), {
+  addIf(packages, taskAttentionPolicyMarkers.some(marker => appSource.includes(marker)), {
     name: "taskAttentionPolicy",
     file: appInitial,
     call: `MTKpatchRegistry?.register("taskAttentionPolicy",{version:1});`
@@ -95,7 +86,7 @@ function activePackages() {
     file: appInitial,
     call: `MTKpatchRegistry?.register("codexObservability",{version:1,transport:"private-local",capabilities:["targets","metrics","devtools","cdp","cpu-profile","trace"]});`
   });
-  addIf(packages, mainSource.includes('s.type===`ready`&&P();'), {
+  addIf(packages, mainSource.includes(safeStartReadinessMarker), {
     name: "safeStartReadiness",
     file: appInitial,
     call: `MTKpatchRegistry?.register("safeStartReadiness",{version:1,signal:"trusted-renderer-ready"});`
@@ -116,13 +107,10 @@ function activePackages() {
       anchor: "function MTKreasoningRosterValue(",
       call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("reasoningRetention",{version:1,policy:"exact-task-opt-in"});`
     });
-    const sidebarAnchor = ["8690", "8576", "8378", "8109", "7942", "7746"]
-      .map(build => `function MTKsidebarActionDisclosure${build}(`)
-      .find(anchor => source.includes(anchor));
-    addIf(packages, sidebarAnchor != null, {
+    addIf(packages, source.includes(sidebarActionCollapseMarker), {
       name: "sidebarActionCollapse",
       file,
-      anchor: sidebarAnchor,
+      anchor: sidebarActionCollapseMarker,
       call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("sidebarActionCollapse",{version:1});`
     });
     addIf(packages, source.includes("function MTKinstallModelIdentityGuard(") &&

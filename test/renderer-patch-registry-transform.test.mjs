@@ -62,8 +62,10 @@ try {
   const bareBuild = path.join(bare, ".vite/build");
   fs.mkdirSync(bareAssets, { recursive: true });
   fs.mkdirSync(bareBuild, { recursive: true });
-  fs.writeFileSync(path.join(bareAssets, "app-initial-fixture.js"), "export const fixture=true;");
-  fs.writeFileSync(path.join(bareBuild, "main-fixture.js"), "export const fixture=true;");
+  fs.writeFileSync(path.join(bareAssets, "app-initial-fixture.js"),
+    "function MTKsidebarActionDisclosure9647(){}function MTKattentionIgnoredThread9647(){}export const fixture=true;");
+  fs.writeFileSync(path.join(bareBuild, "main-fixture.js"),
+    "function readiness(s){const N=()=>true,P=()=>{};if(!N(s))return;s.type===`ready`&&P();}export const fixture=true;");
   const bareApply = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", bare], { encoding: "utf8" });
   assert.equal(bareApply.status, 0, bareApply.stderr || bareApply.stdout);
   assert.deepEqual(JSON.parse(bareApply.stdout).packages, [], "registry does not require a behavior patch");
@@ -87,7 +89,8 @@ function appFixture() {
     "function MTKusePaletteBootstrap(){}",
     "function MTKinstallRuntimeJsonReload(){}",
     "function MTKreasoningShouldStayOpen(){}",
-    "function MTKattentionIgnoredThread9647(){}",
+    'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1";',
+    "const MTKattentionRosterBridge=1;",
     "const terminal={descriptionIntlId:`codex.commandDescription.toggleTerminal`,requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`};",
     "export const fixture=true;"
   ].join("");
@@ -96,7 +99,6 @@ function appFixture() {
 function lazyFixture() {
   return [
     "function MTKshortTaskTitle(e){return e?.split(` — `)[0]??null}",
-    "function MTKsidebarActionDisclosure8378(){}",
     "function MTKinstallModelIdentityGuard(){}",
     "const MTKmodelGuardStyleId=`fixture`;",
     'const modelGuard={"data-mtk-model-guard-mismatch":true};',
@@ -119,7 +121,7 @@ function mainFixture() {
   return [
     'const MTKobserveContract="tmtk-codex-observability-v1";',
     "function MTKnativeAppToolsPeerAuthorizer(){}",
-    "function readiness(s){const N=()=>true,P=()=>{};if(!N(s))return;s.type===`ready`&&P();}",
+    "const readinessMarker=`--tmtk-safe-start-marker=`;",
     "export const fixture=true;"
   ].join("");
 }
