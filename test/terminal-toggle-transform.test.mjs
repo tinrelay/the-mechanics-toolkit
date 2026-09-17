@@ -48,8 +48,8 @@ function fixtureSource() {
 c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
 accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u
 allowWithinEditable:c,enabled:a,onKeyDown:l
-pxi=()=>{d1t.run({action:{type:\`windows.terminal.toggle\`,windowId:Ux}})
-[\`toggleTerminal\`,pxi]
+$wi=()=>{fen.run({action:{type:\`windows.terminal.toggle\`,windowId:bv}})
+[\`toggleTerminal\`,$wi]
 defaultKeybindings:[{key:"Control+\`"}]
 */
 export const fixture = true;

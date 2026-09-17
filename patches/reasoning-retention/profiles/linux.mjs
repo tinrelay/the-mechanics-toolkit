@@ -1,20 +1,22 @@
-export const linuxBuild8881 = {
-  activityToggle: "onToggle:e=>{let t=!q;if(P.current=e,d==null){M(t);return}d(t)}",
+export const linuxBuild9647 = {
+  activityToggle: "onToggle:e=>{let t=!J;if(M.current=e,d==null){A(t);return}d(t)}",
   turn: {
-    ownerFunction: "function bi(e){let t=(0,Ki.c)(216),",
-    owner: "preventAutoCollapse:Mt||Sr",
-    appliedOwner: "preventAutoCollapse:Mt||Sr||MTKreasoningRetained",
-    decisionBefore: "let z=At,Mt=w(er,z)",
-    decisionAfter: "let z=At,MTKreasoningRetained=MTKuseReasoningRetention(o),Mt=w(er,z)"
+    react: "K",
+    ownerFunction: "function Z(e){let t=(0,Ba.c)(182),",
+    owner: "preventAutoCollapse:St||ir",
+    appliedOwner: "preventAutoCollapse:St||ir||MTKreasoningRetained",
+    decisionBefore: "let R=yt,St=H(Ir,R)",
+    decisionAfter: "let R=yt,MTKreasoningRetained=MTKuseReasoningRetention(l),St=H(Ir,R)"
   },
   thread: {
-    ownerFunction: "function Uj({conversationId:e,",
-    owner: "Re.current=G},[e,l,G,y,K])",
-    decisionBefore: "usesUnifiedTimeline:v}){let y=vd(Ft)",
-    decisionAfter: "usesUnifiedTimeline:v}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),y=vd(Ft)",
-    collapseBefore: "for(let t of i)wk(y,{conversationId:e,turnSearchKey:t},!0);Re.current=G},[e,l,G,y,K])",
-    collapseAfter: "if(!MTKreasoningThreadRetained)for(let t of i)wk(y,{conversationId:e,turnSearchKey:t},!0);Re.current=G},[e,l,G,y,K,MTKreasoningThreadRetained])",
-    appliedCollapse: "if(!MTKreasoningThreadRetained)for(let t of i)wk(y,{conversationId:e,turnSearchKey:t},!0)",
-    appliedDependencies: "[e,l,G,y,K,MTKreasoningThreadRetained]"
+    react: "wM",
+    ownerFunction: "function bM({conversationId:e,",
+    owner: "Ge.current=le},[e,l,le,b,fe])",
+    decisionBefore: "usesUnifiedTimeline:y}){let b=Sc(Hc)",
+    decisionAfter: "usesUnifiedTimeline:y}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),b=Sc(Hc)",
+    collapseBefore: "for(let t of i)gA(b,{conversationId:e,turnSearchKey:t},!0);Ge.current=le},[e,l,le,b,fe])",
+    collapseAfter: "if(!MTKreasoningThreadRetained)for(let t of i)gA(b,{conversationId:e,turnSearchKey:t},!0);Ge.current=le},[e,l,le,b,fe,MTKreasoningThreadRetained])",
+    appliedCollapse: "if(!MTKreasoningThreadRetained)for(let t of i)gA(b,{conversationId:e,turnSearchKey:t},!0)",
+    appliedDependencies: "[e,l,le,b,fe,MTKreasoningThreadRetained]"
   }
 };

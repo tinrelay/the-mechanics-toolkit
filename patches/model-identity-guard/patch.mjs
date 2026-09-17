@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881 } from "./profiles/linux.mjs";
+import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -12,22 +12,17 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const owner = uniqueOwner(source =>
-  ((source.includes("function _Lr(e){let t=(0,DLr.c)(231),") && source.includes("Ie=aor(I.reasoningEffort,Me)")) ||
-   (source.includes("function Pqr(e){let t=(0,Wqr.c)(232),") && source.includes("Le=wgr(R.reasoningEffort,Ne)")) ||
-   (source.includes("function Rqr(e){let t=(0,Jqr.c)(232),") && source.includes("Re=Ogr(R.reasoningEffort,Pe)")) ||
-   (source.includes("function Onr(e){let t=(0,znr.c)(240),") && source.includes("Ye=I1(ee.reasoningEffort,Ge)")) ||
-   (source.includes("function Inr(e){let t=(0,qnr.c)(242),") && source.includes("Ze=B1(ee.reasoningEffort,qe)")) ||
-   (source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke)")) ||
-   (source.includes(linuxBuild8881.ownerFunction) &&
-    (source.includes(linuxBuild8881.publicationBefore) || source.includes(linuxBuild8881.appliedPublication)))) &&
+  ((source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke)")) ||
+   (source.includes(linuxBuild9647.ownerFunction) &&
+    (source.includes(linuxBuild9647.publicationBefore) || source.includes(linuxBuild9647.appliedPublication)))) &&
   source.includes('"data-codex-intelligence-trigger"'),
-  "build-8109 composer model owner"
+  "build-9647 composer model owner"
 );
 
 let state = inspectState();
-if (command === "apply" && new Set(["needs-apply", "needs-upgrade"]).has(state)) {
+if (command === "apply" && state === "needs-apply") {
   const policy = ensurePolicyBridge();
-  patchOwner(owner.file, state, policy === "roster");
+  patchOwner(owner.file, policy === "roster");
   syntaxCheck(owner.file);
   state = inspectState();
   if (state !== "applied") throw new Error("model identity guard transform did not verify");
@@ -44,30 +39,18 @@ function inspectState() {
   const markers = [
     source.includes("function MTKinstallModelIdentityGuard("),
     source.includes("function MTKuseModelIdentityGuard("),
-    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,U,Ie)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Le)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Re)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ye,Ye)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,xe,Ze)") || source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)"),
+    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)") || source.includes(linuxBuild9647.appliedPublication),
     source.includes('data-mtk-model-guard-mismatch'),
     source.includes('content:"BAD MODEL"'),
     source.includes('data-mtk-model-guard-message'),
     source.includes('version:8')
   ];
   if (markers.every(Boolean)) return "applied";
-  if (markers.slice(0, 4).every(Boolean) &&
-      ((source.includes('content:"RED ALERT"') &&
-        (source.includes("version:1") || source.includes("version:2"))) ||
-       (source.includes('content:"BAD MODEL"') &&
-        (source.includes("version:3") || source.includes("version:4") || source.includes("version:5") || source.includes("version:6") || source.includes("version:7"))))) {
-    return "needs-upgrade";
-  }
   if (markers.some(Boolean)) throw new Error("Unrecognized model identity guard patch: partial markers");
-  const build8109 = source.includes("function _Lr(e){let t=(0,DLr.c)(231),") && source.includes("Ie=aor(I.reasoningEffort,Me),Le=");
-  const build8378 = source.includes("function Pqr(e){let t=(0,Wqr.c)(232),") && source.includes("Le=wgr(R.reasoningEffort,Ne),Re=");
-  const build8576 = source.includes("function Rqr(e){let t=(0,Jqr.c)(232),") && source.includes("Re=Ogr(R.reasoningEffort,Pe),ze=");
-  const build8690 = source.includes("function Onr(e){let t=(0,znr.c)(240),") && source.includes("Ye=I1(ee.reasoningEffort,Ge),Xe=");
-  const build8881 = source.includes("function Inr(e){let t=(0,qnr.c)(242),") && source.includes("Ze=B1(ee.reasoningEffort,qe),Qe=");
   const build9647 = source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke),Ze=");
-  const linuxBuild = source.includes(linuxBuild8881.ownerFunction) && source.includes(linuxBuild8881.publicationBefore);
-  if (!build8109 && !build8378 && !build8576 && !build8690 && !build8881 && !build9647 && !linuxBuild) {
-    throw new Error("Upstream changed: missing build-8109 model selector contract");
+  const linuxBuild9647Owner = source.includes(linuxBuild9647.ownerFunction) && source.includes(linuxBuild9647.publicationBefore);
+  if (!build9647 && !linuxBuild9647Owner) {
+    throw new Error("Upstream changed: missing build-9647 model selector contract");
   }
   return "needs-apply";
 }
@@ -113,111 +96,16 @@ function MTKmodelGuardEnsureStyle(){if(document.getElementById(MTKmodelGuardStyl
 function MTKinstallModelIdentityGuard(){let e=globalThis.__MTK_MODEL_IDENTITY_GUARD__;if(e?.version===8)return e;let t=new Map,n=new Set,r=!1,i=null;function a(){if(r)return;r=!0,queueMicrotask(()=>{r=!1,o()})}function o(){MTKmodelGuardEnsureStyle();for(let e of document.querySelectorAll("[data-mtk-palette-room-host][data-mtk-palette-thread-id]")){let r=e.getAttribute("data-mtk-palette-thread-id"),i=${roster ? "MTKmodelPinForTask(r)" : "globalThis.__MTKmodelPinForTask?.(r)??null"},a=t.get(r)??null,o=MTKmodelGuardMismatch(i,a)&&!n.has(r);o?e.setAttribute("data-mtk-model-guard-mismatch","true"):e.removeAttribute("data-mtk-model-guard-mismatch");let s=o?MTKmodelGuardDescription(a,i):null,c=o?MTKmodelGuardRecoveryMessage(i):null;for(let t of e.querySelectorAll("[data-codex-intelligence-trigger]"))MTKmodelGuardSetSelector(t,o,s);for(let t of e.querySelectorAll('textarea,[contenteditable],[role="textbox"],[data-mtk-model-guard-editor]'))MTKmodelGuardSetEditor(t,o,c)}}function s(e,n,r){if(typeof e!=="string"||e.length===0)return()=>{};let i={model:n,reasoningEffort:r};return t.set(e,i),a(),()=>{t.get(e)===i&&(t.delete(e),a())}}function c(e){let t=e.target instanceof Element?e.target:null,r=t?.closest('[data-mtk-model-guard-mismatch="true"]');if(r==null)return!1;if(e.type==="click"&&(e.metaKey===!0||e.ctrlKey===!0)&&(t.closest("[data-codex-intelligence-trigger]")||t.closest('[data-mtk-model-guard-editor="true"]'))){let i=r.getAttribute("data-mtk-palette-thread-id");if(typeof i==="string"&&i.length>0)return n.add(i),e.preventDefault(),e.stopImmediatePropagation(),a(),!0}if(e.type==="submit"||(e.type==="click"&&t.closest('button[type="submit"]'))||(t.closest('[data-mtk-model-guard-editor="true"]')&&e.type!=="focusout"))return e.preventDefault(),e.stopImmediatePropagation(),!0;return!1}for(let e of["beforeinput","keydown","paste","drop","submit","click"])document.addEventListener(e,c,!0);let l=()=>{document.body!=null&&(i??=new MutationObserver(e=>{MTKmodelGuardMutationRelevant(e)&&a()}),i.observe(document.body,{subtree:!0,childList:!0}),a())};document.body==null?document.addEventListener("DOMContentLoaded",l,{once:!0}):l();${roster ? "MTKmodelPinSubscribe(a)" : "globalThis.__MTKmodelPinSubscribe?.(a)"};return e=Object.freeze({version:8,publish:s,refresh:a}),globalThis.__MTK_MODEL_IDENTITY_GUARD__=e,e}
 const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelIdentityGuard(e,t,n){return S7.useEffect(()=>MTKmodelIdentityGuard.publish(e,t,n),[e,t,n])}`; }
 
-function patchOwner(file, state, roster = false) {
+function patchOwner(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
-  if (state === "needs-upgrade") {
-    const start = source.indexOf('const MTKmodelGuardStyleId=');
-    const componentBoundary = source.slice(start).match(/function [A-Za-z_$][\w$]*\(e\)\{let t=\(0,[A-Za-z_$][\w$]*\.c\)\(/);
-    const end = componentBoundary == null ? -1 : start + componentBoundary.index;
-    if (start < 0 || end < 0) throw new Error("Unrecognized model identity guard patch: missing upgrade boundary");
-    source = source.slice(0, start) + modelGuardHelper(roster) + source.slice(end);
+  if (source.includes(linuxBuild9647.ownerFunction) && source.includes(linuxBuild9647.publicationBefore)) {
+    const helper = modelGuardHelper(roster).replace("S7.useEffect", `${linuxBuild9647.reactAlias}.useEffect`);
+    source = replaceOnce(source, linuxBuild9647.ownerFunction, `${helper}${linuxBuild9647.ownerFunction}`, "Linux build-9647 composer model guard helper");
+    source = replaceOnce(source, linuxBuild9647.publicationBefore, linuxBuild9647.publicationAfter, "Linux build-9647 live model and effort publication");
   } else {
-    if (source.includes(linuxBuild8881.ownerFunction) && source.includes(linuxBuild8881.publicationBefore)) {
-      const helper = modelGuardHelper(roster).replace("S7.useEffect", `${linuxBuild8881.reactAlias}.useEffect`);
-      source = replaceOnce(
-        source,
-        linuxBuild8881.ownerFunction,
-        `${helper}${linuxBuild8881.ownerFunction}`,
-        "Linux build-8881 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        linuxBuild8881.publicationBefore,
-        linuxBuild8881.publicationAfter,
-        "Linux build-8881 live model and effort publication"
-      );
-    } else if (source.includes("function Hcr(e){let t=(0,$cr.c)(242),")) {
-      const helper = modelGuardHelper(roster).replace("S7.useEffect", "L5.useEffect");
-      source = replaceOnce(
-        source,
-        "function Hcr(e){let t=(0,$cr.c)(242),",
-        `${helper}function Hcr(e){let t=(0,$cr.c)(242),`,
-        "build-9647 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Xe=TH(q.reasoningEffort,Ke),Ze=",
-        "Xe=TH(q.reasoningEffort,Ke),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe),Ze=",
-        "build-9647 live model and effort publication"
-      );
-    } else if (source.includes("function Inr(e){let t=(0,qnr.c)(242),")) {
-      const helper = modelGuardHelper(roster).replace("S7.useEffect", "F8.useEffect");
-      source = replaceOnce(
-        source,
-        "function Inr(e){let t=(0,qnr.c)(242),",
-        `${helper}function Inr(e){let t=(0,qnr.c)(242),`,
-        "build-8881 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Ze=B1(ee.reasoningEffort,qe),Qe=",
-        "Ze=B1(ee.reasoningEffort,qe),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,xe,Ze),Qe=",
-        "build-8881 live model and effort publication"
-      );
-    } else if (source.includes("function Onr(e){let t=(0,znr.c)(240),")) {
-      const helper = modelGuardHelper(roster).replace("S7.useEffect", "N8.useEffect");
-      source = replaceOnce(
-        source,
-        "function Onr(e){let t=(0,znr.c)(240),",
-        `${helper}function Onr(e){let t=(0,znr.c)(240),`,
-        "build-8690 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Ye=I1(ee.reasoningEffort,Ge),Xe=",
-        "Ye=I1(ee.reasoningEffort,Ge),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ye,Ye),Xe=",
-        "build-8690 live model and effort publication"
-      );
-    } else if (source.includes("function Rqr(e){let t=(0,Jqr.c)(232),")) {
-      source = replaceOnce(
-        source,
-        "function Rqr(e){let t=(0,Jqr.c)(232),",
-        `${modelGuardHelper()}function Rqr(e){let t=(0,Jqr.c)(232),`,
-        "build-8576 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Re=Ogr(R.reasoningEffort,Pe),ze=",
-        "Re=Ogr(R.reasoningEffort,Pe),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Re),ze=",
-        "build-8576 live model and effort publication"
-      );
-    } else if (source.includes("function Pqr(e){let t=(0,Wqr.c)(232),")) {
-      source = replaceOnce(
-        source,
-        "function Pqr(e){let t=(0,Wqr.c)(232),",
-        `${modelGuardHelper()}function Pqr(e){let t=(0,Wqr.c)(232),`,
-        "build-8378 composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Le=wgr(R.reasoningEffort,Ne),Re=",
-        "Le=wgr(R.reasoningEffort,Ne),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,G,Le),Re=",
-        "build-8378 live model and effort publication"
-      );
-    } else {
-      source = replaceOnce(
-        source,
-        "function _Lr(e){let t=(0,DLr.c)(231),",
-        `${modelGuardHelper()}function _Lr(e){let t=(0,DLr.c)(231),`,
-        "composer model guard helper"
-      );
-      source = replaceOnce(
-        source,
-        "Ie=aor(I.reasoningEffort,Me),Le=",
-        "Ie=aor(I.reasoningEffort,Me),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,U,Ie),Le=",
-        "live model and effort publication"
-      );
-    }
+    const helper = modelGuardHelper(roster).replace("S7.useEffect", "L5.useEffect");
+    source = replaceOnce(source, "function Hcr(e){let t=(0,$cr.c)(242),", `${helper}function Hcr(e){let t=(0,$cr.c)(242),`, "build-9647 composer model guard helper");
+    source = replaceOnce(source, "Xe=TH(q.reasoningEffort,Ke),Ze=", "Xe=TH(q.reasoningEffort,Ke),MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe),Ze=", "build-9647 live model and effort publication");
   }
   fs.writeFileSync(file, source);
 }

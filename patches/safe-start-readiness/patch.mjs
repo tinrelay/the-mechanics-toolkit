@@ -39,19 +39,11 @@ function inspectState(mainValue, rendererValue) {
 }
 
 function verifyStockContracts(mainValue, rendererValue) {
-  const rendererReady = [
-    "H.dispatchMessage(`ready`,{persistedStateResponsePriority:G7?`critical`:void 0})",
-    "H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})",
-    "h.dispatchMessage(`ready`,{persistedStateResponsePriority:i7?`critical`:void 0})",
-    "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
-  ];
+  const rendererReady = "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})";
   const profile = safeStartProfile(mainValue);
-  const writerContracts = profile.writer === "P"
-    ? ["requestDevRelaunch:P=Aie}=e", "requestDevRelaunch:P=Moe}=e"]
-    : [`function ${profile.writer}(`];
   const contractFamilies = [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
-    ["development relaunch writer", writerContracts],
+    ["development relaunch writer", [`function ${profile.writer}(`]],
     ["trusted renderer message guard", ["if(!N(t))return;"]]
   ];
   for (const [label, variants] of contractFamilies) {
@@ -59,17 +51,13 @@ function verifyStockContracts(mainValue, rendererValue) {
       throw new Error(`Upstream changed: safe-start ${label} is not unique`);
     }
   }
-  if (!rendererReady.some(contract => count(rendererValue, contract) === 1)) {
+  if (count(rendererValue, rendererReady) !== 1) {
     throw new Error("Upstream changed: safe-start renderer readiness contract is not recognized");
   }
 }
 
 function patchMain(value) {
   const {marker, writer} = safeStartProfile(value);
-  const previous = "if(!N(t))return;s.type===`ready`&&P();";
-  if (count(value, previous) === 1) {
-    return replaceOnce(value, previous, readinessStatement(marker, writer), "earlier safe-start readiness patch");
-  }
   return replaceOnce(
     value,
     "if(!N(t))return;",
@@ -79,16 +67,15 @@ function patchMain(value) {
 }
 
 function safeStartProfile(value) {
-  const marker = ["Tie", "Doe", "vae"].filter(variable =>
-    count(value, `${variable}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) === 1
-  );
-  if (marker.length !== 1) throw new Error("Upstream changed: safe-start relaunch marker environment is not unique");
-  if (marker[0] !== "vae") return {marker: marker[0], writer: "P"};
+  const marker = "vae";
+  if (count(value, `${marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) !== 1) {
+    throw new Error("Upstream changed: safe-start relaunch marker environment is not unique");
+  }
   const match = [...value.matchAll(new RegExp(
-    `function (?<writer>[$A-Z_a-z][$\\w]*)\\(\\{markerPath:e=process\\.env\\[${marker[0]}\\]\\?\\.trim\\(\\),writeMarker:t=`, "g"
+    `function (?<writer>[$A-Z_a-z][$\\w]*)\\(\\{markerPath:e=process\\.env\\[${marker}\\]\\?\\.trim\\(\\),writeMarker:t=`, "g"
   ))];
   if (match.length !== 1) throw new Error("Upstream changed: safe-start relaunch writer is not unique");
-  return {marker: marker[0], writer: match[0].groups.writer};
+  return {marker, writer: match[0].groups.writer};
 }
 
 function readinessStatement(marker, writer) {

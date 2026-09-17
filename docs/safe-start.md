@@ -16,16 +16,20 @@ bin/tmtk-restart --candidate /path/to/ChatGPT-MechanicsToolkit.app \
   /Applications/ChatGPT.app
 ```
 
-On Linux, name both the pristine DEB used to build the candidate and the vendor DEB matching the
-currently installed application:
+On Linux, name both the pristine package used to build the candidate and the package matching the
+currently installed application. Keep all three paths in one format:
 
 ```sh
 bin/tmtk-restart --candidate /path/to/chatgpt_amd64_tmtk.deb \
   --candidate-source /path/to/new-chatgpt_amd64.deb \
   --known-good /path/to/installed-chatgpt_amd64.deb /usr/lib/chatgpt
+
+bin/tmtk-restart --candidate /path/to/chatgpt_x86_64_tmtk.rpm \
+  --candidate-source /path/to/new-chatgpt_x86_64.rpm \
+  --known-good /path/to/installed-chatgpt_x86_64.rpm /usr/lib/chatgpt
 ```
 
-Those two vendor paths may name the same DEB for a same-build repatch. During an ordinary upgrade,
+Those two vendor paths may name the same package for a same-build repatch. During an ordinary upgrade,
 `--candidate-source` names the newer offered vendor package while `--known-good` preserves the
 older package that is still installed and known to work.
 
@@ -72,10 +76,10 @@ pre-adoption rollback to offer. The command:
 3. records the task's stored project directory rather than trusting the subprocess's incidental
    `PWD`;
 4. when `--candidate` is present, verifies it and secures the exact known-working rollback inside
-   the private incident directory: a captured `.app` on macOS, the supplied `--known-good` DEB on
+   the private incident directory: a captured `.app` on macOS, the supplied `--known-good` package on
    Linux after proving that it matches the currently installed inner app, or the supplied MSIX on
    Windows after proving that it reproduces the installed app; Linux separately proves that
-   `--candidate-source` is the pristine vendor DEB named by the candidate receipt;
+   `--candidate-source` is the pristine vendor DEB or RPM named by the candidate receipt;
 5. returns control to the invoking agent immediately while the detached supervisor presents a
    blocking native dialog with **Don't Restart** and **Relaunch Codex**;
 6. after **Relaunch Codex**, asks the exact platform application identity at the target executable
@@ -111,9 +115,9 @@ not start rescue. Automatic repair retries do not show the toolkit confirmation 
 
 The rollback source is not inferred from filenames, neighboring applications, or version order.
 On macOS it is the exact canonical application inspected and copied before candidate adoption. On
-Linux `--candidate-source` must be the pristine vendor DEB identified by the candidate receipt,
-while `--known-good` may be either an authenticated vendor DEB or a strictly inspected receipted
-TMTK DEB whose inner identity matches the currently installed application. On Windows the
+Linux `--candidate-source` must be the pristine vendor DEB or RPM identified by the candidate
+receipt, while `--known-good` may be either an authenticated vendor package or a strictly inspected
+receipted TMTK package whose inner identity matches the currently installed application. On Windows the
 known-good MSIX must reproduce the installed inner identity and carry
 the same package family, publisher, architecture, and application ID at a higher outer package
 version. The known-good rollback is copied into the private incident and reverified before use;
@@ -123,11 +127,13 @@ TMTK's readiness marker, so the fallback accepts either real renderer readiness 
 clean launch that remains alive for ten seconds and records which boundary it observed. An early
 exit opens the terminal line; rollback never loops.
 
-A supervised adoption retains at most one full known-working rollback set. After a new adoption
-secures its rollback, TMTK removes only older toolkit-owned `known-good.app`, `known-good.deb`,
-`candidate.deb`, and `known-good.msix` payloads from private incident directories and preserves
-their small state, logs, and diagnostics. TMTK never deletes the explicitly supplied source paths or anything in a
-maintainer's `.work` directory because it does not own those paths.
+A supervised adoption retains its private candidate and known-working rollback only while the
+replacement transaction is active. After renderer readiness or a successful known-good restore,
+TMTK removes the current incident's toolkit-owned `known-good.app`, `known-good.deb`,
+`candidate.deb`, `known-good.rpm`, `candidate.rpm`, `known-good.msix`, and `candidate.msix`
+payloads. A later adoption also prunes any such payloads left by older interrupted incidents.
+Small state, logs, and diagnostics remain. TMTK never deletes explicitly supplied source paths or
+anything in a maintainer's `.work` directory because it does not own those paths.
 
 The macOS and Windows confirmations use `assets/TheMechanicsToolkit.icns` and
 `assets/TheMechanicsToolkit.ico` respectively when the retained toolkit checkout contains them and
@@ -247,6 +253,7 @@ const latest = JSON.parse(fs.readFileSync(
 if (latest.repairAttemptsUsed !== 3 || latest.knownGoodRestoreAttempted === true ||
     (typeof latest.configuration?.knownGood?.app !== "string" &&
       typeof latest.configuration?.knownGood?.deb !== "string" &&
+      typeof latest.configuration?.knownGood?.rpm !== "string" &&
       typeof latest.configuration?.knownGood?.msix !== "string")) {
   throw new Error("latest TMTK incident is not an exhausted rescue with an unused rollback");
 }
@@ -258,7 +265,7 @@ NODE
 node bin/rescue-agent.mjs "$state_file"
 ```
 
-Do not pass `known-good.app`, `known-good.deb`, or `known-good.msix` back through
+Do not pass `known-good.app`, `known-good.deb`, `known-good.rpm`, or `known-good.msix` back through
 `tmtk-restart --candidate`: candidate adoption captures
 the current canonical app as a new rollback and is the wrong lifecycle for restoring an existing
 incident. The re-entry above reuses the frozen receipt, performs the normal verified replacement,
@@ -322,11 +329,11 @@ The task lookup, readiness state
 machine, marker protocol, diagnostics schema, and rescue runner are ordinary Node programs; they
 do not require zsh or another POSIX shell. Bundle layout, process discovery, application shutdown,
 diagnostic locations, default terminal choice, and terminal opening live together in a narrow
-platform adapter. The macOS adapter is implemented and qualified. The Linux DEB adapter has one
-exact Ubuntu ARM64 healthy-adoption and real-task CLI/Desktop non-overlap qualification; its
-selected live-feature and deliberate failure/recovery gates remain open. The Windows ARM64 adapter
+platform adapter. The macOS adapter is implemented and qualified. The Linux DEB and RPM adapters
+have healthy build-9647 installations in the Ubuntu and Fedora ARM64 qualification VMs; their
+remaining live-feature evidence is tracked in the Linux runbook. The Windows ARM64 adapter
 has exact signed-MSIX staging and one complete broken-app rescue/restoration qualification; ordinary
 cross-version rollback provenance remains open. Unsupported platforms fail before changing
-application lifecycle state; an RPM or another platform port must add its own adapter rather than
+application lifecycle state; another package format or platform port must add its own adapter rather than
 loosening the existing identity checks. Treat the JSON file as private local
 configuration and do not commit task IDs, paths, prompts, or secrets to this public repository.

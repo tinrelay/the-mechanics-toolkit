@@ -25,24 +25,25 @@ try {
   const probe = spawnSync(process.execPath, [behavioralProbe, scratch], { encoding: "utf8" });
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
-  fs.writeFileSync(target, fs.readFileSync(target, "utf8").replace(" cursor-pointer", ""));
-  assert.equal(runToolkit("check", scratch).state, "needs-apply", "cursor-less prior patch is upgradeable");
-  assert.equal(runToolkit("apply", scratch).state, "applied");
-  assert.deepEqual(fs.readFileSync(target), once, "cursor upgrade restores the current patch exactly");
-
-  const legacyOrder = once.toString().replace(
-    '!E&&ve===`header_icon`?(0,N4.jsx)(_Tn,{sidebarMode:ce}):null,(0,N4.jsx)(MTKsidebarActionDisclosure7942,{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})',
-    '(0,N4.jsx)(MTKsidebarActionDisclosure7942,{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions}),!E&&ve===`header_icon`?(0,N4.jsx)(_Tn,{sidebarMode:ce}):null'
-  );
-  assert.notEqual(legacyOrder, once.toString(), "legacy disclosure-order fixture differs");
-  fs.writeFileSync(target, legacyOrder);
-  assert.equal(runToolkit("check", scratch).state, "needs-apply", "pre-notification disclosure is upgradeable");
-  assert.equal(runToolkit("apply", scratch).state, "applied");
-  assert.deepEqual(fs.readFileSync(target), once, "disclosure-order upgrade restores the current patch exactly");
-
   assert.equal(runToolkit("apply", scratch).state, "applied");
   assert.deepEqual(fs.readFileSync(target), once, "second application is byte-identical");
   process.stdout.write("sidebar action collapse transform probe passed\n");
+
+  fs.writeFileSync(target, linux9647FixtureSource());
+  assert.equal(runToolkit("check", scratch).state, "needs-apply");
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  const linuxOnce = fs.readFileSync(target);
+  const linuxProbe = spawnSync(process.execPath, [behavioralProbe, scratch], { encoding: "utf8" });
+  assert.equal(linuxProbe.status, 0, linuxProbe.stderr || linuxProbe.stdout);
+  const linuxSource = linuxOnce.toString();
+  assert.match(linuxSource, /MTKsidebarCollapsedDestinations9647Linux\(MTKsidebarActionsCollapsed,ge,FT\.projects\)/);
+  assert.match(linuxSource, /function MTKsidebarActionDisclosure9647Linux\([^]*?let n=il\(\),r=n\.formatMessage/);
+  assert.doesNotMatch(linuxSource, /function MTKsidebarActionDisclosure9647Linux\([^]*?let n=ch\(\),r=n\.formatMessage/);
+  assert.doesNotMatch(linuxSource, /MTKsidebarCollapsedDestinations9647\(MTKsidebarActionsCollapsed,ge,IT\.projects\)/);
+  assert.match(linuxSource, /macDecoy="sidebarMode:X"/);
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  assert.deepEqual(fs.readFileSync(target), linuxOnce, "Linux second application is byte-identical");
+  process.stdout.write("sidebar action collapse Linux build-9647 transform probe passed\n");
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
@@ -59,12 +60,30 @@ function runToolkit(action, root) {
 
 function fixtureSource() {
   return [
-    "function dar(e){let t=(0,har.c)(144),Ue=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r}=e,placeholder=0;",
-    "let Te=ZSn(we),Ee;",
-    '(0,N4.jsxs)(`div`,{className:`ms-auto flex items-center gap-1`,children:[(0,N4.jsx)(Z_n,{}),(0,N4.jsx)(JY,{showCustomizeSidebarAction:Me,children:(0,N4.jsx)(Twn,{})}),!E&&ve===`header_icon`?(0,N4.jsx)(_Tn,{sidebarMode:ce}):null]});',
-    '(0,N4.jsx)($wn,{showCustomizeSidebarAction:Me,sidebarMode:ce,showSearchNavItem:!1});',
-    "t[93]!==m||t[94]!==v||t[95]!==E||t[96]!==ve||t[97]!==ne||t[98]!==Ne||t[99]!==Me||t[100]!==ce?(Ue=1,t[93]=m,t[94]=v,t[95]=E,t[96]=ve,t[97]=ne,t[98]=Ne,t[99]=Me,t[100]=ce,t[101]=Ue):Ue=t[101];",
-    "return Ue}",
+    "function KKn(e){let t=(0,XKn.c)(133),Ne=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r}=e,placeholder=0;",
+    "let ge;if(flag){ge=[]}else ge=t[51];let _e=ge.length>0;",
+    '(0,Z0.jsxs)(`div`,{className:`ms-auto flex items-center gap-1`,children:[(0,Z0.jsx)(o_n,{}),(0,Z0.jsx)(vJ,{showCustomizeSidebarAction:Se,children:(0,Z0.jsx)(iCn,{})}),!T&&le===`header_icon`?(0,Z0.jsx)(UCn,{sidebarMode:X}):null]});',
+    '(0,Z0.jsx)(ACn,{showCustomizeSidebarAction:Se,sidebarMode:X,showSearchNavItem:!1});',
+    "t[84]!==p||t[85]!==_||t[86]!==T||t[87]!==le||t[88]!==q||t[89]!==Ce||t[90]!==Se||t[91]!==X?(Ne=1,t[84]=p,t[85]=_,t[86]=T,t[87]=le,t[88]=q,t[89]=Ce,t[90]=Se,t[91]=X,t[92]=Ne):Ne=t[92];",
+    "return Ne}",
+    "const labels=[",
+    "{defaultMessage:`New chat`},{defaultMessage:`Pull requests`},{defaultMessage:`Sites`},",
+    "{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}",
+    "];",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function linux9647FixtureSource() {
+  return [
+    "function KKn(e){let t=(0,XKn.c)(133),Ne=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r}=e,placeholder=0;",
+    "let [x,S]=(0,X0.useState)(0),C=il(),w=Rb(Zae),initializerDecoy=ch();",
+    "let ge;if(flag){ge=[]}else ge=t[51];let _e=ge.length>0;",
+    '(0,Z0.jsxs)(`div`,{className:`ms-auto flex items-center gap-1`,children:[(0,Z0.jsx)(o_n,{}),(0,Z0.jsx)(vJ,{showCustomizeSidebarAction:Se,children:(0,Z0.jsx)(iCn,{})}),!T&&le===`header_icon`?(0,Z0.jsx)(UCn,{sidebarMode:Z}):null]});',
+    '(0,Z0.jsx)(ACn,{showCustomizeSidebarAction:Se,sidebarMode:Z,showSearchNavItem:!1});',
+    "t[84]!==p||t[85]!==_||t[86]!==T||t[87]!==le||t[88]!==q||t[89]!==Ce||t[90]!==Se||t[91]!==Z?(Ne=1,t[84]=p,t[85]=_,t[86]=T,t[87]=le,t[88]=q,t[89]=Ce,t[90]=Se,t[91]=Z,t[92]=Ne):Ne=t[92];",
+    "return Ne}",
+    'const macDecoy="sidebarMode:X";',
     "const labels=[",
     "{defaultMessage:`New chat`},{defaultMessage:`Pull requests`},{defaultMessage:`Sites`},",
     "{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}",

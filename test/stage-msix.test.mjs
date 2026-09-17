@@ -92,7 +92,7 @@ try {
   const refusedKnownGood = path.join(scratch, "refused-known-good.msix");
   const refusedConfig = path.join(scratch, "refused-toolkit.json");
   writeConfig(refusedConfig, [
-    "full-history-drain-suppression",
+    "terminal-toggle",
     "safe-start-readiness",
     "renderer-patch-registry"
   ]);
@@ -110,7 +110,7 @@ try {
       ? packageInspection(source, refusedContents)
       : installedInspection(source),
     scratchParent: scratch
-  }), /full-history-drain-suppression[\\/]patch\.mjs check/);
+  }), /terminal-toggle[\\/]patch\.mjs check/);
   assert.equal(fs.existsSync(refused), false);
   assert.equal(fs.existsSync(refusedKnownGood), false);
   assert.deepEqual(stageScratchDirectories(), [], "refusal leaves no staging scratch tree");
@@ -244,14 +244,14 @@ function buildSourceApplication(source, outerVersion, marker) {
   fs.writeFileSync(path.join(resources, "codex"), "wsl-codex-fixture");
   fs.writeFileSync(path.join(asarRoot, "package.json"), `${JSON.stringify({
     name: "openai-codex-electron",
-    version: "26.908.40834",
-    codexBuildNumber: "8881",
+    version: "26.911.61220",
+    codexBuildNumber: "9647",
     devDependencies: {electron: "42.3.0"}
   })}\n`);
   fs.writeFileSync(path.join(asarRoot, ".vite/build/main-fixture.js"),
-    "var Tie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;function Aie(){}function owner(e){let{requestDevRelaunch:P=Aie}=e,N=()=>true,r={lt:1},l={ipcMain:{handle(){}}};l.ipcMain.handle(r.lt,async(t,s)=>{if(!N(t))return;if(s.type===`electron-avatar-overlay-restore-ready`)return})}");
+    "var vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;function Cae({markerPath:e=process.env[vae]?.trim(),writeMarker:t=()=>{}}={}){return t(e),!0}function owner(){let N=()=>true,r={lt:1},l={ipcMain:{handle(){}}};l.ipcMain.handle(r.lt,async(t,s)=>{if(!N(t))return;if(s.type===`electron-avatar-overlay-restore-ready`)return})}");
   fs.writeFileSync(path.join(asarRoot, "webview/assets/app-initial-fixture.js"),
-    "const H={dispatchMessage(){}};function MHs(){H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})}");
+    "const g={dispatchMessage(){}};function MHs(){g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})}");
   fs.writeFileSync(path.join(asarRoot, "node_modules/native/addon.node"), "native-fixture");
   fs.writeFileSync(path.join(asarRoot, "source-marker.txt"), marker);
   run(process.execPath, [
@@ -330,8 +330,8 @@ function installedInspection(source) {
   return {
     app: source,
     identifier: "OpenAI.Codex",
-    version: "26.908.40834",
-    build: "8881",
+    version: "26.911.61220",
+    build: "9647",
     electron: "42.3.0",
     package: {
       fullName: path.basename(source),
@@ -359,8 +359,8 @@ function packageInspection(packageFile, packageContents) {
   return {
     app: packageFile,
     identifier: "OpenAI.Codex",
-    version: "26.908.40834",
-    build: "8881",
+    version: "26.911.61220",
+    build: "9647",
     electron: "42.3.0",
     package: {
       fullName: `OpenAI.Codex_${built.version}_arm64__2p2nqsd0c76g0`,

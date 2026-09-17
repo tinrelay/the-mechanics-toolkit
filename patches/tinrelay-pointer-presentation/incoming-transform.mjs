@@ -2,45 +2,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { incomingBuild9647 } from "./profiles/linux.mjs";
 
-const LEGACY_VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(.82);opacity:.32}55%{opacity:.72}100%{transform:scale(1.18);opacity:.24}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{position:relative;overflow:hidden;isolation:isolate;background:#0B0C0E;border-color:#34383D;color:#F1F3F5}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{content:"";position:absolute;z-index:0;inset:-38%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 34px,rgba(116,124,134,.24) 35px 43px,transparent 44px 78px);animation:mtk-tinrelay-signal 18s ease-out infinite}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal{background:#34383D;border-color:#626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal::before{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,rgba(11,12,14,.82) 0 7px,transparent 8px 31px,rgba(11,12,14,.46) 32px 45px,transparent 46px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer] .mtk-tinrelay-route{color:#A8ADB4}[data-mtk-tinrelay-pointer] .mtk-tinrelay-body{color:#F1F3F5}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{animation:none;transform:scale(1);opacity:.34}}';
-const SLOW_VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%,100%{opacity:.48}50%{opacity:.68}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{position:relative;overflow:hidden;isolation:isolate;background:#0B0C0E;border-color:#34383D;color:#F1F3F5}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{content:"";position:absolute;z-index:0;inset:-38%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 34px,rgba(116,124,134,.18) 35px 43px,transparent 44px 78px);animation:mtk-tinrelay-signal 18s ease-in-out infinite;will-change:opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal{background:#303438;border-color:#626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal::before{inset:0;background:repeating-radial-gradient(circle at 7% 72%,rgba(11,12,14,.68) 0 7px,transparent 8px 31px,rgba(11,12,14,.32) 32px 45px,transparent 46px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer] .mtk-tinrelay-route{color:#A8ADB4}[data-mtk-tinrelay-pointer] .mtk-tinrelay-body{color:#F1F3F5}[data-mtk-tinrelay-pointer] .mtk-tinrelay-body .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{animation:none;opacity:.58}}';
-const ONE_SHOT_VISUAL_CSS = SLOW_VISUAL_CSS
-  .replace("@keyframes mtk-tinrelay-signal{0%,100%{opacity:.48}50%{opacity:.68}}", "@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:.28}75%{opacity:.64}100%{transform:scale(1.12);opacity:0}}")
-  .replace("inset:-38%;pointer-events:none", "inset:-38%;transform-origin:14% 82%;pointer-events:none")
-  .replace("animation:mtk-tinrelay-signal 18s ease-in-out infinite;will-change:opacity", "animation:mtk-tinrelay-signal 1.6s ease-out 1 both;will-change:transform,opacity")
-  .replace("inset:0;background:repeating-radial-gradient", "inset:0;transform-origin:7% 72%;background:repeating-radial-gradient")
-  .replace("animation:none;opacity:.58", "animation:none;transform:scale(1);opacity:.58");
-const CURRENT_BODY_CSS = '.mtk-tinrelay-body pre:first-child{margin-top:0}';
-const LEGACY_BODY_CLASS = 'className:"mtk-tinrelay-body min-w-0 px-2 py-1"';
-const CURRENT_BODY_CLASS = 'className:"mtk-tinrelay-body min-w-0 px-2"';
-const OPTICAL_ALIGNMENT_CSS = '[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{padding-top:calc(var(--spacing) * 1.5)}';
-const PREVIOUS_CURRENT_VISUAL_CSS = `${ONE_SHOT_VISUAL_CSS}${CURRENT_BODY_CSS}`;
-const PREVIOUS_CONTINUOUS_VISUAL_CSS = ONE_SHOT_VISUAL_CSS
-  .replace("@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:.28}75%{opacity:.64}100%{transform:scale(1.12);opacity:0}}", "@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}")
-  .replace("[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{content:", "[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::after{content:")
-  .replace("animation:mtk-tinrelay-signal 1.6s ease-out 1 both;will-change:transform,opacity", "animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity")
-  .replace("[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal::before{", "[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal::after{")
-  .replace("[data-mtk-tinrelay-pointer].mtk-tinrelay-signal>*{", "[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal>*{")
-  .replace("[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{animation:none;transform:scale(1);opacity:.58}", "[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal::after{display:none}");
-const PREVIOUS_NEXT_VISUAL_CSS = `${PREVIOUS_CONTINUOUS_VISUAL_CSS}${CURRENT_BODY_CSS}`;
-const PREVIOUS_CUSTOM_CARD_VISUAL_CSS = `${PREVIOUS_NEXT_VISUAL_CSS}${OPTICAL_ALIGNMENT_CSS}`;
-const PREVIOUS_STOCK_BUBBLE_VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#0B0C0E;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 34px,rgba(116,124,134,.18) 35px 43px,transparent 44px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,rgba(11,12,14,.68) 0 7px,transparent 8px 31px,rgba(11,12,14,.32) 32px 45px,transparent 46px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}';
-const PREVIOUS_CRISP_VISUAL_CSS = "@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:\"\";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.22) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,rgba(11,12,14,.68) 0 5px,transparent 5px 33px,rgba(11,12,14,.38) 33px 35px,transparent 35px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}";
-const PREVIOUS_VISIBLE_INCOMING_VISUAL_CSS = PREVIOUS_CRISP_VISUAL_CSS.replace(
-  "rgba(190,196,204,.22) 35px 37px",
-  "rgba(190,196,204,.34) 35px 37px"
-);
-const PREVIOUS_LIGHT_MODE_VISUAL_CSS = PREVIOUS_VISIBLE_INCOMING_VISUAL_CSS.replace(
-  "rgba(11,12,14,.68) 0 5px,transparent 5px 33px,rgba(11,12,14,.38) 33px 35px,transparent 35px 78px",
-  "transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px"
-);
-const PREVIOUS_LIGHT_FOREGROUND_VISUAL_CSS = PREVIOUS_LIGHT_MODE_VISUAL_CSS.replace(
-  "color:#F1F3F5!important}",
-  "color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}"
-);
-const LIGHT_THEME_VISUAL_CSS = 'html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
-const NEXT_VISUAL_CSS = `${PREVIOUS_LIGHT_FOREGROUND_VISUAL_CSS}${LIGHT_THEME_VISUAL_CSS}`;
+const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.34) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -56,26 +20,6 @@ let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();
 
-if (command === "apply" && state === "legacy-presentation-applied") {
-  rendererSource = migrateRendererPresentation(rendererSource);
-  fs.writeFileSync(renderer, rendererSource);
-  moduleSyntaxCheck(renderer);
-  state = inspectState();
-  if (!new Set(["embedded-identity-applied", "applied"]).has(state)) {
-    throw new Error("Tinrelay presentation migration did not verify");
-  }
-}
-
-if (command === "apply" && state === "embedded-identity-applied") {
-  ({rendererSource, mainSource} = migrateRuntimeIdentity(rendererSource, mainSource));
-  fs.writeFileSync(renderer, rendererSource);
-  fs.writeFileSync(main, mainSource);
-  moduleSyntaxCheck(renderer);
-  moduleSyntaxCheck(main);
-  state = inspectState();
-  if (state !== "applied") throw new Error("Tinrelay runtime identity migration did not verify");
-}
-
 if (command === "apply" && state === "needs-apply") {
   const config = configuredTinrelay();
   rendererSource = patchRenderer(rendererSource);
@@ -88,7 +32,7 @@ if (command === "apply" && state === "needs-apply") {
   if (state !== "applied") throw new Error("Tinrelay pointer transform did not verify");
 }
 
-const installed = new Set(["applied", "legacy-presentation-applied", "embedded-identity-applied"]).has(state) ? installedConfiguration() : null;
+const installed = state === "applied" ? installedConfiguration() : null;
 
 process.stdout.write(`${JSON.stringify({
   state,
@@ -119,38 +63,6 @@ function inspectState() {
   const rendererPatched = rendererBaseMarkers.every(marker => rendererSource.includes(marker));
   const mainPatched = mainBaseMarkers.every(marker => mainSource.includes(marker));
   if (rendererPatched && mainPatched) {
-    if (rendererSource.includes(JSON.stringify(LEGACY_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(SLOW_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_CURRENT_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_NEXT_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_CUSTOM_CARD_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_STOCK_BUBBLE_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_CRISP_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_VISIBLE_INCOMING_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_LIGHT_MODE_VISUAL_CSS)) ||
-        rendererSource.includes(JSON.stringify(PREVIOUS_LIGHT_FOREGROUND_VISUAL_CSS)) ||
-        rendererSource.includes(LEGACY_BODY_CLASS) ||
-        !rendererSource.includes("function MTKtinrelayMessageView(") ||
-        !rendererSource.includes("function MTKtinrelayDeliveryFromMessage(") ||
-        !rendererSource.includes("function MTKtinrelayDeliveryView(") ||
-        !rendererSource.includes("function MTKtinrelayScrollSnapshot(") ||
-        !rendererSource.includes("&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo") ||
-        !rendererSource.includes("MTKtinrelayScheduleScroll(d.current)")) {
-      inspectAppliedRendererBase(rendererSource);
-      if (rendererSource.includes("const MTKtinrelayLocalShip=") ||
-          mainSource.includes(",MTKtinrelayLocalShip=")) embeddedConfiguration();
-      else {
-        inspectAppliedMain(mainSource);
-        installedConfiguration();
-      }
-      return "legacy-presentation-applied";
-    }
-    if (rendererSource.includes("const MTKtinrelayLocalShip=") ||
-        mainSource.includes(",MTKtinrelayLocalShip=")) {
-      inspectAppliedRendererBase(rendererSource);
-      embeddedConfiguration();
-      return "embedded-identity-applied";
-    }
     inspectAppliedRenderer(rendererSource);
     inspectAppliedMain(mainSource);
     installedConfiguration();
@@ -333,6 +245,10 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
+  if (value.includes("function MS(") && value.includes("function CS(") &&
+      (value.includes(incomingBuild9647.moduleBefore) || value.includes(incomingBuild9647.moduleAfter))) {
+    return incomingBuild9647;
+  }
   if (value.includes("function MS(") && value.includes("function CS(")) {
     const moduleBefore = "var wS,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),TS=Y(),ES=2}))";
     const moduleAfter = "var wS,MTKtinrelayReact,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),MTKtinrelayReact=t(r(),1),TS=Y(),ES=2}))";
@@ -344,68 +260,6 @@ function incomingRendererProfile(value) {
         labelClass: "text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description"
       };
     }
-  }
-  if (value.includes("function rz(") && value.includes("function JR(")) {
-    const build8881Before = "var YR,XR,ZR,QR=e((()=>{YR=i(),vl(),C_(),XR=Z(),ZR=2}))";
-    const build8881After = "var YR,MTKtinrelayReact,XR,ZR,QR=e((()=>{YR=i(),vl(),C_(),MTKtinrelayReact=t(r(),1),XR=Z(),ZR=2}))";
-    if (value.includes(build8881Before) || value.includes(build8881After)) {
-      return {
-        cache: "YR", collapsedLines: "ZR", delegation: "rz", delegationJsx: "az",
-        helperJsx: "XR", jsx: "XR", message: "JR", messageComponent: "__",
-        moduleBefore: build8881Before, moduleAfter: build8881After,
-        labelClass: "text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description"
-      };
-    }
-    const moduleBefore = "var YR,XR,ZR,QR=e((()=>{YR=i(),Il(),h_(),XR=Z(),ZR=2}))";
-    const moduleAfter = "var YR,MTKtinrelayReact,XR,ZR,QR=e((()=>{YR=i(),Il(),h_(),MTKtinrelayReact=t(r(),1),XR=Z(),ZR=2}))";
-    if (value.includes(moduleBefore) || value.includes(moduleAfter)) {
-      return {
-        cache: "YR", collapsedLines: "ZR", delegation: "rz", delegationJsx: "az",
-        helperJsx: "XR", jsx: "XR", message: "JR", messageComponent: "l_", moduleBefore, moduleAfter,
-        labelClass: "text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description"
-      };
-    }
-  }
-  if (value.includes("function Gb(") && value.includes("function Xb(")) {
-    const moduleBefore = "var Kb,qb,Jb,Yb=e((()=>{Kb=Qo(),hu(),o_(),qb=X(),Jb=2}))";
-    const moduleAfter = "var Kb,MTKtinrelayReact,qb,Jb,Yb=e((()=>{Kb=Qo(),hu(),o_(),MTKtinrelayReact=t(x(),1),qb=X(),Jb=2}))";
-    if (value.includes(moduleBefore) || value.includes(moduleAfter)) {
-      return {
-        cache: "Kb", collapsedLines: "Jb", delegation: "Xb", delegationJsx: "Qb",
-        helperJsx: "qb", jsx: "qb", message: "Gb", messageComponent: "e_", moduleBefore, moduleAfter
-      };
-    }
-  }
-  if (value.includes("function Wb(") && value.includes("function Yb(")) {
-    const moduleBefore = "var Gb,Kb,qb,Jb=e((()=>{Gb=mr(),ke(),a_(),Kb=X(),qb=2}))";
-    const moduleAfter = "var Gb,MTKtinrelayReact,Kb,qb,Jb=e((()=>{Gb=mr(),ke(),a_(),MTKtinrelayReact=t(_e(),1),Kb=X(),qb=2}))";
-    return {
-      cache: "Gb", collapsedLines: "qb", delegation: "Yb", delegationJsx: "Zb",
-      helperJsx: "Kb", jsx: "Kb", message: "Wb", messageComponent: "$g", moduleBefore, moduleAfter
-    };
-  }
-  const profiles = [
-    {cache:"un",initializer:"Hn",jsx:"Y",react:"Wo"},
-    {cache:"wt",initializer:"js",jsx:"X",react:"ic"},
-    {cache:"Ua",initializer:"Wc",jsx:"z",react:"Mc"}
-  ];
-  for (const profile of profiles) {
-    const moduleBefore = `var yb,bb,xb,Sb=e((()=>{yb=${profile.cache}(),${profile.initializer}(),Mg(),bb=${profile.jsx}(),xb=2}))`;
-    const moduleAfter = `var yb,MTKtinrelayReact,bb,xb,Sb=e((()=>{yb=${profile.cache}(),${profile.initializer}(),Mg(),MTKtinrelayReact=t(${profile.react}(),1),bb=${profile.jsx}(),xb=2}))`;
-    if (!value.includes(moduleBefore) && !value.includes(moduleAfter)) continue;
-    return {
-      cache:"yb", collapsedLines:"xb", delegation:"Cb", delegationJsx:"Tb", helperJsx:"Tb", jsx:"bb",
-      message:"vb", messageComponent:"Eg", moduleBefore,
-      moduleAfter
-    };
-  }
-  if (value.includes("function Wb(") && value.includes("function MTKtinrelayPointerFromMessage(")) {
-    return {
-      cache:"Gb", collapsedLines:"qb", delegation:"Yb", delegationJsx:"Zb",
-      helperJsx:"Kb", jsx:"Kb", message:"Wb", messageComponent:"$g",
-      moduleBefore:"var Gb,Kb,qb,Jb=e((()=>{Gb=mr(),ke(),a_(),Kb=X(),qb=2}))",
-      moduleAfter:"var Gb,MTKtinrelayReact,Kb,qb,Jb=e((()=>{Gb=mr(),ke(),a_(),MTKtinrelayReact=t(_e(),1),Kb=X(),qb=2}))"
-    };
   }
   throw new Error("Upstream changed: delegated message renderer profile is not recognized");
 }
@@ -469,23 +323,8 @@ function rendererHelpers(hostBus, profile = {jsx:"Tb", messageComponent:"Eg"}) {
   return `${pointerHelpers(jsx)}${scrollHelpers()}${presentationHelpers(hostBus, jsx, profile.messageComponent)}`;
 }
 
-function legacyRendererHelpers(hostBus, localShip, profile = {jsx:"Tb", messageComponent:"Eg"}) {
-  const jsx = profile.helperJsx ?? profile.jsx;
-  return `${legacyPointerHelpers(localShip, jsx)}${scrollHelpers()}${presentationHelpers(hostBus, jsx, profile.messageComponent)}`;
-}
-
 function pointerHelpers(jsx = "Tb") {
   return String.raw`function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}function MTKtinrelayEnvelope(e,t){if(typeof e!=="string"||e.includes("\r"))return null;let n=e.endsWith("\n")?e.slice(0,-1):e,r=n.indexOf("\n");if(r<0||n.indexOf("\n",r+1)>=0||n.slice(0,r)!==t)return null;let i;try{i=JSON.parse(n.slice(r+1))}catch{return null}return i==null||typeof i!=="object"||Array.isArray(i)?null:i}function MTKtinrelayPointerFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY LOCAL POINTER");if(r==null)return null;let i=["attention_label","contract","kind","local_id","local_ship","sender_ship"];if(Object.keys(r).sort().join("\0")!==i.join("\0")||r.contract!=="tinrelay-local-pointer-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||!MTKtinrelayShip(r.local_ship)||!MTKtinrelayShip(r.sender_ship)||typeof r.attention_label!=="string")return null;return r}function MTKtinrelayDeliveryFromMessage(e){let r=MTKtinrelayEnvelope(e,"TINRELAY MESSAGE DELIVERY");if(r==null)return null;let i=["attention_label","author_label","body","contract","kind","local_id","local_ship","sender_ship"],n=["attention_label","author_label","body","contract","kind","local_id","local_ship","received_at","sender_ship"],t=Object.keys(r).sort().join("\0"),a=i.join("\0"),o=n.join("\0");if(t!==a&&t!==o||r.contract!=="tinrelay-message-delivery-v1"||r.kind!=="transmission"||typeof r.local_id!=="string"||!/^tr_[0-9a-f]{32}$/.test(r.local_id)||!MTKtinrelayShip(r.local_ship)||!MTKtinrelayShip(r.sender_ship)||typeof r.attention_label!=="string"||r.author_label!==null&&(typeof r.author_label!=="string"||r.author_label.length===0)||typeof r.body!=="string")return null;if(t===a)return r;if(!Number.isSafeInteger(r.received_at)||r.received_at<=0||r.received_at>Math.floor(Number.MAX_SAFE_INTEGER/1000))return null;let{received_at:l,...s}=r;return{...s,receivedAtMs:l*1000}}function MTKtinrelayPointerNode(e,t){let n=MTKtinrelayDeliveryFromMessage(e);return n==null?MTKtinrelayPointerFromMessage(e)==null?null:(0,${jsx}.jsx)(MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}):(0,${jsx}.jsx)(MTKtinrelayDeliveryView,{delivery:n,sentAtMs:Number.isSafeInteger(t)&&t>0?t:n.receivedAtMs??null})}function MTKtinrelayAddress(e,t){return(typeof e==="string"&&e.length>0?e:"")+"@"+t}`;
-}
-
-function legacyPointerHelpers(localShip, jsx = "Tb") {
-  return pointerHelpers(jsx)
-    .replace(
-      'function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}',
-      `const MTKtinrelayLocalShip=${JSON.stringify(localShip)};`
-    )
-    .replaceAll("!MTKtinrelayShip(r.local_ship)", "r.local_ship!==MTKtinrelayLocalShip")
-    .replaceAll("!MTKtinrelayShip(r.sender_ship)", 'typeof r.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.sender_ship)');
 }
 
 function scrollHelpers() {
@@ -493,161 +332,9 @@ function scrollHelpers() {
 }
 
 function presentationHelpers(hostBus, jsx = "Tb", messageComponent = "Eg") {
-  return `const MTKtinrelayHostBus=${hostBus};function MTKtinrelayEnsureStyle(){if(document.getElementById("mtk-tinrelay-signal-style"))return;let e=document.createElement("style");e.id="mtk-tinrelay-signal-style",e.textContent=${JSON.stringify(NEXT_VISUAL_CSS)},document.head.appendChild(e)}function MTKtinrelayMessageView({body:e,outgoing:t,screenReaderStatus:n,sentAtMs:r}){MTKtinrelayEnsureStyle();return(0,${jsx}.jsxs)("div",{"data-mtk-tinrelay-pointer":!0,"data-mtk-tinrelay-outgoing":t||void 0,className:"mtk-tinrelay-signal w-full",children:[n==null?null:(0,${jsx}.jsx)("span",{"aria-label":n,className:"sr-only",children:n}),(0,${jsx}.jsx)(${messageComponent},{message:e,sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"})]})}function MTKtinrelayIncomingView(e,t,n){return(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",e]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:t,outgoing:!1,sentAtMs:n})]})}function MTKtinrelayDeliveryView({delivery:e,sentAtMs:t}){let n=MTKtinrelayAddress(e.author_label,e.sender_ship)+" → "+MTKtinrelayAddress(e.attention_label,e.local_ship);return MTKtinrelayIncomingView(n,e.body,t)}function MTKtinrelayPointerView({pointerText:e,sentAtMs:t}){let n=MTKtinrelayPointerFromMessage(e),[r,i]=MTKtinrelayReact.useState({status:"loading"}),a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1),d=MTKtinrelayReact.useRef(null);MTKtinrelayReact.useEffect(()=>{let s=MTKtinrelayHostBus.subscribe("mtk-tinrelay-pointer-result",e=>{if(e?.requestId!==a.current)return;a.current=null;if(e.ok!==!0||e.transmission==null){i({status:"error",error:typeof e.error==="string"?e.error:"Tinrelay inspection failed."});return}let t=e.transmission;t.localId===n.local_id&&t.localShip===n.local_ship&&t.senderShip===n.sender_ship&&t.attentionLabel===n.attention_label&&(t.authorLabel===null||typeof t.authorLabel==="string"&&t.authorLabel.length>0)&&typeof t.body==="string"?(i({status:"ready",transmission:t}),MTKtinrelayScheduleScroll(d.current)):i({status:"error",error:"Tinrelay inspection did not match this pointer."})});if(!o.current){o.current=!0,d.current=MTKtinrelayScrollSnapshot();let c=crypto.randomUUID();a.current=c,MTKtinrelayHostBus.dispatchMessage("mtk-tinrelay-pointer-inspect",{requestId:c,pointerText:e})}return s},[n.local_id,n.local_ship,n.sender_ship,n.attention_label]);let u=r.status==="ready"?MTKtinrelayAddress(r.transmission.authorLabel,r.transmission.senderShip)+" → "+MTKtinrelayAddress(r.transmission.attentionLabel,r.transmission.localShip):"Tinrelay transmission from "+MTKtinrelayAddress(null,n.sender_ship),c=r.status==="ready"?r.transmission.body:r.status==="error"?r.error:"Inspecting…",l=r.status==="error"?"Tinrelay inspection failed":null;return l==null?MTKtinrelayIncomingView(u,c,t):(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",u]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:c,outgoing:!1,screenReaderStatus:l,sentAtMs:t})]})}`;
+  return `const MTKtinrelayHostBus=${hostBus};function MTKtinrelayEnsureStyle(){if(document.getElementById("mtk-tinrelay-signal-style"))return;let e=document.createElement("style");e.id="mtk-tinrelay-signal-style",e.textContent=${JSON.stringify(VISUAL_CSS)},document.head.appendChild(e)}function MTKtinrelayMessageView({body:e,outgoing:t,screenReaderStatus:n,sentAtMs:r}){MTKtinrelayEnsureStyle();return(0,${jsx}.jsxs)("div",{"data-mtk-tinrelay-pointer":!0,"data-mtk-tinrelay-outgoing":t||void 0,className:"mtk-tinrelay-signal w-full",children:[n==null?null:(0,${jsx}.jsx)("span",{"aria-label":n,className:"sr-only",children:n}),(0,${jsx}.jsx)(${messageComponent},{message:e,sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"})]})}function MTKtinrelayIncomingView(e,t,n){return(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",e]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:t,outgoing:!1,sentAtMs:n})]})}function MTKtinrelayDeliveryView({delivery:e,sentAtMs:t}){let n=MTKtinrelayAddress(e.author_label,e.sender_ship)+" → "+MTKtinrelayAddress(e.attention_label,e.local_ship);return MTKtinrelayIncomingView(n,e.body,t)}function MTKtinrelayPointerView({pointerText:e,sentAtMs:t}){let n=MTKtinrelayPointerFromMessage(e),[r,i]=MTKtinrelayReact.useState({status:"loading"}),a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1),d=MTKtinrelayReact.useRef(null);MTKtinrelayReact.useEffect(()=>{let s=MTKtinrelayHostBus.subscribe("mtk-tinrelay-pointer-result",e=>{if(e?.requestId!==a.current)return;a.current=null;if(e.ok!==!0||e.transmission==null){i({status:"error",error:typeof e.error==="string"?e.error:"Tinrelay inspection failed."});return}let t=e.transmission;t.localId===n.local_id&&t.localShip===n.local_ship&&t.senderShip===n.sender_ship&&t.attentionLabel===n.attention_label&&(t.authorLabel===null||typeof t.authorLabel==="string"&&t.authorLabel.length>0)&&typeof t.body==="string"?(i({status:"ready",transmission:t}),MTKtinrelayScheduleScroll(d.current)):i({status:"error",error:"Tinrelay inspection did not match this pointer."})});if(!o.current){o.current=!0,d.current=MTKtinrelayScrollSnapshot();let c=crypto.randomUUID();a.current=c,MTKtinrelayHostBus.dispatchMessage("mtk-tinrelay-pointer-inspect",{requestId:c,pointerText:e})}return s},[n.local_id,n.local_ship,n.sender_ship,n.attention_label]);let u=r.status==="ready"?MTKtinrelayAddress(r.transmission.authorLabel,r.transmission.senderShip)+" → "+MTKtinrelayAddress(r.transmission.attentionLabel,r.transmission.localShip):"Tinrelay transmission from "+MTKtinrelayAddress(null,n.sender_ship),c=r.status==="ready"?r.transmission.body:r.status==="error"?r.error:"Inspecting…",l=r.status==="error"?"Tinrelay inspection failed":null;return l==null?MTKtinrelayIncomingView(u,c,t):(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",u]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:c,outgoing:!1,screenReaderStatus:l,sentAtMs:t})]})}`;
 }
 
-
-function migrateRendererPresentation(value) {
-  let patched = value;
-  if (patched.includes(JSON.stringify(LEGACY_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(LEGACY_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay visual presentation"
-    );
-  } else if (patched.includes(JSON.stringify(SLOW_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(SLOW_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay visual presentation cadence"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_CURRENT_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_CURRENT_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay continuous signal wake"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_CUSTOM_CARD_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_CUSTOM_CARD_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay stock message-bubble presentation"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_STOCK_BUBBLE_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_STOCK_BUBBLE_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay crisp directional skin"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_NEXT_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_NEXT_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay optical vertical alignment"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_CRISP_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_CRISP_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay incoming wave contrast"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_VISIBLE_INCOMING_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_VISIBLE_INCOMING_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay outgoing wave simplification"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_LIGHT_MODE_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_LIGHT_MODE_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay light-mode foreground"
-    );
-  } else if (patched.includes(JSON.stringify(PREVIOUS_LIGHT_FOREGROUND_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(PREVIOUS_LIGHT_FOREGROUND_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay light-mode palette"
-    );
-  } else if (patched.includes(JSON.stringify(ONE_SHOT_VISUAL_CSS))) {
-    patched = replaceOnce(
-      patched,
-      JSON.stringify(ONE_SHOT_VISUAL_CSS),
-      JSON.stringify(NEXT_VISUAL_CSS),
-      "Tinrelay signal wake and code-block spacing"
-    );
-  } else if (!patched.includes(JSON.stringify(NEXT_VISUAL_CSS))) {
-    throw new Error("Upstream changed: Tinrelay visual presentation is not recognized");
-  }
-  const legacyBodyCount = count(patched, LEGACY_BODY_CLASS);
-  if (legacyBodyCount > 0) {
-    patched = patched.split(LEGACY_BODY_CLASS).join(CURRENT_BODY_CLASS);
-  }
-  if (!patched.includes("function MTKtinrelayScrollSnapshot(")) {
-    patched = replaceOnce(
-      patched,
-      'function MTKtinrelayEnsureStyle()',
-      'function MTKtinrelayScrollSnapshot(){let e=[...document.querySelectorAll(".thread-scroll-container")].find(e=>e.clientHeight>0&&e.getClientRects().length>0);return e==null?null:{element:e,follow:Math.max(0,-e.scrollTop)<=Math.max(1,e.clientHeight)}}function MTKtinrelayScheduleScroll(e){e?.follow===!0&&setTimeout(()=>{let t=e.element;t.isConnected&&t.clientHeight>0&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo({behavior:"instant",top:0})},32)}function MTKtinrelayEnsureStyle()',
-      "Tinrelay scroll helpers"
-    );
-    patched = replaceOnce(
-      patched,
-      'a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1);MTKtinrelayReact.useEffect(',
-      'a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1),d=MTKtinrelayReact.useRef(null);MTKtinrelayReact.useEffect(',
-      "Tinrelay incoming scroll snapshot ref"
-    );
-    patched = replaceOnce(
-      patched,
-      '?i({status:"ready",transmission:t}):i({status:"error",error:"Tinrelay inspection did not match this pointer."})',
-      '?(i({status:"ready",transmission:t}),MTKtinrelayScheduleScroll(d.current)):i({status:"error",error:"Tinrelay inspection did not match this pointer."})',
-      "Tinrelay incoming settled scroll"
-    );
-    patched = replaceOnce(
-      patched,
-      'if(!o.current){o.current=!0;let c=crypto.randomUUID();',
-      'if(!o.current){o.current=!0,d.current=MTKtinrelayScrollSnapshot();let c=crypto.randomUUID();',
-      "Tinrelay incoming pre-hoist snapshot"
-    );
-  } else if (!patched.includes("&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo")) {
-    patched = replaceOnce(
-      patched,
-      't.isConnected&&t.clientHeight>0&&t.scrollTo({behavior:"instant",top:0})',
-      't.isConnected&&t.clientHeight>0&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo({behavior:"instant",top:0})',
-      "Tinrelay settled scroll follow check"
-    );
-  }
-  if (!patched.includes("function MTKtinrelayMessageView(")) {
-    const styleStart = patched.indexOf("function MTKtinrelayEnsureStyle()");
-    const pointerStart = patched.indexOf("function MTKtinrelayPointerView(", styleStart);
-    const pointer = functionAt(patched, pointerStart);
-    if (styleStart < 0 || pointerStart < styleStart) {
-      throw new Error("Upstream changed: Tinrelay custom presentation is not localized");
-    }
-    patched = patched.slice(0, styleStart) + presentationHelpers(resolveHostBus(patched)) + patched.slice(pointer.end);
-  }
-  if (!patched.includes("function MTKtinrelayDeliveryFromMessage(") ||
-      !patched.includes("function MTKtinrelayDeliveryView(")) {
-    const profile = incomingRendererProfile(patched);
-    const embeddedStart = patched.indexOf("const MTKtinrelayLocalShip=");
-    const runtimeStart = patched.indexOf("function MTKtinrelayShip(");
-    const start = embeddedStart >= 0 ? embeddedStart : runtimeStart;
-    const pointerStart = patched.indexOf("function MTKtinrelayPointerView(", start);
-    const pointer = functionAt(patched, pointerStart);
-    const helpers = embeddedStart >= 0 ? legacyRendererHelpers(
-      resolveHostBus(patched),
-      JSON.parse(uniqueMatch(
-        patched.slice(start, pointer.start),
-        /const MTKtinrelayLocalShip=(?<ship>"(?:\\.|[^"\\])*");/g,
-        "embedded renderer Tinrelay ship"
-      ).groups.ship),
-      profile
-    ) : rendererHelpers(resolveHostBus(patched), profile);
-    patched = patched.slice(0, start) +
-      helpers +
-      patched.slice(pointer.end);
-  }
-  return patched;
-}
 
 function patchMain(value, config) {
   const profile = mainProcessProfile(value);
@@ -850,35 +537,6 @@ function readOption(name) {
   return path.resolve(process.argv[index + 1]);
 }
 
-function migrateRuntimeIdentity(rendererValue, mainValue) {
-  const config = embeddedConfiguration();
-  const encodedShip = JSON.stringify(config.localShip);
-  rendererValue = replaceOnce(
-    rendererValue,
-    `const MTKtinrelayLocalShip=${encodedShip};function MTKtinrelayEnvelope(`,
-    'function MTKtinrelayShip(e){return typeof e==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(e)}function MTKtinrelayEnvelope(',
-    "Tinrelay renderer runtime ship identity"
-  );
-  if (count(rendererValue, "r.local_ship!==MTKtinrelayLocalShip") !== 2) {
-    throw new Error("Upstream changed: embedded renderer ship checks are not unique");
-  }
-  rendererValue = rendererValue.replaceAll("r.local_ship!==MTKtinrelayLocalShip", "!MTKtinrelayShip(r.local_ship)");
-
-  mainValue = replaceOnce(
-    mainValue,
-    `const MTKtinrelayClient=${JSON.stringify(config.client)},MTKtinrelayLocalShip=${encodedShip};function MTKtinrelayMainPointer(`,
-    `const MTKtinrelayClient=${JSON.stringify(config.client)};function MTKtinrelayMainPointer(`,
-    "Tinrelay main runtime ship identity"
-  );
-  mainValue = replaceOnce(
-    mainValue,
-    "r.local_ship!==MTKtinrelayLocalShip",
-    'typeof r.local_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(r.local_ship)',
-    "Tinrelay main runtime ship validation"
-  );
-  return {rendererSource: rendererValue, mainSource: mainValue};
-}
-
 function configuredTinrelay() {
   if (configPath == null) throw new Error("tinrelay-pointer-presentation apply requires --config TOOLKIT_CONFIG");
   let config;
@@ -902,39 +560,16 @@ function configuredTinrelay() {
   return {client: path.resolve(client)};
 }
 
-function embeddedConfiguration() {
-  const literal = '"(?:\\\\.|[^"\\\\])*"';
-  const renderer = uniqueMatch(
-    rendererSource,
-    new RegExp(`const MTKtinrelayLocalShip=(?<ship>${literal});function MTKtinrelay(?:Envelope|PointerFromMessage)\\(`, "g"),
-    "embedded renderer Tinrelay configuration"
-  ).groups;
-  const main = uniqueMatch(
-    mainSource,
-    new RegExp(`const MTKtinrelayClient=(?<client>${literal}),MTKtinrelayLocalShip=(?<ship>${literal});function MTKtinrelayMainPointer\\(`, "g"),
-    "embedded main Tinrelay configuration"
-  ).groups;
-  const config = {client: JSON.parse(main.client), localShip: JSON.parse(main.ship)};
-  if (JSON.parse(renderer.ship) !== config.localShip || !path.isAbsolute(config.client) || !validShip(config.localShip)) {
-    throw new Error("Upstream changed: embedded Tinrelay configuration is inconsistent");
-  }
-  return config;
-}
-
 function installedConfiguration() {
   const literal = '"(?:\\\\.|[^"\\\\])*"';
   const match = uniqueMatch(
     mainSource,
-    new RegExp(`const MTKtinrelayClient=(?<client>${literal})(?:,MTKtinrelayLocalShip=(?<ship>${literal}))?;function MTKtinrelayMainPointer\\(`, "g"),
+    new RegExp(`const MTKtinrelayClient=(?<client>${literal});function MTKtinrelayMainPointer\\(`, "g"),
     "installed Tinrelay configuration"
   ).groups;
   const client = JSON.parse(match.client);
   if (!path.isAbsolute(client)) throw new Error("Upstream changed: installed Tinrelay client is not absolute");
   return {client};
-}
-
-function validShip(value) {
-  return typeof value === "string" && /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(value);
 }
 
 function moduleSyntaxCheck(file) {

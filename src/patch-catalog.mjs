@@ -89,20 +89,9 @@ const definitions = [
     probe: "test/codex-observability.test.mjs"
   },
   {
-    name: "full-history-drain-suppression",
-    script: "patches/full-history-drain-suppression/patch.mjs",
-    probe: "test/full-history-drain-suppression.test.mjs"
-  },
-  {
     name: "renderer-turn-window",
     script: "patches/renderer-turn-window/patch.mjs",
     probe: "test/renderer-turn-window.test.mjs"
-  },
-  {
-    name: "task-supervisor",
-    script: "patches/task-supervisor/patch.mjs",
-    probe: "test/task-supervisor.test.mjs",
-    requires: ["task-attention-policy", "task-visual-palette"]
   },
   {
     name: "safe-start-readiness",

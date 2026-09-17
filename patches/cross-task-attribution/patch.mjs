@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881 } from "./profiles/linux.mjs";
+import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -12,36 +12,28 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const id = "[$A-Z_a-z][$\\w]*";
 const attributionNameMarker = '"data-mtk-palette-attribution-name":!0';
+const build9647Component = {
+  delegation: "MS", delegationCache: "NS", delegationJsx: "PS",
+  wrapper: "CS", wrapperCache: "wS", wrapperJsx: "TS",
+  bubble: "bt", wrapperBubble: "uh", bubbleCache: "St", collapsedLines: "ES",
+  bubbleCacheSize: 152,
+  externalBubble: true,
+  bubbleOwner: [
+    "turnId:C,cwd:w,hostId:T}=e,",
+    "turnId:C,cwd:w,hostId:T,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+  ],
+  bubbleDependency: [
+    "t[45]!==G||t[46]!==U||t[47]!==Ke){",
+    "t[45]!==G||t[46]!==U||t[47]!==Ke||t[152]!==MTKbubbleStyleOverride){"
+  ],
+  bubbleStorage: [
+    "t[45]=G,t[46]=U,t[47]=Ke,t[48]=q",
+    "t[45]=G,t[46]=U,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
+  ]
+};
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
 let state = inspectState(owner);
-
-if (command === "apply" && state === "name-scope-upgrade") {
-  const patched = upgradeAttributionName(owner.source);
-  fs.writeFileSync(owner.file, patched);
-  syntaxCheck(owner.file);
-  owner.source = patched;
-  state = inspectState(owner);
-  if (state !== "applied") throw new Error("cross-task attribution name-scope upgrade did not verify");
-}
-
-if (command === "apply" && state === "label-capability-upgrade") {
-  const patched = replaceOnce(owner.source, legacyHelper(), currentHelper(), "shared task-label helper upgrade");
-  fs.writeFileSync(owner.file, patched);
-  syntaxCheck(owner.file);
-  owner.source = patched;
-  state = inspectState(owner);
-  if (state !== "applied") throw new Error("cross-task attribution label-capability upgrade did not verify");
-}
-
-if (command === "apply" && state === "plain-title-fallback-upgrade") {
-  const patched = replaceOnce(owner.source, genericPlainTitleHelper(), currentHelper(), "plain task-title fallback upgrade");
-  fs.writeFileSync(owner.file, patched);
-  syntaxCheck(owner.file);
-  owner.source = patched;
-  state = inspectState(owner);
-  if (state !== "applied") throw new Error("cross-task attribution plain-title fallback upgrade did not verify");
-}
 
 if (command === "apply" && state === "needs-apply") {
   const details = inspectPristine(owner.source, owner.bubbleSource);
@@ -94,7 +86,7 @@ function findOwner() {
 function inspectState(owner) {
   const source = owner.source;
   const completeSource = source + (owner.bubbleSource ?? "");
-  const legacyMarkers = [
+  const markers = [
     "var MTKdelegatedBubbleStyle=",
     "function MTKsender(",
     "const MTKcrossTaskStoreHook=",
@@ -103,7 +95,7 @@ function inspectState(owner) {
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
   ];
-  const present = legacyMarkers.map(marker => completeSource.includes(marker));
+  const present = markers.map(marker => completeSource.includes(marker));
   if (present.every(Boolean)) {
     if (count(source, "function MTKsender(") !== 1 || count(source, "messageBubbleStyle:MTKdelegatedBubbleStyle") !== 1) {
       throw new Error("Unrecognized attribution patch: helper or style handoff is ambiguous");
@@ -112,14 +104,10 @@ function inspectState(owner) {
     if (source.includes("className:`w-full rounded-xl px-2 py-1`") || source.includes("`bg-text/5`) max-w-")) {
       throw new Error("Unrecognized attribution patch: rejected delegated-bubble prototype remains");
     }
-    if (source.includes(currentHelper())) {
-      if (source.includes(attributionNameMarker)) return "applied";
-      if (source.includes("`Sent by ${MTKresolvedSender}`")) return "name-scope-upgrade";
-      throw new Error("Unrecognized attribution patch: sender-name scope is partial");
+    if (!source.includes(currentHelper()) || !source.includes(attributionNameMarker)) {
+      throw new Error("Unrecognized attribution patch: current helper or sender-name scope is missing");
     }
-    if (source.includes(genericPlainTitleHelper())) return "plain-title-fallback-upgrade";
-    if (count(source, "function MTKshortTaskTitle(") === 0 && source.includes(legacyHelper())) return "label-capability-upgrade";
-    throw new Error("Unrecognized attribution patch: shared task-label helper is partial");
+    return "applied";
   }
   if (present.some(Boolean)) throw new Error("Unrecognized attribution patch: partial markers");
   inspectPristine(source, owner.bubbleSource);
@@ -129,88 +117,10 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [
-    linuxBuild8881.component,
-    {
-      delegation: "Cb", delegationCache: "wb", delegationJsx: "Tb",
-      wrapper: "vb", wrapperCache: "yb", wrapperJsx: "bb",
-      bubble: "Eg", bubbleCache: "Og", collapsedLines: "xb"
-    },
-    {
-      delegation: "Yb", delegationCache: "Xb", delegationJsx: "Zb",
-      wrapper: "Wb", wrapperCache: "Gb", wrapperJsx: "Kb",
-      bubble: "$g", bubbleCache: "t_", collapsedLines: "qb"
-    },
-    {
-      delegation: "Xb", delegationCache: "Zb", delegationJsx: "Qb",
-      wrapper: "Gb", wrapperCache: "Kb", wrapperJsx: "qb",
-      bubble: "e_", bubbleCache: "n_", collapsedLines: "Jb",
-      bubbleDependency: [
-        "t[41]!==J||t[42]!==fe||t[43]!==se||t[44]!==ye){",
-        "t[41]!==J||t[42]!==fe||t[43]!==se||t[44]!==ye||t[127]!==MTKbubbleStyleOverride){"
-      ],
-      bubbleStorage: [
-        "t[41]=J,t[42]=fe,t[43]=se,t[44]=ye,t[45]=be",
-        "t[41]=J,t[42]=fe,t[43]=se,t[44]=ye,t[127]=MTKbubbleStyleOverride,t[45]=be"
-      ]
-    },
-    {
-      delegation: "rz", delegationCache: "iz", delegationJsx: "az",
-      wrapper: "JR", wrapperCache: "YR", wrapperJsx: "XR",
-      bubble: "l_", bubbleCache: "d_", collapsedLines: "ZR",
-      bubbleCacheSize: 135,
-      bubbleOwner: [
-        "turnId:O,cwd:k,hostId:A}=e,",
-        "turnId:O,cwd:k,hostId:A,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
-      ],
-      bubbleDependency: [
-        "t[43]!==_e||t[44]!==de||t[45]!==Ce){",
-        "t[43]!==_e||t[44]!==de||t[45]!==Ce||t[135]!==MTKbubbleStyleOverride){"
-      ],
-      bubbleStorage: [
-        "t[43]=_e,t[44]=de,t[45]=Ce,t[46]=we",
-        "t[43]=_e,t[44]=de,t[45]=Ce,t[135]=MTKbubbleStyleOverride,t[46]=we"
-      ]
-    },
-    {
-      delegation: "rz", delegationCache: "iz", delegationJsx: "az",
-      wrapper: "JR", wrapperCache: "YR", wrapperJsx: "XR",
-      bubble: "__", bubbleCache: "y_", collapsedLines: "ZR",
-      bubbleCacheSize: 135,
-      bubbleOwner: [
-        "turnId:k,cwd:A,hostId:j}=e,",
-        "turnId:k,cwd:A,hostId:j,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
-      ],
-      bubbleDependency: [
-        "t[43]!==_e||t[44]!==fe||t[45]!==Ce){",
-        "t[43]!==_e||t[44]!==fe||t[45]!==Ce||t[135]!==MTKbubbleStyleOverride){"
-      ],
-      bubbleStorage: [
-        "t[43]=_e,t[44]=fe,t[45]=Ce,t[46]=we",
-        "t[43]=_e,t[44]=fe,t[45]=Ce,t[135]=MTKbubbleStyleOverride,t[46]=we"
-      ]
-    },
-    {
-      delegation: "MS", delegationCache: "NS", delegationJsx: "PS",
-      wrapper: "CS", wrapperCache: "wS", wrapperJsx: "TS",
-      bubble: "bt", wrapperBubble: "uh", bubbleCache: "St", collapsedLines: "ES",
-      bubbleCacheSize: 152,
-      externalBubble: true,
-      bubbleOwner: [
-        "turnId:C,cwd:w,hostId:T}=e,",
-        "turnId:C,cwd:w,hostId:T,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
-      ],
-      bubbleDependency: [
-        "t[45]!==G||t[46]!==U||t[47]!==Ke){",
-        "t[45]!==G||t[46]!==U||t[47]!==Ke||t[152]!==MTKbubbleStyleOverride){"
-      ],
-      bubbleStorage: [
-        "t[45]=G,t[46]=U,t[47]=Ke,t[48]=q",
-        "t[45]=G,t[46]=U,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
-      ]
-    }
-  ].find(candidate => delegation.text.startsWith(`function ${candidate.delegation}(`) &&
+  const profile = [linuxBuild9647.component, build9647Component].find(candidate =>
+    delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
+    (candidate.bubbleOwner == null || (candidate.externalBubble ? externalBubbleSource : source).includes(candidate.bubbleOwner[0])) &&
     (candidate.marker == null || source.includes(candidate.marker)));
   if (profile == null) throw new Error("Upstream changed: attribution component family is unknown");
   const wrapper = functionAt(source, source.indexOf(`function ${profile.wrapper}(`));
@@ -314,23 +224,8 @@ function patchAttribution(source, ownerFile, details) {
   return {source, bubbleSource};
 }
 
-function upgradeAttributionName(source) {
-  const oldLabel = uniqueMatch(
-    source,
-    /MTKresolvedSender!=null&&\(p=\(0,(?<jsx>[$A-Z_a-z][$\w]*)\.jsxs\)\(\k<jsx>\.Fragment,\{children:\[f,`Sent by \$\{MTKresolvedSender\}`\]\}\)\);/g,
-    "whole-line attribution label"
-  );
-  return replaceOnce(source, oldLabel[0], attributionLabel(oldLabel.groups.jsx), "sender-name attribution scope");
-}
-
 function attributionLabel(jsx) {
   return `MTKresolvedSender!=null&&(p=(0,${jsx}.jsxs)(${jsx}.Fragment,{children:[f,\`Sent by \`,(0,${jsx}.jsx)(\`span\`,{${attributionNameMarker},children:MTKresolvedSender})]}));`;
-}
-
-function legacyHelper() {
-  return "var MTKdelegatedBubbleStyle={backgroundColor:`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`};" +
-    "function MTKsender(e,t){if(typeof e!==`string`)return null;let n=e.trim();if(n.length===0)return null;" +
-    "let r=n.indexOf(` — `);return r>0?n.slice(0,r).trim():typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:null}";
 }
 
 function currentHelper() {
@@ -341,14 +236,6 @@ function currentHelper() {
     "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:n}";
 }
 
-function genericPlainTitleHelper() {
-  return "var MTKdelegatedBubbleStyle={backgroundColor:`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`};" +
-    "function MTKshortTaskTitle(e){if(typeof e!==`string`)return null;let t=e.trim();if(t.length===0)return null;" +
-    "let n=t.indexOf(` — `);return n>0?t.slice(0,n).trim():t}" +
-    "function MTKsender(e,t){let n=MTKshortTaskTitle(e);if(n==null)return null;return n!==e.trim()?n:" +
-    "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:null}";
-}
-
 function resolveImports(ownerSource, ownerFile) {
   const primaryImport = uniqueMatch(ownerSource, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-primary-[^"]+\.js)";/g, "app-primary import");
   const initialImport = uniqueMatch(ownerSource, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g, "app-initial import");
@@ -356,37 +243,14 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appPrimary.includes(linuxBuild8881.titleOwner)) {
+  const linuxSelector = linuxBuild9647.titleSelector;
+  if (appPrimary.includes(linuxBuild9647.titleOwner) &&
+      appPrimary.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {
     return {
       before: primaryImport[0],
-      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, linuxBuild8881.titleAtom)} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild8881.storeHook)),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild8881.storeScope))
-    };
-  }
-  if (appPrimary.includes("pt=jm(xNn,{hostId:Je??`local`,threadId:n})??Ue?.title??null")) {
-    return {
-      before: primaryImport[0],
-      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, "xNn")} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, currentStoreHookInternal(appInitial))),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
-    };
-  }
-  if (appPrimary.includes("ft=rw(tOn,{hostId:qe??`local`,threadId:n})??He?.title??null")) {
-    return {
-      before: primaryImport[0],
-      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, "tOn")} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, currentStoreHookInternal(appInitial))),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
-    };
-  }
-  if (appPrimary.includes("Q2t=Jf(o_,(e,{get:t})=>{") &&
-      appPrimary.includes("X2t({...n,localTitle:r})")) {
-    return {
-      before: primaryImport[0],
-      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, "Q2t")} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, currentStoreHookInternal(appInitial))),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
+      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, linuxBuild9647.titleAtom)} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
+      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild9647.storeHook)),
+      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild9647.storeScope))
     };
   }
   const titleMarker = appPrimary.indexOf("localTitle:r})})}));");
@@ -405,23 +269,7 @@ function resolveImports(ownerSource, ownerFile) {
       storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
     };
   }
-  const primaryInitialImport = uniqueMatch(appPrimary, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g, "app-primary app-initial import");
-  const titleExport = importedExport(primaryInitialImport.groups.specifiers, "ap", false);
-  if (titleExport != null) {
-    const storeHookInternal = currentStoreHookInternal(appInitial);
-    return {
-      before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${titleExport} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, storeHookInternal)),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
-    };
-  }
-  return {
-    before: primaryImport[0],
-    after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, "SOn")} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-    storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "pb")),
-    storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
-  };
+  throw new Error("Upstream changed: build-9647 task-title selector owner is missing");
 }
 
 function currentStoreHookInternal(source) {
@@ -432,7 +280,7 @@ function currentStoreHookInternal(source) {
     if (current.length === 1) return current[0].groups.hook;
     if (current.length > 1) throw new Error("Upstream changed: current store hook owner is ambiguous");
   }
-  return "hb";
+  throw new Error("Upstream changed: build-9647 renderer store hook owner is missing");
 }
 
 function ownedImport(ownerFile, relative) {
@@ -448,13 +296,6 @@ function exportedAs(source, internal) {
 
 function importedLocal(specifiers, exported) {
   return uniqueMatch(specifiers, new RegExp(`(?:^|,)${escapeRegExp(exported)} as (?<local>${id})(?=,|$)`, "g"), `existing import for ${exported}`).groups.local;
-}
-
-function importedExport(specifiers, local, required = true) {
-  const matches = [...specifiers.matchAll(new RegExp(`(?:^|,)(?<export>${id}) as ${escapeRegExp(local)}(?=,|$)`, "g"))];
-  if (matches.length === 1) return matches[0].groups.export;
-  if (!required && matches.length === 0) return null;
-  throw new Error(`Upstream changed: found ${matches.length} existing imports for local ${local}`);
 }
 
 function containingFunction(source, position) {

@@ -32,7 +32,7 @@ try {
   const application = path.join(scratch, "usr/lib/chatgpt");
   const executable = path.join(application, "ChatGPT");
   const cli = path.join(application, "resources/codex");
-  makeLinuxApplication(application, "26.908.40834", "8881");
+  makeLinuxApplication(application, "26.911.61220", "9647");
 
   assert.equal(resolveApplication(application, "linux"), application);
   assert.deepEqual(applicationLayout(application, "linux"), {executable, cli});
@@ -40,13 +40,13 @@ try {
 
   const tools = path.join(scratch, "tools");
   fs.mkdirSync(tools);
-  for (const name of ["zenity", "kdialog", "gnome-terminal", "konsole"]) {
+  for (const name of ["zenity", "kdialog", "ptyxis", "gnome-terminal", "konsole"]) {
     const file = path.join(tools, name);
     fs.writeFileSync(file, "#!/bin/sh\nexit 0\n", {mode: 0o755});
   }
   const gnome = {PATH: tools, XDG_CURRENT_DESKTOP: "GNOME"};
   const kde = {PATH: tools, XDG_CURRENT_DESKTOP: "KDE:Plasma"};
-  assert.equal(defaultTerminal("linux", {environment: gnome}), path.join(tools, "gnome-terminal"));
+  assert.equal(defaultTerminal("linux", {environment: gnome}), path.join(tools, "ptyxis"));
   assert.equal(defaultTerminal("linux", {environment: kde}), path.join(tools, "konsole"));
 
   const dialogCalls = [];
@@ -184,10 +184,10 @@ try {
     deb: candidateDeb,
     debSha256: "1".repeat(64),
     package: "chatgpt",
-    packageVersion: "26.908.40834+tmtk1",
+    packageVersion: "26.911.61220+tmtk1",
     architecture: "arm64",
-    version: "26.908.40834",
-    build: "8881",
+    version: "26.911.61220",
+    build: "9647",
     archiveSha256: "2".repeat(64),
     executableSha256: "3".repeat(64),
     cliSha256: "4".repeat(64)
@@ -229,6 +229,47 @@ try {
   const askpassFile = askpassCalls[0].options.env.SUDO_ASKPASS;
   assert.equal(installedDeb.archiveSha256, debSource.archiveSha256);
   assert.equal(fs.existsSync(askpassFile), false, "successful installation removes askpass");
+
+  const candidateRpm = path.join(scratch, "askpass-incident/candidate.rpm");
+  fs.writeFileSync(candidateRpm, "candidate-rpm");
+  const rpmSource = {
+    kind: "rpm",
+    packageKind: "tmtk",
+    rpm: candidateRpm,
+    rpmSha256: "6".repeat(64),
+    package: "chatgpt",
+    packageVersion: "26.911.61220-1.tmtk1",
+    version: "26.911.61220",
+    release: "1.tmtk1",
+    architecture: "aarch64",
+    build: "9647",
+    archiveSha256: "2".repeat(64),
+    executableSha256: "3".repeat(64),
+    cliSha256: "4".repeat(64)
+  };
+  const rpmCalls = [];
+  replaceLinuxApplication({
+    targetApp: application,
+    source: rpmSource,
+    platform: "linux",
+    environment: gnome,
+    effectiveUserId: 1000,
+    sourceInspector: () => rpmSource,
+    appInspector: installedDebApp,
+    processRunner(command, arguments_, options) {
+      rpmCalls.push({command, arguments_, options});
+      if (command === "/usr/bin/sudo") {
+        const helper = options.env.SUDO_ASKPASS;
+        assert.match(fs.readFileSync(helper, "utf8"), /sudo rpm -U candidate\.rpm/);
+      }
+      return command === "/usr/bin/rpm" && arguments_[0] === "--query"
+        ? {status: 0, stdout: `${rpmSource.version}\t${rpmSource.release}\taarch64\n`, stderr: ""}
+        : {status: 0, stdout: "", stderr: ""};
+    }
+  });
+  assert.deepEqual(rpmCalls[0].arguments_.slice(0, 6), [
+    "-A", "/usr/bin/rpm", "--upgrade", "--replacepkgs", "--oldpackage", candidateRpm
+  ]);
 
   for (const [label, sudoResult, inspected] of [
     ["cancel", {status: 1, stdout: "", stderr: "sudo: no password was provided"}, installedDebApp],
@@ -316,6 +357,20 @@ try {
     options: {detached: true, stdio: "ignore"}
   });
   assert.equal(terminalChild.unrefCalled, true);
+  terminalCalls.length = 0;
+  assert.equal(openRescueTerminal({
+    terminalApp: path.join(tools, "ptyxis"),
+    commandFile: "/private/open-rescue.command",
+    processLauncher(command, arguments_, options) {
+      terminalCalls.push({command, arguments_, options});
+      return terminalChild;
+    }
+  }, {platform: "linux"}).opened, true);
+  assert.deepEqual(terminalCalls[0], {
+    command: path.join(tools, "ptyxis"),
+    arguments_: ["--standalone", "--", "/private/open-rescue.command"],
+    options: {detached: true, stdio: "ignore"}
+  });
   assert.equal(rescueTerminalClosureRequired({
     terminalApp: path.join(tools, "gnome-terminal"),
     environment: {TMTK_RESCUE_TERMINAL_OWNED: "1"}
@@ -330,8 +385,8 @@ try {
   assert.match(hook, /\\"'\\"/);
   const inspection = inspectAppBundle(application, {platform: "linux"});
   assert.equal(inspection.identifier, "chatgpt");
-  assert.equal(inspection.version, "26.908.40834");
-  assert.equal(inspection.build, "8881");
+  assert.equal(inspection.version, "26.911.61220");
+  assert.equal(inspection.build, "9647");
   assert.equal(inspection.asarIntegrity.state, "not-applicable");
   assert.equal(inspection.signature.state, "not-applicable");
   assert.match(inspection.archive.sha256, /^[0-9a-f]{64}$/);

@@ -38,6 +38,7 @@ import {
   loadRescueFile,
   lookupThread,
   pruneSupersededKnownGoodApps,
+  removeIncidentApplicationPayloads,
   recordRescueStopReceipt,
   resumeModelArguments,
   waitForApplicationQuiescence,
@@ -384,6 +385,8 @@ try {
     fs.writeFileSync(path.join(incident, "known-good.app/payload"), path.basename(incident));
     fs.writeFileSync(path.join(incident, "known-good.deb"), path.basename(incident));
     fs.writeFileSync(path.join(incident, "candidate.deb"), path.basename(incident));
+    fs.writeFileSync(path.join(incident, "known-good.rpm"), path.basename(incident));
+    fs.writeFileSync(path.join(incident, "candidate.rpm"), path.basename(incident));
     fs.writeFileSync(path.join(incident, "state.json"), "{}\n");
   }
   fs.writeFileSync(path.join(oldIncidentB, "not-an-app"), "preserve");
@@ -391,9 +394,13 @@ try {
     path.join(oldIncidentA, "known-good.app"),
     path.join(oldIncidentA, "known-good.deb"),
     path.join(oldIncidentA, "candidate.deb"),
+    path.join(oldIncidentA, "known-good.rpm"),
+    path.join(oldIncidentA, "candidate.rpm"),
     path.join(oldIncidentB, "known-good.app"),
     path.join(oldIncidentB, "known-good.deb"),
-    path.join(oldIncidentB, "candidate.deb")
+    path.join(oldIncidentB, "candidate.deb"),
+    path.join(oldIncidentB, "known-good.rpm"),
+    path.join(oldIncidentB, "candidate.rpm")
   ]);
   assert.equal(fs.existsSync(path.join(retainedIncident, "known-good.app/payload")), true,
     "the newest known-working rollback remains available");
@@ -403,10 +410,26 @@ try {
     "an older DEB rollback is removed");
   assert.equal(fs.existsSync(path.join(oldIncidentA, "candidate.deb")), false,
     "an older staged candidate is removed");
+  assert.equal(fs.existsSync(path.join(oldIncidentA, "known-good.rpm")), false,
+    "an older RPM rollback is removed");
+  assert.equal(fs.existsSync(path.join(oldIncidentA, "candidate.rpm")), false,
+    "an older RPM candidate is removed");
   assert.equal(fs.existsSync(path.join(oldIncidentA, "state.json")), true,
     "old incident metadata remains available");
   assert.equal(fs.readFileSync(path.join(oldIncidentB, "not-an-app"), "utf8"), "preserve",
     "retention removes only the exact toolkit-owned application payload");
+  assert.deepEqual(removeIncidentApplicationPayloads(retainedIncident), [
+    path.join(retainedIncident, "known-good.app"),
+    path.join(retainedIncident, "known-good.deb"),
+    path.join(retainedIncident, "candidate.deb"),
+    path.join(retainedIncident, "known-good.rpm"),
+    path.join(retainedIncident, "candidate.rpm")
+  ], "a completed transaction drops its current rollback and candidate payloads");
+  assert.equal(fs.existsSync(path.join(retainedIncident, "known-good.app")), false);
+  assert.equal(fs.existsSync(path.join(retainedIncident, "candidate.deb")), false);
+  assert.equal(fs.existsSync(path.join(retainedIncident, "candidate.rpm")), false);
+  assert.equal(fs.existsSync(path.join(retainedIncident, "state.json")), true,
+    "completed transaction cleanup preserves compact incident evidence");
   assert.throws(() => pruneSupersededKnownGoodApps(retentionRoot, scratch),
     /immediate child of the rescue root/);
 

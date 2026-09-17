@@ -191,20 +191,30 @@ export function pruneSupersededKnownGoodApps(rescueRootArgument, keepIncidentDir
     .sort();
   for (const incident of incidents) {
     if (incident === keep) continue;
-    for (const name of ["known-good.app", "known-good.deb", "candidate.deb", "known-good.msix", "candidate.msix"]) {
-      const rollbackPayload = path.join(incident, name);
-      let stat;
-      try {
-        stat = fs.lstatSync(rollbackPayload);
-      } catch (error) {
-        if (error?.code === "ENOENT") continue;
-        throw error;
-      }
-      const expectedType = name.endsWith(".app") ? stat.isDirectory() : stat.isFile();
-      if (!expectedType) continue;
-      fs.rmSync(rollbackPayload, {recursive: stat.isDirectory(), force: true});
-      removed.push(rollbackPayload);
+    removed.push(...removeIncidentApplicationPayloads(incident));
+  }
+  return removed;
+}
+
+export function removeIncidentApplicationPayloads(incidentDirectoryArgument) {
+  const incidentDirectory = path.resolve(incidentDirectoryArgument);
+  const removed = [];
+  for (const name of [
+    "known-good.app", "known-good.deb", "candidate.deb", "known-good.rpm", "candidate.rpm",
+    "known-good.msix", "candidate.msix"
+  ]) {
+    const payload = path.join(incidentDirectory, name);
+    let stat;
+    try {
+      stat = fs.lstatSync(payload);
+    } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw error;
     }
+    const expectedType = name.endsWith(".app") ? stat.isDirectory() : stat.isFile();
+    if (!expectedType) continue;
+    fs.rmSync(payload, {recursive: stat.isDirectory(), force: true});
+    removed.push(payload);
   }
   return removed;
 }

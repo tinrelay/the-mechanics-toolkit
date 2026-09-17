@@ -33,8 +33,8 @@ try {
     processRunner: vendorInspectorRunner({signatureCalls}),
     appInspector: app => ({
       app,
-      version: "26.908.40834",
-      build: "8881",
+      version: "26.911.61220",
+      build: "9647",
       archive: {sha256: "1".repeat(64)},
       executable: {sha256: "2".repeat(64)},
       cli: {sha256: "3".repeat(64)}
@@ -50,8 +50,8 @@ try {
     processRunner: vendorInspectorRunner({signatureStatus: 1}),
     appInspector: app => ({
       app,
-      version: "26.908.40834",
-      build: "8881",
+      version: "26.911.61220",
+      build: "9647",
       archive: {sha256: "1".repeat(64)},
       executable: {sha256: "2".repeat(64)},
       cli: {sha256: "3".repeat(64)}
@@ -71,14 +71,14 @@ try {
     packageKind: "vendor",
     deb: candidateSourceFile,
     debSha256: "e".repeat(64),
-    packageVersion: "26.908.40834",
+    packageVersion: "26.911.61220",
     archiveSha256: "f".repeat(64)
   });
   const candidate = sourceReceipt({
     packageKind: "tmtk",
     deb: candidateFile,
     debSha256: "c".repeat(64),
-    packageVersion: "26.908.40834+tmtk1",
+    packageVersion: "26.911.61220+tmtk1",
     archiveSha256: "d".repeat(64),
     originSignature: {state: "absent-local-rebuild"},
     receipt: {
@@ -311,10 +311,10 @@ function sourceReceipt(overrides) {
     deb: "/fixture.deb",
     debSha256: "0".repeat(64),
     package: "chatgpt",
-    packageVersion: "26.908.40834",
+    packageVersion: "26.911.61220",
     architecture: "amd64",
-    version: "26.908.40834",
-    build: "8881",
+    version: "26.911.61220",
+    build: "9647",
     archiveSha256: "1".repeat(64),
     executableSha256: "2".repeat(64),
     cliSha256: "3".repeat(64),
@@ -339,7 +339,7 @@ function vendorInspectorRunner({signatureCalls = [], signatureStatus = 0} = {}) 
     if (command === "/usr/bin/dpkg-deb" && arguments_[0] === "--field") {
       return {
         status: 0,
-        stdout: "Package: chatgpt\nVersion: 26.908.40834\nArchitecture: amd64\n",
+        stdout: "Package: chatgpt\nVersion: 26.911.61220\nArchitecture: amd64\n",
         stderr: ""
       };
     }

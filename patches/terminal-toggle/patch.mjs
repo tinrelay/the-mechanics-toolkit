@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881Contracts } from "./profiles/linux.mjs";
+import { linuxBuild9647Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -67,81 +67,9 @@ function verifyOwnedBehavior(value) {
     "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})",
     "[`toggleTerminal`,$wi]"
   ];
+  if (linuxBuild9647Contracts.every(contract => count(value, contract) === 1)) return;
   if (build9647Contracts.every(contract => count(value, contract) === 1)) return;
-  if (linuxBuild8881Contracts.every(contract => count(value, contract) === 1)) return;
-  const build8881Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "jQr=()=>{pMt.run({action:{type:`windows.terminal.toggle`,windowId:wh}})",
-    "[`toggleTerminal`,jQr]"
-  ];
-  if (build8881Contracts.every(contract => count(value, contract) === 1)) return;
-  const build8690Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "YXr=()=>{jAt.run({action:{type:`windows.terminal.toggle`,windowId:Eh}})",
-    "[`toggleTerminal`,YXr]"
-  ];
-  if (build8690Contracts.every(contract => count(value, contract) === 1)) return;
-  const build8576Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "rEi=()=>{w1t.run({action:{type:`windows.terminal.toggle`,windowId:Vx}})",
-    "[`toggleTerminal`,rEi]"
-  ];
-  if (build8576Contracts.every(contract => count(value, contract) === 1)) return;
-  const build8378Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "qTi=()=>{C1t.run({action:{type:`windows.terminal.toggle`,windowId:Hx}})",
-    "[`toggleTerminal`,qTi]"
-  ];
-  if (build8378Contracts.every(contract => count(value, contract) === 1)) return;
-  const build8109Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "lxi=()=>{d1t.run({action:{type:`windows.terminal.toggle`,windowId:Ux}})",
-    "[`toggleTerminal`,lxi]"
-  ];
-  if (build8109Contracts.every(contract => count(value, contract) === 1)) return;
-  const build7942Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "pxi=()=>{d1t.run({action:{type:`windows.terminal.toggle`,windowId:Ux}})",
-    "[`toggleTerminal`,pxi]"
-  ];
-  if (build7942Contracts.every(contract => count(value, contract) === 1)) return;
-  const currentContracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "ccr=()=>{K9t.run({action:{type:`windows.terminal.toggle`,windowId:hx}})",
-    "[`toggleTerminal`,ccr]"
-  ];
-  if (currentContracts.every(contract => count(value, contract) === 1)) return;
-  const build7746Contracts = [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "$bi=()=>{u1t.run({action:{type:`windows.terminal.toggle`,windowId:Wx}})",
-    "[`toggleTerminal`,$bi]"
-  ];
-  if (
-    build7746Contracts.slice(0, 2).every(contract => value.includes(contract)) &&
-    build7746Contracts.slice(2).every(contract => count(value, contract) === 1)
-  ) return;
-  const contracts = [
-    "i=_s(uW,r)",
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "Y7r=()=>{v9e({type:`windows.terminal.toggle`,windowId:d9e})}",
-    "function oJo(e){if(e.get(wJo)){Z1n(e,`bottom`);return}Qqo(e)}",
-    "function Z1n(e,t){if(t===`bottom`){let t=e.get(kT)===`bottom-panel`?e.get(QJn):null;SYn(e,!1),t!=null&&TT(e,t),lE();return}",
-    "function lE(){F1n();let e=uE();e&&requestAnimationFrame(()=>{e.focus()})}"
-  ];
-  for (const contract of contracts) {
-    if (count(value, contract) !== 1) {
-      throw new Error(`Upstream changed: terminal toggle contract is not unique: ${contract}`);
-    }
-  }
+  throw new Error("Upstream changed: missing build-9647 terminal toggle contract");
 }
 
 function patchSource(value) {

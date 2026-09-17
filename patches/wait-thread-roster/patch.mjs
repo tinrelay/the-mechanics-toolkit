@@ -2,15 +2,14 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881 } from "./profiles/linux.mjs";
+import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const id = "[$A-Z_a-z][$\\w]*";
-const legacyTaskColorFunction = 'function MTKwaitTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}';
-const themedTaskColorFunctions = `${legacyTaskColorFunction}function MTKwaitParseHex(e){return{r:parseInt(e.slice(1,3),16),g:parseInt(e.slice(3,5),16),b:parseInt(e.slice(5,7),16)}}function MTKwaitMix(e,t,n){let r=MTKwaitParseHex(e),i=MTKwaitParseHex(t),a=e=>Math.round(e).toString(16).padStart(2,"0");return("#"+a(r.r+(i.r-r.r)*n)+a(r.g+(i.g-r.g)*n)+a(r.b+(i.b-r.b)*n)).toUpperCase()}function MTKwaitLum(e){let t=Object.values(MTKwaitParseHex(e)).map(e=>{let t=e/255;return t<=.04045?t/12.92:((t+.055)/1.055)**2.4});return.2126*t[0]+.7152*t[1]+.0722*t[2]}function MTKwaitContrast(e,t){let n=MTKwaitLum(e),r=MTKwaitLum(t);return(Math.max(n,r)+.05)/(Math.min(n,r)+.05)}function MTKwaitLabelColor(e,t){let n=t?.38:.34,r=t?"#FFFFFF":"#111318",i=t?"#101114":"#FFFFFF";for(;n<=1.001;n+=.08){let t=MTKwaitMix(e,r,Math.min(1,n));if(MTKwaitContrast(t,i)>=4.5)return t}return r}`;
-const legacyTaskColorStyle = 'let n=t.color==null?void 0:{color:"color-mix(in srgb, "+t.color+" 68%, var(--color-text) 32%)"},r=';
-const themedTaskColorStyle = 'let n=t.color==null?void 0:{color:"light-dark("+MTKwaitLabelColor(t.color,!1)+","+MTKwaitLabelColor(t.color,!0)+")"},r=';
+const taskColorFunction = 'function MTKwaitTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}';
+const taskColorFunctions = `${taskColorFunction}function MTKwaitParseHex(e){return{r:parseInt(e.slice(1,3),16),g:parseInt(e.slice(3,5),16),b:parseInt(e.slice(5,7),16)}}function MTKwaitMix(e,t,n){let r=MTKwaitParseHex(e),i=MTKwaitParseHex(t),a=e=>Math.round(e).toString(16).padStart(2,"0");return("#"+a(r.r+(i.r-r.r)*n)+a(r.g+(i.g-r.g)*n)+a(r.b+(i.b-r.b)*n)).toUpperCase()}function MTKwaitLum(e){let t=Object.values(MTKwaitParseHex(e)).map(e=>{let t=e/255;return t<=.04045?t/12.92:((t+.055)/1.055)**2.4});return.2126*t[0]+.7152*t[1]+.0722*t[2]}function MTKwaitContrast(e,t){let n=MTKwaitLum(e),r=MTKwaitLum(t);return(Math.max(n,r)+.05)/(Math.min(n,r)+.05)}function MTKwaitLabelColor(e,t){let n=t?.38:.34,r=t?"#FFFFFF":"#111318",i=t?"#101114":"#FFFFFF";for(;n<=1.001;n+=.08){let t=MTKwaitMix(e,r,Math.min(1,n));if(MTKwaitContrast(t,i)>=4.5)return t}return r}`;
+const taskColorStyle = 'let n=t.color==null?void 0:{color:"light-dark("+MTKwaitLabelColor(t.color,!1)+","+MTKwaitLabelColor(t.color,!0)+")"},r=';
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: wait-thread-roster/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
@@ -19,34 +18,6 @@ const assets = path.join(root, "webview/assets");
 const target = uniqueOwner();
 let source = fs.readFileSync(target, "utf8");
 let state = inspectState(source);
-
-if (command === "apply" && state === "legacy-active-spacing") {
-  source = replaceOnce(source, 'e.completed||l.unshift(" ");let u=', "let u=", "legacy active wait spacing mutation");
-  source = replaceOnce(source, 'children:MTKwaitStatusLabel}),...l,e.completed?null:"…"]})', 'children:MTKwaitStatusLabel})," ",...l,e.completed?null:"…"]})', "wait roster explicit spacing");
-  fs.writeFileSync(target, source);
-  syntaxCheck(target);
-  state = inspectState(source);
-}
-
-if (command === "apply" && state === "legacy-link-cursor") {
-  source = replaceOnce(
-    source,
-    'className:"rounded-sm font-medium text-text-secondary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"',
-    'className:"cursor-pointer rounded-sm font-medium text-text-secondary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"',
-    "wait roster link cursor"
-  );
-  fs.writeFileSync(target, source);
-  syntaxCheck(target);
-  state = inspectState(source);
-}
-
-if (command === "apply" && state === "legacy-theme-label") {
-  source = replaceOnce(source, legacyTaskColorFunction, themedTaskColorFunctions, "wait roster contrast helpers");
-  source = replaceOnce(source, legacyTaskColorStyle, themedTaskColorStyle, "wait roster theme-aware label color");
-  fs.writeFileSync(target, source);
-  syntaxCheck(target);
-  state = inspectState(source);
-}
 
 if (command === "apply" && state === "needs-apply") {
   source = patchSource(source);
@@ -79,15 +50,14 @@ function inspectState(value) {
     if (count(value, "function MTKrenderWaitThreads(") !== 1 || count(value, "tool:`wait_threads`") !== 1) {
       throw new Error("Unrecognized wait-thread roster patch: renderer ownership is ambiguous");
     }
-    if (value.includes('e.completed||l.unshift(" ");')) return "legacy-active-spacing";
     if (!value.includes('children:MTKwaitStatusLabel})," ",...l,e.completed?null:"…"]})')) {
       throw new Error("Unrecognized wait-thread roster patch: first-target spacing is missing");
     }
     if (!value.includes('className:"cursor-pointer rounded-sm font-medium text-text-secondary')) {
-      return "legacy-link-cursor";
+      throw new Error("Unrecognized wait-thread roster patch: link cursor is missing");
     }
-    if (!value.includes("function MTKwaitLabelColor(") || value.includes(legacyTaskColorStyle)) {
-      return "legacy-theme-label";
+    if (!value.includes(taskColorFunctions) || !value.includes(taskColorStyle)) {
+      throw new Error("Unrecognized wait-thread roster patch: theme-aware label color is missing");
     }
     if (requiresDedicatedTitleSelector(value) && !value.includes("MTKwaitTitleAtom")) {
       throw new Error("Unrecognized wait-thread roster patch: live-title selector is missing");
@@ -147,8 +117,9 @@ function MTKwaitTargets(e){if(e==null||typeof e!=="object"||Array.isArray(e)||!A
       "wait title lookup"
     );
   }
-  const themed = helper.replace(legacyTaskColorFunction, themedTaskColorFunctions).replace(legacyTaskColorStyle, themedTaskColorStyle);
-  if (!themed.includes(themedTaskColorFunctions) || !themed.includes(themedTaskColorStyle)) {
+  const themed = helper.replace(taskColorFunction, taskColorFunctions)
+    .replace('let n=t.color==null?void 0:{color:"color-mix(in srgb, "+t.color+" 68%, var(--color-text) 32%)"},r=', taskColorStyle);
+  if (!themed.includes(taskColorFunctions) || !themed.includes(taskColorStyle)) {
     throw new Error("unrecognized wait roster theme-color seam");
   }
   return themed;
@@ -224,27 +195,20 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
-    ["function PYs(){", "AH=Hp(Q,", ["nm", "Q", "AH", "jj", "Mj"]],
-    {...taskImportProfile(linuxBuild8881.taskImports), titleSelector: linuxBuild8881.titleSelector},
-    {...taskImportProfile(["function Jcs(){", "KB=rm(Q,", ["gm", "Q", "KB", "yk", "bk"]]), titleSelector: {
-      owner: "Q2t=Jf(o_,(e,{get:t})=>{",
-      helper: "X2t({...n,localTitle:r})",
-      internal: "Q2t"
-    }},
-    ["function Ocs(){", "KB=am(Q,", ["vm", "BR", "KB", "yk", "bk"]],
-    ["function QMn(){", "kW=Ny(Q,", ["ub", "Q", "kW", "PF", "FF"]],
-    ["function ALs(){", "kW=Py(Q,", ["db", "Q", "kW", "FF", "IF"]],
-    ["function Oks(){", "cW=Xy(Q,", ["Db", "Q", "cW", "oF", "sF"]],
-    ["function Oks(){", "XU=zy(Q,", ["hb", "Q", "XU", "ZP", "QP"]],
-    ["function qOs(){", "aW=Iy(Q,", ["pb", "Q", "aW", "QP", "$P"]],
-    ["function g$c(e){", "VN=i_($,", ["A_", "$", "VN", "gk", "_k"]]
+    {
+      ...taskImportProfile(linuxBuild9647.taskImports),
+      platformMarker: linuxBuild9647.platformMarker
+    },
+    ["function PYs(){", "AH=Hp(Q,", ["nm", "Q", "AH", "jj", "Mj"]]
   ];
   const normalizedProfiles = profiles.map(profile => Array.isArray(profile) ? taskImportProfile(profile) : profile);
-  const match = normalizedProfiles.find(profile => appInitial.includes(profile.owner) && appInitial.includes(profile.atom));
+  const match = normalizedProfiles.find(profile => appInitial.includes(profile.owner) &&
+    appInitial.includes(profile.atom) &&
+    (profile.platformMarker == null || appInitial.includes(profile.platformMarker)));
   if (match == null) throw new Error("Upstream changed: wait roster task metadata family is unknown");
   const aliases = ["MTKwaitStoreHook", "MTKwaitStoreScope", "MTKwaitTaskAtom", "MTKwaitLocalThreadKey", "MTKwaitRemoteThreadKey"];
   const additions = match.internals.map((internal, index) =>
-    `${exportedAs(appInitial, internal === "BR" ? "Q" : internal)} as ${aliases[index]}`
+    `${exportedAs(appInitial, internal)} as ${aliases[index]}`
   );
   let titleImport = null;
   if (match.titleSelector != null) {

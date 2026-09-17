@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { linuxBuild8881 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
+import { linuxBuild9647 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: outgoing-message-receipt.test.mjs EXTRACTED_ASAR_ROOT");
@@ -50,14 +50,14 @@ const helper = owner.slice(helperStart, helperEnd);
 const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-primary-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
-  const linux = linuxBuild8881.taskImports;
+  const currentLinux = linuxBuild9647.taskImports;
   return source.includes("Q2t=Jf(o_,(e,{get:t})=>{") && source.includes("X2t({...n,localTitle:r})") ||
-    source.includes(linux.titleOwner) && source.includes(linux.titleHelper);
+    source.includes(currentLinux.titleOwner) && source.includes(currentLinux.titleHelper);
 });
 assert.equal(
   helper.includes("MTKoutboundTitleAtom"),
   dedicatedTitleOwner,
-  "build 8881 receipts use the stock live-title selector rather than metadata that omits active titles"
+  "current receipts use the stock live-title selector rather than metadata that omits active titles"
 );
 
 const jsxName = unique(

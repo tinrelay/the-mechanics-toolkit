@@ -13,7 +13,8 @@ does not install, replace, launch, publish, or deploy it.
 - dependencies installed with `npm install`, including the pinned repository-local Electron ASAR
   tool, plus the macOS system tools `codesign`, `ditto`, and `PlistBuddy`.
 
-Linux DEB inputs and tools are specified in [Linux DEB staging and adoption](#linux-deb-staging-and-adoption).
+Linux DEB and RPM inputs and tools are specified in
+[Linux package staging and adoption](#linux-package-staging-and-adoption).
 Windows MSIX inputs and tools are specified in [Windows MSIX staging and adoption](#windows-msix-staging-and-adoption).
 
 Configuration-backed patches read their ordinary sections from the same file. The palette requires
@@ -72,27 +73,35 @@ rollback, and does not replace anything until the person clicks **Relaunch Codex
 separately named live copy with the same bundle identifier. Neither adoption nor launch is implied
 by a successful stage.
 
-### Linux DEB staging and adoption
+### Linux package staging and adoption
 
-Linux DEB staging uses the same config and selected-patch contract, but its inputs and output are
-packages rather than application directories:
+Linux DEB and RPM staging use the same config and selected-patch contract, but their inputs and
+outputs are packages rather than application directories:
 
 ```sh
 node bin/toolkit.mjs stage-deb /path/to/chatgpt_amd64.deb \
   /path/to/chatgpt_amd64_tmtk.deb --config "$CONFIG"
+
+node bin/toolkit.mjs stage-rpm /path/to/chatgpt_x86_64.rpm \
+  /path/to/chatgpt_x86_64_tmtk.rpm --config "$CONFIG"
 ```
 
-The command requires `dpkg-deb`, `ar`, `gpgv`, the trusted ChatGPT APT keyring at
-`/usr/share/keyrings/chatgpt-archive-keyring.gpg`, an authenticated official `chatgpt` DEB, and a
-nonexistent destination. Before extraction for mutation, it verifies the DEB's embedded
-`_gpgorigin` signature over its raw archive members against that already-installed APT keyring. It
-then extracts the package without installing it. It accepts ASAR-scope patches only, preserves the
-unpacked native tree and all non-owned package payloads, writes an explicit TMTK package receipt,
-and rebuilds a local `SOURCE+tmtk1` DEB. The source stays byte-identical. A green
-`staged-deb-static-proof-green` result still means `installed: false` and `launched: false`.
-If a future official package is signed by a key absent from the currently trusted keyring, staging
-fails closed. Refresh that trust only through OpenAI's authenticated APT/vendor acquisition path;
-TMTK does not import a key from the package it is trying to authenticate and has no bypass flag.
+Both commands require an authenticated official `chatgpt` package and a nonexistent destination.
+DEB staging uses `dpkg-deb`, `ar`, `gpgv`, and the trusted ChatGPT APT keyring at
+`/usr/share/keyrings/chatgpt-archive-keyring.gpg`; it verifies the embedded `_gpgorigin` signature
+over the raw archive members. RPM staging uses `rpm`, `rpmkeys`, `rpm2cpio`, `cpio`, and `rpmbuild`;
+it compares the package signature fingerprint to the installed ChatGPT RPM key at
+`/etc/pki/rpm-gpg/RPM-GPG-KEY-chatgpt-3BFA0E4AE8B8CC16A2D9BA684A3B4A566C4660E4.asc`.
+Neither path imports trust from the package it is authenticating or exposes a bypass flag.
+
+The shared Linux stager extracts without installing, accepts ASAR-scope patches only, preserves the
+unpacked native tree and every non-owned package payload, and writes an explicit TMTK package
+receipt. It rebuilds the DEB as local `SOURCE+tmtk1` and the RPM as local
+`SOURCE_RELEASE.tmtk1`; neither local artifact claims the vendor signature. The source stays
+byte-identical. Green results are `staged-deb-static-proof-green` and
+`staged-rpm-static-proof-green`, and both still mean `installed: false` and `launched: false`.
+If a future official package uses a key absent from the installed trust path, refresh trust only
+through OpenAI's authenticated vendor repository.
 
 Supervised Linux adoption names the candidate's pristine source separately from the rollback that
 matches the currently installed application:
@@ -101,18 +110,23 @@ matches the currently installed application:
 bin/tmtk-restart --candidate /path/to/chatgpt_amd64_tmtk.deb \
   --candidate-source /path/to/new-chatgpt_amd64.deb \
   --known-good /path/to/installed-chatgpt_amd64.deb /usr/lib/chatgpt
+
+bin/tmtk-restart --candidate /path/to/chatgpt_x86_64_tmtk.rpm \
+  --candidate-source /path/to/new-chatgpt_x86_64.rpm \
+  --known-good /path/to/installed-chatgpt_x86_64.rpm /usr/lib/chatgpt
 ```
 
-`--candidate-source` must pass the embedded-signature check against the trusted APT keyring. A
-receipt-free `--known-good` must pass the same check; a receipted TMTK rollback is instead verified
-against its strict package receipt. The candidate receipt must identify `--candidate-source` by
-version, architecture, and SHA-256, and the currently installed inner application must match
-`--known-good`. The source and rollback may be different releases during an ordinary upgrade.
-TMTK copies the candidate and rollback into its private incident before the restart dialog.
-Installation and restoration use `dpkg`; an ordinary desktop user authenticates through the
-selected native dialog and `sudo -A`, followed by exact package and inner-app verification. A
-future higher version from the vendor APT repository may replace the local rebuild. RPM staging is
-not implemented.
+All three paths in one adoption must use the same package format. `--candidate-source` must pass
+that format's vendor-signature check. A receipt-free `--known-good` must pass the same check; a
+receipted TMTK rollback is instead verified against its strict package receipt. The candidate
+receipt must identify `--candidate-source` by version, architecture, and SHA-256, and the currently
+installed inner application must match `--known-good`. The source and rollback may be different
+releases during an ordinary upgrade. TMTK copies the candidate and rollback into its private
+incident before the restart dialog. An ordinary desktop user authenticates through the selected
+native dialog and exact `sudo -A dpkg --install` or
+`sudo -A rpm --upgrade --replacepkgs --oldpackage`, followed by package-database and inner-app
+verification. A future higher version from the configured vendor repository may replace the local
+rebuild.
 
 ### Windows MSIX staging and adoption
 
@@ -152,9 +166,10 @@ identity and fails before restart when it does not. See
 [`qualification/windows.md`](../qualification/windows.md).
 
 The staging command removes its own extracted-ASAR scratch tree on both success and failure. The
-explicit destination candidate remains operator-owned. The restart supervisor bounds its private
-storage to one full known-working application by pruning only superseded toolkit-owned rollback
-payloads when the next candidate adoption captures a newer baseline. Maintainer-created `.work`
+explicit destination candidate remains operator-owned. The restart supervisor keeps its private
+candidate and rollback copies only while replacement is active, removes them when readiness or a
+successful restore completes the transaction, and prunes leftovers from older interrupted incidents
+on the next adoption. Maintainer-created `.work`
 trees are evidence benches, not an automatic cache; keep only the pristine input, current candidate,
 and deliberate failure fixtures still needed for qualification. After live acceptance, delete the
 candidate and unpacked source, remove prior-release work, and retain at most one pristine vendor ZIP

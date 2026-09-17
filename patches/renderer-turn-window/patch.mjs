@@ -2,8 +2,6 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881 } from "./profiles/linux.mjs";
-import { macBuild8881 } from "./profiles/macos.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -109,13 +107,8 @@ function inspectPristineSelector(source) {
   ]) {
     if (!source.includes(contract)) throw new Error(`Upstream changed: missing selector contract ${contract}`);
   }
-  const build8881 = build8881Profile(owner);
-  if (build8881 != null) {
-    inspectBuild8881PristineSelector(body, build8881);
-  } else if (isBuild9647Selector(body)) {
+  if (isBuild9647Selector(body)) {
     inspectBuild9647PristineSelector(body);
-  } else if (isBuild7345Selector(body)) {
-    inspectBuild7345PristineSelector(body);
   } else {
     matchSelectorPrefix(body, owner.header.groups);
     matchParentMaterialization(body, owner.header.groups);
@@ -134,18 +127,9 @@ function inspectAppliedSelector(source) {
   if (limit !== "UHrendererTailLimit") {
     throw new Error("Unrecognized renderer selector: wrong tail-limit owner");
   }
-  const build8881 = build8881Profile(owner);
-  if (build8881 != null) {
-    inspectBuild8881AppliedSelector(source, owner, build8881);
-    return;
-  }
   if (owner.body.includes("UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)") &&
       owner.body.includes("return Uds({conversationRequests:a,isAeonThread:!1")) {
     inspectBuild9647AppliedSelector(source, owner);
-    return;
-  }
-  if (owner.body.includes("UHrendererCurrentKeys=UHrendererTail(d,UHrendererTailLimit)")) {
-    inspectBuild7345AppliedSelector(source, owner);
     return;
   }
   for (const contract of [
@@ -187,10 +171,7 @@ function inspectAppliedSelector(source) {
 
 function patchSelector(source) {
   const owner = selectorOwner(source);
-  const build8881 = build8881Profile(owner);
-  if (build8881 != null) return patchBuild8881Selector(source, owner, build8881);
   if (isBuild9647Selector(owner.body)) return patchBuild9647Selector(source, owner);
-  if (isBuild7345Selector(owner.body)) return patchBuild7345Selector(source, owner);
   const names = owner.header.groups;
   const declaration = selectorDeclaration(source, names.selector, owner.header.index);
   const prefix = matchSelectorPrefix(owner.body, names);
@@ -259,111 +240,6 @@ function patchSelector(source) {
     "renderer selector declarations"
   );
   return patched;
-}
-
-function build8881Profile(owner) {
-  if (owner.header.groups.scope == null) return null;
-  const matches = [macBuild8881, linuxBuild8881].filter(profile =>
-    owner.header.groups.factory === profile.factory &&
-    owner.body.includes(build8881Prefix(profile)) &&
-    owner.body.includes("return gpo({conversationRequests:a,isAeonThread:!1") &&
-    owner.body.includes("subagentParentThreadId:o,turnEntityKeys:")
-  );
-  if (matches.length > 1) throw new Error("Upstream changed: ambiguous build-8881 renderer profile");
-  return matches[0] ?? null;
-}
-
-function inspectBuild8881PristineSelector(body, profile) {
-  for (const contract of [
-    `f=n(${profile.keys},s),p=f?.flatMap`,
-    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?ppo(",
-    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap`,
-    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
-  ]) {
-    if (count(body, contract) !== 1) {
-      throw new Error("Upstream changed: build-8881 selector contract " + contract);
-    }
-  }
-}
-
-function inspectBuild8881AppliedSelector(source, owner, profile) {
-  for (const contract of [
-    "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
-    `f=n(${profile.keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap`,
-    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))`,
-    "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit),UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)",
-    "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0",
-    "_=o!=null&&h==null?UHrendererParentKeys?.flatMap",
-    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)"
-  ]) {
-    if (count(source, contract) !== 1) {
-      throw new Error("Unrecognized build-8881 renderer window: missing " + contract);
-    }
-  }
-  const declaration = selectorDeclaration(source, owner.header.groups.selector, owner.header.index);
-  if (count(declaration.names, "UHrendererTail") !== 1) {
-    throw new Error("Unrecognized build-8881 renderer window: helper declaration ownership changed");
-  }
-  inspectTranscriptConsumer(source, owner.header.groups.selector, true);
-}
-
-function patchBuild8881Selector(source, owner, profile) {
-  let body = owner.body;
-  const before =
-    `f=n(${profile.keys},s),p=f?.flatMap(e=>{n(${profile.status},e)?.status,n(${profile.detail},e);let i=${profile.getTurn}(r,e);if(i==null)return[];i.turnId;` +
-    `let a=${profile.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});` +
-    `if(!a)for(let t of i.items)t!=null&&!a&&n(${profile.item},{...e,itemId:t.id});return[i]})??kpo,` +
-    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
-    `ppo({conversationId:e,getTurn:(e,t)=>${profile.getTurn}(r,{hostId:n(${profile.host},e),threadId:e,entityKey:t}),historyEntries:l,` +
-    "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
-    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap`;
-  const after =
-    `f=n(${profile.keys},s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(e=>{n(${profile.status},e)?.status,n(${profile.detail},e);let i=${profile.getTurn}(r,e);if(i==null)return[];i.turnId;` +
-    `let a=${profile.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});` +
-    `if(!a)for(let t of i.items)t!=null&&!a&&n(${profile.item},{...e,itemId:t.id});return[i]})??kpo,` +
-    `g=n(${profile.keys},o==null?null:{hostId:n(${profile.host},o),threadId:o}),` +
-    "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))," +
-    "UHrendererParentKeys=UHrendererTail(g,UHrendererParentLimit)," +
-    "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)," +
-    "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0," +
-    "h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?" +
-    `ppo({conversationId:e,getTurn:(e,t)=>${profile.getTurn}(r,{hostId:n(${profile.host},e),threadId:e,entityKey:t}),historyEntries:l,` +
-    "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0," +
-    "_=o!=null&&h==null?UHrendererParentKeys?.flatMap";
-  body = replaceOnce(body, before, after, "build-8881 bounded materialization");
-  body = replaceOnce(
-    body,
-    "turnEntityKeys:f?.map(({entityKey:e})=>e)",
-    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)",
-    "build-8881 bounded entity keys"
-  );
-  const names = owner.header.groups;
-  const headerAfter = owner.header[0].replace(
-    "isBackgroundSubagentsEnabled:" + names.background + "}",
-    "isBackgroundSubagentsEnabled:" + names.background + ",rendererTailLimit:UHrendererTailLimit}"
-  );
-  const helper = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t),";
-  const patchedOwner = helper + owner.text.replace(owner.header[0], headerAfter).replace(owner.body, body);
-  let patched = replaceOnce(source, owner.text, patchedOwner, "build-8881 renderer selector owner");
-  const declaration = selectorDeclaration(source, names.selector, owner.header.index);
-  const declaredNames = declaration.names.replace(
-    "," + names.selector + ",",
-    ",UHrendererTail," + names.selector + ","
-  );
-  if (declaredNames === declaration.names) {
-    throw new Error("Upstream changed: build-8881 selector declaration shape");
-  }
-  return replaceOnce(
-    patched,
-    declaration.text,
-    declaration.text.replace(declaration.names, declaredNames),
-    "build-8881 renderer selector declarations"
-  );
-}
-
-function build8881Prefix(profile) {
-  return `let i=n(${profile.hasConversation},e)??!1,a=n(${profile.requests},e)??Opo;` +
-    `n(${profile.touch},e);let o=t?n(${profile.parent},e)??null:null`;
 }
 
 function isBuild9647Selector(body) {
@@ -450,80 +326,6 @@ function patchBuild9647Selector(source, owner) {
     declaration.text,
     declaration.text.replace(declaration.names, declaredNames),
     "build-9647 renderer selector declarations"
-  );
-}
-
-function isBuild7345Selector(body) {
-  return body.includes("let r=n(gH,e)??!1,i=n(TH,e)??zCs;n(wH,e);let a=t?n(kH,e)??null:null") &&
-    body.includes("d=n(zH,o),f=d?.flatMap") &&
-    body.includes("turnEntityKeys:d?.map(({entityKey:e})=>e)");
-}
-
-function inspectBuild7345PristineSelector(body) {
-  for (const contract of [
-    "d=n(zH,o),f=d?.flatMap",
-    "h=n(zH,a==null?null:{hostId:n(UH,a),threadId:a}),g=a!=null&&m==null?h?.flatMap",
-    "turnEntityKeys:d?.map(({entityKey:e})=>e)"
-  ]) {
-    if (count(body, contract) !== 1) throw new Error(`Upstream changed: build-7345 selector contract ${contract}`);
-  }
-}
-
-function inspectBuild7345AppliedSelector(source, owner) {
-  for (const contract of [
-    "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
-    "UHrendererCurrentKeys=UHrendererTail(d,UHrendererTailLimit)",
-    "f=UHrendererCurrentKeys?.flatMap",
-    "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
-    "UHrendererParentKeys=UHrendererTail(h,UHrendererParentLimit)",
-    "g=a!=null&&m==null?UHrendererParentKeys?.flatMap",
-    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)"
-  ]) {
-    if (count(source, contract) !== 1) throw new Error(`Unrecognized build-7345 renderer window: missing ${contract}`);
-  }
-  const declaration = selectorDeclaration(source, owner.header.groups.selector, owner.header.index);
-  if (count(declaration.names, "UHrendererTail") !== 1) {
-    throw new Error("Unrecognized build-7345 renderer window: helper declaration ownership changed");
-  }
-  inspectTranscriptConsumer(source, owner.header.groups.selector, true);
-}
-
-function patchBuild7345Selector(source, owner) {
-  let body = owner.body;
-  body = replaceOnce(
-    body,
-    "d=n(zH,o),f=d?.flatMap",
-    "d=n(zH,o),UHrendererCurrentKeys=UHrendererTail(d,UHrendererTailLimit),f=UHrendererCurrentKeys?.flatMap",
-    "build-7345 current turn window"
-  );
-  body = replaceOnce(
-    body,
-    "h=n(zH,a==null?null:{hostId:n(UH,a),threadId:a}),g=a!=null&&m==null?h?.flatMap",
-    "h=n(zH,a==null?null:{hostId:n(UH,a),threadId:a}),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0)),UHrendererParentKeys=UHrendererTail(h,UHrendererParentLimit),g=a!=null&&m==null?UHrendererParentKeys?.flatMap",
-    "build-7345 parent turn window"
-  );
-  body = replaceOnce(
-    body,
-    "turnEntityKeys:d?.map(({entityKey:e})=>e)",
-    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)",
-    "build-7345 bounded entity keys"
-  );
-  const names = owner.header.groups;
-  const headerAfter = owner.header[0].replace(
-    `isBackgroundSubagentsEnabled:${names.background}}`,
-    `isBackgroundSubagentsEnabled:${names.background},rendererTailLimit:UHrendererTailLimit}`
-  );
-  const helper = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t),";
-  const patchedOwner = `${helper}${owner.text.replace(owner.header[0], headerAfter).replace(owner.body, body)}`;
-  let patched = replaceOnce(source, owner.text, patchedOwner, "build-7345 renderer selector owner");
-  const declaration = selectorDeclaration(source, names.selector, owner.header.index);
-  const declaredNames = declaration.names.replace(`,${names.selector},`, `,UHrendererTail,${names.selector},`);
-  if (declaredNames === declaration.names) throw new Error("Upstream changed: build-7345 selector declaration shape");
-  return replaceOnce(
-    patched,
-    declaration.text,
-    declaration.text.replace(declaration.names, declaredNames),
-    "build-7345 renderer selector declarations"
   );
 }
 

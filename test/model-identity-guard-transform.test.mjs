@@ -33,37 +33,19 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), once, "second application is byte-identical");
 
-  const current = fs.readFileSync(owner, "utf8");
-  const helperStart = current.indexOf('const MTKmodelGuardStyleId=');
-  const helperEnd = current.indexOf("function _Lr(e){", helperStart);
-  assert.ok(helperStart >= 0 && helperEnd > helperStart, "current helper upgrade boundaries");
-  const transientFalsePositive = 'const MTKmodelGuardStyleId="mtk-model-identity-guard-style";function MTKmodelGuardMismatch(e,t){return e!=null&&(t==null||e.model!==t.model||e.reasoningEffort!==t.reasoningEffort)}function MTKmodelGuardEnsureStyle(){return\'data-mtk-model-guard-mismatch data-mtk-model-guard-message content:"BAD MODEL"\'}function MTKinstallModelIdentityGuard(){return{version:6}}const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelIdentityGuard(){}';
-  fs.writeFileSync(owner, current.slice(0, helperStart) + transientFalsePositive + current.slice(helperEnd));
-  assert.equal(run("check").state, "needs-upgrade", "the transient false-positive helper upgrades");
-  assert.equal(run("apply").state, "applied");
-  const transientBehavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(transientBehavior.status, 0, transientBehavior.stderr || transientBehavior.stdout);
-
-  const transientFixed = fs.readFileSync(owner, "utf8");
-  const transientHelperStart = transientFixed.indexOf('const MTKmodelGuardStyleId=');
-  const transientHelperEnd = transientFixed.indexOf("function _Lr(e){", transientHelperStart);
-  const baselineShifted = 'const MTKmodelGuardStyleId="mtk-model-identity-guard-style";function MTKmodelGuardEnsureStyle(){return\'data-mtk-model-guard-mismatch data-mtk-model-guard-message content:"BAD MODEL" align-items:center\'}function MTKinstallModelIdentityGuard(){return{version:3}}const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelIdentityGuard(){}';
-  fs.writeFileSync(owner, transientFixed.slice(0, transientHelperStart) + baselineShifted + transientFixed.slice(transientHelperEnd));
-  assert.equal(run("check").state, "needs-upgrade", "the pre-alignment BAD MODEL helper upgrades");
-  assert.equal(run("apply").state, "applied");
-  const alignedBehavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(alignedBehavior.status, 0, alignedBehavior.stderr || alignedBehavior.stdout);
-
-  const aligned = fs.readFileSync(owner, "utf8");
-  const alignedHelperStart = aligned.indexOf('const MTKmodelGuardStyleId=');
-  const alignedHelperEnd = aligned.indexOf("function _Lr(e){", alignedHelperStart);
-  const legacy = 'const MTKmodelGuardStyleId="mtk-model-identity-guard-style";function MTKmodelGuardEnsureStyle(){return\'data-mtk-model-guard-mismatch content:"RED ALERT"\'}function MTKinstallModelIdentityGuard(){return{version:1}}const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelIdentityGuard(){}';
-  fs.writeFileSync(owner, aligned.slice(0, alignedHelperStart) + legacy + aligned.slice(alignedHelperEnd));
-  assert.equal(run("check").state, "needs-upgrade");
-  assert.equal(run("apply").state, "applied");
-  const upgradedBehavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(upgradedBehavior.status, 0, upgradedBehavior.stderr || upgradedBehavior.stdout);
   process.stdout.write("model identity guard transform probe passed\n");
+
+  fs.writeFileSync(owner, linux9647OwnerFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linuxOnce = fs.readFileSync(owner);
+  const linuxSource = linuxOnce.toString();
+  assert.match(linuxSource, /MTKuseModelIdentityGuard\(r,be,Xe\)/);
+  assert.doesNotMatch(linuxSource, /MTKuseModelIdentityGuard\(r,ve,Xe\)/);
+  assert.match(linuxSource, /macDecoy="Xe=TH\(q\.reasoningEffort,Ke\),Ze="/);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(owner), linuxOnce, "Linux second application is byte-identical");
+  process.stdout.write("model identity guard Linux build-9647 transform probe passed\n");
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -87,9 +69,18 @@ function paletteFixture(withBridge) {
 
 function ownerFixture() {
   return [
-    'const S7={useEffect:e=>e()},aor=e=>e;',
+    'const L5={useEffect:e=>e()},TH=e=>e;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function _Lr(e){let t=(0,DLr.c)(231),r=e.conversationId,U=e.model,I={reasoningEffort:e.reasoningEffort},Me=[],Ie=aor(I.reasoningEffort,Me),Le=true;return{t,r,U,I,Ie,Le}}',
-    'export{_Lr};'
+    'function Hcr(e){let t=(0,$cr.c)(242),r=e.conversationId,ve=e.model,q={reasoningEffort:e.reasoningEffort},Ke=[],Xe=TH(q.reasoningEffort,Ke),Ze=true;return{t,r,ve,q,Xe,Ze}}',
+    'export{Hcr};'
+  ].join("");
+}
+
+function linux9647OwnerFixture() {
+  return [
+    'const L5={useEffect:e=>e()},OH=e=>e;',
+    'const selector={"data-codex-intelligence-trigger":true};',
+    'function Hcr(e){let t=(0,$cr.c)(242),r=e.conversationId,be=e.model,Y={reasoningEffort:e.reasoningEffort},Ke=[],Xe=OH(Y.reasoningEffort,Ke),Ze=true;return{t,r,be,Y,Xe,Ze}}',
+    'export const macDecoy="Xe=TH(q.reasoningEffort,Ke),Ze=";'
   ].join("");
 }

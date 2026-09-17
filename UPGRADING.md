@@ -37,7 +37,7 @@ profile.
    enabled, keep exactly one valid observer configuration at:
 
    ```text
-   ~/.config/tinrelay/SHIP/outgoing-observer.json
+   ~/.config/tinrelay/${SHIP}/outgoing-observer.json
    ```
 
    TMTK discovers the active ship from that file. Zero or multiple valid observer configurations

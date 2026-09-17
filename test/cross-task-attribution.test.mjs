@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { linuxBuild8881 } from "../patches/cross-task-attribution/profiles/linux.mjs";
+import { linuxBuild9647 } from "../patches/cross-task-attribution/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
@@ -42,108 +42,53 @@ assert.equal(api.MTKsender(null, "Archive Engine"), null, "missing task metadata
 assert.ok(api.MTKdelegatedBubbleStyle.backgroundColor.includes("interactive-bg-accent-muted-context"),
   "unmapped delegation keeps the existing semantic accent fallback");
 
-let metadataKind;
-let metadataContracts;
-if (source.includes("MTKstore.get(MTKtitleAtom")) {
-  const capturedStore = uniqueMatch(
-    source,
-    /const MTKcrossTaskStoreHook=(?<store>[$A-Z_a-z][$\w]*),MTKcrossTaskStoreScope=(?<scope>[$A-Z_a-z][$\w]*);/g,
-    "component-external renderer store bindings"
-  ).groups;
-  const titleImport = uniqueMatch(
-    source,
-    /import\{(?<specifiers>[^}]*MTKtitleAtom[^}]*)\}from"(?<relative>\.\/app-(?:initial|primary)-[^"]+\.js)";/g,
-    "title atom import"
-  ).groups;
-  const titleOwner = fs.readFileSync(path.resolve(path.dirname(ownerPath), titleImport.relative), "utf8");
-  const titleExport = importedExport(titleImport.specifiers, "MTKtitleAtom");
-  const titleInternal = exportedInternal(titleOwner, titleExport);
-  if (titleInternal === "tOn") {
-    assert.ok(titleOwner.includes("tOn=vp(qv,") && titleOwner.includes("localTitle:r"),
-      "current title atom retains its stock task-title selector owner");
-  } else if (titleOwner.includes(`${titleInternal}=iS(`)) {
-    assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("localTitle:r") &&
-      titleOwner.includes("summaryTitle"), "split title atom retains its stock task-title selector owner");
-  } else if (titleInternal === "L0t") {
-    assert.ok(titleOwner.includes("L0t=wx(Vv,") && titleOwner.includes("hasConversation") &&
-      titleOwner.includes("liveTitle") && titleOwner.includes("localTitle:r"),
-    "current split title atom retains its stock live-title selector owner");
-  } else if (titleInternal === "Q2t") {
-    assert.ok(titleOwner.includes("Q2t=Jf(o_,") && titleOwner.includes("hasConversation") &&
-      titleOwner.includes("liveTitle") && titleOwner.includes("X2t({...n,localTitle:r})"),
-    "build-8881 title atom retains its stock live-title selector owner");
-  } else if (titleInternal === linuxBuild8881.titleSelector.internal) {
-    const selector = linuxBuild8881.titleSelector;
-    assert.ok(titleOwner.includes(`${selector.internal}=${selector.atomFactory}(${selector.scope},`) &&
-      titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
-      titleOwner.includes("localTitle:r") &&
-      titleOwner.includes(`${selector.helper}({...n,localTitle:r})`),
-    "Linux build-8881 title atom retains its stock live-title selector owner");
-  } else if (titleInternal === "GEn") {
-    assert.ok(titleOwner.includes("GEn=Rt(ns,") && titleOwner.includes("hasConversation") &&
-      titleOwner.includes("liveTitle") && titleOwner.includes("localTitle:r") &&
-      titleOwner.includes("UEn({...n,localTitle:r})"),
-    "build-9647 title atom retains its stock live-title selector owner");
-  } else {
-    assert.ok(["SOn", "EI", "xNn"].includes(titleInternal), "title atom retains its stock ESM export owner");
-  }
-  const metadata = uniqueMatch(
-    source,
-    /MTKstore=(?<store>[$A-Z_a-z][$\w]*)\((?<scope>[$A-Z_a-z][$\w]*)\),MTKtitle=MTKstore\.get\(MTKtitleAtom,\{hostId:/g,
-    "renderer-store title lookup"
-  ).groups;
-  assert.equal(metadata.store, "MTKcrossTaskStoreHook", "component uses the collision-proof store binding");
-  assert.equal(metadata.scope, "MTKcrossTaskStoreScope", "component uses the collision-proof scope binding");
-  const initialImport = uniqueMatch(
-    source,
-    /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g,
-    "app-initial import"
-  ).groups;
-  const appInitial = fs.readFileSync(path.resolve(path.dirname(ownerPath), initialImport.relative), "utf8");
-  const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
-  const scopeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.scope));
-  if (!["pb", "hb", "Db"].includes(storeInternal)) {
-    const storeFunction = functionSource(appInitial, storeInternal);
-    assert.ok(storeFunction.includes(".useContext") && storeFunction.includes(".useRef") &&
-      storeFunction.includes("get queryClient"), "metadata uses the stock renderer store hook");
-  }
-  assert.equal(scopeInternal, "Q", "metadata uses the stock renderer store scope");
-  metadataKind = "stock-renderer-store-title-atom";
-  metadataContracts = ["MTKstore.get(MTKtitleAtom,{hostId:"];
+const capturedStore = uniqueMatch(
+  source,
+  /const MTKcrossTaskStoreHook=(?<store>[$A-Z_a-z][$\w]*),MTKcrossTaskStoreScope=(?<scope>[$A-Z_a-z][$\w]*);/g,
+  "component-external renderer store bindings"
+).groups;
+const titleImport = uniqueMatch(
+  source,
+  /import\{(?<specifiers>[^}]*MTKtitleAtom[^}]*)\}from"(?<relative>\.\/app-primary-[^"]+\.js)";/g,
+  "title atom import"
+).groups;
+const titleOwner = fs.readFileSync(path.resolve(path.dirname(ownerPath), titleImport.relative), "utf8");
+const titleExport = importedExport(titleImport.specifiers, "MTKtitleAtom");
+const titleInternal = exportedInternal(titleOwner, titleExport);
+const linuxSelector = linuxBuild9647.titleSelector;
+if (titleInternal === linuxSelector.internal &&
+    titleOwner.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {
+  assert.ok(titleOwner.includes(`${linuxSelector.helper}({...n,localTitle:r})`),
+    "Linux build-9647 title atom retains its stock selector owner");
 } else {
-  const metadata = uniqueMatch(
-    source,
-    /MTKstore=(?<store>[$A-Z_a-z][$\w]*)\((?<scope>[$A-Z_a-z][$\w]*)\),MTKtask=MTKstore\.get\(MTKtaskAtom,MTKthreadKey\),MTKproject=MTKstore\.get\(MTKprojectAtom,MTKthreadKey\)/g,
-    "renderer-store metadata lookup"
-  ).groups;
-  const appImport = uniqueMatch(
-    source,
-    /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g,
-    "app-initial import"
-  ).groups;
-  const appInitial = fs.readFileSync(path.resolve(path.dirname(ownerPath), appImport.relative), "utf8");
-  const storeExport = importedExport(appImport.specifiers, metadata.store);
-  const scopeExport = importedExport(appImport.specifiers, metadata.scope);
-  const storeInternal = exportedInternal(appInitial, storeExport);
-  const scopeInternal = exportedInternal(appInitial, scopeExport);
-  const storeFunction = functionSource(appInitial, storeInternal);
-  assert.ok(storeFunction.includes(".useContext") && storeFunction.includes(".useRef") &&
-    storeFunction.includes("get queryClient"), "metadata uses the stock renderer store hook");
-  const taskImport = uniqueMatch(
-    appImport.specifiers,
-    /(?:^|,)(?<export>[$A-Z_a-z][$\w]*) as MTKtaskAtom(?=,|$)/g,
-    "task atom import"
-  ).groups.export;
-  const taskInternal = exportedInternal(appInitial, taskImport);
-  assert.ok(appInitial.includes(`${taskInternal}=no(${scopeInternal},`) ||
-    appInitial.includes(`${taskInternal}=i_(${scopeInternal},`),
-    "store scope and task metadata family have the same stock owner");
-  metadataKind = "stock-renderer-store-get";
-  metadataContracts = ["MTKstore.get(MTKtaskAtom,MTKthreadKey)", "MTKstore.get(MTKprojectAtom,MTKthreadKey)"];
+  assert.match(titleOwner, new RegExp(`${escapeRegExp(titleInternal)}=(?:iS|wx|Rt)\\(`),
+    "shared build-9647 title atom retains its stock selector factory");
 }
+assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
+  titleOwner.includes("localTitle:r"), "build-9647 title selector retains its stock task metadata");
+
+const metadata = uniqueMatch(
+  source,
+  /MTKstore=(?<store>[$A-Z_a-z][$\w]*)\((?<scope>[$A-Z_a-z][$\w]*)\),MTKtitle=MTKstore\.get\(MTKtitleAtom,\{hostId:/g,
+  "renderer-store title lookup"
+).groups;
+assert.equal(metadata.store, "MTKcrossTaskStoreHook", "component uses the collision-proof store binding");
+assert.equal(metadata.scope, "MTKcrossTaskStoreScope", "component uses the collision-proof scope binding");
+const initialImport = uniqueMatch(
+  source,
+  /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g,
+  "app-initial import"
+).groups;
+const appInitial = fs.readFileSync(path.resolve(path.dirname(ownerPath), initialImport.relative), "utf8");
+const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
+const scopeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.scope));
+const storeFunction = functionSource(appInitial, storeInternal);
+assert.ok(storeFunction.includes(".useContext") && storeFunction.includes(".useRef") &&
+  storeFunction.includes("get queryClient"), "metadata uses the stock renderer store hook");
+assert.equal(scopeInternal, "Q", "metadata uses the stock renderer store scope");
 
 for (const contract of [
-  ...metadataContracts,
+  "MTKstore.get(MTKtitleAtom,{hostId:",
   "defaultMessage:`Sent by {appName} from another task`",
   '"data-mtk-palette-attribution-name":!0',
   "messageBubbleStyle:MTKdelegatedBubbleStyle",
@@ -157,7 +102,7 @@ assert.ok(source.includes("onLabelClick:"), "source-task click-through remains p
 process.stdout.write(`${JSON.stringify({
   state: "green",
   labels: ["Name", "Project/Task title", "generic fallback"],
-  metadata: metadataKind,
+  metadata: "stock-renderer-store-title-atom",
   clickThroughPreserved: true,
   delegatedBubbleOnly: true,
   privateSelectorHookImported: false

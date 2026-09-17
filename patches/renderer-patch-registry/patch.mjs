@@ -126,10 +126,7 @@ function activePackages() {
       anchor: "var MTKdelegatedBubbleStyle=",
       call: source.includes("function MTKshortTaskTitle(")
         ? `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:2,resolveTaskLabel(e){try{return MTKshortTaskTitle(e?.title)}catch{return null}}});`
-        : `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:1});`,
-      previousCalls: source.includes("function MTKshortTaskTitle(")
-        ? [`globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:1});`]
-        : []
+        : `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:1});`
     });
     addIf(packages, source.includes("function MTKrenderWaitThreads(") && source.includes("data-mtk-wait-thread-roster"), {
       name: "waitThreadRoster",
@@ -141,24 +138,14 @@ function activePackages() {
       name: "outgoingMessageReceipt",
       file,
       anchor: "function MTKoutboundArguments(",
-      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:5,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});`,
-      previousCalls: [
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:1,persistence:"mounted-session",visibility:"persistent-when-activity-collapsed",preview:"stock-hover",messageRendering:"recipient-user-message"});`,
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:2,persistence:"bounded-private-restart-cache",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});`,
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:3,persistence:"bounded-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});`,
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:4,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});`
-      ]
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:5,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});`
     });
     addIf(packages, source.includes("function MTKtinrelayPointerFromMessage(") &&
       source.includes("data-mtk-tinrelay-pointer"), {
       name: "tinrelayPointerPresentation",
       file,
       anchor: "function MTKtinrelayShip(",
-      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("tinrelayPointerPresentation",{version:3,contract:"tinrelay-local-pointer-v1",disclosure:"automatic-local-inspection",rendering:"stock-safe-markdown",outgoingContinuity:"private-task-turn-anchors",shipIdentity:"runtime-message-and-observer-config"});`,
-      previousCalls: [
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("tinrelayPointerPresentation",{version:1,contract:"tinrelay-local-pointer-v1",disclosure:"automatic-local-inspection",rendering:"stock-safe-markdown"});`,
-        `globalThis.__MTK_PATCH_REGISTRY__?.register?.("tinrelayPointerPresentation",{version:2,contract:"tinrelay-local-pointer-v1",disclosure:"automatic-local-inspection",rendering:"stock-safe-markdown",outgoingContinuity:"private-task-turn-anchors"});`
-      ]
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("tinrelayPointerPresentation",{version:3,contract:"tinrelay-local-pointer-v1",disclosure:"automatic-local-inspection",rendering:"stock-safe-markdown",outgoingContinuity:"private-task-turn-anchors",shipIdentity:"runtime-message-and-observer-config"});`
     });
   }
   const names = packages.map(entry => entry.name);
@@ -184,8 +171,7 @@ function inspectState() {
   for (const entry of packages) {
     const nameCount = registrations.filter(name => name === entry.name).length;
     const exactCount = count(files.get(entry.file), entry.call);
-    const previousCount = (entry.previousCalls ?? []).reduce((sum, call) => sum + count(files.get(entry.file), call), 0);
-    if (nameCount > 1 || (nameCount === 1 && exactCount !== 1 && previousCount !== 1)) {
+    if (nameCount > 1 || (nameCount === 1 && exactCount !== 1)) {
       throw new Error(`Unrecognized ${entry.name} registration: names=${nameCount} exact=${exactCount}`);
     }
   }
@@ -210,11 +196,7 @@ function applyRegistry() {
   for (const entry of packages.filter(entry => entry.file !== appInitial)) {
     let source = fs.readFileSync(entry.file, "utf8");
     if (!source.includes(entry.call)) {
-      const previous = (entry.previousCalls ?? []).filter(call => source.includes(call));
-      if (previous.length > 1) throw new Error(`Unrecognized ${entry.name} registration upgrade state`);
-      source = previous.length === 1
-        ? replaceOnce(source, previous[0], entry.call, `${entry.name} registration upgrade`)
-        : replaceOnce(source, entry.anchor, `${entry.call}${entry.anchor}`, `${entry.name} registration`);
+      source = replaceOnce(source, entry.anchor, `${entry.call}${entry.anchor}`, `${entry.name} registration`);
       fs.writeFileSync(entry.file, source);
     }
   }

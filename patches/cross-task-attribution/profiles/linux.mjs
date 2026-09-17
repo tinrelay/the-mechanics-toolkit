@@ -1,31 +1,31 @@
-export const linuxBuild8881 = {
-  titleOwner: "vt=X(G2t,{hostId:qe??`local`,threadId:n})??Ve?.title??null",
-  titleAtom: "G2t",
+export const linuxBuild9647 = {
+  titleOwner: "gt=CC(GEn,{hostId:Ge??`local`,threadId:n})??ze?.title??null",
+  titleAtom: "GEn",
   titleSelector: {
-    internal: "G2t",
-    atomFactory: "Ll",
-    scope: "Hc",
-    helper: "U2t"
+    internal: "GEn",
+    atomFactory: "ip",
+    scope: "Rg",
+    helper: "UEn"
   },
-  storeHook: "Lm",
+  storeHook: "tm",
   storeScope: "Q",
   component: {
-    marker: "turnId:O,cwd:k,hostId:A}=e,",
-    delegation: "rz", delegationCache: "iz", delegationJsx: "az",
-    wrapper: "JR", wrapperCache: "YR", wrapperJsx: "XR",
-    bubble: "__", bubbleCache: "y_", collapsedLines: "ZR",
-    bubbleCacheSize: 135,
+    delegation: "MS", delegationCache: "NS", delegationJsx: "PS",
+    wrapper: "CS", wrapperCache: "wS", wrapperJsx: "TS",
+    bubble: "bt", wrapperBubble: "uh", bubbleCache: "St", collapsedLines: "ES",
+    bubbleCacheSize: 152,
+    externalBubble: true,
     bubbleOwner: [
-      "turnId:O,cwd:k,hostId:A}=e,",
-      "turnId:O,cwd:k,hostId:A,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+      "turnId:w,cwd:T,hostId:E}=e,",
+      "turnId:w,cwd:T,hostId:E,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
     ],
     bubbleDependency: [
-      "t[43]!==_e||t[44]!==fe||t[45]!==Ce){",
-      "t[43]!==_e||t[44]!==fe||t[45]!==Ce||t[135]!==MTKbubbleStyleOverride){"
+      "t[45]!==K||t[46]!==G||t[47]!==Ke){",
+      "t[45]!==K||t[46]!==G||t[47]!==Ke||t[152]!==MTKbubbleStyleOverride){"
     ],
     bubbleStorage: [
-      "t[43]=_e,t[44]=fe,t[45]=Ce,t[46]=we",
-      "t[43]=_e,t[44]=fe,t[45]=Ce,t[135]=MTKbubbleStyleOverride,t[46]=we"
+      "t[45]=K,t[46]=G,t[47]=Ke,t[48]=q",
+      "t[45]=K,t[46]=G,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
     ]
   }
 };

@@ -16,18 +16,10 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-assert.ok([
-  "Tie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
-  "Doe=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
-  "vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`"
-].some(contract => main.includes(contract)),
+assert.ok(main.includes("vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`"),
   "readiness uses the existing per-launch marker path environment boundary");
-assert.equal([
-  "H.dispatchMessage(`ready`,{persistedStateResponsePriority:G7?`critical`:void 0})",
-  "H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})",
-  "h.dispatchMessage(`ready`,{persistedStateResponsePriority:i7?`critical`:void 0})"
-  ,"g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
-].filter(contract => count(renderer, contract) === 1).length, 1,
+assert.equal(count(renderer,
+  "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");
 process.stdout.write("safe-start readiness probe passed\n");

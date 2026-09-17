@@ -5,17 +5,12 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { linuxBuild8881 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
+import { linuxBuild9647 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/outgoing-message-receipt.test.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoing-receipt-test-"));
-const previousLinuxLifecycle = {
-  callDependencyAfter: "t[357]!==n||t[371]!==C?",
-  callBodyAfter: "enableTimelineTargets:Se,item:n,sourceTurnId:C}",
-  callStorageAfter: "t[357]=n,t[371]=C,t[358]=e"
-};
 
 try {
   const extracted = path.join(scratch, "extracted");
@@ -27,6 +22,7 @@ try {
   const projectionTarget = path.join(assets, "dynamic-projection-fixture.js");
   const ownerTarget = path.join(assets, "app-control-fixture.js");
   const conversationTarget = path.join(assets, "conversation-fixture.js");
+  const conversationTurnTarget = path.join(assets, "conversation-turn-fixture.js");
   const activityTarget = path.join(assets, "activity-fixture.js");
   const formatterTarget = path.join(assets, "message-fixture.js");
   const consumerTarget = path.join(assets, "message-consumer-fixture.js");
@@ -36,6 +32,7 @@ try {
   fs.writeFileSync(projectionTarget, projectionFixture());
   fs.writeFileSync(ownerTarget, ownerFixture());
   fs.writeFileSync(conversationTarget, conversationFixture());
+  fs.writeFileSync(conversationTurnTarget, conversationTurnFixture());
   fs.writeFileSync(activityTarget, activityFixture());
   fs.writeFileSync(formatterTarget, formatterFixture());
   fs.writeFileSync(consumerTarget, consumerFixture());
@@ -59,6 +56,7 @@ try {
     path.join("webview", "assets", "app-control-fixture.js"),
     path.join("webview", "assets", "dynamic-projection-fixture.js"),
     path.join("webview", "assets", "conversation-fixture.js"),
+    path.join("webview", "assets", "conversation-turn-fixture.js"),
     path.join(".vite", "build", "main-fixture.js")
   ]);
   assert.equal(applied.collapseOwner, path.join("webview", "assets", "activity-fixture.js"));
@@ -69,10 +67,11 @@ try {
     /n\.tool===`send_message_to_thread`&&\(t\.success=n\.success\)/,
     "completed send projection preserves the raw success result");
   assert.match(once.toString(), /q as MTKoutboundStoreScope/,
-    "build 8690 imports the task selector's Q scope, not an unrelated BR export");
+    "build 9647 imports the task selector's Q scope, not an unrelated export");
   assert.doesNotMatch(once.toString(), /BR as MTKoutboundStoreScope/,
-    "build 8690 does not confuse the export named BR with internal scope Q");
+    "build 9647 does not confuse another export with internal scope Q");
   const conversationOnce = fs.readFileSync(conversationTarget);
+  const conversationTurnOnce = fs.readFileSync(conversationTurnTarget);
   const mainOnce = fs.readFileSync(mainTarget);
 
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], { encoding: "utf8" });
@@ -83,15 +82,14 @@ try {
   assert.deepEqual(fs.readFileSync(projectionTarget), projectionOnce,
     "second success-projection application is byte-identical");
   assert.deepEqual(fs.readFileSync(conversationTarget), conversationOnce, "second conversation application is byte-identical");
+  assert.deepEqual(fs.readFileSync(conversationTurnTarget), conversationTurnOnce,
+    "second turn application is byte-identical");
   assert.deepEqual(fs.readFileSync(mainTarget), mainOnce, "second main application is byte-identical");
   assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialFixture()), "task and hover owner stays untouched");
   assert.deepEqual(fs.readFileSync(activityTarget), Buffer.from(activityFixture()), "collapsed-activity owner stays untouched");
   assert.deepEqual(fs.readFileSync(formatterTarget), Buffer.from(formatterFixture()), "message formatter owner stays untouched");
   assert.deepEqual(fs.readFileSync(consumerTarget), Buffer.from(consumerFixture()), "message formatter consumer stays untouched");
   assert.deepEqual(fs.readFileSync(styleTarget), Buffer.from(styleFixture()), "stylesheet stays untouched");
-  assertBuild8576SplitPresentationOrdering();
-  assertBuild8881PlatformTurnSelection();
-  assertLinuxBuild9275DynamicTurnContext();
   assertLinuxAppliedInspection(linuxPristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
@@ -142,20 +140,6 @@ function assertLinuxAppliedInspection(pristineRoot) {
   assert.match(runToolkit(missingOwnerBranch, "check", 1).stderr, /Upstream changed/,
     "an applied tree missing the owner lifecycle branch fails closed");
 
-  const oldSourceTurn = path.join(scratch, "old-linux-source-turn-owner");
-  fs.cpSync(pristineRoot, oldSourceTurn, { recursive: true });
-  downgradeLinuxSourceTurn(path.join(oldSourceTurn, "webview/assets/conversation-fixture.js"));
-  assert.match(runToolkit(oldSourceTurn, "check", 1).stderr, /Upstream changed/,
-    "an otherwise-current Linux tree with the old source-turn owner fails closed");
-}
-
-function downgradeLinuxSourceTurn(file) {
-  replaceInFixture(file, linuxBuild8881.dynamic.callDependencyAfter,
-    previousLinuxLifecycle.callDependencyAfter, "previous Linux source-turn dependency");
-  replaceInFixture(file, linuxBuild8881.dynamic.callBodyAfter,
-    previousLinuxLifecycle.callBodyAfter, "previous Linux source-turn body");
-  replaceInFixture(file, linuxBuild8881.dynamic.callStorageAfter,
-    previousLinuxLifecycle.callStorageAfter, "previous Linux source-turn storage");
 }
 
 function replaceInFixture(file, before, after, label) {
@@ -164,107 +148,18 @@ function replaceInFixture(file, before, after, label) {
   fs.writeFileSync(file, value.replace(before, after));
 }
 
-function assertBuild8576SplitPresentationOrdering() {
-  const transform = fs.readFileSync(path.join(repository, "patches/outgoing-message-receipt/patch.mjs"), "utf8");
-  const splitProfile = sourceBetween(transform, "function splitTurnProfile(", "function assistantProfile(");
-  const uniqueMatch = sourceBetween(transform, "function uniqueMatch(", "function escapeRegExp(");
-  const escapeRegExp = sourceBetween(transform, "function escapeRegExp(", "function count(");
-  const count = sourceBetween(transform, "function count(", "function syntaxCheck(");
-  const conversationTarget = "/tmp/conversation-blocks-fixture.js";
-  const profile = Function("conversationTarget", "path", `${escapeRegExp};${uniqueMatch};${count};${splitProfile};return splitTurnProfile`)(conversationTarget, path);
-  const root = [
-    'import{x as x}from"./conversation-blocks-fixture.js";',
-    "function _i(e){let t=(0,Hi.c)(208),{conversationId:s,turnId:f,hostId:c}=e,Fa=[],$=(e,t,n)=>Fa.push({key:e,node:t,options:n});",
-    '$(`user-item`,USER,{canOwnLatestTurnFollowContent:!1});',
-    '$(`model-rerouted`,MODEL);',
-    "let Ra=Fa.length,za={};",
-    "let Wa;return t[203]!==Jt||t[204]!==Va||t[205]!==Ha||t[206]!==Ua?(Wa=(0,Q.jsxs)(Q.Fragment,{children:[Jt,Va,Ha,Ua]}),t[203]=Jt,t[204]=Va,t[205]=Ha,t[206]=Ua,t[207]=Wa):Wa=t[207]}"
-  ].join("");
-  const match = profile(root);
-  const patched = root.replace(match.importText,
-    `import{${match.specifiers},MTKOutboundTurnReceipts as MTKOutboundTurnReceipts}from"${match.relative}";`)
-    .replace(match.before, match.after);
-  const userAt = patched.indexOf('$(`user-item`');
-  const receiptAt = patched.indexOf('$(`mtk-outbound-turn-receipts`');
-  const activityAt = patched.indexOf("let Ra=Fa.length");
-  assert.ok(userAt >= 0 && receiptAt > userAt && receiptAt < activityAt,
-    "build 8576 durable task receipts render after the initiating user request and before activity");
-  assert.ok(!patched.includes("children:[(0,Q.jsx)(MTKOutboundTurnReceipts"),
-    "build 8576 receipts are not mounted ahead of the entire stock turn list");
-}
-
-function assertBuild8881PlatformTurnSelection() {
-  const transform = fs.readFileSync(path.join(repository, "patches/outgoing-message-receipt/patch.mjs"), "utf8");
-  const splitProfile = sourceBetween(transform, "function splitTurnProfile(", "function assistantProfile(");
-  const uniqueMatch = sourceBetween(transform, "function uniqueMatch(", "function escapeRegExp(");
-  const escapeRegExp = sourceBetween(transform, "function escapeRegExp(", "function count(");
-  const count = sourceBetween(transform, "function count(", "function syntaxCheck(");
-  const conversationTarget = "/tmp/conversation-blocks-fixture.js";
-  const profile = Function(
-    "conversationTarget", "path", `${escapeRegExp};${uniqueMatch};${count};${splitProfile};return splitTurnProfile`
-  )(conversationTarget, path);
-  const owner = turnId => [
-    'import{x as x}from"./conversation-blocks-fixture.js";',
-    `function bi(e){let t=(0,Ki.c)(216),{conversationId:o,turnId:${turnId},hostId:c}=e,za=[],$=(e,t,n)=>za.push({key:e,node:t,options:n});`,
-    "let Ha=za.length,Ua={};"
-  ].join("");
-  assert.match(profile(owner("m"), linuxBuild8881.turn).after, /turnId:m/,
-    "macOS build 8881 does not select the Linux turn binding");
-  assert.match(profile(owner("f"), linuxBuild8881.turn).after, /turnId:f/,
-    "Linux build 8881 selects its exact turn binding");
-}
-
-function assertLinuxBuild9275DynamicTurnContext() {
-  const transform = fs.readFileSync(path.join(repository, "patches/outgoing-message-receipt/patch.mjs"), "utf8");
-  const dynamicRendererProfile = Function(
-    "linuxBuild8881",
-    `${sourceBetween(transform, "function containingFunction(", "function exportedAs(")}` +
-      `${sourceBetween(transform, "function uniqueMatch(", "function syntaxCheck(")}` +
-      `${sourceBetween(transform, "function dynamicRendererProfile(", "function splitTurnProfile(")}` +
-      ";return dynamicRendererProfile"
-  )(linuxBuild8881);
-  const linux = linuxBuild8881.dynamic;
-  const source = [
-    linux.before,
-    ";return u}",
-    linux.parentBefore,
-    "{conversationId:d,toolActivityTurnKey:R,turnId:C,hostId:H}=e,Y,Se,n;switch(n.type){case`dynamic-tool-call`:{let e;return ",
-    "t[354]!==Y||t[355]!==d||t[356]!==Se||t[357]!==n?",
-    linux.call,
-    ":e=t[358]}}}"
-  ].join("");
-  const profile = dynamicRendererProfile(source);
-  const patched = profile.patchedCallText;
-  assert.ok(patched.includes("t[357]!==n||t[371]!==R?"),
-    "Linux invalidates the dynamic renderer when the source turn key changes");
-  assert.ok(patched.includes(
-    'sourceTurnId:typeof R==="string"&&R.startsWith(d+"\\0")?R.slice(d.length+1):void 0'
-  ), "Linux derives the source turn from its populated tool activity key");
-  assert.ok(profile.patchedFunction.includes("ReceiptLifecycle:MTKOutboundReceiptLifecycle"),
-    "Linux hands completed receipts to the reactive acknowledgment owner");
-  assert.ok(!patched.includes("sourceTurnId:C"),
-    "Linux does not use the present-but-undefined turnId prop");
-}
-
-function sourceBetween(value, startMarker, endMarker) {
-  const start = value.indexOf(startMarker);
-  const end = value.indexOf(endMarker, start + startMarker.length);
-  assert.ok(start >= 0 && end > start, `${startMarker} source boundary`);
-  return value.slice(start, end);
-}
-
 function initialFixture() {
   return [
     "const x=0,Q=Symbol(`scope`),LQ=Symbol(`unrelated`);",
     "const U={subscribe(){return()=>{}},dispatchMessage(){}};",
-    "function vm(e){return e}",
-    "function yk(e){return `local:${e}`}",
-    "function bk(e){return `remote:${e}`}",
-    "const am=(...e)=>e,KB=am(Q,0),Delay=800,J={jsx(){}};",
-    "function Ocs(){}",
+    "function nm(e){return e}",
+    "function jj(e){return `local:${e}`}",
+    "function Mj(e){return `remote:${e}`}",
+    "const Hp=(...e)=>e,AH=Hp(Q,0),Delay=800,J={jsx(){}};",
+    "function PYs(){}",
     "function Hover(e){return e}",
     "const preview=(0,J.jsx)(Hover,{align:`center`,closeOnTriggerBlur:!1,delayDuration:Delay,children:0,interactive:!0,skipDelayKey:`diff-preview`,tooltipContent:0,variant:`unstyled`});",
-    "export{x as x,vm as h,Q as q,LQ as BR,KB as task,yk as local,bk as remote,Hover as hover,U as bus};"
+    "export{x as x,nm as h,Q as q,LQ as BR,AH as task,jj as local,Mj as remote,Hover as hover,U as bus};"
   ].join("");
 }
 
@@ -298,43 +193,55 @@ function projectionFixture() {
 
 function conversationFixture() {
   return [
-    'import{x as x,persistent as rh}from"./app-control-fixture.js";',
+    'import{x as x,persistent as bh}from"./app-control-fixture.js";',
     'import{bus as HostBus}from"./app-initial-fixture.js";',
-    "const Jy={useState(e){return[typeof e===`function`?e():e,()=>{}]},useEffect(){}},Yy={jsx(){return{}},jsxs(){return{}}},Compiler={c(){return[]}};",
-    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,Yy.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
-    "function Ub(e){let t=(0,Compiler.c)(16),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=rh(o)?.render(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4];let d=u;if(d!=null)return d;if(l===`row`&&i!==void 0){let e;return e}let f;return f}",
-    "function Oy(e){let t=(0,Compiler.c)(195),{turnId:o,conversationId:p}=e,Ze=null,Qe=!1,ft,Rr=()=>null;return ft=Qe?(0,Yy.jsx)(`div`,{className:`flex w-full items-center justify-center pt-8`,children:(0,Yy.jsx)(Rr,{className:`icon-sm`})}):(0,Yy.jsxs)(Yy.Fragment,{children:[Ze,null]}),ft}",
-    "function YT(e){let t=(0,Compiler.c)(349),{item:n,conversationId:d,turnId:S,enableTimelineTargets:xe}=e,Ne=null;switch(n.type){case`dynamic-tool-call`:{let e;return t[332]!==Ne||t[333]!==d||t[334]!==xe||t[335]!==n?(e=(0,Yy.jsx)(Ub,{agentActivityIcon:Ne,conversationId:d,enableTimelineTargets:xe,item:n}),t[332]=Ne,t[333]=d,t[334]=xe,t[335]=n,t[336]=e):e=t[336]}}}",
-    "const toolActivityTurnKey=true;export{YT};"
+    "const t=e=>e,r=()=>0,$={jsx(){return{}},jsxs(){return{}}},$S={c(){return[]}},wO=$S;",
+    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,$.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
+    'function Ra(){return"running"}',
+    "function QS(e){let t=(0,$S.c)(17),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ra(`off`,n)===`stopped`)return null;let u,d;if(t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l){d=Symbol.for(`react.early_return_sentinel`);bb0:{let e=bh(o);if(e?.hiddenInConversation===!0){d=null;break bb0}u=e?.render?.(o,l,i,c)}t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u,t[5]=d}else u=t[4],d=t[5];return u}",
+    "function Oy(e){let t=(0,$S.c)(195),{turnId:o,conversationId:p}=e,Ze=null,Qe=!1,ft,Rr=()=>null;return ft=Qe?(0,$.jsx)(`div`,{className:`flex w-full items-center justify-center pt-8`,children:(0,$.jsx)(Rr,{className:`icon-sm`})}):(0,$.jsxs)($.Fragment,{children:[Ze,null]}),ft}",
+    "function cO(e){let t=(0,wO.c)(392),{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,J=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return t[375]!==J||t[376]!==f||t[377]!==Oe||t[378]!==n?(e=(0,$.jsx)(QS,{agentActivityIcon:J,conversationId:f,enableTimelineTargets:Oe,item:n}),t[375]=J,t[376]=f,t[377]=Oe,t[378]=n,t[379]=e):e=t[379]}}}",
+    "const toolActivityTurnKey=true;export{cO};"
+  ].join("");
+}
+
+function conversationTurnFixture() {
+  return [
+    'import{x as x}from"./conversation-fixture.js";',
+    "const Ba={c(){return[]}},Q={jsx(){return{}}};",
+    "function Z(e){let t=(0,Ba.c)(182),{conversationId:l,turnId:_,hostId:c}=e,Qa=[],$=(e,t,n)=>Qa.push({key:e,node:t,options:n});",
+    '$(`user-item-${_}`,USER,{canOwnLatestTurnFollowContent:!1});',
+    "let to=Qa.length,no={};return null}",
+    "export{Z};"
   ].join("");
 }
 
 function linuxConversationFixture() {
-  const linux = linuxBuild8881.dynamic;
+  const linux = linuxBuild9647.dynamic;
   return [
-    'import{x as x,persistent as Ih}from"./app-control-fixture.js";',
+    'import{x as x,persistent as bh}from"./app-control-fixture.js";',
     'import{bus as HostBus}from"./app-initial-fixture.js";',
-    "const t=e=>e,r=()=>0,Tz={jsx(){return{}},jsxs(){return{}}},$=Tz,wz={c(){return[]}},JW=wz;",
-    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,Tz.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
-    'function Bn(){return"running"}',
+    "const t=e=>e,r=()=>0,$={jsx(){return{}},jsxs(){return{}}},$S={c(){return[]}},wO=$S;",
+    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,$.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
+    'function uc(){return"running"}',
     linux.before,
     ";return u}",
     linux.parentBefore,
-    '{conversationId:d,toolActivityTurnKey:R,turnId:C,hostId:H}=e,Y=null,Se=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
-    "t[354]!==Y||t[355]!==d||t[356]!==Se||t[357]!==n?",
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Ke=null,ke=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    "t[375]!==Ke||t[376]!==f||t[377]!==ke||t[378]!==n?",
     linux.call,
-    ":e=t[358]}}}",
-    "const toolActivityTurnKey=true;export{NW};"
+    ":e=t[379]}}}",
+    "const toolActivityTurnKey=true;export{cO};"
   ].join("");
 }
 
 function linuxTurnFixture() {
   return [
     'import{x as x}from"./conversation-fixture.js";',
-    "const Ki={c(){return[]}},Q={jsx(){return{}}};",
-    "function bi(e){let t=(0,Ki.c)(216),{conversationId:o,turnId:f,hostId:c}=e,za=[],$=(e,t,n)=>za.push({key:e,node:t,options:n});",
-    "let Ha=za.length,Ua={};return null}",
-    "export{bi};"
+    "const Ba={c(){return[]}},Q={jsx(){return{}}};",
+    "function Z(e){let t=(0,Ba.c)(182),{conversationId:l,turnId:p,hostId:c}=e,Qa=[],$=(e,t,n)=>Qa.push({key:e,node:t,options:n});",
+    "let to=Qa.length,no={};return null}",
+    "export{Z};"
   ].join("");
 }
 

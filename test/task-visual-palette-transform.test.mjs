@@ -5,44 +5,40 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  applyBuild9647ArchiveRuntime,
+  inspectBuild9647ArchiveRuntime
+} from "../patches/task-visual-palette/profiles/build9647.mjs";
+import { linuxBuild9647 } from "../patches/task-visual-palette/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
+const rosterPatch = path.join(repository, "patches/agent-roster/patch.mjs");
 const behavioralProbe = path.join(repository, "test/task-visual-palette.test.mjs");
-const examplePalette = path.join(repository, "patches/task-visual-palette/palette.example.json");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-palette-test-"));
-const workspaceName = platformWorkspaceName();
+
+testArchiveRuntime();
+testLinuxArchiveRuntime();
 
 try {
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");
-  const workspace = path.join(scratch, workspaceName);
-  const paletteDirectory = path.join(workspace, ".codex");
-  fs.mkdirSync(assets, { recursive: true });
-  fs.mkdirSync(paletteDirectory, { recursive: true });
+  fs.mkdirSync(assets, {recursive: true});
   const initialTarget = path.join(assets, "app-initial-fixture.js");
   const primaryTarget = path.join(assets, "app-primary-fixture.js");
   const localTarget = path.join(assets, "local-conversation-page-fixture.js");
   const delegationTarget = path.join(assets, "conversation-blocks-fixture.js");
-  const config = path.join(scratch, "toolkit.json");
   fs.writeFileSync(initialTarget, initialFixture());
   fs.writeFileSync(primaryTarget, primaryFixture());
   fs.writeFileSync(localTarget, localFixture());
   fs.writeFileSync(delegationTarget, delegationFixture());
-  fs.writeFileSync(config, `${JSON.stringify({ workspaceRoot: workspace }, null, 2)}\n`);
-  fs.copyFileSync(examplePalette, path.join(paletteDirectory, "task-visual-palette.json"));
+  fs.writeFileSync(path.join(assets, "message-bus-fixture.js"),
+    "globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:2});export const fixture=true;");
 
-  assert.equal(runToolkit("check", false).state, "needs-apply");
-  assert.equal(runAttribution().state, "applied", "public attribution patch supplies the palette provenance seam");
-  const withoutConfig = spawnSync(
-    process.execPath,
-    [toolkit, "patch", "task-visual-palette", "apply", extracted],
-    { encoding: "utf8" }
-  );
-  assert.notEqual(withoutConfig.status, 0, "apply refuses to bake an implicit workspace owner");
-  assert.match(withoutConfig.stderr, /requires --config/);
-
-  const applied = runToolkit("apply");
+  assert.equal(runRoster("check").state, "needs-apply");
+  assert.equal(runRoster("apply").state, "applied");
+  assert.equal(runPalette("check").state, "needs-apply");
+  const applied = runPalette("apply");
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.targets.sort(), [
     path.join("webview", "assets", "app-initial-fixture.js"),
@@ -50,180 +46,57 @@ try {
     path.join("webview", "assets", "conversation-blocks-fixture.js"),
     path.join("webview", "assets", "local-conversation-page-fixture.js")
   ]);
-  const once = [initialTarget, primaryTarget, localTarget, delegationTarget].map(target => fs.readFileSync(target));
-  assert.ok(once[0].includes(`t=${JSON.stringify(workspace)}`), "configured workspace root is embedded as a quoted literal");
 
-  const probe = spawnSync(process.execPath, [behavioralProbe, extracted, workspace], { encoding: "utf8" });
+  const once = [initialTarget, primaryTarget, localTarget, delegationTarget].map(file => fs.readFileSync(file));
+  const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
-  const readableLabelHelper = 'function MTKreadableLabel(e,t,n){let r=n?"#FFFFFF":"#111318";for(let i=0;i<=20;i++){let a=MTKmix(e,r,i/20);if(MTKcontrast(a,t)>=4.5)return a}return r}';
-  fs.writeFileSync(initialTarget, fs.readFileSync(initialTarget, "utf8")
-    .replace(readableLabelHelper, "")
-    .replace("label:MTKreadableLabel(e,l,n)", "label:MTKcontrast(m,l)>=4.5?m:s"));
-  assert.equal(runToolkit("check").state, "needs-apply", "neutral attribution fallback is upgradeable");
-  assert.equal(runToolkit("apply").state, "applied", "attribution hue upgrade applies");
-  const upgradedProbe = spawnSync(process.execPath, [behavioralProbe, extracted, workspace], { encoding: "utf8" });
-  assert.equal(upgradedProbe.status, 0, upgradedProbe.stderr || upgradedProbe.stdout);
-  assert.deepEqual(fs.readFileSync(initialTarget), once[0], "attribution hue upgrade reaches canonical bytes");
-
-  assert.equal(runToolkit("apply").state, "applied");
-  for (const [index, target] of [initialTarget, primaryTarget, localTarget, delegationTarget].entries()) {
-    assert.deepEqual(fs.readFileSync(target), once[index], `${path.basename(target)} second application is byte-identical`);
+  assert.equal(runPalette("apply").state, "applied");
+  for (const [index, file] of [initialTarget, primaryTarget, localTarget, delegationTarget].entries()) {
+    assert.deepEqual(fs.readFileSync(file), once[index], `${path.basename(file)} second application is byte-identical`);
   }
+  process.stdout.write("task visual palette build-9647 transform probe passed\n");
 
-  const legacyArchiveClassifier = 'function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.protectSidebarArchive&&t.taskId===e)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;';
-  const canonicalArchiveClassifier = 'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;';
-  const canonicalBytes = fs.readFileSync(initialTarget, "utf8");
-  assert.equal(canonicalBytes.split(canonicalArchiveClassifier).length - 1, 1,
-    "fully applied fixture has one canonical archive classifier");
-  fs.writeFileSync(initialTarget, canonicalBytes.replace(canonicalArchiveClassifier, legacyArchiveClassifier));
-  assert.equal(runToolkit("check").state, "needs-apply", "legacy applied classifier requires migration");
-  assert.equal(runToolkit("apply").state, "applied", "legacy applied classifier migrates");
-  assert.equal(fs.readFileSync(initialTarget, "utf8"), canonicalBytes,
-    "legacy migration reaches canonical generated bytes");
-  const migratedProbe = spawnSync(process.execPath, [behavioralProbe, extracted, workspace], { encoding: "utf8" });
-  assert.equal(migratedProbe.status, 0, migratedProbe.stderr || migratedProbe.stdout);
-  assert.equal(runToolkit("apply").state, "applied");
-  assert.equal(fs.readFileSync(initialTarget, "utf8"), canonicalBytes,
-    "second application after archive migration is byte-identical");
-
-  const missingModelPin = withoutModelPin(canonicalBytes)
-    .replace(canonicalArchiveClassifier, legacyArchiveClassifier);
-  verifyHistoricalMigration(missingModelPin, "legacy classifier plus missing model-pin bridge");
-  const missingReasoning = withoutReasoning(canonicalBytes);
-  verifyHistoricalMigration(missingReasoning, "legacy classifier plus missing reasoning bridge");
-
-  fs.writeFileSync(initialTarget, canonicalBytes + canonicalArchiveClassifier);
-  assert.match(runToolkitFailure("check"), /archive identity: legacy=0 canonical=2/,
-    "duplicate archive classifiers fail closed");
-  fs.writeFileSync(initialTarget, canonicalBytes.replace("e.startsWith(\"local:\")", "e.startsWith(\"local\")"));
-  assert.match(runToolkitFailure("check"), /archive identity: legacy=0 canonical=0/,
-    "partial archive classifier fails closed");
-  fs.writeFileSync(initialTarget, canonicalBytes);
-  process.stdout.write("task visual palette transform probe passed\n");
-
-  function runToolkit(action, withConfig = true) {
-    const args = [toolkit, "patch", "task-visual-palette", action, extracted];
-    if (withConfig) args.push("--config", config);
-    const result = spawnSync(process.execPath, args, { encoding: "utf8" });
+  function runRoster(action) {
+    const result = spawnSync(process.execPath, [rosterPatch, action, extracted], {encoding: "utf8"});
     assert.equal(result.status, 0, result.stderr || result.stdout);
     return JSON.parse(result.stdout);
   }
 
-  function runToolkitFailure(action) {
-    const args = [toolkit, "patch", "task-visual-palette", action, extracted, "--config", config];
-    const result = spawnSync(process.execPath, args, { encoding: "utf8" });
-    assert.notEqual(result.status, 0, `${action} unexpectedly accepted an invalid archive classifier`);
-    return result.stderr || result.stdout;
-  }
-
-  function verifyHistoricalMigration(historicalBytes, label) {
-    fs.writeFileSync(initialTarget, historicalBytes);
-    assert.equal(runToolkit("check").state, "needs-apply", `${label} requires migration`);
-    assert.equal(runToolkit("apply").state, "applied", `${label} migrates in one apply`);
-    assert.equal(fs.readFileSync(initialTarget, "utf8"), canonicalBytes,
-      `${label} reaches complete canonical bytes`);
-    assert.equal(runToolkit("apply").state, "applied");
-    assert.equal(fs.readFileSync(initialTarget, "utf8"), canonicalBytes,
-      `${label} second apply is byte-identical`);
-  }
-
-  function withoutModelPin(source) {
-    const reasoningBridge = 'const MTKreasoningListeners=new Set;function MTKreasoningShouldStayOpen(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.keepReasoningOpen===!0&&t.taskId===e)}function MTKreasoningSubscribe(e){return MTKreasoningListeners.add(e),()=>MTKreasoningListeners.delete(e)}globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen;globalThis.__MTKreasoningSubscribe=MTKreasoningSubscribe;';
-    const modelPinBridge = 'const MTKmodelPinEfforts=new Set(["none","minimal","low","medium","high","xhigh","max","ultra","persistent"]),MTKmodelPinListeners=new Set;function MTKmodelPinForTask(e,t=MTKsidebarPalette){if(typeof e!=="string"||t==null)return null;let n=t.rules.find(t=>t.taskId===e);return n?.modelPin??null}function MTKmodelPinSubscribe(e){return MTKmodelPinListeners.add(e),()=>MTKmodelPinListeners.delete(e)}globalThis.__MTKmodelPinForTask=MTKmodelPinForTask;globalThis.__MTKmodelPinSubscribe=MTKmodelPinSubscribe;';
-    source = replaceRequired(source,
-      'return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,modelPin:t.modelPin??null,dark:r,light:i}',
-      'return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,dark:r,light:i}',
-      "model-pin visual metadata");
-    source = replaceRequired(source,
-      'e!=="taskId"&&e!=="protectSidebarArchive"&&e!=="keepReasoningOpen"&&e!=="modelPin")',
-      'e!=="taskId"&&e!=="protectSidebarArchive"&&e!=="keepReasoningOpen")',
-      "model-pin key");
-    source = replaceRequired(source,
-      'r.keepReasoningOpen!==void 0&&typeof r.keepReasoningOpen!=="boolean"||r.keepReasoningOpen===!0&&r.taskId===void 0||r.modelPin!==void 0&&(!MTKplainObject(r.modelPin)||Object.keys(r.modelPin).some(e=>e!=="model"&&e!=="reasoningEffort")||typeof r.modelPin.model!=="string"||r.modelPin.model.length===0||r.modelPin.model.length>128||typeof r.modelPin.reasoningEffort!=="string"||!MTKmodelPinEfforts.has(r.modelPin.reasoningEffort)||r.taskId===void 0)',
-      'r.keepReasoningOpen!==void 0&&typeof r.keepReasoningOpen!=="boolean"||r.keepReasoningOpen===!0&&r.taskId===void 0',
-      "model-pin validation");
-    source = replaceRequired(source,
-      'protectSidebarArchive:r.protectSidebarArchive,keepReasoningOpen:r.keepReasoningOpen,modelPin:r.modelPin},a))',
-      'protectSidebarArchive:r.protectSidebarArchive,keepReasoningOpen:r.keepReasoningOpen},a))',
-      "model-pin projection");
-    source = replaceRequired(source, reasoningBridge + modelPinBridge, reasoningBridge, "model-pin bridge");
-    return replaceRequired(source,
-      'function MTKinstallSidebar(e){MTKsidebarPalette=e;for(let t of MTKreasoningListeners)t();for(let t of MTKmodelPinListeners)t();if(e==null){',
-      'function MTKinstallSidebar(e){MTKsidebarPalette=e;for(let t of MTKreasoningListeners)t();if(e==null){',
-      "model-pin notification");
-  }
-
-  function withoutReasoning(source) {
-    source = withoutModelPin(source);
-    const reasoningBridge = 'const MTKreasoningListeners=new Set;function MTKreasoningShouldStayOpen(e,t=MTKsidebarPalette){return typeof e==="string"&&t!=null&&t.rules.some(t=>t.keepReasoningOpen===!0&&t.taskId===e)}function MTKreasoningSubscribe(e){return MTKreasoningListeners.add(e),()=>MTKreasoningListeners.delete(e)}globalThis.__MTKreasoningShouldStayOpen=MTKreasoningShouldStayOpen;globalThis.__MTKreasoningSubscribe=MTKreasoningSubscribe;';
-    source = replaceRequired(source,
-      'return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,keepReasoningOpen:t.keepReasoningOpen===!0,dark:r,light:i}',
-      'return{pattern:n,color:t.color,markDataUrl:t.markDataUrl??null,taskId:t.taskId??null,protectSidebarArchive:t.protectSidebarArchive===!0,dark:r,light:i}',
-      "reasoning visual metadata");
-    source = replaceRequired(source,
-      'e!=="taskId"&&e!=="protectSidebarArchive"&&e!=="keepReasoningOpen")',
-      'e!=="taskId"&&e!=="protectSidebarArchive")',
-      "reasoning key");
-    source = replaceRequired(source,
-      'r.protectSidebarArchive!==void 0&&typeof r.protectSidebarArchive!=="boolean"||r.protectSidebarArchive===!0&&r.taskId===void 0||r.keepReasoningOpen!==void 0&&typeof r.keepReasoningOpen!=="boolean"||r.keepReasoningOpen===!0&&r.taskId===void 0',
-      'r.protectSidebarArchive!==void 0&&typeof r.protectSidebarArchive!=="boolean"||r.protectSidebarArchive===!0&&r.taskId===void 0',
-      "reasoning validation");
-    source = replaceRequired(source,
-      'protectSidebarArchive:r.protectSidebarArchive,keepReasoningOpen:r.keepReasoningOpen},a))',
-      'protectSidebarArchive:r.protectSidebarArchive},a))',
-      "reasoning projection");
-    source = replaceRequired(source, canonicalArchiveClassifier + reasoningBridge,
-      legacyArchiveClassifier, "reasoning bridge and legacy classifier");
-    return replaceRequired(source,
-      'function MTKinstallSidebar(e){MTKsidebarPalette=e;for(let t of MTKreasoningListeners)t();if(e==null){',
-      'function MTKinstallSidebar(e){if(MTKsidebarPalette=e,e==null){',
-      "reasoning notification");
-  }
-
-  function replaceRequired(source, before, after, label) {
-    assert.equal(source.split(before).length - 1, 1, `${label} fixture seam`);
-    return source.replace(before, after);
-  }
-
-  function runAttribution() {
-    const result = spawnSync(
-      process.execPath,
-      [toolkit, "patch", "cross-task-attribution", "apply", extracted],
-      { encoding: "utf8" }
-    );
+  function runPalette(action) {
+    const result = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", action, extracted], {encoding: "utf8"});
     assert.equal(result.status, 0, result.stderr || result.stdout);
     return JSON.parse(result.stdout);
   }
 } finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
-}
-
-function platformWorkspaceName() {
-  if (process.platform === "win32") return "workspace with spaces";
-  if (process.platform === "darwin" || process.platform === "linux") return 'workspace "quoted"';
-  throw new Error(`unsupported platform: ${process.platform}`);
+  fs.rmSync(scratch, {recursive: true, force: true});
 }
 
 function initialFixture() {
   return [
-    "const x=0,Q=Symbol(`scope`),EI=Symbol(`title`);",
-    "function hb(e){return e}",
-    "function Oks(){let e=(0,jks.c)(12),value=0;return e}",
-    "export{x as x,hb as h,Q as q,EI as title};"
+    "const Q=Symbol(`scope`),VFi=Symbol(`projects`),w_=Symbol(`ready`);",
+    "const RYs={useEffect(){}},nm=e=>e,r=e=>e;",
+    "function C_(e,t){let n=e.get(w_);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function owner(){return r(VFi)}",
+    "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),value=0;return e}",
+    "export const fixture=true;"
   ].join("");
 }
 
 function primaryFixture() {
   return [
-    'import{title as ap}from"./app-initial-fixture.js";',
-    "function VAn({scope:e,target:t,actions:n,onRename:r,onArchive:i,x}){let m=1,T=false;return {archive:T?void 0:{id:`archive-thread`,onSelect:()=>i()}}}",
-    "function rjn({items:e,onArchive:t,onSelect:n,selectedThreadKeys:r,threadKey:i}){return r.length<2?e:e.filter(e=>e.id!==`rename-thread`)}",
-    "function localSelection(T,r){return rjn({items:[],onArchive:null,onSelect:null,selectedThreadKeys:BTn(T,r),threadKey:r})}",
-    "function localRow(n,t){let Ee=true,L=false,Me=1;return {archive:t!=null&&(Ee||L)?Me:t,getMenuItems:null}}",
-    "function remoteInline(){let Ve=1,He=`archive`,se=`task`;return {onArchive:Ve,archiveAriaLabel:He}}",
-    "function remoteMenu(e,Se){if(Se&&e.push({id:`archive-task`,label:`Archive`}));return e}",
-    "function remoteRow(e,n,K){return {archive:n,getMenuItems:K?e=>d([e]):null}}",
+    "function mkn({scope:e,target:t,actions:n,onRename:r,onArchive:i,x}){let _=`task`,D=false;return {archive:D?void 0:{id:`archive-thread`,message:void 0,onSelect:()=>{i()}}}}",
+    "function Akn({items:e,onArchive:t,onSelect:n,selectedThreadKeys:r,threadKey:i}){return r.length<2?e:e.filter(e=>e.id!==`rename-thread`)}",
+    "function localSelection(T,r){return Akn({items:[],onArchive:null,onSelect:null,selectedThreadKeys:fwn(T,r),threadKey:r})}",
+    "function unifiedSelection(K,e){return Akn({items:[],onArchive:null,onSelect:null,selectedThreadKeys:fwn(K,e),threadKey:e})}",
+    "function aAn(e){let t=(0,wQ.c)(154),x=0,g=0,w=0,n=`task`,S=false,Ze;",
+    "t[71]!==x?(Ze=1,t[88]=w,t[89]=Ze):Ze=t[89];let Qe=oD(Ze),$e=S&&x,et;",
+    "t[90]!==n?(et={archive:t!=null&&(Oe||V)?Pe:t,getMenuItems:null},t[100]=$e,t[101]=et):et=t[101];return et}",
+    "var mAn,OQ,kQ,hAn=t((()=>{mAn=a(),OQ=0,kQ=0,hAn=0}));",
+    "function fAn(e){let t=(0,mAn.c)(89),xe=true,ae=`task`,Ae=1,L=0;if(xe&&e.push({id:`archive-task`,label:`Archive`}));let Be=xe?Ae:null;let Je;",
+    "t[78]!==xe?(Je=Be,t[84]=L,t[85]=Je):Je=t[85];return Je}",
+    "function AAn(e){let t=(0,NQ.c)(177),u=0,O=0,et=0,n=1,q=true;let tt=et,nt;",
+    "t[77]!==u?(nt={archive:n,getMenuItems:q?e=>d([e]):null},t[111]=O,t[112]=nt):nt=t[112];return nt}",
     "function fade(){return (0,h3.jsx)(`div`,{\"aria-hidden\":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})}",
     "export const fixture=true;"
   ].join("");
@@ -231,27 +104,56 @@ function primaryFixture() {
 
 function localFixture() {
   return [
-    "function $o(e){let t=(0,os.c)(88),r=e,pe;",
-    "t[72]!==G||t[73]!==K||t[74]!==q||t[75]!==J||t[76]!==ie||t[77]!==ae||t[78]!==oe||t[79]!==se||t[80]!==le||t[81]!==ue||t[82]!==de||t[83]!==fe?(pe=(0,Q.jsxs)(`div`,{ref:U,className:`relative h-full min-h-0`,children:[G,K,q,J,re,ie,ae,oe,se,le,ue,de,fe]}),t[72]=G,t[73]=K,t[74]=q,t[75]=J,t[76]=ie,t[77]=ae,t[78]=oe,t[79]=se,t[80]=le,t[81]=ue,t[82]=de,t[83]=fe,t[84]=pe):pe=t[84];",
-    "return pe}",
+    "function hu(e){let t=(0,Su.c)(91),r=e,he;",
+    "t[75]!==te||t[76]!==q||t[77]!==ne||t[78]!==re||t[79]!==oe||t[80]!==se||t[81]!==ce||t[82]!==le||t[83]!==ue||t[84]!==de||t[85]!==pe||t[86]!==me?(he=(0,Q.jsxs)(`div`,{ref:j,className:`relative h-full min-h-0`,children:[te,q,ne,re,ae,oe,se,ce,le,ue,de,pe,me]}),t[75]=te,t[76]=q,t[77]=ne,t[78]=re,t[79]=oe,t[80]=se,t[81]=ce,t[82]=le,t[83]=ue,t[84]=de,t[85]=pe,t[86]=me,t[87]=he):he=t[87];",
+    "return he}",
     "export const fixture=true;"
   ].join("");
 }
 
 function delegationFixture() {
   return [
-    'import{fixture as P}from"./app-primary-fixture.js";',
-    'import{h as H,q as S}from"./app-initial-fixture.js";',
-    "const stock={defaultMessage:`Sent by {appName} from another task`};",
-    "function Cb(e){let t=(0,wb.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,f,m,h,d=go()?`/hotkey-window/thread/${r}`:`/local/${r}`;",
-    "t[1]!==f?(p=(0,Tb.jsx)(Fmt,{id:`localConversation.codexDelegationUserMessage.app`}),t[1]=p):p=t[1];",
-    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(h=(0,Tb.jsx)(vb,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h):h=t[12];return h}",
-    "function vb(e){let t=(0,yb.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,f=true,u=c,m,p;",
-    "m=f?(0,bb.jsx)(Eg,{message:i,sentAtMs:a,collapsedLineCount:xb,compactActions:u,cwd:o,hostId:s,threadId:r}):null;",
-    "t[5]!==u||t[6]!==r||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==f?(p=m,t[5]=u,t[6]=r,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=f,t[12]=m):p=t[12];",
-    "t[13]!==p||t[14]!==m?(h=(0,bb.jsxs)(`div`,{className:`flex w-full flex-col items-end justify-end gap-1`,children:[p,m]}),t[13]=p,t[14]=m,t[15]=h):h=t[15];return h}",
-    "function Eg(e){let t=(0,Og.c)(127),{message:A,cwd:E,hostId:D}=e,de,oe,_e,ve;if(t[42]!==de||t[43]!==oe||t[44]!==_e){",
-    "ve=(0,Z.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[42]=de,t[43]=oe,t[44]=_e,t[45]=ve}return ve}",
+    "var MTKdelegatedBubbleStyle={backgroundColor:`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`};",
+    "function MTKsender(e){return e}function marker(){return messageBubbleStyle=MTKdelegatedBubbleStyle}",
+    "const stock={defaultMessage:`localConversation.codexDelegationUserMessage.app`};",
+    "function MS(e){let t=(0,NS.c)(14),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,f,m,h;",
+    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m||t[13]!==p?(h=(0,PS.jsx)(CS,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m,messageBubbleStyle:MTKdelegatedBubbleStyle}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h):h=t[12];return h}",
+    "function CS(e){let t=(0,wS.c)(17),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l,messageBubbleStyle:MTKbubbleStyleOverride}=e,f=true,u=c,m,p,h;",
+    "m=f?(0,TS.jsx)(bt,{message:i,sentAtMs:a,collapsedLineCount:ES,compactActions:u,cwd:o,hostId:s,threadId:r,messageBubbleStyle:MTKbubbleStyleOverride}):null;",
+    "t[13]!==p||t[14]!==m?(h=(0,TS.jsxs)(`div`,{className:`flex w-full flex-col items-end justify-end gap-1`,children:[p,m]}),t[13]=p,t[14]=m,t[15]=h):h=t[15];return h}",
     "export const fixture=true;"
   ].join("");
+}
+
+function testArchiveRuntime() {
+  const source = archiveRuntimeFixture();
+  assert.equal(inspectBuild9647ArchiveRuntime(source), "needs-apply");
+  assert.equal(inspectBuild9647ArchiveRuntime(applyBuild9647ArchiveRuntime(source)), "applied");
+}
+
+function testLinuxArchiveRuntime() {
+  const source = archiveRuntimeFixture("Xe", "let Ze=sD(Xe),Qe=S&&x,$e", "Qe", "$e");
+  assert.equal(inspectBuild9647ArchiveRuntime(source, linuxBuild9647.archive.runtime), "needs-apply");
+  assert.equal(inspectBuild9647ArchiveRuntime(
+    applyBuild9647ArchiveRuntime(source, linuxBuild9647.archive.runtime),
+    linuxBuild9647.archive.runtime
+  ), "applied");
+}
+
+function archiveRuntimeFixture(result = "Ze", inline = "let Qe=oD(Ze),$e=S&&x,et", pin = "$e", inlineResult = "et") {
+  return [
+    "const MTKsidebarArchiveProtected=e=>globalThis.__MTKsidebarArchiveProtected?.(e)===!0;function mkn(",
+    "function aAn(e){let t=(0,wQ.c)(154),",
+    `,${result};t[71]!==x`,
+    `t[88]=w,t[89]=${result}):${result}=t[89]`,
+    `${inline};t[90]!==n`,
+    `t[100]=${pin},t[101]=${inlineResult}):${inlineResult}=t[101]`,
+    "var mAn,OQ,kQ,hAn=t((()=>{mAn=a(),",
+    "function fAn(e){let t=(0,mAn.c)(89),",
+    "let Je;t[78]!==xe",
+    "t[84]=L,t[85]=Je):Je=t[85]",
+    "function AAn(e){let t=(0,NQ.c)(177),",
+    "let tt=et,nt;t[77]!==u",
+    "t[111]=O,t[112]=nt):nt=t[112]"
+  ].join("\n");
 }

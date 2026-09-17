@@ -17,8 +17,8 @@ try {
   fs.mkdirSync(assets, { recursive: true });
   const app = path.join(assets, "app-initial-fixture.js");
   const local = path.join(assets, "local-conversation-thread-fixture.js");
-  fs.writeFileSync(app, historicalAppFixture());
-  fs.writeFileSync(local, historicalLocalFixture("qCs"));
+  fs.writeFileSync(app, build9647AppFixture());
+  fs.writeFileSync(local, localFixture("qCs"));
 
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
@@ -36,7 +36,7 @@ try {
   assert.deepEqual(fs.readFileSync(local), once[1], "renderer is byte-identical after second application");
 
   fs.writeFileSync(app, upstreamAppFixture());
-  fs.writeFileSync(local, historicalLocalFixture("gLo"));
+  fs.writeFileSync(local, localFixture("gLo"));
   const stockBefore = [fs.readFileSync(app), fs.readFileSync(local)];
   assert.equal(run("check").state, "upstream-owned");
   assert.equal(run("apply").state, "upstream-owned");
@@ -46,38 +46,8 @@ try {
   assert.equal(stockProbe.status, 0, stockProbe.stderr || stockProbe.stdout);
   assert.equal(JSON.parse(stockProbe.stdout).ownership, "upstream-paginated-renderer");
 
-  fs.writeFileSync(app, build8881AppFixture());
-  fs.writeFileSync(local, build8881LocalFixture("Ipo"));
-  assert.equal(run("check").state, "needs-apply", "build 8881 requires a mounted-renderer bound");
-  assert.equal(run("apply").state, "applied");
-  const build8881Once = [fs.readFileSync(app), fs.readFileSync(local)];
-  const build8881Probe = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
-  assert.equal(build8881Probe.status, 0, build8881Probe.stderr || build8881Probe.stdout);
-  const build8881Evidence = JSON.parse(build8881Probe.stdout);
-  assert.equal(build8881Evidence.nativeTurnLimit, 200);
-  assert.equal(build8881Evidence.mountedSelectorCalls, 4);
-  assert.equal(build8881Evidence.upstreamTransportPaginationPreserved, true);
-  assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(app), build8881Once[0], "build-8881 selector is byte-identical after second application");
-  assert.deepEqual(fs.readFileSync(local), build8881Once[1], "build-8881 renderer is byte-identical after second application");
-
-  fs.writeFileSync(app, build8881AppFixture(linuxBuild8881Identifiers()));
-  fs.writeFileSync(local, build8881LocalFixture("Ipo"));
-  assert.equal(run("check").state, "needs-apply", "Linux build 8881 requires the same mounted-renderer bound");
-  assert.equal(run("apply").state, "applied");
-  const linuxBuild8881Once = [fs.readFileSync(app), fs.readFileSync(local)];
-  const linuxBuild8881Probe = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
-  assert.equal(linuxBuild8881Probe.status, 0, linuxBuild8881Probe.stderr || linuxBuild8881Probe.stdout);
-  const linuxBuild8881Evidence = JSON.parse(linuxBuild8881Probe.stdout);
-  assert.equal(linuxBuild8881Evidence.nativeTurnLimit, 200);
-  assert.equal(linuxBuild8881Evidence.mountedSelectorCalls, 4);
-  assert.equal(linuxBuild8881Evidence.upstreamTransportPaginationPreserved, true);
-  assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(app), linuxBuild8881Once[0], "Linux build-8881 selector is byte-identical after second application");
-  assert.deepEqual(fs.readFileSync(local), linuxBuild8881Once[1], "Linux build-8881 renderer is byte-identical after second application");
-
   fs.writeFileSync(app, upstreamAppFixture().replace("thread/turns/list", "thread/turns/missing"));
-  fs.writeFileSync(local, historicalLocalFixture("gLo"));
+  fs.writeFileSync(local, localFixture("gLo"));
   const partial = spawnSync(process.execPath,
     [toolkit, "patch", "renderer-turn-window", "check", extracted], { encoding: "utf8" });
   assert.notEqual(partial.status, 0, "partial upstream ownership fails closed");
@@ -94,17 +64,19 @@ try {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
 
-function historicalAppFixture() {
+function build9647AppFixture() {
   return [
-    "const Q=Symbol('scope'),gH={},TH={},wH={},kH={},UH={},zH={},zCs=false;",
+    "const Q=Symbol('scope'),eN={},lN={},NOr={},pN={},bN={},cU={},lU={},uU={},sU={},tfs=[],nfs=[];",
     "function init(e){return e}function factory(e,t){return t}",
-    "function Aqn(e){return [e]}function project(e){return e}function output(e){return e}",
+    "function gRi(e,t){return t}function Aer(e){return e}function Uds(e){return e}function Bds(e){return e}function fpo(e){return e}function output(e){return e}",
     "var before,qCs,after=init((()=>{qCs=factory(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{",
-    "let r=n(gH,e)??!1,i=n(TH,e)??zCs;n(wH,e);let a=t?n(kH,e)??null:null,",
-    "o={hostId:n(UH,e),threadId:e},d=n(zH,o),f=d?.flatMap(Aqn),m=null,",
-    "h=n(zH,a==null?null:{hostId:n(UH,a),threadId:a}),g=a!=null&&m==null?h?.flatMap(Aqn):null;",
-    "return project({conversationRequests:[],visibleTurnEntries:f??[],historyTimeline:g,",
-    "turnEntityKeys:d?.map(({entityKey:e})=>e)})});return qCs})());",
+    "if(e==null)return{visibleTurnEntries:[]};let i=n(eN,e)??!1,a=n(lN,e)??tfs;n(NOr,e);let o=t?n(pN,e)??null:null,",
+    "s={hostId:n(bN,e),threadId:e},c=null,l=fpo(c),u=null,d=fpo(u),f=n(cU,s),",
+    "p=f?.flatMap(e=>{n(lU,e)?.status,n(uU,e);let i=gRi(r,e);if(i==null)return[];i.turnId;let a=Aer(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});if(!a)for(let t of i.items)t!=null&&!a&&n(sU,{...e,itemId:t.id});return[i]})??nfs,",
+    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?Bds({conversationId:e,getTurn:(e,t)=>gRi(r,{hostId:n(bN,e),threadId:e,entityKey:t}),historyEntries:l,historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0,",
+    "g=n(cU,o==null?null:{hostId:n(bN,o),threadId:o}),_=o!=null&&h==null?g?.flatMap(e=>{let t=gRi(r,e);return t==null?[]:[t]})??nfs:nfs;",
+    "return Uds({conversationRequests:a,isAeonThread:!1,visibleTurnEntries:p,historyTimeline:c,parentConversationTurns:_,",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)})});return qCs})());",
     "async function renderMarkdown(client,{conversationId:e,isBackgroundSubagentsEnabled:t,markdownLimit:m}){",
     "let {visibleTurnEntries:v}=client.get(qCs,{conversationId:e,isBackgroundSubagentsEnabled:t});return output(v)}",
     "function loadOlderConversationHistoryPage(){}",
@@ -125,7 +97,7 @@ function upstreamAppFixture() {
   ].join("");
 }
 
-function historicalLocalFixture(selector) {
+function localFixture(selector) {
   return [
     "function use(e,t){return {visibleTurnEntries:[]}}",
     `function localConversation(e,t){let a=use(${selector},{conversationId:e,isBackgroundSubagentsEnabled:t}),`,
@@ -135,62 +107,5 @@ function historicalLocalFixture(selector) {
     "function loadOlderConversationHistoryPage(){}",
     "return {renderEntries:[a,b,c,d],visibleTurnEntries:a.visibleTurnEntries,",
     "searchPersisted:true,getConversationState:()=>a}}"
-  ].join("");
-}
-
-function build8881AppFixture(identifiers = macBuild8881Identifiers()) {
-  const id = identifiers;
-  return [
-    "const Q=Symbol('scope'),Opo=[],kpo=[],Ppo={visibleTurnEntries:[]};",
-    `function init(e){return e}function ${id.factory}(e,t){return t}function gpo(e){return e}`,
-    `var before,Ipo,after=init((()=>{Ipo=${id.factory}(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{`,
-    `if(e==null)return Ppo;let i=n(${id.hasConversation},e)??!1,a=n(${id.requests},e)??Opo;n(${id.touch},e);`,
-    `let o=t?n(${id.parent},e)??null:null,s={hostId:n(${id.host},e),threadId:e},c=n(${id.timeline},s),l=fpo(c),`,
-    `u=o==null?null:n(${id.timeline},{hostId:n(${id.host},o),threadId:o}),d=fpo(u),f=n(${id.keys},s),`,
-    `p=f?.flatMap(e=>{n(${id.status},e)?.status,n(${id.detail},e);let i=${id.getTurn}(r,e);if(i==null)return[];i.turnId;`,
-    `let a=${id.projectTurn}(i,[],{isAeonThread:!1,isBackgroundSubagentsEnabled:t,shouldHideUserMessage:void 0});`,
-    `if(!a)for(let t of i.items)t!=null&&!a&&n(${id.item},{...e,itemId:t.id});return[i]})??kpo,`,
-    "m=l?.length===p.length&&(o==null||d!=null)&&!0,h=m&&o!=null&&l!=null&&c!=null&&d!=null&&u!=null?",
-    `ppo({conversationId:e,getTurn:(e,t)=>${id.getTurn}(r,{hostId:n(${id.host},e),threadId:e,entityKey:t}),historyEntries:l,`,
-    "historyTimeline:c,parentConversationId:o,parentHistoryEntries:d,parentHistoryTimeline:u}):void 0,",
-    `g=n(${id.keys},o==null?null:{hostId:n(${id.host},o),threadId:o}),_=o!=null&&h==null?g?.flatMap(e=>{`,
-    `n(${id.status},e),n(${id.detail},e);let t=${id.getTurn}(r,e);return t==null?[]:[t]})??kpo:kpo;`,
-    "return gpo({conversationRequests:a,isAeonThread:!1,showPartialHistoryGaps:!1,mergeBerryDisplayTurnsForPIA:!1,",
-    "preserveServerUserMessages:!1,conversationTurns:p,hasConversation:i,historyEntriesByTurnIndex:m?l:void 0,",
-    "historyTimeline:m?c??void 0:void 0,isBackgroundSubagentsEnabled:t,hideReactionInputs:!1,",
-    `inheritedHistoryPositionKeys:h,liveTailHistoryPositionKey:m?n(${id.liveTail},e):null,parentConversationTurns:_,`,
-    "subagentParentThreadId:o,turnEntityKeys:f?.map(({entityKey:e})=>e)})});return Ipo})());",
-    "async function zpo(e,{conversationId:t,isBackgroundSubagentsEnabled:n,markdownLimit:r}){",
-    "let{visibleTurnEntries:i}=e.get(Ipo,{conversationId:t,isBackgroundSubagentsEnabled:n});return output(i)}",
-    "function loadOlderConversationHistoryPage(){}",
-    "const request={initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}},endpoint='thread/turns/list';"
-  ].join("");
-}
-
-function macBuild8881Identifiers() {
-  return {
-    factory: "rm", hasConversation: "VA", requests: "XA", touch: "d8n", parent: "ej", host: "sj",
-    timeline: "Dti", keys: "EV", status: "DV", detail: "OV", getTurn: "bti", projectTurn: "qMn",
-    item: "TV", liveTail: "X8n"
-  };
-}
-
-function linuxBuild8881Identifiers() {
-  return {
-    factory: "wm", hasConversation: "Xj", requests: "aM", touch: "n6n", parent: "lM", host: "gM",
-    timeline: "oti", keys: "qV", status: "JV", detail: "YV", getTurn: "$ei", projectTurn: "Rjn",
-    item: "KV", liveTail: "V6n"
-  };
-}
-
-function build8881LocalFixture(selector) {
-  return [
-    "function localConversation(e,l){let G={get(){return {visibleTurnEntries:[]}}},Y=(...e)=>e;",
-    `let callback=()=>{let{visibleTurnEntries:t}=G.get(${selector},{conversationId:e,isBackgroundSubagentsEnabled:l})};`,
-    `let{generatedImageTurnEntries:ae,renderEntries:ue,visibleTurnEntries:fe}=Y(${selector},{conversationId:e,isBackgroundSubagentsEnabled:l});`,
-    `let state=G.get(${selector},{conversationId:e,isBackgroundSubagentsEnabled:l});`,
-    `let reveal=G.get(${selector},{conversationId:e,isBackgroundSubagentsEnabled:l});`,
-    "function loadOlderConversationHistoryPage(){}",
-    "return {renderEntries:ue,visibleTurnEntries:fe,searchPersisted:true,getConversationState:()=>state,reveal}}"
   ].join("");
 }

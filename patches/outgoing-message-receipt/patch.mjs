@@ -2,20 +2,15 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild8881 } from "./profiles/linux.mjs";
+import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const id = "[$A-Z_a-z][$\\w]*";
-const legacyRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:1,persistence:"mounted-session",visibility:"persistent-when-activity-collapsed",preview:"stock-hover",messageRendering:"recipient-user-message"});';
-const flatCacheRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:2,persistence:"bounded-private-restart-cache",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
-const acklessRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:3,persistence:"bounded-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
-const unprojectedRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:4,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
 const currentRegistryCall = 'globalThis.__MTK_PATCH_REGISTRY__?.register?.("outgoingMessageReceipt",{version:5,persistence:"acknowledged-private-task-buckets",visibility:"persistent-after-restart-and-collapse",preview:"stock-hover",messageRendering:"recipient-user-message"});';
-const legacyTaskColorFunction = 'function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}';
-const themedTaskColorFunctions = `${legacyTaskColorFunction}function MTKoutboundParseHex(e){return{r:parseInt(e.slice(1,3),16),g:parseInt(e.slice(3,5),16),b:parseInt(e.slice(5,7),16)}}function MTKoutboundMix(e,t,n){let r=MTKoutboundParseHex(e),i=MTKoutboundParseHex(t),a=e=>Math.round(e).toString(16).padStart(2,"0");return("#"+a(r.r+(i.r-r.r)*n)+a(r.g+(i.g-r.g)*n)+a(r.b+(i.b-r.b)*n)).toUpperCase()}function MTKoutboundLum(e){let t=Object.values(MTKoutboundParseHex(e)).map(e=>{let t=e/255;return t<=.04045?t/12.92:((t+.055)/1.055)**2.4});return.2126*t[0]+.7152*t[1]+.0722*t[2]}function MTKoutboundContrast(e,t){let n=MTKoutboundLum(e),r=MTKoutboundLum(t);return(Math.max(n,r)+.05)/(Math.min(n,r)+.05)}function MTKoutboundLabelColor(e,t){let n=t?.38:.34,r=t?"#FFFFFF":"#111318",i=t?"#101114":"#FFFFFF";for(;n<=1.001;n+=.08){let t=MTKoutboundMix(e,r,Math.min(1,n));if(MTKoutboundContrast(t,i)>=4.5)return t}return r}`;
-const legacyTaskColorStyle = 'l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=';
-const themedTaskColorStyle = 'l=c==null?void 0:{color:"light-dark("+MTKoutboundLabelColor(c,!1)+","+MTKoutboundLabelColor(c,!0)+")"},u=';
+const taskColorFunction = 'function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}';
+const taskColorFunctions = `${taskColorFunction}function MTKoutboundParseHex(e){return{r:parseInt(e.slice(1,3),16),g:parseInt(e.slice(3,5),16),b:parseInt(e.slice(5,7),16)}}function MTKoutboundMix(e,t,n){let r=MTKoutboundParseHex(e),i=MTKoutboundParseHex(t),a=e=>Math.round(e).toString(16).padStart(2,"0");return("#"+a(r.r+(i.r-r.r)*n)+a(r.g+(i.g-r.g)*n)+a(r.b+(i.b-r.b)*n)).toUpperCase()}function MTKoutboundLum(e){let t=Object.values(MTKoutboundParseHex(e)).map(e=>{let t=e/255;return t<=.04045?t/12.92:((t+.055)/1.055)**2.4});return.2126*t[0]+.7152*t[1]+.0722*t[2]}function MTKoutboundContrast(e,t){let n=MTKoutboundLum(e),r=MTKoutboundLum(t);return(Math.max(n,r)+.05)/(Math.min(n,r)+.05)}function MTKoutboundLabelColor(e,t){let n=t?.38:.34,r=t?"#FFFFFF":"#111318",i=t?"#101114":"#FFFFFF";for(;n<=1.001;n+=.08){let t=MTKoutboundMix(e,r,Math.min(1,n));if(MTKoutboundContrast(t,i)>=4.5)return t}return r}`;
+const taskColorStyle = 'l=c==null?void 0:{color:"light-dark("+MTKoutboundLabelColor(c,!1)+","+MTKoutboundLabelColor(c,!0)+")"},u=';
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: outgoing-message-receipt/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
@@ -36,86 +31,6 @@ let mainSource = fs.readFileSync(mainTarget, "utf8");
 const collapseOwner = assertPersistentActivityContract(source);
 const presentation = resolvePresentationOwners(source);
 let state = inspectState();
-
-if (command === "apply" && state === "legacy-applied") {
-  source = removeLegacyOwner(source);
-  state = inspectState();
-  if (state !== "needs-apply") throw new Error("legacy outgoing receipt removal did not verify");
-}
-
-if (command === "apply" && state === "registry-upgrade") {
-  source = replaceOnce(source, legacyRegistryCall, currentRegistryCall, "outgoing receipt registry upgrade");
-  projectionSource = patchSuccessProjection(projectionSource);
-  fs.writeFileSync(target, source);
-  fs.writeFileSync(projectionTarget, projectionSource);
-  syntaxCheck(target);
-  syntaxCheck(projectionTarget);
-  state = inspectState();
-  if (state !== "applied") throw new Error("outgoing receipt registry upgrade did not verify");
-}
-
-if (command === "apply" && state === "task-bucket-upgrade") {
-  if (source.includes(flatCacheRegistryCall)) {
-    source = replaceOnce(source, flatCacheRegistryCall, currentRegistryCall, "outgoing receipt task-bucket registry upgrade");
-  }
-  projectionSource = patchSuccessProjection(projectionSource);
-  conversationSource = upgradeConversationCache(conversationSource);
-  mainSource = upgradeMainAcknowledgment(upgradeMainCache(mainSource));
-  fs.writeFileSync(target, source);
-  fs.writeFileSync(conversationTarget, conversationSource);
-  fs.writeFileSync(mainTarget, mainSource);
-  fs.writeFileSync(projectionTarget, projectionSource);
-  syntaxCheck(target);
-  syntaxCheck(conversationTarget);
-  syntaxCheck(mainTarget);
-  syntaxCheck(projectionTarget);
-  state = inspectState();
-  if (state !== "applied") throw new Error("outgoing receipt task-bucket upgrade did not verify");
-}
-
-if (command === "apply" && state === "acknowledgment-upgrade") {
-  source = replaceOnce(source, acklessRegistryCall, currentRegistryCall, "outgoing receipt acknowledgment registry upgrade");
-  conversationSource = upgradeConversationAcknowledgment(conversationSource);
-  mainSource = upgradeMainAcknowledgment(mainSource);
-  projectionSource = patchSuccessProjection(projectionSource);
-  fs.writeFileSync(target, source);
-  fs.writeFileSync(conversationTarget, conversationSource);
-  fs.writeFileSync(mainTarget, mainSource);
-  fs.writeFileSync(projectionTarget, projectionSource);
-  syntaxCheck(target);
-  syntaxCheck(conversationTarget);
-  syntaxCheck(mainTarget);
-  syntaxCheck(projectionTarget);
-  state = inspectState();
-  if (state !== "applied") throw new Error("outgoing receipt acknowledgment upgrade did not verify");
-}
-
-if (command === "apply" && state === "theme-label-upgrade") {
-  source = replaceOnce(source, legacyTaskColorFunction, themedTaskColorFunctions, "outgoing receipt contrast helpers");
-  source = replaceOnce(source, legacyTaskColorStyle, themedTaskColorStyle, "outgoing receipt theme-aware label color");
-  if (source.includes(unprojectedRegistryCall)) {
-    source = replaceOnce(source, unprojectedRegistryCall, currentRegistryCall, "outgoing receipt success-projection registry upgrade");
-  }
-  projectionSource = patchSuccessProjection(projectionSource);
-  fs.writeFileSync(target, source);
-  fs.writeFileSync(projectionTarget, projectionSource);
-  syntaxCheck(target);
-  syntaxCheck(projectionTarget);
-  state = inspectState();
-  if (state !== "applied") throw new Error("outgoing receipt theme-label upgrade did not verify");
-}
-
-if (command === "apply" && state === "success-projection-upgrade") {
-  source = replaceOnce(source, unprojectedRegistryCall, currentRegistryCall,
-    "outgoing receipt success-projection registry upgrade");
-  projectionSource = patchSuccessProjection(projectionSource);
-  fs.writeFileSync(target, source);
-  fs.writeFileSync(projectionTarget, projectionSource);
-  syntaxCheck(target);
-  syntaxCheck(projectionTarget);
-  state = inspectState();
-  if (state !== "applied") throw new Error("outgoing receipt success-projection upgrade did not verify");
-}
 
 if (command === "apply" && state === "needs-apply") {
   source = patchSource(source);
@@ -199,9 +114,9 @@ function inspectState() {
   const combinedConversationSource = conversationTurnTarget === conversationTarget
     ? conversationSource : `${conversationSource}\n${conversationTurnSource}`;
   const ownerApplied = ownerMarkers.every(marker => source.includes(marker));
-  const linux = linuxBuild8881.dynamic;
-  const linuxConversation = conversationSource.includes('if(Bn(`off`,n)===`stopped`)') &&
-    conversationSource.includes("toolActivityTurnKey:R,");
+  const linux = linuxBuild9647.dynamic;
+  const linuxConversation = (conversationSource.includes(linux.before) || conversationSource.includes(linux.after)) &&
+    conversationSource.includes(linux.parentTurn);
   const linuxLifecycleApplied = count(conversationSource, linux.after) === 1 &&
     count(conversationSource, linux.parentAfter) === 1 &&
     count(conversationSource, linux.callDependencyAfter) === 1 &&
@@ -209,8 +124,7 @@ function inspectState() {
     count(conversationSource, linux.callStorageAfter) === 1 &&
     count(conversationSource, "ReceiptLifecycle:MTKOutboundReceiptLifecycle,") === 1;
   const sourceTurnApplied = linuxConversation ? linuxLifecycleApplied :
-    (conversationSource.includes("sourceTurnId:S") || conversationSource.includes("sourceTurnId:w") ||
-     conversationSource.includes("sourceTurnId:T") || conversationSource.includes("sourceTurnId:C"));
+    conversationSource.includes("sourceTurnId:w");
   const conversationApplied = conversationMarkers.every(marker => combinedConversationSource.includes(marker)) &&
     sourceTurnApplied;
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker));
@@ -223,48 +137,16 @@ function inspectState() {
     !conversationCache.includes("flatMap");
   const taskBucketMainApplied = mainSource.includes("MTKoutboundReceiptTaskBucketLimit=64") &&
     mainSource.includes("function MTKoutboundReceiptTaskDir(") && mainSource.includes("function MTKoutboundReceiptMigrateLegacy(");
-  const acklessConversationApplied = conversationMarkers.filter(marker =>
-    marker !== 'subscribe("mtk-outbound-receipt-remember-result"'
-  ).every(marker => combinedConversationSource.includes(marker)) &&
-    !conversationSource.includes('subscribe("mtk-outbound-receipt-remember-result"');
-  const acklessMainApplied = mainMarkers.filter(marker =>
-    marker !== "type:`mtk-outbound-receipt-remember-result`"
-  ).every(marker => mainSource.includes(marker)) &&
-    !mainSource.includes("type:`mtk-outbound-receipt-remember-result`");
   const anyApplied = source.includes("function MTKOutboundMessageReceipt(") ||
     source.includes('register?.("outgoingMessageReceipt"') ||
     combinedConversationSource.includes("const MTKoutboundReceiptContract=") ||
     mainSource.includes("const MTKoutboundReceiptContract=");
-  if (count(source, green) === 1 && count(source, red) === 0 && ownerApplied &&
-      taskBucketMainApplied && acklessConversationApplied && acklessMainApplied &&
-      source.includes(acklessRegistryCall)) {
-    return "acknowledgment-upgrade";
-  }
   if (count(source, green) === 1 && count(source, red) === 0 && ownerApplied && conversationApplied && mainApplied &&
-      taskBucketConversationApplied && taskBucketMainApplied) {
-    if (source.includes(legacyRegistryCall)) return "registry-upgrade";
-    if (source.includes(flatCacheRegistryCall)) return "task-bucket-upgrade";
-    if (!source.includes("function MTKoutboundLabelColor(") || source.includes(legacyTaskColorStyle)) return "theme-label-upgrade";
-    if (source.includes(unprojectedRegistryCall)) return "success-projection-upgrade";
-    if (successProjectionApplied &&
-        (source.includes(currentRegistryCall) || !source.includes('register?.("outgoingMessageReceipt"'))) {
-      return "applied";
-    }
+      taskBucketConversationApplied && taskBucketMainApplied && successProjectionApplied &&
+      source.includes(taskColorFunctions) && source.includes(taskColorStyle) &&
+      (source.includes(currentRegistryCall) || !source.includes('register?.("outgoingMessageReceipt"'))) {
+    return "applied";
   }
-  if (count(source, green) === 1 && count(source, red) === 0 && ownerApplied && conversationApplied && mainApplied &&
-      (source.includes(flatCacheRegistryCall) || !source.includes('register?.("outgoingMessageReceipt"')) &&
-      !taskBucketConversationApplied && !taskBucketMainApplied) {
-    return "task-bucket-upgrade";
-  }
-  const legacyOwner = count(source, green) === 1 && count(source, red) === 0 &&
-    source.includes("function MTKOutboundMessageReceipt(") &&
-    source.includes("function MTKrenderOutboundMessage(e,t,n,r=!0)") &&
-    source.includes(" as MTKoutboundTaskAtom") &&
-    source.includes(" as MTKoutboundHover") &&
-    source.includes(" as MTKoutboundFormattedText") &&
-    !source.includes("globalThis.__MTK_OUTBOUND_REMEMBER__") &&
-    !conversationApplied && !mainApplied;
-  if (legacyOwner) return "legacy-applied";
   if (count(source, red) === 1 && count(source, green) === 0 && !anyApplied) {
     inspectPristineConversation(conversationSource);
     inspectPristineMain(mainSource);
@@ -274,33 +156,6 @@ function inspectState() {
     `Upstream changed: outgoing receipt seam red=${count(source, red)} green=${count(source, green)} ` +
       `owner=${ownerApplied} conversation=${conversationApplied} main=${mainApplied}`
   );
-}
-
-function removeLegacyOwner(value) {
-  const send = sendProfile(value);
-  const green = `{namespace:${send.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${send.icon},standaloneInConversation:!0,tool:${send.sendTool}}`;
-  const red = `{namespace:${send.namespace},render:${send.genericRender},renderAgentActivityIcon:${send.icon},tool:${send.sendTool}}`;
-  const helperStart = value.indexOf("function MTKoutboundArguments(");
-  const helperEnd = value.indexOf(send.functionText, helperStart);
-  if (helperStart < 0 || helperEnd <= helperStart) throw new Error("Legacy outgoing receipt helper is not localized");
-  let patched = value.slice(0, helperStart) + value.slice(helperEnd);
-  patched = replaceOnce(patched, green, red, "legacy send-message registry entry");
-  for (const binding of [
-    "MTKoutboundStoreHook", "MTKoutboundStoreScope", "MTKoutboundTaskAtom",
-    "MTKoutboundLocalThreadKey", "MTKoutboundRemoteThreadKey", "MTKoutboundHover",
-    "MTKoutboundFormattedText"
-  ]) patched = removeImportBinding(patched, binding);
-  return patched;
-}
-
-function removeImportBinding(value, localName) {
-  const matches = [...value.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>[^"]+)";/g)].filter(match =>
-    match.groups.specifiers.split(",").some(specifier => specifier.endsWith(` as ${localName}`))
-  );
-  if (matches.length !== 1) throw new Error(`Legacy outgoing receipt import ${localName} is not unique`);
-  const kept = matches[0].groups.specifiers.split(",").filter(specifier => !specifier.endsWith(` as ${localName}`));
-  const replacement = kept.length === 0 ? "" : `import{${kept.join(",")}}from"${matches[0].groups.relative}";`;
-  return replaceOnce(value, matches[0][0], replacement, `legacy ${localName} import`);
 }
 
 function patchSource(value) {
@@ -324,9 +179,6 @@ function patchSource(value) {
   patched = addImportSpecifier(patched, presentation.appRelative, `${presentation.tooltipExport} as MTKoutboundHover`, "stock hover import");
   patched = addImportSpecifier(patched, presentation.formatterRelative, `${presentation.formatterExport} as MTKoutboundFormattedText`, "stock message formatter import");
   patched = replaceOnce(patched, "export{", "export{MTKOutboundMessageReceipt as MTKoutboundReceipt,", "outbound receipt export");
-  if (patched.includes(legacyRegistryCall)) {
-    patched = replaceOnce(patched, legacyRegistryCall, currentRegistryCall, "outgoing receipt registry upgrade");
-  }
   return patched;
 }
 
@@ -351,8 +203,9 @@ function MTKoutboundArguments(e){return e!=null&&typeof e==="object"&&!Array.isA
       `children:p})}function MTKrenderOutboundMessage`,
       `children:p});return MTKactions==null?h:(0,${send.jsx}.jsxs)("div",{className:"group flex min-w-0 flex-col items-start",children:[h,(0,${send.jsx}.jsx)(MTKactions,{copyText:n.prompt,sentAtMs:e.recordedAtMs,timestampHoverOnly:!0})]})}function MTKrenderOutboundMessage`
     );
-  const themed = withActions.replace(legacyTaskColorFunction, themedTaskColorFunctions).replace(legacyTaskColorStyle, themedTaskColorStyle);
-  if (!themed.includes(themedTaskColorFunctions) || !themed.includes(themedTaskColorStyle)) {
+  const themed = withActions.replace(taskColorFunction, taskColorFunctions)
+    .replace('l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=', taskColorStyle);
+  if (!themed.includes(taskColorFunctions) || !themed.includes(taskColorStyle)) {
     throw new Error("unrecognized outgoing receipt theme-color seam");
   }
   return themed;
@@ -365,7 +218,7 @@ function inspectPristineConversation(value, turnValue = conversationTurnSource) 
   }
   const dynamic = dynamicRendererProfile(value);
   if (dynamic.variant.startsWith("split-")) {
-    splitTurnProfile(turnValue, linuxBuild8881.turn);
+    splitTurnProfile(turnValue, linuxBuild9647.turn);
   } else {
     assistantProfile(value);
   }
@@ -398,7 +251,7 @@ function patchConversation(value, turnValue) {
     "outbound source turn context"
   );
   if (dynamic.variant.startsWith("split-")) {
-    const turn = splitTurnProfile(turnValue, linuxBuild8881.turn);
+    const turn = splitTurnProfile(turnValue, linuxBuild9647.turn);
     patched = replaceOnce(
       patched,
       "export{",
@@ -433,27 +286,6 @@ function patchConversation(value, turnValue) {
   return {conversationSource: patched, conversationTurnSource: patched};
 }
 
-function upgradeConversationCache(value) {
-  const start = value.indexOf("const MTKoutboundReceiptContract=");
-  const end = value.indexOf("function Oy(", start);
-  if (start < 0 || end <= start || value.indexOf("const MTKoutboundReceiptContract=", start + 1) >= 0 ||
-      !value.slice(start, end).includes("flatMap")) {
-    throw new Error("Upstream changed: flat conversation receipt cache is not uniquely localized");
-  }
-  return value.slice(0, start) + conversationHelpers(resolveHostBus(value), "Jy", "Yy", nativeActionsProfile(value)) + value.slice(end);
-}
-
-function upgradeMainCache(value) {
-  const start = value.indexOf("const MTKoutboundReceiptContract=");
-  const end = mainHelperOwner(value).index;
-  if (start < 0 || end <= start || value.indexOf("const MTKoutboundReceiptContract=", start + 1) >= 0 ||
-      value.slice(start, end).includes("MTKoutboundReceiptTaskBucketLimit")) {
-    throw new Error("Upstream changed: flat main-process receipt cache is not uniquely localized");
-  }
-  const electron = uniqueMatch(value, new RegExp(`await (?<electron>${id})\\.app\\.whenReady\\(\\)`, "g"), "Electron app owner").groups.electron;
-  return value.slice(0, start) + mainHelpers(electron) + value.slice(end);
-}
-
 function ownerImportProfile(value) {
   const relative = `./${path.basename(target)}`;
   const match = uniqueMatch(
@@ -465,190 +297,52 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  const linux = linuxBuild8881.dynamic;
-  if (value.includes(linux.before) && value.includes(linux.call) && value.includes(linux.parentBefore)) {
-    const start = value.indexOf(linux.owner);
+  const linux9647 = linuxBuild9647.dynamic;
+  if (value.includes(linux9647.before) && value.includes(linux9647.call) &&
+      value.includes(linux9647.parentBefore)) {
+    const start = value.indexOf(linux9647.owner);
     const owner = functionAt(value, start);
     const patchedFunction = replaceOnce(
       owner.text,
-      linux.before,
-      linux.after,
-      "Linux build-8881 split dynamic renderer context body"
+      linux9647.before,
+      linux9647.after,
+      "Linux build-9647 dynamic renderer context body"
     );
-    if (count(value, linux.call) !== 1) {
-      throw new Error(`Upstream changed: found ${count(value, linux.call)} Linux build-8881 dynamic renderer calls`);
-    }
-    const callIndex = value.indexOf(linux.call);
+    const callIndex = value.indexOf(linux9647.call);
     const parent = containingFunction(value, callIndex);
-    if (!parent.text.startsWith(linux.parentBefore) || !parent.text.includes(linux.parentTurn)) {
-      throw new Error("Upstream changed: Linux build-8881 source-turn owner is ambiguous");
+    if (!parent.text.startsWith(linux9647.parentBefore) ||
+        !parent.text.includes(linux9647.parentTurn)) {
+      throw new Error("Upstream changed: Linux build-9647 source-turn owner is ambiguous");
     }
-    const patchedParent = replaceOnce(
+    let patchedParent = replaceOnce(
       parent.text,
-      linux.parentBefore,
-      linux.parentAfter,
-      "Linux build-8881 source-turn cache size"
+      linux9647.parentBefore,
+      linux9647.parentAfter,
+      "Linux build-9647 source-turn cache size"
     );
-    const patchedCall = linux.call
-      .replace(linux.callBodyBefore, linux.callBodyAfter)
-      .replace(linux.callStorageBefore, linux.callStorageAfter);
-    const patchedDependencies = replaceOnce(
+    patchedParent = replaceOnce(
       patchedParent,
-      linux.callDependencyBefore,
-      linux.callDependencyAfter,
-      "Linux build-8881 source-turn call dependency"
+      linux9647.callDependencyBefore,
+      linux9647.callDependencyAfter,
+      "Linux build-9647 source-turn call dependency"
     );
+    const patchedCall = linux9647.call
+      .replace(linux9647.callBodyBefore, linux9647.callBodyAfter)
+      .replace(linux9647.callStorageBefore, linux9647.callStorageAfter);
     return {
-      variant: "split-8881-linux",
+      variant: "split-9647-linux",
       functionText: owner.text,
       patchedFunction,
       callText: parent.text,
-      patchedCallText: replaceOnce(patchedDependencies, linux.call, patchedCall, "Linux build-8881 source-turn call"),
-      helperBoundary: linux.helperBoundary,
-      react: linux.react,
-      jsx: linux.jsx
-    };
-  }
-  if (value.includes("function Cz(") && value.includes("Ih(o)?.render?.(o,l,i,c)")) {
-    const start = value.indexOf("function Cz(");
-    const owner = functionAt(value, start);
-    const patchedFunction = replaceOnce(
-      owner.text,
-      "function Cz(e){let t=(0,wz.c)(16),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Xt(`off`,n)===`stopped`)return null;let u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=Ih(o)?.render?.(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4]",
-      "function Cz(e){let t=(0,wz.c)(17),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Xt(`off`,n)===`stopped`)return null;let u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[16]!==h?(u=Ih(o)?.render?.(o,l,i,c,{conversationId:n,turnId:h}),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[16]=h,t[4]=u):u=t[4]",
-      "build-8881 split dynamic renderer context body"
-    );
-    const call = uniqueMatch(
-      value,
-      /\(e=\(0,\$\.jsx\)\(Cz,\{agentActivityIcon:Ie,conversationId:f,enableTimelineTargets:we,item:n\}\),t\[354\]=Ie,t\[355\]=f,t\[356\]=we,t\[357\]=n,t\[358\]=e\)/g,
-      "build-8881 split conversation dynamic renderer call"
-    );
-    const parent = containingFunction(value, call.index);
-    if (!parent.text.startsWith("function NW(e){let t=(0,JW.c)(371),") || !parent.text.includes("turnId:T,")) {
-      throw new Error("Upstream changed: build-8881 source-turn owner is ambiguous");
-    }
-    const patchedParent = replaceOnce(
-      parent.text,
-      "function NW(e){let t=(0,JW.c)(371),",
-      "function NW(e){let t=(0,JW.c)(372),",
-      "build-8881 source-turn cache size"
-    );
-    const patchedCall = call[0]
-      .replace("t[357]!==n?", "t[357]!==n||t[371]!==T?")
-      .replace("enableTimelineTargets:we,item:n}", "enableTimelineTargets:we,item:n,sourceTurnId:T}")
-      .replace("t[357]=n,t[358]=e", "t[357]=n,t[371]=T,t[358]=e");
-    return {
-      variant: "split-8881",
-      functionText: owner.text,
-      patchedFunction,
-      callText: parent.text,
-      patchedCallText: replaceOnce(patchedParent, call[0], patchedCall, "build-8881 source-turn call"),
-      helperBoundary: "function Cz(",
-      react: "t(r(),1)",
-      jsx: "Tz"
-    };
-  }
-  if (value.includes("function Cz(") && value.includes("wh(o)?.render?.(o,l,i,c)")) {
-    const start = value.indexOf("function Cz(");
-    const owner = functionAt(value, start);
-    const patchedFunction = replaceOnce(
-      owner.text,
-      "function Cz(e){let t=(0,wz.c)(16),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ut(`off`,n)===`stopped`)return null;let u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=wh(o)?.render?.(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4]",
-      "function Cz(e){let t=(0,wz.c)(17),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ut(`off`,n)===`stopped`)return null;let u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[16]!==h?(u=wh(o)?.render?.(o,l,i,c,{conversationId:n,turnId:h}),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[16]=h,t[4]=u):u=t[4]",
-      "build-8690 split dynamic renderer context body"
-    );
-    const call = uniqueMatch(
-      value,
-      /\(e=\(0,\$\.jsx\)\(Cz,\{agentActivityIcon:Ie,conversationId:d,enableTimelineTargets:Ce,item:n\}\),t\[354\]=Ie,t\[355\]=d,t\[356\]=Ce,t\[357\]=n,t\[358\]=e\)/g,
-      "build-8690 split conversation dynamic renderer call"
-    );
-    const parent = containingFunction(value, call.index);
-    if (!parent.text.startsWith("function FW(e){let t=(0,XW.c)(371),") || !parent.text.includes("turnId:C,")) {
-      throw new Error("Upstream changed: build-8690 source-turn owner is ambiguous");
-    }
-    const patchedParent = replaceOnce(
-      parent.text,
-      "function FW(e){let t=(0,XW.c)(371),",
-      "function FW(e){let t=(0,XW.c)(372),",
-      "build-8690 source-turn cache size"
-    );
-    const patchedCall = call[0]
-      .replace("t[357]!==n?", "t[357]!==n||t[371]!==C?")
-      .replace("enableTimelineTargets:Ce,item:n}", "enableTimelineTargets:Ce,item:n,sourceTurnId:C}")
-      .replace("t[357]=n,t[358]=e", "t[357]=n,t[371]=C,t[358]=e");
-    return {
-      variant: "split-8690",
-      functionText: owner.text,
-      patchedFunction,
-      callText: parent.text,
-      patchedCallText: replaceOnce(patchedParent, call[0], patchedCall, "build-8690 source-turn call"),
-      helperBoundary: "function Cz(",
-      react: "t(r(),1)",
-      jsx: "Tz"
-    };
-  }
-  if (value.includes("function gx(") && value.includes("Nh(o)?.render?.(o,l,i,c)")) {
-    const start = value.indexOf("function gx(");
-    const owner = functionAt(value, start);
-    const patchedFunction = replaceOnce(
-      owner.text,
-      "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=Nh(o)?.render?.(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4]",
-      "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[4]!==h?(u=Nh(o)?.render?.(o,l,i,c,{conversationId:n,turnId:h}),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=h,t[5]=u):u=t[5]",
-      "build-8576 split dynamic renderer context body"
-    );
-    const call = uniqueMatch(
-      value,
-      /\(e=\(0,\$\.jsx\)\(gx,\{agentActivityIcon:Re,conversationId:f,enableTimelineTargets:Te,item:n\}\),t\[338\]=Re,t\[339\]=f,t\[340\]=Te,t\[341\]=n,t\[342\]=e\)/g,
-      "build-8576 split conversation dynamic renderer call"
-    );
-    const parent = containingFunction(value, call.index);
-    if (!parent.text.startsWith("function ME(e){let t=(0,KE.c)(355),") || !parent.text.includes("turnId:T,")) {
-      throw new Error("Upstream changed: build-8576 source-turn owner is ambiguous");
-    }
-    const patchedParent = replaceOnce(
-      parent.text,
-      "function ME(e){let t=(0,KE.c)(355),",
-      "function ME(e){let t=(0,KE.c)(356),",
-      "build-8576 source-turn cache size"
-    );
-    const patchedCall = call[0]
-      .replace("t[341]!==n?", "t[341]!==n||t[355]!==T?")
-      .replace("enableTimelineTargets:Te,item:n}", "enableTimelineTargets:Te,item:n,sourceTurnId:T}")
-      .replace("t[341]=n,t[342]=e", "t[341]=n,t[355]=T,t[342]=e");
-    return {
-      variant: "split-8576",
-      functionText: owner.text,
-      patchedFunction,
-      callText: parent.text,
-      patchedCallText: replaceOnce(patchedParent, call[0], patchedCall, "build-8576 source-turn call"),
-      helperBoundary: "function gx(",
-      react: "t(x(),1)",
-      jsx: "$"
-    };
-  }
-  if (value.includes("function hx(") && value.includes("Mh(o)?.render?.(o,l,i,c)")) {
-    const start = value.indexOf("function hx(");
-    const owner = functionAt(value, start);
-    const patchedFunction = replaceOnce(
-      owner.text,
-      "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=Mh(o)?.render?.(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4]",
-      "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[4]!==h?(u=Mh(o)?.render?.(o,l,i,c,{conversationId:n,turnId:h}),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=h,t[5]=u):u=t[5]",
-      "split dynamic renderer context body"
-    );
-    const call = uniqueMatch(
-      value,
-      /\(e=\(0,\$\.jsx\)\(hx,\{agentActivityIcon:Ie,conversationId:d,enableTimelineTargets:we,item:n\}\),t\[338\]=Ie,t\[339\]=d,t\[340\]=we,t\[341\]=n,t\[342\]=e\)/g,
-      "split conversation dynamic renderer call"
-    );
-    return {
-      variant: "split-8378",
-      functionText: owner.text,
-      patchedFunction,
-      callText: call[0],
-      patchedCallText: call[0].replace("enableTimelineTargets:we,item:n}", "enableTimelineTargets:we,item:n,sourceTurnId:w}"),
-      helperBoundary: "function hx(",
-      react: "gS",
-      jsx: "_x"
+      patchedCallText: replaceOnce(
+        patchedParent,
+        linux9647.call,
+        patchedCall,
+        "Linux build-9647 source-turn call"
+      ),
+      helperBoundary: linux9647.helperBoundary,
+      react: linux9647.react,
+      jsx: linux9647.jsx
     };
   }
   if (value.includes("function QS(") && value.includes("bh(o)") && value.includes("e?.render?.(o,l,i,c)")) {
@@ -690,29 +384,7 @@ function dynamicRendererProfile(value) {
       jsx: "$"
     };
   }
-  const start = value.indexOf("function Ub(");
-  const owner = functionAt(value, start);
-  if (!owner.text.includes("rh(o)?.render(o,l,i,c)")) {
-    throw new Error("Upstream changed: dynamic renderer call is missing");
-  }
-  const patchedFunction = replaceOnce(
-    owner.text,
-    "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l?(u=rh(o)?.render(o,l,i,c),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u):u=t[4]",
-    "{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s,sourceTurnId:h}=e,c=a===void 0||a,l=s===void 0?`row`:s,u;t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l||t[4]!==h?(u=rh(o)?.render(o,l,i,c,{conversationId:n,turnId:h}),t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=h,t[5]=u):u=t[5]",
-    "dynamic renderer context body"
-  );
-  const call = uniqueMatch(
-    value,
-    /\(e=\(0,[$A-Z_a-z][$\w]*\.jsx\)\(Ub,\{agentActivityIcon:Ne,conversationId:d,enableTimelineTargets:xe,item:n\}\),t\[332\]=Ne,t\[333\]=d,t\[334\]=xe,t\[335\]=n,t\[336\]=e\)/g,
-    "conversation dynamic renderer call"
-  );
-  return {
-    variant: "combined-legacy",
-    functionText: owner.text,
-    patchedFunction,
-    callText: call[0],
-    patchedCallText: call[0].replace("enableTimelineTargets:xe,item:n", "enableTimelineTargets:xe,item:n,sourceTurnId:S")
-  };
+  throw new Error("Upstream changed: build-9647 dynamic renderer ownership is missing");
 }
 
 function splitTurnProfile(value, linux) {
@@ -739,44 +411,7 @@ function splitTurnProfile(value, linux) {
       after: '$(\`mtk-outbound-turn-receipts\`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:l,turnId:_}),{canOwnLatestTurnFollowContent:!1});let to=Qa.length,no={'
     };
   }
-  if (!value.includes("function _i(") || !value.includes("{conversationId:s")) {
-    if (value.includes("function bi(e){let t=(0,Ki.c)(216),") && value.includes("conversationId:o") &&
-        value.includes("turnId:m") && value.includes("let Ha=za.length,Ua={")) {
-      const before = "let Ha=za.length,Ua={";
-      return {
-        importText: imported[0], specifiers: imported.groups.specifiers, relative,
-        before,
-        after: '$(`mtk-outbound-turn-receipts`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:o,turnId:m}),{canOwnLatestTurnFollowContent:!1});let Ha=za.length,Ua={'
-      };
-    }
-    if (value.includes("function bi(e){let t=(0,Ki.c)(216),") && value.includes("conversationId:o") &&
-        value.includes("turnId:p") && value.includes("let Ha=za.length,Ua={")) {
-      const before = "let Ha=za.length,Ua={";
-      return {
-        importText: imported[0], specifiers: imported.groups.specifiers, relative,
-        before,
-        after: '$(`mtk-outbound-turn-receipts`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:o,turnId:p}),{canOwnLatestTurnFollowContent:!1});let Ha=za.length,Ua={'
-      };
-    }
-    throw new Error("Upstream changed: split turn renderer ownership is missing");
-  }
-  if (value.includes("function _i(e){let t=(0,Hi.c)(208),") && value.includes("turnId:f,")) {
-    const before = "let Ra=Fa.length,za={";
-    const after = '$(`mtk-outbound-turn-receipts`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:s,turnId:f}),{canOwnLatestTurnFollowContent:!1});let Ra=Fa.length,za={';
-    if (count(value, before) !== 1) throw new Error("Upstream changed: build-8576 pre-activity turn boundary is missing");
-    return {
-      importText: imported[0], specifiers: imported.groups.specifiers, relative,
-      before,
-      after
-    };
-  }
-  if (!value.includes("turnId:d")) throw new Error("Upstream changed: split turn id is missing");
-  const children = uniqueMatch(value, /children:\[qt,Va,Ha,Ua\]/g, "split turn root children")[0];
-  return {
-    importText: imported[0], specifiers: imported.groups.specifiers, relative,
-    before: children,
-    after: children.replace("children:[qt,", "children:[(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:s,turnId:d}),qt,")
-  };
+  throw new Error("Upstream changed: build-9647 turn renderer ownership is missing");
 }
 
 function assistantProfile(value) {
@@ -801,11 +436,7 @@ function nativeActionsProfile(value) {
 
 function conversationHelperBoundary(value) {
   if (value.includes("function QS(")) return "function QS(";
-  if (value.includes("function Cz(")) return "function Cz(";
-  if (value.includes("function gx(")) return "function gx(";
-  if (value.includes("function hx(")) return "function hx(";
-  if (value.includes("function Oy(")) return "function Oy(";
-  throw new Error("Upstream changed: outgoing receipt helper boundary is missing");
+  throw new Error("Upstream changed: build-9647 outgoing receipt helper boundary is missing");
 }
 
 function resolveHostBus(value) {
@@ -822,8 +453,7 @@ function resolveHostBus(value) {
   }
   const imported = uniqueMatch(value, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g, "conversation app-initial import");
   const appInitial = fs.readFileSync(path.resolve(path.dirname(conversationTarget), imported.groups.relative), "utf8");
-  const internal = appInitial.includes("function ALs(){") || appInitial.includes("function zLs(){") ? "H" : "U";
-  const exported = exportedAs(appInitial, internal);
+  const exported = exportedAs(appInitial, "U");
   return uniqueMatch(
     imported.groups.specifiers,
     new RegExp(`(?:^|,)${escapeRegExp(exported)} as (?<local>${id})(?=,|$)`, "g"),
@@ -831,14 +461,14 @@ function resolveHostBus(value) {
   ).groups.local;
 }
 
-function acklessConversationHelpers(hostBus, react = "Jy", jsx = "Yy") {
+function baseConversationHelpers(hostBus, react = "Jy", jsx = "Yy") {
   return String.raw`const MTKoutboundReceiptContract="outgoing-message-receipt-v1",MTKoutboundReceiptLimit=256,MTKoutboundReceiptStates=new Map,MTKoutboundReceiptRequests=new Map;function MTKoutboundReceiptRecord(e){if(e==null||typeof e!=="object"||Array.isArray(e)||Object.keys(e).sort().join("\0")!=="callId\0contract\0prompt\0recordedAtMs\0sourceThreadId\0sourceTurnId\0targetHostId\0targetThreadId"||e.contract!==MTKoutboundReceiptContract||typeof e.callId!=="string"||e.callId.length===0||e.callId.length>256||typeof e.sourceThreadId!=="string"||e.sourceThreadId.length===0||typeof e.sourceTurnId!=="string"||e.sourceTurnId.length===0||typeof e.targetThreadId!=="string"||e.targetThreadId.length===0||typeof e.targetHostId!=="string"||e.targetHostId.length===0||typeof e.prompt!=="string"||!Number.isSafeInteger(e.recordedAtMs)||e.recordedAtMs<=0)return null;return e}function MTKoutboundReceiptState(e){let t=MTKoutboundReceiptStates.get(e);return t==null&&(t={loaded:!1,loading:!1,records:new Map,listeners:new Set},MTKoutboundReceiptStates.set(e,t)),t}function MTKoutboundReceiptValues(e){return[...e.records.values()].sort((e,t)=>e.recordedAtMs-t.recordedAtMs||e.callId.localeCompare(t.callId))}function MTKoutboundReceiptNotify(e){let t=MTKoutboundReceiptValues(e);for(let n of e.listeners)n(t)}function MTKoutboundRemember(e){if((e=MTKoutboundReceiptRecord(e))==null)return!1;let t=MTKoutboundReceiptState(e.sourceThreadId),n=t.records.get(e.callId);if(n!=null)return JSON.stringify(n)===JSON.stringify(e);t.records.set(e.callId,e);let r=MTKoutboundReceiptValues(t);for(let e of r.slice(0,Math.max(0,r.length-MTKoutboundReceiptLimit)))t.records.delete(e.callId);MTKoutboundReceiptNotify(t),${hostBus}.dispatchMessage("mtk-outbound-receipt-remember",{record:e});return!0}function MTKoutboundLoad(e){let t=MTKoutboundReceiptState(e);if(t.loaded||t.loading)return;t.loading=!0;let n=crypto.randomUUID();MTKoutboundReceiptRequests.set(n,e),${hostBus}.dispatchMessage("mtk-outbound-receipts-list",{requestId:n,sourceThreadId:e})}globalThis.__MTK_OUTBOUND_REMEMBER__=MTKoutboundRemember;${hostBus}.subscribe("mtk-outbound-receipts-result",e=>{if(typeof e?.requestId!=="string")return;let t=MTKoutboundReceiptRequests.get(e.requestId);if(t==null)return;MTKoutboundReceiptRequests.delete(e.requestId);let n=MTKoutboundReceiptState(t);n.loading=!1,n.loaded=!0;if(e.ok===!0&&Array.isArray(e.records))for(let r of e.records){r=MTKoutboundReceiptRecord(r);r!=null&&r.sourceThreadId===t&&!n.records.has(r.callId)&&n.records.set(r.callId,r)}MTKoutboundReceiptNotify(n)});function MTKOutboundTurnReceipts({conversationId:e,turnId:t}){let n=typeof e==="string"&&e.length>0&&typeof t==="string"&&t.length>0,r=n?MTKoutboundReceiptState(e):null,[i,a]=${react}.useState(()=>r==null?[]:MTKoutboundReceiptValues(r).filter(e=>e.sourceTurnId===t));return ${react}.useEffect(()=>{if(r==null)return;let n=e=>a(e.filter(e=>e.sourceTurnId===t));return r.listeners.add(n),MTKoutboundLoad(e),n(MTKoutboundReceiptValues(r)),()=>r.listeners.delete(n)},[e,t,r]),i.length===0?null:(0,${jsx}.jsx)("div",{"data-mtk-outgoing-message-receipts":!0,className:"mb-3 flex min-w-0 flex-col items-start gap-2",children:i.map(e=>(0,${jsx}.jsx)(MTKoutboundReceipt,{item:{arguments:{hostId:e.targetHostId,prompt:e.prompt,threadId:e.targetThreadId},completed:!0,success:!0}},e.callId))})}`;
 }
 
 function conversationHelpers(hostBus, react = "Jy", jsx = "Yy", actions) {
   if (!new RegExp(`^${id}$`).test(actions)) throw new Error("native assistant action component is missing");
-  const ackless = acklessConversationHelpers(hostBus, react, jsx);
-  const current = ackless
+  const base = baseConversationHelpers(hostBus, react, jsx);
+  const current = base
     .replace(
       "MTKoutboundReceiptStates=new Map,MTKoutboundReceiptRequests=new Map;",
       "MTKoutboundReceiptStates=new Map,MTKoutboundReceiptRequests=new Map,MTKoutboundReceiptRememberRequests=new Map;"
@@ -868,16 +498,6 @@ function conversationHelpers(hostBus, react = "Jy", jsx = "Yy", actions) {
   return withActions;
 }
 
-function upgradeConversationAcknowledgment(value) {
-  const start = value.indexOf("const MTKoutboundReceiptContract=");
-  const end = value.indexOf("function Oy(", start);
-  const hostBus = resolveHostBus(value);
-  if (start < 0 || end <= start || value.slice(start, end) !== acklessConversationHelpers(hostBus)) {
-    throw new Error("Upstream changed: unacknowledged outgoing receipt renderer helper is not uniquely localized");
-  }
-  return value.slice(0, start) + conversationHelpers(hostBus, "Jy", "Yy", nativeActionsProfile(value)) + value.slice(end);
-}
-
 function patchMain(value) {
   const electron = uniqueMatch(value, new RegExp(`await (?<electron>${id})\\.app\\.whenReady\\(\\)`, "g"), "Electron app owner").groups.electron;
   const helperOwner = mainHelperOwner(value)[0];
@@ -898,21 +518,8 @@ function mainHelperOwner(value) {
   );
 }
 
-function acklessMainHandlers() {
-  return "case`mtk-outbound-receipt-remember`:{MTKoutboundReceiptRemember(t?.record);break}case`mtk-outbound-receipts-list`:{let n=MTKoutboundReceiptList(t?.sourceThreadId);this.windowManager.sendMessageToWebContents(e,{type:`mtk-outbound-receipts-result`,requestId:typeof t?.requestId===`string`?t.requestId:``,ok:n!=null,records:n??[]});break}";
-}
-
 function currentMainHandlers() {
   return "case`mtk-outbound-receipt-remember`:{let n=MTKoutboundReceiptRemember(t?.record);this.windowManager.sendMessageToWebContents(e,{type:`mtk-outbound-receipt-remember-result`,requestId:typeof t?.requestId===`string`?t.requestId:``,ok:n!=null,record:n});break}case`mtk-outbound-receipts-list`:{let n=MTKoutboundReceiptList(t?.sourceThreadId);this.windowManager.sendMessageToWebContents(e,{type:`mtk-outbound-receipts-result`,requestId:typeof t?.requestId===`string`?t.requestId:``,ok:n!=null,records:n??[]});break}";
-}
-
-function upgradeMainAcknowledgment(value) {
-  return replaceOnce(
-    value,
-    acklessMainHandlers(),
-    currentMainHandlers(),
-    "outgoing receipt acknowledged main handler"
-  );
 }
 
 function mainHelpers(electron) {
@@ -1170,6 +777,7 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
+  if (linuxBuild9647.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build9647Contracts.every(contract => value.includes(contract))) return owner;
   const persistentUnits = uniqueMatch(
     value,
@@ -1198,169 +806,36 @@ function resolveTaskImports(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  const linux = linuxBuild8881.taskImports;
-  if (appInitial.includes(linux.appRoot) && appInitial.includes(linux.taskOwner)) {
+  const linux9647 = linuxBuild9647.taskImports;
+  if (appInitial.includes(linux9647.appRoot) && appInitial.includes(linux9647.taskOwner) &&
+      appInitial.includes("function tm(e){let t=(0,pNt.useContext)(qp),")) {
     const titleImport = uniqueMatch(
       ownerSource,
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-primary-[^"]+\.js)";/g,
       "app-primary import"
     );
     const appPrimaryFile = path.resolve(path.dirname(target), titleImport.groups.relative);
-    if (!appPrimaryFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
+    if (!appPrimaryFile.startsWith(path.resolve(root) + path.sep)) {
+      throw new Error("App import escaped extraction root");
+    }
     const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
-    if (!appPrimary.includes(linux.titleOwner) || !appPrimary.includes(linux.titleHelper)) {
-      throw new Error("Upstream changed: Linux build-8881 live-title selector owner is not recognized");
+    if (!appPrimary.includes(linux9647.titleOwner) || !appPrimary.includes(linux9647.titleHelper)) {
+      throw new Error("Upstream changed: Linux build-9647 live-title selector owner is not recognized");
     }
     const additions = [
-      `${exportedAs(appInitial, linux.storeHook)} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, linux.storeScope)} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, linux.taskAtom)} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, linux.localThreadKey)} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, linux.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
+      `${exportedAs(appInitial, linux9647.storeHook)} as MTKoutboundStoreHook`,
+      `${exportedAs(appInitial, linux9647.storeScope)} as MTKoutboundStoreScope`,
+      `${exportedAs(appInitial, linux9647.taskAtom)} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, linux9647.localThreadKey)} as MTKoutboundLocalThreadKey`,
+      `${exportedAs(appInitial, linux9647.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
     ];
     return {
       before: importMatch[0],
       after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
       titleImport: {
         relative: titleImport.groups.relative,
-        exported: exportedAs(appPrimary, linux.titleAtom)
+        exported: exportedAs(appPrimary, linux9647.titleAtom)
       },
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function Jcs(){") && appInitial.includes("KB=rm(Q,")) {
-    const titleImport = uniqueMatch(
-      ownerSource,
-      /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-primary-[^"]+\.js)";/g,
-      "app-primary import"
-    );
-    const appPrimaryFile = path.resolve(path.dirname(target), titleImport.groups.relative);
-    if (!appPrimaryFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
-    const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
-    if (!appPrimary.includes("Q2t=Jf(o_,(e,{get:t})=>{") ||
-        !appPrimary.includes("X2t({...n,localTitle:r})")) {
-      throw new Error("Upstream changed: build-8881 live-title selector owner is not recognized");
-    }
-    const additions = [
-      `${exportedAs(appInitial, "gm")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "KB")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "yk")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "bk")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      titleImport: {
-        relative: titleImport.groups.relative,
-        exported: exportedAs(appPrimary, "Q2t")
-      },
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function Ocs(){") && appInitial.includes("KB=am(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "vm")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "KB")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "yk")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "bk")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function zLs(){") && appInitial.includes("kW=Ny(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "ub")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "kW")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "PF")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "FF")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function ALs(){") && appInitial.includes("kW=Py(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "db")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "kW")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "FF")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "IF")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function Oks(){") && appInitial.includes("cW=Xy(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "Db")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "cW")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "oF")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "sF")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function Oks(){") && appInitial.includes("XU=zy(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "hb")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "XU")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "ZP")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "QP")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function qOs(){") && appInitial.includes("aW=Iy(Q,")) {
-    const additions = [
-      `${exportedAs(appInitial, "pb")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "Q")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "aW")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "QP")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "$P")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      storeHook: "MTKoutboundStoreHook",
-      storeScope: "MTKoutboundStoreScope"
-    };
-  }
-  if (appInitial.includes("function g$c(e){") && appInitial.includes("VN=i_($,")) {
-    const additions = [
-      `${exportedAs(appInitial, "A_")} as MTKoutboundStoreHook`,
-      `${exportedAs(appInitial, "$")} as MTKoutboundStoreScope`,
-      `${exportedAs(appInitial, "VN")} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, "gk")} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, "_k")} as MTKoutboundRemoteThreadKey`
-    ];
-    return {
-      before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
       storeHook: "MTKoutboundStoreHook",
       storeScope: "MTKoutboundStoreScope"
     };
@@ -1441,9 +916,9 @@ function requiresDedicatedTitleSelector(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  const linux = linuxBuild8881.taskImports;
-  return appInitial.includes("function Jcs(){") && appInitial.includes("KB=rm(Q,") ||
-    appInitial.includes(linux.appRoot) && appInitial.includes(linux.taskOwner);
+  const linux9647 = linuxBuild9647.taskImports;
+  return appInitial.includes(linux9647.appRoot) && appInitial.includes(linux9647.taskOwner) &&
+    appInitial.includes("function tm(e){let t=(0,pNt.useContext)(qp),");
 }
 
 function resolvePresentationOwners(ownerSource) {
@@ -1635,13 +1110,9 @@ function uniqueConversationOwner() {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js")) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    const combined = value.includes("function Ub(") && value.includes("function Oy(");
-    const split = (value.includes("function Cz(") && (value.includes("Ih(o)?.render?.(o,l,i,c)") || value.includes("wh(o)?.render?.(o,l,i,c)"))) ||
-      (value.includes("function hx(") && value.includes("Mh(o)?.render?.(o,l,i,c)")) ||
-      (value.includes("function gx(") && value.includes("Nh(o)?.render?.(o,l,i,c)")) ||
-      (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+    const split = (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
-    return (combined || split) && value.includes("toolActivityTurnKey") &&
+    return split && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
   });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} conversation renderer owners`);
@@ -1649,19 +1120,13 @@ function uniqueConversationOwner() {
 }
 
 function uniqueConversationTurnOwner(owner) {
-  const ownerSource = fs.readFileSync(owner, "utf8");
-  if (ownerSource.includes("function Ub(") && ownerSource.includes("function Oy(")) return owner;
   const basename = path.basename(owner);
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes("function _i(") || value.includes("function bi(e){let t=(0,Ki.c)(216),") ||
-      value.includes("function Z(e){let t=(0,")) &&
-      (value.includes("children:[qt,Va,Ha,Ua]") || value.includes("children:[Jt,Va,Ha,Ua]") ||
-       value.includes("let Ha=za.length,Ua={") ||
-       value.includes("let to=Qa.length,no={") ||
-       value.includes("MTKOutboundTurnReceipts,{conversationId:s,turnId:d}") ||
-       value.includes("MTKOutboundTurnReceipts,{conversationId:s,turnId:f}")) &&
+    return value.includes("function Z(e){let t=(0,") &&
+      (value.includes("let to=Qa.length,no={") ||
+       value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} conversation turn owners`);

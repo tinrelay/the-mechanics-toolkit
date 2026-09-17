@@ -154,7 +154,7 @@ seams:
 - [`patches/`](patches/) transforms an explicitly supplied Codex Desktop package: extracted ASAR
   JavaScript, platform package metadata, or—on macOS in one integration step—the bundled
   `Contents/Resources/codex` executable. The selected ASAR fleet stages into one macOS application,
-  Linux DEB, or Windows MSIX candidate; each platform adapter owns its package integrity and
+  Linux DEB or RPM, or Windows MSIX candidate; each platform adapter owns its package integrity and
   adoption boundary.
 - [`source-patches/`](source-patches/) applies exact diffs to an explicitly supplied checkout of
   [OpenAI Codex](https://github.com/openai/codex). The agent inspects the source, applies or ports
@@ -174,9 +174,10 @@ on **macOS ARM64**. It passed the complete static fleet, supervised installation
 readiness, and selected live message paths. Windows 11 ARM64 has a 16-patch build-9647 port with
 signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Ubuntu DEB
 (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) packages use the same 16-patch
-build-9647 ASAR fleet. The current ARM64 VMs both have patched Codex installations running while
-their final live qualification records are being completed. Each platform's qualification runbook
-records what was proved, carried from an earlier build, or deliberately not rerun.
+build-9647 ASAR fleet. Both ARM64 package adapters passed static reconstruction, genuine-task
+supervised adoption, and renderer readiness; Ubuntu supplied the live feature pass for the shared
+Linux ASAR. Each platform's qualification runbook records what was proved, carried from an earlier
+build, or deliberately not rerun.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and
@@ -323,8 +324,8 @@ wait for a person at a macOS Keychain prompt. On macOS, the detached supervisor 
 an explicit **Don't Restart** / **Relaunch Codex** dialog so active agents can reach a safe stopping
 point and the person—not a race—chooses when the application closes.
 
-The Linux DEB adapter uses the same supervisor protocol with desktop-native dialogs, exact `/proc`
-executable identity, a native askpass dialog around `sudo -A` package installation, and a Linux
+The Linux DEB and RPM adapters use the same supervisor protocol with desktop-native dialogs, exact
+`/proc` executable identity, a native askpass dialog around `sudo -A` package installation, and a Linux
 terminal handoff only after failure. Its exact qualified and still-open gates live in
 [the Linux runbook](qualification/linux.md).
 

@@ -20,11 +20,13 @@ try {
   fs.mkdirSync(build, { recursive: true });
   const initialTarget = path.join(assets, "app-initial-fixture.js");
   const rendererTarget = path.join(assets, "conversation-blocks-fixture.js");
+  const turnTarget = path.join(assets, "local-conversation-turn-fixture.js");
   const activityTarget = path.join(assets, "agent-activity-item-fixture.js");
   const mainTarget = path.join(build, "main-fixture.js");
   const config = path.join(scratch, "toolkit.json");
   fs.writeFileSync(initialTarget, initialFixture());
   fs.writeFileSync(rendererTarget, rendererFixture());
+  fs.writeFileSync(turnTarget, turnFixture());
   fs.writeFileSync(activityTarget, activityFixture());
   fs.writeFileSync(mainTarget, mainFixture());
   fs.writeFileSync(config, JSON.stringify({
@@ -65,6 +67,7 @@ try {
   assert.equal(applied.shipResolution, "runtime-message-and-observer-config");
   const rendererOnce = fs.readFileSync(rendererTarget);
   const activityOnce = fs.readFileSync(activityTarget);
+  const turnOnce = fs.readFileSync(turnTarget);
   const mainOnce = fs.readFileSync(mainTarget);
   const mainText = mainOnce.toString("utf8");
   assert.ok(mainText.includes('await d.app.whenReady(),L.add(await MTKtinrelayStartOutgoingObserver(d.app.getPath("userData")))'),
@@ -82,60 +85,14 @@ try {
   assert.equal(fs.readFileSync(mainTarget, "utf8"), mismatchedStartup,
     "a mismatched observer binding fails before mutation");
   fs.writeFileSync(mainTarget, mainOnce);
-  const currentOutgoingEvent = functionSource(mainText, "MTKtinrelayOutgoingEvent");
-  const legacyOutgoingEvent = legacyRequiredAuthorOutgoingEvent();
-
-  fs.writeFileSync(mainTarget, replaceUnique(mainText, currentOutgoingEvent, legacyOutgoingEvent));
-  assert.equal(runOutgoingTransform("check").state, "legacy-required-author-applied",
-    "the old required-author parser is an explicit migration state");
-  assert.equal(runOutgoingTransform("apply").state, "applied",
-    "the old required-author parser migrates to the canonical optional-author parser");
-  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
-    "required-author migration converges byte-for-byte with a fresh application");
-  assert.equal(runOutgoingTransform("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
-    "required-author migration is byte-identical after a second application");
-
-  for (const [label, parser] of [
-    ["partial", legacyOutgoingEvent.replace("return e}", "return null}")],
-    ["mixed", currentOutgoingEvent + legacyOutgoingEvent],
-    ["duplicate legacy", legacyOutgoingEvent + legacyOutgoingEvent],
-    ["duplicate current", currentOutgoingEvent + currentOutgoingEvent]
-  ]) {
-    const ambiguous = replaceUnique(mainText, currentOutgoingEvent, parser);
-    fs.writeFileSync(mainTarget, ambiguous);
-    const rejected = runOutgoingTransformFailure("apply");
-    assert.match(rejected.stderr, /event parser is partial or ambiguous/, label);
-    assert.equal(fs.readFileSync(mainTarget, "utf8"), ambiguous,
-      `${label} parser fails before mutation`);
-  }
-  fs.writeFileSync(mainTarget, mainOnce);
-
   const rendererText = rendererOnce.toString("utf8");
   const durableSourceTurn = 'sourceThreadId:d,sourceTurnId:typeof R==="string"&&R.startsWith(d+"\\0")?R.slice(d.length+1):void 0';
   assert.ok(rendererText.includes(durableSourceTurn),
     "ordinary exec decodes the actual turn ID from Codex's tool-activity key");
   assert.ok(!rendererText.includes("sourceThreadId:d,sourceTurnId:S"),
     "ordinary exec does not use the unrelated turnId prop that its caller leaves undefined");
-  const assistantTurn = functionSource(rendererText, "Oy");
-  const taskReceiptsAt = assistantTurn.indexOf("MTKOutboundTurnReceipts,{conversationId:");
-  const childrenAt = assistantTurn.indexOf("children:[");
-  const stockTurnBodyAt = assistantTurn.indexOf("Ze", childrenAt);
-  const outgoingTinrelayAt = assistantTurn.indexOf("MTKtinrelayOutgoingTurnPresentations,{conversationId:");
-  assert.ok(stockTurnBodyAt >= 0 && outgoingTinrelayAt >= 0 && outgoingTinrelayAt < stockTurnBodyAt,
-    "durable Tinrelay replies are hoisted before the stock turn body");
-  if (taskReceiptsAt >= 0) assert.ok(taskReceiptsAt < outgoingTinrelayAt,
-    "task receipts and Tinrelay replies retain their established leading order");
-  fs.writeFileSync(rendererTarget, rendererText.replace(durableSourceTurn, "sourceThreadId:d,sourceTurnId:S"));
-  fs.writeFileSync(mainTarget, replaceUnique(mainText, currentOutgoingEvent, legacyOutgoingEvent));
-  assert.equal(runOutgoingTransform("check").state, "legacy-source-turn-applied",
-    "the undefined-source-turn implementation remains the first recognized migration");
-  assert.equal(runOutgoingTransform("apply").state, "applied",
-    "source-turn and required-author migrations converge in one application");
-  assert.deepEqual(fs.readFileSync(rendererTarget), rendererOnce,
-    "source-turn migration produces the canonical renderer");
-  assert.deepEqual(fs.readFileSync(mainTarget), mainOnce,
-    "source-turn migration also produces the canonical main parser");
+  assert.ok(turnOnce.toString("utf8").includes("MTKtinrelayOutgoingTurnPresentations,{conversationId:s,turnId:d"),
+    "durable Tinrelay replies are mounted in the current split-turn renderer");
 
   const visualMatch = /function MTKtinrelayEnsureStyle\(\)\{.*?e\.textContent=(?<css>"(?:\\.|[^"\\])*")\,document/.exec(rendererText);
   assert.ok(visualMatch, "localized Tinrelay visual stylesheet");
@@ -148,34 +105,17 @@ try {
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], { encoding: "utf8" });
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
-  fs.writeFileSync(rendererTarget, rendererText.replace(
-    "function MTKtinrelayDeliveryFromMessage(",
-    "function MTKtinrelayLegacyDeliveryFromMessage("
-  ));
-  assert.equal(runToolkit("check").state, "needs-apply",
-    "an installed pointer-only renderer is recognized as needing the delivery upgrade");
-  assert.equal(runToolkit("apply").state, "applied",
-    "an installed pointer-only renderer gains direct-delivery parsing");
-  assert.deepEqual(fs.readFileSync(rendererTarget), rendererOnce,
-    "direct-delivery migration produces the canonical renderer");
-
   assert.equal(runToolkit("apply").state, "applied", "an applied tree needs no config to verify");
   assert.deepEqual(fs.readFileSync(rendererTarget), rendererOnce, "renderer is byte-identical after second application");
   assert.deepEqual(fs.readFileSync(activityTarget), activityOnce, "activity classifier is byte-identical after second application");
+  assert.deepEqual(fs.readFileSync(turnTarget), turnOnce, "turn renderer is byte-identical after second application");
   assert.deepEqual(fs.readFileSync(mainTarget), mainOnce, "main process is byte-identical after second application");
   assert.deepEqual(fs.readFileSync(initialTarget), initialAfterRuntime, "Tinrelay leaves the composed host-bus owner untouched");
-  assertMainUpgradePreservesAdjacentHelpers();
   assertSplitTurnPresentationOrdering();
   process.stdout.write("unified Tinrelay presentation transform probe passed\n");
 
   function runToolkit(action, withConfig = false) {
     return runPatch("tinrelay-pointer-presentation", action, withConfig);
-  }
-
-  function runOutgoingTransform(action) {
-    const result = spawnSync(process.execPath, [outgoingTransform, action, extracted], { encoding: "utf8" });
-    assert.equal(result.status, 0, result.stderr || result.stdout);
-    return JSON.parse(result.stdout);
   }
 
   function runOutgoingTransformFailure(action) {
@@ -195,39 +135,9 @@ try {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
 
-function assertMainUpgradePreservesAdjacentHelpers() {
-  const transform = fs.readFileSync(outgoingTransform, "utf8");
-  const upgrade = functionSource(transform, "upgradeMainTurnAnchors");
-  const acknowledge = functionSource(transform, "upgradeMainAcknowledgedAnchors");
-  const legacyHandlers = functionSource(transform, "legacyAnchorMainHandlers");
-  const currentHandlers = functionSource(transform, "currentMainHandlers");
-  const lookup = "case`mtk-tinrelay-outgoing-lookup`:{let n=await MTKtinrelayOutgoingLookup(t);this.windowManager.sendMessageToWebContents(e,{type:`mtk-tinrelay-outgoing-result`,requestId:typeof t.requestId===`string`?t.requestId:``,ok:n!=null,event:n});break}";
-  const api = Function("legacyMainHelpers", "mainHelpers", "mainHelperSlice",
-    "currentOutgoingEvent", "legacyRequiredAuthorOutgoingEvent", "count", "replaceOnce",
-    `${legacyHandlers};${currentHandlers};${upgrade};${acknowledge};return value => upgradeMainAcknowledgedAnchors(upgradeMainTurnAnchors(value, "sample-ship"))`)(
-      () => "LEGACY-TINRELAY-HELPER",
-      () => "CURRENT-TINRELAY-HELPER",
-      () => "LEGACY-TINRELAY-HELPER",
-      () => "CURRENT-EVENT-PARSER",
-      () => "LEGACY-EVENT-PARSER",
-      (value, needle) => value.split(needle).length - 1,
-      (value, before, after) => {
-        assert.equal(value.split(before).length - 1, 1, `unique replacement: ${before.slice(0, 40)}`);
-        return value.replace(before, after);
-      }
-    );
-  const adjacent = "const MTKoutboundReceiptContract=`preserve-me`;";
-  const upgraded = api(`prefix LEGACY-TINRELAY-HELPER ${adjacent} ${lookup} suffix`);
-  assert.ok(upgraded.includes("CURRENT-TINRELAY-HELPER"));
-  assert.ok(upgraded.includes(adjacent), "Tinrelay main upgrade preserves adjacent patch helpers");
-  assert.ok(upgraded.includes("anchor:r"), "upgraded lookup returns the main-process persistence result");
-  assert.ok(!upgraded.includes("case`mtk-tinrelay-outgoing-anchor-remember`"),
-    "upgraded lookup does not retain the unacknowledged second IPC hop");
-}
-
 function assertSplitTurnPresentationOrdering() {
   const transform = fs.readFileSync(outgoingTransform, "utf8");
-  const patchPresentations = sourceBetween(transform, "function patchAssistantPresentations(", "function upgradeRendererTurnAnchors(");
+  const patchPresentations = sourceBetween(transform, "function patchAssistantPresentations(", "function helperSlice(");
   const turnCompletionExpression = sourceBetween(transform, "function turnCompletionExpression(", "function patchAssistantPresentations(");
   const uniqueMatch = sourceBetween(transform, "function uniqueMatch(", "function containingFunction(");
   const functionOwnership = sourceBetween(transform, "function containingFunction(", "function replaceOnce(");
@@ -240,7 +150,7 @@ function assertSplitTurnPresentationOrdering() {
       "/tmp/conversation-blocks-fixture.js",
       "[$A-Z_a-z][$\\w]*"
     );
-  const renderer = "MTKtinrelayReact=t(_e(),1);function Yb(){}export{x as x}";
+  const renderer = "MTKtinrelayReact=t(r(),1);function MS(){}export{x as x}";
   const turn = [
     'import{MTKOutboundTurnReceipts as MTKOutboundTurnReceipts}from"./conversation-blocks-fixture.js";',
     "function turn(e){let{turn:u,isTurnInProgress:L}=e,{userItems:J,assistantItem:K,systemEventItem:G,agentItems:A}=e,Fa=[],$=(e,t,n)=>Fa.push({key:e,node:t,options:n});",
@@ -271,35 +181,6 @@ function sourceBetween(value, startMarker, endMarker) {
   return value.slice(start, end);
 }
 
-function functionSource(value, name) {
-  const start = value.indexOf(`function ${name}(`);
-  assert.ok(start >= 0, `function ${name}`);
-  const open = value.indexOf("{", start);
-  let quote = null, escaped = false, depth = 1;
-  for (let index = open + 1; index < value.length; index += 1) {
-    const character = value[index];
-    if (quote != null) {
-      if (escaped) escaped = false;
-      else if (character === "\\") escaped = true;
-      else if (character === quote) quote = null;
-      continue;
-    }
-    if (character === "'" || character === '"' || character === "`") quote = character;
-    else if (character === "{") depth += 1;
-    else if (character === "}" && --depth === 0) return value.slice(start, index + 1);
-  }
-  assert.fail(`unterminated function ${name}`);
-}
-
-function replaceUnique(value, before, after) {
-  assert.equal(value.split(before).length - 1, 1, `unique replacement: ${before.slice(0, 40)}`);
-  return value.replace(before, after);
-}
-
-function legacyRequiredAuthorOutgoingEvent() {
-  return 'function MTKtinrelayOutgoingEvent(e){if(e==null||typeof e!=="object"||Array.isArray(e)||Object.keys(e).sort().join("\\0")!=="attention_label\\0author_label\\0body\\0contract\\0kind\\0recipient_ship\\0sender_ship\\0transmission_id"||e.contract!==MTKtinrelayOutgoingContract||e.kind!=="transmission"||typeof e.transmission_id!=="string"||!MTKtinrelayOutgoingUuid.test(e.transmission_id)||e.sender_ship!==MTKtinrelayOutgoingLocalShip||typeof e.recipient_ship!=="string"||e.recipient_ship.length===0||typeof e.attention_label!=="string"||e.author_label!==null&&(typeof e.author_label!=="string"||e.author_label.length===0)||typeof e.body!=="string")return null;return e}';
-}
-
 function initialFixture() {
   return [
     "const x=0,H={getInstance(){return U}},y=e=>e;let U={subscribe(){},dispatchMessage(){}};",
@@ -311,21 +192,31 @@ function initialFixture() {
 function rendererFixture() {
   return [
     'import{x as X,host as Bus}from"./app-initial-fixture.js";',
-    "const e=e=>e,t=e=>e,un=()=>({c(){}}),Hn=()=>null,Mg=()=>null,Y=()=>({jsx(){},jsxs(){}}),Wo=()=>({}),At=(...e)=>e.join(` `),Tb={jsx(){},jsxs(){}},cE=e=>e,rg=e=>e,Ne=!1,Ae=!1;",
-    "var yb,bb,xb,Sb=e((()=>{yb=un(),Hn(),Mg(),bb=Y(),xb=2}));",
-    "function Eg(e){return e}",
-    "function vb(e){let t=(0,yb.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,f=!0,u=c,m,p;",
-    "t[2]!==n||t[3]!==l?(p=l?(0,bb.jsx)(`button`,{type:`button`,className:At(`text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description`,`cursor-interaction rounded-md hover:text-default`),onClick:l,children:n}):(0,bb.jsx)(`div`,{className:`text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description`,children:n}),t[2]=n,t[3]=l,t[4]=p):p=t[4];",
-    "t[5]!==u?(m=f?(0,bb.jsx)(Eg,{message:i,sentAtMs:a,collapsedLineCount:xb,compactActions:u,cwd:o,hostId:s,threadId:r}):null,t[5]=u):m=t[5];return m}",
-    "function Cb(e){let t=(0,yb.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,m;",
-    "m=(0,Tb.jsx)(vb,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:null});return m}",
+    "const e=e=>e,t=e=>e,i=()=>({c(){}}),Fl=()=>null,oh=()=>null,Y=()=>({jsx(){},jsxs(){}}),r=()=>({}),At=(...e)=>e.join(` `),PS={jsx(){},jsxs(){}},cE=e=>e,rg=e=>e,Ne=!1,Ae=!1;",
+    "var wS,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),TS=Y(),ES=2}));",
+    "function uh(e){return e}",
+    "function CS(e){let t=(0,wS.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,f=!0,u=c,m,p;",
+    "t[2]!==n||t[3]!==l?(p=l?(0,TS.jsx)(`button`,{type:`button`,className:At(`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,`cursor-interaction rounded-md hover:text-default`),onClick:l,children:n}):(0,TS.jsx)(`div`,{className:`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,children:n}),t[2]=n,t[3]=l,t[4]=p):p=t[4];",
+    "t[5]!==u?(m=f?(0,TS.jsx)(uh,{message:i,sentAtMs:a,collapsedLineCount:ES,compactActions:u,cwd:o,hostId:s,threadId:r}):null,t[5]=u):m=t[5];return m}",
+    "function MS(e){let t=(0,wS.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,m;",
+    "m=(0,PS.jsx)(CS,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:null});return m}",
     "function tx(e){return e}",
-    "function Render(e){let{conversationId:d,turnId:S,item:n,toolActivityTurnKey:R}=e,m=!1,p=`default`,v=`local`,ve=`default`,ye=!0,r=null,je=!1;switch(n.type){case`exec`:{let e=cE(n);if(!Ne&&Ae&&!e||(n.parsedCmd.type===`read`||n.parsedCmd.type===`search`||n.parsedCmd.type===`list_files`)&&!n.parsedCmd.isFinished&&!e)return null;return(0,Tb.jsx)(tx,{item:n,isTurnInProgress:m,threadDetailLevel:p,hostId:v,summaryTone:ve,showSummaryIcon:ye,summaryIcon:r,hideRawCommand:je,toolActivityTurnKey:R})}}}",
-    "function Oy(e){let{conversationId:p,turnId:o,turn:u,isTurnInProgress:L}=e,{userItems:J,assistantItem:K,systemEventItem:G,agentItems:A}=e,Ze=null;return(0,Tb.jsx)(`div`,{turn:u,isTurnInProgress:L,assistantItem:K,children:[Ze,null]})}",
+    "function Render(e){let{conversationId:d,turnId:S,item:n,toolActivityTurnKey:R}=e,m=!1,p=`default`,v=`local`,ve=`default`,ye=!0,r=null,je=!1;switch(n.type){case`exec`:{let e=cE(n);if(!Ne&&Ae&&!e||(n.parsedCmd.type===`read`||n.parsedCmd.type===`search`||n.parsedCmd.type===`list_files`)&&!n.parsedCmd.isFinished&&!e)return null;return(0,PS.jsx)(tx,{item:n,isTurnInProgress:m,threadDetailLevel:p,hostId:v,summaryTone:ve,showSummaryIcon:ye,summaryIcon:r,hideRawCommand:je,toolActivityTurnKey:R})}}}",
+    "function Oy(e){let{conversationId:p,turnId:o,turn:u,isTurnInProgress:L}=e,{userItems:J,assistantItem:K,systemEventItem:G,agentItems:A}=e,Ze=null;return(0,PS.jsx)(`div`,{turn:u,isTurnInProgress:L,assistantItem:K,children:[Ze,null]})}",
     "function GE(e,{keepMcpAppEntriesPersistent:t=!1,mcpServerStatuses:n,renderMcpApps:r=!1}={}){let i=[],a=[],o=[],s=[],c=null;for(let l of e){if(l.kind===`standalone`&&l.item.item.type===`worked-for`){c=l.item.item;continue}if(l.kind===`standalone`&&l.item.item.type===`realtime-transcript`){a.length===0?s.push(l):(a.push(l),o.push(l));continue}a.push(l),KE({unit:l,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r})?o.push(l):i.push(l)}return{collapsibleUnits:i,expandedUnits:a,persistentUnits:o,preToggleUnits:s,workedForItem:c}}",
     "function KE({unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r}){if(e.kind!==`standalone`)return!1;let i=e.item.item;return i.type===`dynamic-tool-call`&&Zm(i)||t&&r&&i.type===`mcp-tool-call`&&qE({item:i,mcpServerStatuses:n})?!0:i.type===`user-message`&&(i.steeringStatus!=null||i.hookFeedback===!0)}",
     "function qE(){return!1}var JE=0;",
-    "export const fixture=true;"
+    "const x=0;export{x as x}"
+  ].join("");
+}
+
+function turnFixture() {
+  return [
+    'import{MTKOutboundTurnReceipts as MTKOutboundTurnReceipts}from"./conversation-blocks-fixture.js";',
+    "function turn(e){let{turn:u,isTurnInProgress:L}=e,{userItems:J,assistantItem:K,systemEventItem:G,agentItems:A}=e,Fa=[],$=(e,t,n)=>Fa.push({key:e,node:t,options:n});",
+    '$(`user-item`,USER,{canOwnLatestTurnFollowContent:!1});',
+    '$(`mtk-outbound-turn-receipts`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:s,turnId:d}),{canOwnLatestTurnFollowContent:!1});',
+    "let Ra=Fa.length,za={}}export const fixture=true;"
   ].join("");
 }
 

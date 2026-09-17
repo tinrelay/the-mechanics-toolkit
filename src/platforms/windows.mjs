@@ -420,7 +420,7 @@ export function prepareCandidateAdoption({
   fileSystem = fs
 }) {
   if (candidateSourcePath != null && candidateSourcePath.trim() !== "") {
-    throw new Error("--candidate-source is only valid for Linux DEB adoption");
+    throw new Error("--candidate-source is only valid for Linux package adoption");
   }
   if (typeof knownGoodPath !== "string" || knownGoodPath.trim() === "") {
     throw new Error("Windows candidate adoption requires --known-good with a signed recovery MSIX");

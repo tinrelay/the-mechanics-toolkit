@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9275 } from "./profiles/linux.mjs";
+import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -62,6 +62,14 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
+  if (value.includes(linuxBuild9647.selector)) {
+    for (const contract of [linuxBuild9647.selector, ...linuxBuild9647.required]) {
+      if (count(value, contract) !== 1) {
+        throw new Error(`Upstream changed: ${linuxBuild9647.name} owner is not unique: ${contract}`);
+      }
+    }
+    return linuxBuild9647.profile;
+  }
   const build9647Seam = "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),";
   if (value.includes(build9647Seam)) {
     const contracts = [
@@ -81,19 +89,7 @@ function currentProfile(value) {
       client: "C_"
     };
   }
-  const seam = "function Jcs(){let e=(0,Zcs.c)(12),";
-  if (!value.includes(seam)) return null;
-  if (value.includes(linuxBuild9275.selector)) {
-    for (const contract of [linuxBuild9275.selector, ...linuxBuild9275.required]) {
-      if (count(value, contract) !== 1) {
-        throw new Error(`Upstream changed: ${linuxBuild9275.name} owner is not unique: ${contract}`);
-      }
-    }
-    return linuxBuild9275.profile;
-  }
-  return value.includes("hV=wm(Q,")
-    ? { seam, scope: "gm(Q)", react: "Qcs", projectsAtom: "tV", readyAtom: "b6", client: "P6" }
-    : { seam, scope: "gm(Q)", react: "Qcs", projectsAtom: "tV", readyAtom: "Om", client: "Dm" };
+  return null;
 }
 
 function rosterHelper(profile) {

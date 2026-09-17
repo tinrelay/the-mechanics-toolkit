@@ -14,8 +14,8 @@
     "tinrelay-pointer-presentation",
     "codex-observability",
     "renderer-turn-window",
-    "safe-start-readiness",
-    "renderer-patch-registry"
+    "renderer-patch-registry",
+    "safe-start-readiness"
   ],
   "tinrelay": {
     "client": "/absolute/path/to/tinrelay"

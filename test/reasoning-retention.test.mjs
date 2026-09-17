@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { linuxBuild8881 } from "../patches/reasoning-retention/profiles/linux.mjs";
+import { linuxBuild9647 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
@@ -12,11 +12,10 @@ const turn = uniqueSource(source => source.includes("function MTKuseReasoningRet
 const thread = uniqueSource(source => source.includes("function MTKuseReasoningThreadRetention("), "reasoning thread owner");
 const activity = uniqueSource(source => source.includes("isCollapsed:!r&&(a??!i)"), "stock collapse owner");
 const rosterPolicy = turn.source.includes("function MTKreasoningRosterValue(");
-const policyOwner = rosterPolicy
-  ? turn
-  : uniqueSource(source => source.includes("function MTKreasoningShouldStayOpen("), "reasoning policy owner");
+assert.equal(rosterPolicy, true, "build-9647 reasoning retention uses the shared agent roster");
+const policyOwner = turn;
 
-const decisionName = rosterPolicy ? "MTKreasoningRosterValue" : "MTKreasoningShouldStayOpen";
+const decisionName = "MTKreasoningRosterValue";
 const decisionText = functionAt(policyOwner.source, policyOwner.source.indexOf(`function ${decisionName}(`));
 const kept = "22222222-2222-4222-8222-222222222222";
 const ordinary = "33333333-3333-4333-8333-333333333333";
@@ -37,17 +36,8 @@ const roster = {
   },
   diagnose(code, detail) { diagnostics.push({code, detail}); }
 };
-const realm = rosterPolicy
-  ? {__MTK_AGENT_ROSTER__: roster}
-  : {
-      __MTKreasoningSubscribe(listener) { subscribed = typeof listener === "function"; return () => {}; },
-      __MTKreasoningShouldStayOpen(taskId) {
-        return policy.rules.find(rule => rule.taskId === taskId)?.keepReasoningOpen === true;
-      }
-    };
-const decision = rosterPolicy
-  ? Function("globalThis", `${decisionText};return ${decisionName}`)(realm)
-  : Function(`${decisionText};return ${decisionName}`)();
+const realm = {__MTK_AGENT_ROSTER__: roster};
+const decision = Function("globalThis", `${decisionText};return ${decisionName}`)(realm);
 assert.equal(decision(kept, policy), true, "an exact opted-in task retains reasoning");
 assert.equal(decision(ordinary, policy), false, "an ordinary task keeps stock behavior");
 assert.equal(decision("Engine Tender — Repairs", policy), false, "a title cannot opt a task into retention");
@@ -68,24 +58,22 @@ assert.ok(hookReact, "turn hook names its React owner");
 const hook = Function(hookReact, "globalThis", `${hookText};return MTKuseReasoningRetention`)(Ui, realm);
 assert.equal(hook(kept), true);
 assert.equal(hook(ordinary), false);
-assert.equal(subscribed, true, "the turn rerenders when the async palette arrives");
-if (rosterPolicy) {
-  policy.rules[0].keepReasoningOpen = "yes";
-  assert.equal(hook(kept), false, "an invalid roster extension value keeps stock collapse behavior");
-  assert.equal(diagnostics.at(-1)?.code, "invalid-keep-reasoning-open");
-  policy.rules[0].keepReasoningOpen = true;
-  assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
-    "thread transitions validate the same roster extension boundary");
-}
+assert.equal(subscribed, true, "the turn rerenders when the roster changes");
+policy.rules[0].keepReasoningOpen = "yes";
+assert.equal(hook(kept), false, "an invalid roster extension value keeps stock collapse behavior");
+assert.equal(diagnostics.at(-1)?.code, "invalid-keep-reasoning-open");
+policy.rules[0].keepReasoningOpen = true;
+assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
+  "thread transitions validate the same roster extension boundary");
 
 assert.match(
   thread.source,
   /if\(!MTKreasoningThreadRetained\)for\(let t of i\)[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*,\{conversationId:e,turnSearchKey:t\},!0\)/,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
-assert.match(
-  thread.source,
-  /(?:\[e,[A-Za-z_$][\w$]*,G,[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*|\[e,u,ue,x,pe|\[e,l,ce,x,q|\[e,l,le,y,fe),MTKreasoningThreadRetained\]/,
+assert.ok(
+  /(?:\[e,[A-Za-z_$][\w$]*,G,[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*|\[e,u,ue,x,pe|\[e,l,ce,x,q|\[e,l,le,y,fe),MTKreasoningThreadRetained\]/.test(thread.source) ||
+    thread.source.includes(linuxBuild9647.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
@@ -97,14 +85,8 @@ assert.deepEqual(collapse({...base, preventAutoCollapse: false}), {shouldAllowCo
 assert.deepEqual(collapse({...base, preventAutoCollapse: true, persistedCollapsed: true}), {shouldAllowCollapse: true, isCollapsed: true}, "manual collapse still wins");
 assert.deepEqual(collapse({...base, preventAutoCollapse: true, persistedCollapsed: false}), {shouldAllowCollapse: true, isCollapsed: false}, "manual reopen still wins");
 assert.equal(
-    turn.source.includes("preventAutoCollapse:kt||yr||MTKreasoningRetained") ||
-    turn.source.includes("preventAutoCollapse:Ot||yr||MTKreasoningRetained") ||
-    turn.source.includes("preventAutoCollapse:Dt||br||MTKreasoningRetained") ||
-    turn.source.includes("preventAutoCollapse:At||xr||MTKreasoningRetained") ||
-    turn.source.includes("preventAutoCollapse:Ot||Sr||MTKreasoningRetained") ||
-    turn.source.includes("preventAutoCollapse:jt||Sr||MTKreasoningRetained") ||
     turn.source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
-    turn.source.includes(linuxBuild8881.turn.appliedOwner),
+    turn.source.includes(linuxBuild9647.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

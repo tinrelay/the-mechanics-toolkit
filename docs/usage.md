@@ -6,8 +6,9 @@ installs, replaces, launches, or rolls back an application.
 
 ## Requirements
 
-The current patch-staging workflow supports macOS application bundles and Linux DEB packages, and
-requires Node.js 24 LTS or a newer supported release. The generated-code and packaging boundaries
+The current patch-staging workflow supports macOS application bundles, Linux DEB and RPM packages,
+and Windows MSIX packages, and requires Node.js 24 LTS or a newer supported release. The
+generated-code and packaging boundaries
 measured on Windows and Linux are recorded in
 [`platform-compatibility.md`](platform-compatibility.md); transform recognition alone is not package
 or live qualification. Install the pinned local Electron ASAR dependency and run the repository
@@ -19,10 +20,11 @@ npm run check
 npm test
 ```
 
-The macOS staging path also uses the system `codesign`, `ditto`, and `PlistBuddy` tools. Linux DEB
-staging uses `dpkg-deb`, `ar`, `gpgv`, and the already-installed trusted ChatGPT APT keyring. One
-exact Ubuntu ARM64 build has completed healthy live adoption;
-the remaining Linux VM gates still control any broader DEB qualification claim.
+The macOS staging path also uses the system `codesign`, `ditto`, and `PlistBuddy` tools. Ubuntu DEB
+staging uses `dpkg-deb`, `ar`, `gpgv`, and the already-installed trusted ChatGPT APT keyring. Fedora
+RPM staging uses `rpm`, `rpmkeys`, `rpm2cpio`, `cpio`, `rpmbuild`, and the installed trusted ChatGPT
+RPM key. The current Ubuntu and Fedora ARM64 VMs both run patched build-9647 Codex; their exact
+remaining live gates stay in the Linux qualification record.
 
 ## Inspect an application
 
@@ -48,8 +50,8 @@ node bin/toolkit.mjs inspect /usr/lib/chatgpt
 ```
 
 Linux inspection validates the production package metadata against the inner ASAR and reports the
-Desktop executable, ASAR, and bundled-CLI hashes. Package provenance is verified from the DEB at
-staging/adoption time rather than inferred from the installed directory.
+Desktop executable, ASAR, and bundled-CLI hashes. Package provenance is verified from the DEB or
+RPM at staging/adoption time rather than inferred from the installed directory.
 
 ## Diagnose a failed launch or renderer
 
@@ -76,21 +78,25 @@ bin/tmtk-restart --candidate /path/to/ChatGPT-MechanicsToolkit.app \
   /Applications/ChatGPT.app
 ```
 
-Linux DEB adoption names its pristine candidate source and installed rollback separately:
+Linux package adoption names its pristine candidate source and installed rollback separately:
 
 ```sh
 bin/tmtk-restart --candidate /path/to/chatgpt_amd64_tmtk.deb \
   --candidate-source /path/to/new-chatgpt_amd64.deb \
   --known-good /path/to/installed-chatgpt_amd64.deb /usr/lib/chatgpt
+
+bin/tmtk-restart --candidate /path/to/chatgpt_x86_64_tmtk.rpm \
+  --candidate-source /path/to/new-chatgpt_x86_64.rpm \
+  --known-good /path/to/installed-chatgpt_x86_64.rpm /usr/lib/chatgpt
 ```
 
 The Linux adapter proves that the candidate receipt names `--candidate-source` and that the
 installed inner app matches `--known-good`. Those packages may describe different builds during
 an upgrade. It copies the candidate and rollback into the private incident, uses the best
-available native dialog and terminal, installs through `dpkg` with a private native askpass helper
-and exact `sudo -A` when needed, and verifies the candidate source plus either an authenticated
-vendor rollback or a strictly inspected TMTK rollback before checking the installed package and
-payload hashes. On the qualified Linux Desktop build, run this from a task whose person has
+available native dialog and terminal, installs through `dpkg` or `rpm` with a private native askpass
+helper and exact `sudo -A` when needed, and verifies the candidate source plus either an
+authenticated vendor rollback or a strictly inspected TMTK rollback before checking the installed
+package and payload hashes. On the qualified Linux Desktop build, run this from a task whose person has
 explicitly enabled **Full Access** after the agent explains why TMTK must write private state
 outside the project, survive task/Desktop exit, and install the authorized package. The ordinary
 task sandbox made the rescue root read-only and invocation-scoped escalation was unavailable. See
@@ -276,6 +282,13 @@ node bin/toolkit.mjs stage-deb /path/to/chatgpt_amd64.deb \
   /path/to/chatgpt_amd64_tmtk.deb --config /path/to/toolkit.local.json
 ```
 
+For Linux RPM packages:
+
+```sh
+node bin/toolkit.mjs stage-rpm /path/to/chatgpt_x86_64.rpm \
+  /path/to/chatgpt_x86_64_tmtk.rpm --config /path/to/toolkit.local.json
+```
+
 For Windows MSIX packages, from Windows:
 
 ```powershell
@@ -284,11 +297,11 @@ node bin/toolkit.mjs stage-msix `
   --config $ToolkitConfig
 ```
 
-Linux staging supports ASAR-scope patches only. It emits an explicit local rebuild with version
-`SOURCE+tmtk1`, omits the vendor `_gpgorigin` signature member, and records the authenticated source
-DEB hash and selected fleet in its package receipt. Before staging, `gpgv` verifies that source
-signature against the trusted ChatGPT APT keyring already present on the system. RPM is not
-implemented.
+Linux staging supports ASAR-scope patches only. It emits an explicit unsigned local rebuild,
+records the authenticated source package hash and selected fleet in its package receipt, and keeps
+the vendor package untouched. DEB output uses `SOURCE+tmtk1` after `gpgv` verifies `_gpgorigin`
+against the installed APT keyring. RPM output uses `SOURCE_RELEASE.tmtk1` after `rpmkeys` verifies
+the signature fingerprint against the installed ChatGPT RPM key.
 
 Windows staging supports the complete ASAR fleet and, when configured, the paired native/WSL Codex
 binary replacement. It preserves the package identity, rebuilds the block map with MakeAppx, and
@@ -298,7 +311,7 @@ separate, but must have the exact same qualified inner Desktop identity; read
 [`qualification/windows.md`](../qualification/windows.md) before adoption.
 
 The destination's parent must exist and the destination must not. macOS staging refuses a
-destination inside `/Applications`; Linux requires a new `.deb` rather than a package-owned path
+destination inside `/Applications`; Linux requires a new `.deb` or `.rpm` rather than a package-owned path
 under `/usr/lib`; Windows requires new candidate and known-good `.msix` destinations rather than an
 in-place edit under `WindowsApps`. None modifies or launches the source, and each removes only the
 new destination it created if static proof fails.
@@ -308,7 +321,7 @@ dependency-safe order, runs syntax and behavioral probes, proves byte-identical 
 preserves the source's exact native payload and executable modes, repacks the ASAR, and repeats
 verification after packing. macOS staging then updates Electron's integrity seal and signs the
 candidate with the configured identity (ad-hoc by default). Linux staging instead rebuilds the DEB
-as an explicitly unsigned local TMTK package with source provenance pinned in its receipt. Windows
+or RPM as an explicitly unsigned local TMTK package with source provenance pinned in its receipt. Windows
 rebuilds and locally signs the complete MSIX package layer.
 
 When a selected repair includes a rebuilt App Server/Core, configure the absolute replacement path

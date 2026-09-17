@@ -26,9 +26,7 @@ try {
   assert.deepEqual(applied.targets, [path.join("webview", "assets", "agent-activity-item-fixture.js")]);
   const once = fs.readFileSync(ownerTarget);
   assert.match(once.toString(), /q as MTKwaitStoreScope/,
-    "build 8690 imports the task selector's Q scope, not an unrelated BR export");
-  assert.doesNotMatch(once.toString(), /BR as MTKwaitStoreScope/,
-    "build 8690 does not confuse the export named BR with internal scope Q");
+    "build 9647 imports the task selector's Q scope");
 
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
@@ -36,24 +34,15 @@ try {
   assert.equal(runToolkit("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(ownerTarget), once, "second application is byte-identical");
 
-  const legacyCursor = once.toString().replace("cursor-pointer rounded-sm", "rounded-sm");
-  assert.notEqual(legacyCursor, once.toString(), "legacy link-cursor fixture differs");
-  fs.writeFileSync(ownerTarget, legacyCursor);
-  assert.equal(runToolkit("check").state, "legacy-link-cursor");
-  assert.equal(runToolkit("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(ownerTarget), once, "legacy links upgrade to pointer cursors");
-
-  const legacySpacing = once.toString()
-    .replace("let u=", 'e.completed||l.unshift(" ");let u=')
-    .replace(
-      'children:MTKwaitStatusLabel})," ",...l,e.completed?null:"…"]})',
-      'children:MTKwaitStatusLabel}),...l,e.completed?null:"…"]})'
-    );
-  assert.notEqual(legacySpacing, once.toString(), "legacy active-spacing fixture differs");
-  fs.writeFileSync(ownerTarget, legacySpacing);
-  assert.equal(runToolkit("check").state, "legacy-active-spacing");
-  assert.equal(runToolkit("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(ownerTarget), once, "legacy active spacing upgrades to explicit layout spacing");
+  for (const partial of [
+    once.toString().replace("cursor-pointer rounded-sm", "rounded-sm"),
+    once.toString().replace("function MTKwaitLabelColor(", "function MTKwaitLabelColorMissing(")
+  ]) {
+    fs.writeFileSync(ownerTarget, partial);
+    const rejected = spawnSync(process.execPath, [toolkit, "patch", "wait-thread-roster", "check", extracted], {encoding: "utf8"});
+    assert.notEqual(rejected.status, 0, "partial current wait-roster state fails closed");
+    fs.writeFileSync(ownerTarget, once);
+  }
 
   assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialFixture()), "task metadata owner stays untouched");
   process.stdout.write("wait-thread roster transform probe passed\n");
@@ -69,13 +58,13 @@ try {
 
 function initialFixture() {
   return [
-    "const x=0,Q=Symbol(`scope`),LQ=Symbol(`unrelated`);",
-    "function vm(e){return e}",
-    "function yk(e){return `local:${e}`}",
-    "function bk(e){return `remote:${e}`}",
-    "const am=(...e)=>e,KB=am(Q,0);",
-    "function Ocs(){}",
-    "export{x as x,vm as h,Q as q,LQ as BR,KB as task,yk as local,bk as remote};"
+    "const x=0,Q=Symbol(`scope`);",
+    "function nm(e){return e}",
+    "function jj(e){return `local:${e}`}",
+    "function Mj(e){return `remote:${e}`}",
+    "const Hp=(...e)=>e,AH=Hp(Q,0);",
+    "function PYs(){}",
+    "export{x as x,nm as h,Q as q,AH as task,jj as local,Mj as remote};"
   ].join("");
 }
 

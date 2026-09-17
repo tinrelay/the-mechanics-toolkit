@@ -193,8 +193,8 @@ function makeSourceApp(app, rendererSource) {
   fs.mkdirSync(resources, {recursive: true});
   fs.writeFileSync(path.join(assets, "app-initial-fixture.js"), rendererSource);
   fs.writeFileSync(path.join(build, "main-fixture.js"),
-    "var Tie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
-    "function Aie(){}function owner(e){let{requestDevRelaunch:P=Aie}=e,N=()=>true,r={lt:1},l={ipcMain:{handle(){}}};" +
+    "var vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
+    "function Cae({markerPath:e=process.env[vae]?.trim(),writeMarker:t=()=>{}}={}){return t(e),!0}function owner(){let N=()=>true,r={lt:1},l={ipcMain:{handle(){}}};" +
     "l.ipcMain.handle(r.lt,async(t,s)=>{if(!N(t))return;if(s.type===`electron-avatar-overlay-restore-ready`)return})}\n");
   fs.writeFileSync(helper, "fixture helper\n", {mode: 0o755});
   const unpackedFixtures = [helper];
@@ -261,11 +261,11 @@ function terminalFixture() {
 c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
 accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u
 allowWithinEditable:c,enabled:a,onKeyDown:l
-pxi=()=>{d1t.run({action:{type:\`windows.terminal.toggle\`,windowId:Ux}})
-[\`toggleTerminal\`,pxi]
+$wi=()=>{fen.run({action:{type:\`windows.terminal.toggle\`,windowId:bv}})
+[\`toggleTerminal\`,$wi]
 defaultKeybindings:[{key:"Control+\`"}]
 */
-const H={dispatchMessage(){}};function MHs(){H.dispatchMessage(\`ready\`,{persistedStateResponsePriority:W7?\`critical\`:void 0})}
+const g={dispatchMessage(){}};function MHs(){g.dispatchMessage(\`ready\`,{persistedStateResponsePriority:R9?\`critical\`:void 0})}
 export const fixture = true;
 `;
 }

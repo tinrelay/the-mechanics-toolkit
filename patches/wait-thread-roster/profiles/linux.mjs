@@ -1,12 +1,8 @@
-export const linuxBuild8881 = {
+export const linuxBuild9647 = {
+  platformMarker: "function tm(e){let t=(0,pNt.useContext)(qp),",
   taskImports: [
-    "function Jcs(){",
-    "hV=wm(Q,",
-    ["Lm", "Q", "hV", "TA", "EA"]
-  ],
-  titleSelector: {
-    owner: "G2t=Ll(Hc,(e,{get:t})=>{",
-    helper: "U2t({...n,localTitle:r})",
-    internal: "G2t"
-  }
+    "function PYs(){",
+    "AH=Vp(Q,",
+    ["tm", "Q", "AH", "jj", "Mj"]
+  ]
 };

@@ -5,6 +5,10 @@ import {
   installLinuxDeb,
   prepareLinuxCandidateAdoption
 } from "../linux-deb.mjs";
+import {
+  installLinuxRpm,
+  prepareLinuxRpmCandidateAdoption
+} from "../linux-rpm.mjs";
 
 const dialogTitle = "The Mechanic's Toolkit";
 const taskIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -26,8 +30,8 @@ export function applicationLayout(app) {
 export function defaultTerminal({environment = process.env} = {}) {
   const desktop = desktopName(environment);
   const preferred = desktop.includes("kde") || desktop.includes("plasma")
-    ? ["konsole", "x-terminal-emulator", "kgx", "gnome-terminal", "xfce4-terminal", "xterm"]
-    : ["kgx", "gnome-terminal", "x-terminal-emulator", "konsole", "xfce4-terminal", "xterm"];
+    ? ["konsole", "x-terminal-emulator", "ptyxis", "kgx", "gnome-terminal", "xfce4-terminal", "xterm"]
+    : ["ptyxis", "kgx", "gnome-terminal", "x-terminal-emulator", "konsole", "xfce4-terminal", "xterm"];
   for (const name of preferred) {
     const executable = findExecutable(name, environment);
     if (executable != null) return executable;
@@ -203,7 +207,11 @@ export function prepareCandidateAdoption({
   incidentDirectory,
   appInspector
 }) {
-  return prepareLinuxCandidateAdoption({
+  const extension = packageExtension(candidatePath, candidateSourcePath, knownGoodPath);
+  const prepare = extension === ".deb"
+    ? prepareLinuxCandidateAdoption
+    : prepareLinuxRpmCandidateAdoption;
+  return prepare({
     candidatePath,
     candidateSourcePath,
     knownGoodPath,
@@ -222,8 +230,11 @@ export function replaceApplicationWithVerifiedSource({
   effectiveUserId = process.getuid?.() ?? -1,
   environment = process.env
 }) {
+  const install = source?.kind === "deb" ? installLinuxDeb :
+    source?.kind === "rpm" ? installLinuxRpm : null;
+  if (install == null) throw new Error("Linux replacement source must be a verified DEB or RPM");
   if (effectiveUserId === 0) {
-    return installLinuxDeb({
+    return install({
       targetApp,
       source,
       processRunner,
@@ -235,7 +246,7 @@ export function replaceApplicationWithVerifiedSource({
   }
   const helper = createAskpassHelper({source, environment});
   try {
-    return installLinuxDeb({
+    return install({
       targetApp,
       source,
       processRunner,
@@ -251,7 +262,10 @@ export function replaceApplicationWithVerifiedSource({
 
 function createAskpassHelper({source, environment}) {
   const backend = dialogBackend(environment);
-  const message = "Enter your password to authorize sudo dpkg -i candidate.deb.";
+  const installLabel = source.kind === "rpm"
+    ? "sudo rpm -U candidate.rpm"
+    : "sudo dpkg -i candidate.deb";
+  const message = `Enter your password to authorize ${installLabel}.`;
   let arguments_;
   if (backend.name === "kdialog") {
     arguments_ = ["--title", dialogTitle, "--password", message];
@@ -265,9 +279,9 @@ function createAskpassHelper({source, environment}) {
       "--button=gtk-ok:0"
     ];
   } else {
-    arguments_ = ["--password", `--title=${dialogTitle} — sudo dpkg -i candidate.deb`];
+    arguments_ = ["--password", `--title=${dialogTitle} — ${installLabel}`];
   }
-  const directory = path.dirname(path.resolve(source.deb));
+  const directory = path.dirname(path.resolve(source.deb ?? source.rpm));
   const helper = path.join(directory, `.tmtk-sudo-askpass-${process.pid}`);
   const command = [backend.command, ...arguments_].map(shellQuote).join(" ");
   fs.writeFileSync(helper, `#!/bin/sh\nexec ${command} 2>/dev/null\n`, {
@@ -277,6 +291,14 @@ function createAskpassHelper({source, environment}) {
   });
   fs.chmodSync(helper, 0o700);
   return helper;
+}
+
+function packageExtension(...files) {
+  const extensions = new Set(files.map(file => path.extname(path.resolve(file))));
+  if (extensions.size !== 1 || !new Set([".deb", ".rpm"]).has([...extensions][0])) {
+    throw new Error("Linux candidate, source, and known-good must use one supported package format");
+  }
+  return [...extensions][0];
 }
 
 function confirmChoice({message, affirmative, negative, processRunner, environment}) {
@@ -424,6 +446,7 @@ function terminalArguments(terminalApp, commandFile) {
     throw new Error("Linux rescue terminal is required");
   }
   const name = path.basename(terminalApp);
+  if (name === "ptyxis") return ["--standalone", "--", commandFile];
   if (name === "gnome-terminal" || name === "kgx") return ["--wait", "--", commandFile];
   if (name === "konsole") return ["--nofork", "-e", commandFile];
   if (name === "xfce4-terminal") return ["--disable-server", "--execute", commandFile];

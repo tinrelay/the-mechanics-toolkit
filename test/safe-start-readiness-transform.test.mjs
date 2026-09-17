@@ -18,15 +18,15 @@ try {
   fs.mkdirSync(assets, {recursive: true});
   const main = path.join(build, "main-fixture.js");
   const renderer = path.join(assets, "app-initial-fixture.js");
-  fs.writeFileSync(main, "var Tie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
-    "globalThis.__handler=null;function Aie(){globalThis.__marker=process.env[Tie]??null}" +
-    "function owner(e){let{requestDevRelaunch:P=Aie}=e,N=()=>true,r={lt:1}," +
+  fs.writeFileSync(main, "var vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
+    "globalThis.__handler=null;function Cae({markerPath:e=process.env[vae]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
+    "function owner(){let N=()=>true,r={lt:1}," +
     "l={ipcMain:{handle(k,h){globalThis.__handler=h}}};" +
     "l.ipcMain.handle(r.lt,async(t,s)=>{if(!N(t))return;" +
     "if(s.type===`electron-avatar-overlay-restore-ready`)return})}" +
-    "owner({});await globalThis.__handler(null,{type:`ready`});" +
+    "owner();await globalThis.__handler(null,{type:`ready`});" +
     "process.stdout.write(globalThis.__marker??``)");
-  fs.writeFileSync(renderer, "const H={dispatchMessage(){}};function MHs(){H.dispatchMessage(`ready`,{persistedStateResponsePriority:W7?`critical`:void 0})}");
+  fs.writeFileSync(renderer, "const g={dispatchMessage(){}};function MHs(){g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})}");
 
   assert.equal(run("check", extracted).state, "needs-apply");
   assert.equal(run("apply", extracted).state, "applied");

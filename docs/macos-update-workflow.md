@@ -216,11 +216,11 @@ du -sh .work .work/* 2>/dev/null
 ```
 
 Do not turn this into a broad home-directory cleanup. The supervisor owns
-`~/.codex/tmtk-rescue/` separately: it retains at most one full platform rollback set, prunes older
-toolkit-owned `known-good.app`, `known-good.deb`, and `candidate.deb` payloads on a later candidate
-adoption, and leaves only small evidence in older incident directories. Keep the current rollback
-through acceptance; old evidence may be removed later when it no longer supports diagnosis. Never
-delete the whole `~/.codex` directory.
+`~/.codex/tmtk-rescue/` separately: it keeps a platform rollback only while replacement is active,
+then removes the current incident's candidate and known-good payloads after renderer readiness or a
+successful restore. A later adoption also prunes payloads left by older interrupted incidents.
+Compact state, logs, and diagnostics remain until their evidence is no longer useful. Never delete
+the whole `~/.codex` directory.
 
 ## Troubleshoot ambiguous Sparkle state
 

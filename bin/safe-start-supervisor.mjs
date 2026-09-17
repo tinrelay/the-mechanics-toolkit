@@ -25,6 +25,7 @@ import {
   loadRescueFile,
   prepareCandidateAdoption,
   pruneSupersededKnownGoodApps,
+  removeIncidentApplicationPayloads,
   rescueConfiguration,
   rescuePrompt,
   writePrivateJson,
@@ -291,8 +292,7 @@ async function supervise(stateFile, {
       // Release only the platform's launch waiter. Linux owns the exact app
       // process directly, while macOS owns a LaunchServices lifetime proxy.
       releaseApplicationLaunch(child, configuration.platform);
-      save({phase: "ready", readyAt: new Date().toISOString()});
-      return true;
+      return finishSuccessfulTransaction(state, save, {phase: "ready", readyAt: new Date().toISOString()});
     }
     if (result.kind === "exited") {
       return rescue(`Codex exited before renderer readiness (code=${result.code ?? "null"}, signal=${result.signal ?? "null"})`, state, save, {openTerminal: openTerminalOnFailure});
@@ -305,12 +305,11 @@ async function supervise(stateFile, {
       // It was already running successfully when captured, so after a clean
       // restore an alive LaunchServices child is the honest fallback boundary.
       releaseApplicationLaunch(child, configuration.platform);
-      save({
+      return finishSuccessfulTransaction(state, save, {
         phase: "known-good-restored-running",
         knownGoodRunningAt: new Date().toISOString(),
         rendererReadinessObserved: false
       });
-      return true;
     }
     let timeoutReason = `Codex remained alive without renderer readiness for ${configuration.timeoutSeconds} seconds`;
     try {
@@ -335,10 +334,28 @@ async function supervise(stateFile, {
   }
 }
 
+function finishSuccessfulTransaction(state, save, updates) {
+  try {
+    const removed = removeIncidentApplicationPayloads(state.incidentDirectory);
+    save({...updates, completedTransactionPayloadsRemoved: removed});
+    return true;
+  } catch (error) {
+    const failure = `Desktop is running, but completed transaction payload cleanup failed: ${error.message}`;
+    process.stderr.write(`TMTK retention failed: ${failure}\n`);
+    save({
+      phase: "ready-retention-failed",
+      readyAt: updates.readyAt ?? updates.knownGoodRunningAt,
+      failedAt: new Date().toISOString(),
+      failure
+    });
+    return false;
+  }
+}
+
 function discardUnusedKnownGood(configuration, state) {
   if (state.candidateInstalled === true) return;
   for (const value of [configuration.knownGood?.app, configuration.knownGood?.deb,
-    configuration.candidate?.deb]) {
+    configuration.candidate?.deb, configuration.knownGood?.rpm, configuration.candidate?.rpm]) {
     discardIncidentPayload(value, state.incidentDirectory);
   }
 }

@@ -5,11 +5,40 @@ architecture, and TMTK patch fleet. Ubuntu DEB and Fedora RPM are separate packa
 boundaries even when they contain the same ASAR.
 
 The current Linux target is Codex Desktop `26.911.61220` / build `9647` with the 16-patch fleet.
-Patched Codex installations are running in the Ubuntu and Fedora ARM64 qualification VMs while
-their final live evidence records are completed. The DEB adapter supports `arm64` and `amd64`; the
-RPM adapter supports `aarch64` and `x86_64`. CPU architecture still controls package identity,
-native payloads, executables, and live qualification, but does not earn a second JavaScript profile
-when the generated ASAR owners are identical.
+It is qualified on Ubuntu 24.04.5 LTS ARM64 and Fedora Workstation 44 ARM64, both under GNOME
+Wayland. The DEB adapter supports `arm64` and `amd64`; the RPM adapter supports `aarch64` and
+`x86_64`. CPU architecture still controls package identity, native payloads, executables, and live
+qualification, but does not earn a second JavaScript profile when the generated ASAR owners are
+identical.
+
+The accepted packages contain the same patched ASAR, SHA-256
+`606d9767a92b2f51749c648a21b5485f1673babc152648be6bcd6e0f576778cb`:
+
+- Ubuntu pristine DEB SHA-256
+  `8517ddd0582ba8aa9b7879a2c566b4e622b62e0aebc4830272492d4e123f358b`; accepted
+  `26.911.61220+tmtk1` candidate SHA-256
+  `31c3dedbcbbcd99760a7193c63da2634525054107051d0a936105c87258384f1`.
+- Fedora pristine RPM SHA-256
+  `70d7ac841fa04b7867c84d17b7410fb6a8f9c774c160ae029959efb2f120dfdf`; accepted
+  `26.911.61220-1.tmtk1` candidate SHA-256
+  `96d21a0931dfb02944b223a761aa1bd45a844cbe154ae8021434944944c61d98`.
+
+Both package formats passed authenticated-source inspection, reconstruction, all 16 transforms,
+post-pack probes, native-payload preservation, and byte-identical second application. Genuine
+task-led supervisor replacements observed the invoking CLI exit, exact package installation,
+renderer readiness, and return to the originating task without supervisor, installer, dialog,
+askpass, or rescue-terminal residue. The accepted Ubuntu and Fedora incident tokens are
+`2026-09-17T21-28-23-072Z-72dfe848-4656-4189-83c6-20ebe3ed853d` and
+`2026-09-17T21-59-41-356Z-76df7a6c-9ff1-45dd-a68b-6da8706b8608` respectively.
+
+Ubuntu supplied the live feature pass for the byte-identical Linux ASAR: registry and
+observability, roster/palette/policy reload, model protection, archive protection with a mounted
+row changing false-to-true-to-false without remount, sidebar collapse, terminal open and close via
+Control+backtick from composer and focused terminal, task attribution, wait roster, successful and
+failed outgoing receipts, and TinRelay incoming/outgoing presentation across remount. Fedora
+separately proved the RPM package and supervisor boundary; duplicating the same renderer exercises
+there was deliberately omitted. The greater-than-200-turn live fixture and destructive
+blank/Oops/exhaustion recovery fixtures were not rerun; their deterministic probes remain current.
 
 Run from the Linux toolkit checkout. Start from an ignored private copy of
 [`examples/toolkit.linux.example.json`](../examples/toolkit.linux.example.json), replacing its
@@ -101,7 +130,8 @@ bin/tmtk-restart --candidate "$CANDIDATE_PACKAGE" \
 
 After the command says the supervisor is armed, finish the invoking turn and use the native
 **Relaunch Codex** dialog. Ubuntu installs through exact `sudo -A dpkg --install`; Fedora installs
-through exact `sudo -A rpm -U`. Record the dialog backend (`kdialog`, `zenity`, or `yad`) and its
+through exact `sudo -A rpm --upgrade --replacepkgs --oldpackage`. Record the dialog backend
+(`kdialog`, `zenity`, or `yad`) and its
 affirmative and cancellation labels.
 
 The receipt must prove:
