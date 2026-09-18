@@ -13,11 +13,18 @@ const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-bl
 const source = readAsset(appInitial);
 const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
-const helperTail = source.slice(helperStart);
-const helperBoundary = helperTail.match(
-  /function PYs\(\)\{MTKuseAgentRoster\(\);MTKusePaletteBootstrap\(\);/
-);
-const rootBoundary = helperBoundary == null ? -1 : helperStart + helperBoundary.index;
+const rootBoundaries = [...source.matchAll(/function PYs\(\)\{/g)]
+  .map(match => match.index)
+  .filter(index => index > helperStart);
+assert.equal(rootBoundaries.length, 1, "unique build-9647 application root");
+const rootBoundary = rootBoundaries[0];
+const rootOwnerEnd = source.indexOf("let e=(0,LYs.c)(12),", rootBoundary);
+assert.ok(rootOwnerEnd > rootBoundary, "build-9647 application root owner");
+const rootBootstrap = source.slice(rootBoundary, rootOwnerEnd);
+assert.equal(count(rootBootstrap, "MTKuseAgentRoster();"), 1, "agent roster bootstrap is composed once");
+assert.equal(count(rootBootstrap, "MTKusePaletteBootstrap();"), 1, "palette bootstrap is composed once");
+assert.ok(rootBootstrap.indexOf("MTKuseAgentRoster();") < rootBootstrap.indexOf("MTKusePaletteBootstrap();"),
+  "agent roster initializes before its palette consumer");
 const attentionBoundaries = [
   source.indexOf('const MTKattentionRelativePath=', helperStart),
   source.indexOf("const MTKattentionRosterBridge=1", helperStart)

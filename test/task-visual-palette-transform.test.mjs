@@ -72,6 +72,16 @@ try {
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
   const scorpioProbe = spawnSync(process.execPath, [behavioralProbe, scorpioExtracted], {encoding: "utf8"});
   assert.equal(scorpioProbe.status, 0, scorpioProbe.stderr || scorpioProbe.stdout);
+  const composedExtracted = path.join(scratch, "composed-extracted");
+  fs.cpSync(extracted, composedExtracted, {recursive: true});
+  const composedInitial = path.join(composedExtracted, "webview/assets/app-initial-fixture.js");
+  fs.writeFileSync(composedInitial, fs.readFileSync(composedInitial, "utf8").replace(
+    "function PYs(){MTKuseAgentRoster();MTKusePaletteBootstrap();",
+    "const MTKattentionRosterBridge=1;function MTKuseAttentionBootstrap9647(){}" +
+      "function PYs(){MTKuseAttentionBootstrap9647();MTKuseAgentRoster();MTKusePaletteBootstrap();"
+  ));
+  const composedProbe = spawnSync(process.execPath, [behavioralProbe, composedExtracted], {encoding: "utf8"});
+  assert.equal(composedProbe.status, 0, composedProbe.stderr || composedProbe.stdout);
 
   assert.equal(runPalette("apply").state, "applied");
   const scorpioOnce = fs.readFileSync(scorpioPrimary);
