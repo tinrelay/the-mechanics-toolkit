@@ -37,9 +37,29 @@ try {
 
   assert.equal(runRoster("check").state, "needs-apply");
   assert.equal(runRoster("apply").state, "applied");
+  const scorpioExtracted = path.join(scratch, "scorpio-extracted");
+  fs.cpSync(extracted, scorpioExtracted, {recursive: true});
+  const scorpioPrimary = path.join(scorpioExtracted, "webview/assets/app-primary-fixture.js");
+  const scorpioSource = fs.readFileSync(scorpioPrimary, "utf8")
+    .replace("(0,h3.jsx)(`div`", "(0,g9.jsx)(`div`");
+  assert.ok(scorpioSource.includes("(0,g9.jsx)(`div`"));
+  assert.equal(scorpioSource.includes("(0,h3.jsx)(`div`"), false);
+  fs.writeFileSync(scorpioPrimary, scorpioSource);
+  const ambiguousExtracted = path.join(scratch, "ambiguous-extracted");
+  fs.cpSync(extracted, ambiguousExtracted, {recursive: true});
+  const ambiguousPrimary = path.join(ambiguousExtracted, "webview/assets/app-primary-fixture.js");
+  const alternateFade = primaryFixture().split("function fade(){return ")[1]?.split("}export const")[0];
+  assert.ok(alternateFade);
+  fs.appendFileSync(ambiguousPrimary, `function duplicateFade(){return ${alternateFade.replace("h3.jsx", "g9.jsx")}}`);
+  const ambiguousBefore = fs.readFileSync(ambiguousPrimary);
+  assert.throws(() => runPalette("check", ambiguousExtracted), /Unrecognized palette patch state/);
+  assert.deepEqual(fs.readFileSync(ambiguousPrimary), ambiguousBefore,
+    "ambiguous current owners fail before mutation");
   assert.equal(runPalette("check").state, "needs-apply");
+  assert.equal(runPalette("check", scorpioExtracted).state, "needs-apply");
   const applied = runPalette("apply");
   assert.equal(applied.state, "applied");
+  assert.equal(runPalette("apply", scorpioExtracted).state, "applied");
   assert.deepEqual(applied.targets.sort(), [
     path.join("webview", "assets", "app-initial-fixture.js"),
     path.join("webview", "assets", "app-primary-fixture.js"),
@@ -50,8 +70,14 @@ try {
   const once = [initialTarget, primaryTarget, localTarget, delegationTarget].map(file => fs.readFileSync(file));
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
+  const scorpioProbe = spawnSync(process.execPath, [behavioralProbe, scorpioExtracted], {encoding: "utf8"});
+  assert.equal(scorpioProbe.status, 0, scorpioProbe.stderr || scorpioProbe.stdout);
 
   assert.equal(runPalette("apply").state, "applied");
+  const scorpioOnce = fs.readFileSync(scorpioPrimary);
+  assert.equal(runPalette("apply", scorpioExtracted).state, "applied");
+  assert.deepEqual(fs.readFileSync(scorpioPrimary), scorpioOnce,
+    "Scorpio official archive is byte-identical after second application");
   for (const [index, file] of [initialTarget, primaryTarget, localTarget, delegationTarget].entries()) {
     assert.deepEqual(fs.readFileSync(file), once[index], `${path.basename(file)} second application is byte-identical`);
   }
@@ -63,8 +89,8 @@ try {
     return JSON.parse(result.stdout);
   }
 
-  function runPalette(action) {
-    const result = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", action, extracted], {encoding: "utf8"});
+  function runPalette(action, root = extracted) {
+    const result = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", action, root], {encoding: "utf8"});
     assert.equal(result.status, 0, result.stderr || result.stdout);
     return JSON.parse(result.stdout);
   }

@@ -232,12 +232,13 @@ function appProfile(source) {
   return matches.length === 1 ? matches[0] : null;
 }
 function bottomFadeProfile(_appSource, primarySource) {
-  const profile = {
+  const profiles = ["h3", "g9"].map(jsx => ({
     file: "app-primary",
-    before: '(0,h3.jsx)(`div`,{"aria-hidden":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})',
-    after: '(0,h3.jsx)(`div`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})'
-  };
-  return primarySource.includes(profile.before) ? profile : null;
+    before: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`,
+    after: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`
+  }));
+  const matches = profiles.filter(profile => primarySource.includes(profile.before));
+  return matches.length === 1 ? matches[0] : null;
 }
 function localProfile(source) {
   const profiles = [
