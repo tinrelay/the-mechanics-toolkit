@@ -155,16 +155,25 @@ export const build9922 = {
   }
 };
 
-export function applyBuild9922ArchiveRuntime(source) {
-  for (const replacement of archiveRuntimeReplacements) source = replaceOnce(source, ...replacement);
+function runtimeReplacements(profile) {
+  const owner = Array.isArray(profile) ? profile : profile?.owner;
+  const localMemo = Array.isArray(profile) ? "ct" : profile?.localMemo ?? "ct";
+  return [owner ?? archiveRuntimeReplacements[0], ...archiveRuntimeReplacements.slice(1)].map(replacement =>
+    replacement.map(value => value.replaceAll("=ct(nt)", `=${localMemo}(nt)`).replaceAll("=ct(it)", `=${localMemo}(it)`))
+  );
+}
+
+export function applyBuild9922ArchiveRuntime(source, profile) {
+  for (const replacement of runtimeReplacements(profile)) source = replaceOnce(source, ...replacement);
   return source;
 }
 
-export function inspectBuild9922ArchiveRuntime(source) {
-  const before = archiveRuntimeReplacements.filter(([value]) => source.includes(value)).length;
-  const after = archiveRuntimeReplacements.filter(([, value]) => source.includes(value)).length;
-  if (before === archiveRuntimeReplacements.length && after === 0) return "needs-apply";
-  if (before === 0 && after === archiveRuntimeReplacements.length) return "applied";
+export function inspectBuild9922ArchiveRuntime(source, profile) {
+  const replacements = runtimeReplacements(profile);
+  const before = replacements.filter(([value]) => source.includes(value)).length;
+  const after = replacements.filter(([, value]) => source.includes(value)).length;
+  if (before === replacements.length && after === 0) return "needs-apply";
+  if (before === 0 && after === replacements.length) return "applied";
   throw new Error(`Unrecognized build-9922 archive runtime state: before=${before} after=${after}`);
 }
 

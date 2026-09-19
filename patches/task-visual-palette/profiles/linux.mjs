@@ -1,3 +1,35 @@
+export const linuxBuild9771 = {
+  app: {
+    name: "26.915.31029-9771-linux",
+    pristineSeam: "function xyl(){let e=(0,wyl.c)(12),t=xf($),",
+    seam: "function xyl(){MTKuseAgentRoster();let e=(0,wyl.c)(12),t=xf($),",
+    patchedSeam: "function xyl(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,wyl.c)(12),t=xf($),",
+    agentRoster: true,
+    helperReplacements: [["QSl.useEffect", "Tyl.useEffect"]],
+    bottomFadeBefore: null,
+    bottomFadeAfter: null
+  },
+  bottomFade: {
+    file: "app-primary",
+    before: '(0,C7.jsx)(`div`,{"aria-hidden":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})',
+    after: '(0,C7.jsx)(`div`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})'
+  },
+  local: {
+    name: "26.915.31029-9771-linux",
+    cacheBefore: "function pl(e){let t=(0,bl.c)(99),",
+    cacheAfter: "function pl(e){let t=(0,bl.c)(100),",
+    rootBefore: 't[79]!==q||t[80]!==ne||t[81]!==re||t[82]!==ie||t[83]!==oe||t[84]!==se||t[85]!==ce||t[86]!==le||t[87]!==ue||t[88]!==de||t[89]!==fe||t[90]!==pe?(me=(0,Q.jsxs)(`div`,{ref:N,className:`relative h-full min-h-0`,children:[q,ne,re,ie,ae,oe,se,ce,le,ue,de,fe,pe]}),t[79]=q,t[80]=ne,t[81]=re,t[82]=ie,t[83]=oe,t[84]=se,t[85]=ce,t[86]=le,t[87]=ue,t[88]=de,t[89]=fe,t[90]=pe,t[91]=me):me=t[91];',
+    rootAfter: 't[79]!==q||t[80]!==ne||t[81]!==re||t[82]!==ie||t[83]!==oe||t[84]!==se||t[85]!==ce||t[86]!==le||t[87]!==ue||t[88]!==de||t[89]!==fe||t[90]!==pe||t[99]!==r?(me=(0,Q.jsxs)(`div`,{ref:N,"data-mtk-palette-room-host":!0,"data-mtk-palette-thread-id":r,className:`relative h-full min-h-0`,children:[q,ne,re,ie,ae,oe,se,ce,le,ue,de,fe,pe]}),t[79]=q,t[80]=ne,t[81]=re,t[82]=ie,t[83]=oe,t[84]=se,t[85]=ce,t[86]=le,t[87]=ue,t[88]=de,t[89]=fe,t[90]=pe,t[99]=r,t[91]=me):me=t[91];'
+  },
+  archiveRuntime: {
+    owner: [
+      "var Xwc,Zwc,Y8,Qwc;function $wc(){return($wc=n((()=>{Xwc=q(),$i(),Q(),Wr(),Zwc=W(),",
+      "var MTKarchiveReact,Xwc,Zwc,Y8,Qwc;function $wc(){return($wc=n((()=>{Xwc=q(),$i(),Q(),Wr(),Zwc=W(),MTKarchiveReact=Zwc,"
+    ],
+    localMemo: "pt"
+  }
+};
+
 export const linuxBuild9647 = {
   app: {
     name: "26.911.61220-9647-linux",

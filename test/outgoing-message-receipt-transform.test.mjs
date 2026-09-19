@@ -6,7 +6,10 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { build9922 } from "../patches/outgoing-message-receipt/profiles/build9922.mjs";
-import { linuxBuild9647 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
+import {
+  linuxBuild9647,
+  linuxBuild9771
+} from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -59,6 +62,18 @@ try {
     path.join(build9922Pristine, "webview/assets/conversation-turn-fixture.js"),
     build9922TurnFixture()
   );
+  const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
+  fs.cpSync(extracted, linux9647Pristine, { recursive: true });
+  fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
+    linux9647InitialFixture());
+  fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-control-fixture.js"),
+    linux9647OwnerFixture());
+  fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-primary-fixture.js"),
+    linux9647TitleFixture());
+  fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/conversation-fixture.js"),
+    linux9647ConversationFixture());
+  fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/conversation-turn-fixture.js"),
+    linux9647TurnFixture());
 
   assert.equal(runToolkit(extracted, "check").state, "needs-apply");
   const applied = runToolkit(extracted, "apply");
@@ -77,10 +92,10 @@ try {
   assert.match(projectionOnce.toString(),
     /n\.tool===`send_message_to_thread`&&\(t\.success=n\.success\)/,
     "completed send projection preserves the raw success result");
-  assert.match(once.toString(), /q as MTKoutboundStoreScope/,
-    "build 9647 imports the task selector's Q scope, not an unrelated export");
+  assert.match(once.toString(), /Bpn as MTKoutboundStoreScope/,
+    "build 9771 imports the task selector's scope, not an unrelated export");
   assert.doesNotMatch(once.toString(), /BR as MTKoutboundStoreScope/,
-    "build 9647 does not confuse another export with internal scope Q");
+    "build 9771 does not confuse another export with the task scope");
   const conversationOnce = fs.readFileSync(conversationTarget);
   const conversationTurnOnce = fs.readFileSync(conversationTurnTarget);
   const mainOnce = fs.readFileSync(mainTarget);
@@ -102,6 +117,7 @@ try {
   assert.deepEqual(fs.readFileSync(consumerTarget), Buffer.from(consumerFixture()), "message formatter consumer stays untouched");
   assert.deepEqual(fs.readFileSync(styleTarget), Buffer.from(styleFixture()), "stylesheet stays untouched");
   assertLinuxAppliedInspection(linuxPristine);
+  assertLinux9647AppliedInspection(linux9647Pristine);
   assertBuild9922AppliedInspection(build9922Pristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
@@ -154,6 +170,43 @@ function assertLinuxAppliedInspection(pristineRoot) {
 
 }
 
+function assertLinux9647AppliedInspection(pristineRoot) {
+  assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  assert.equal(runToolkit(pristineRoot, "check").state, "applied");
+  const owner = fs.readFileSync(path.join(pristineRoot, "webview/assets/app-control-fixture.js"), "utf8");
+  assert.match(owner, /q as MTKoutboundStoreScope/,
+    "Linux build-9647 imports the exact task selector scope");
+  assert.match(owner, /title as MTKoutboundTitleAtom/,
+    "Linux build-9647 retains its dedicated live-title selector");
+  const conversation = fs.readFileSync(
+    path.join(pristineRoot, "webview/assets/conversation-fixture.js"), "utf8"
+  );
+  assert.ok(conversation.includes("ReceiptLifecycle:MTKOutboundReceiptLifecycle,"),
+    "Linux build-9647 wires the durable receipt lifecycle");
+  const behavior = spawnSync(process.execPath, [behavioralProbe, pristineRoot], {encoding: "utf8"});
+  assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
+  const once = [
+    "app-control-fixture.js",
+    "dynamic-projection-fixture.js",
+    "conversation-fixture.js",
+    "conversation-turn-fixture.js"
+  ].map(name => fs.readFileSync(path.join(pristineRoot, "webview/assets", name)));
+  const mainOnce = fs.readFileSync(path.join(pristineRoot, ".vite/build/main-fixture.js"));
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  for (const [index, name] of [
+    "app-control-fixture.js",
+    "dynamic-projection-fixture.js",
+    "conversation-fixture.js",
+    "conversation-turn-fixture.js"
+  ].entries()) {
+    assert.deepEqual(fs.readFileSync(path.join(pristineRoot, "webview/assets", name)), once[index],
+      `${name} Linux build-9647 second application is byte-identical`);
+  }
+  assert.deepEqual(fs.readFileSync(path.join(pristineRoot, ".vite/build/main-fixture.js")), mainOnce,
+    "main Linux build-9647 second application is byte-identical");
+}
+
 function assertBuild9922AppliedInspection(pristineRoot) {
   assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
   assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
@@ -188,16 +241,32 @@ function replaceInFixture(file, before, after, label) {
 
 function initialFixture() {
   return [
-    "const x=0,Q=Symbol(`scope`),LQ=Symbol(`unrelated`);",
+    "const x=0,$=Symbol(`scope`),LQ=Symbol(`unrelated`);",
     "const U={subscribe(){return()=>{}},dispatchMessage(){}};",
-    "function nm(e){return e}",
+    "const Kvt={useContext(){},useRef(){}};function hvt(e){return e}",
+    "function xf(e){let t=(0,Kvt.useContext)(hvt(e)),n=t,r=t,i=(0,Kvt.useRef)(null);return i.current??e}",
+    "function cT(e){return `local:${e}`}",
+    "function lT(e){return `remote:${e}`}",
+    "const lf=(...e)=>e,JF=lf($,0),Delay=800,J={jsx(){}};",
+    "function xyl(){}",
+    "function Hover(e){return e}",
+    "const preview=(0,J.jsx)(Hover,{align:`center`,closeOnTriggerBlur:!1,delayDuration:Delay,children:0,interactive:!0,skipDelayKey:`diff-preview`,tooltipContent:0,variant:`unstyled`});",
+    "export{x as x,xf as kmn,$ as Bpn,LQ as BR,JF as task,cT as local,lT as remote,Hover as hover,U as bus};"
+  ].join("");
+}
+
+function linux9647InitialFixture() {
+  return [
+    "const x=0,Q=Symbol(`scope`),qp=Symbol(`context`),LQ=Symbol(`unrelated`);",
+    "const U={subscribe(){return()=>{}},dispatchMessage(){}},pNt={useContext(){},useRef(){}};",
+    "function tm(e){let t=(0,pNt.useContext)(qp),n=t,r=t,i=(0,pNt.useRef)(null);return i.current??e}",
     "function jj(e){return `local:${e}`}",
     "function Mj(e){return `remote:${e}`}",
-    "const Hp=(...e)=>e,AH=Hp(Q,0),Delay=800,J={jsx(){}};",
+    "const Vp=(...e)=>e,AH=Vp(Q,0),Delay=800,J={jsx(){}};",
     "function PYs(){}",
     "function Hover(e){return e}",
     "const preview=(0,J.jsx)(Hover,{align:`center`,closeOnTriggerBlur:!1,delayDuration:Delay,children:0,interactive:!0,skipDelayKey:`diff-preview`,tooltipContent:0,variant:`unstyled`});",
-    "export{x as x,nm as h,Q as q,LQ as BR,AH as task,jj as local,Mj as remote,Hover as hover,U as bus};"
+    "export{x as x,tm as h,Q as q,LQ as BR,AH as task,jj as local,Mj as remote,Hover as hover,U as bus};"
   ].join("");
 }
 
@@ -216,6 +285,22 @@ function ownerFixture() {
     "const registry={namespace:N,render:X,renderAgentActivityIcon:I,tool:Send};",
     "const label=`localConversation.appControlToolCall.threadsSendMessage.active`;",
     "export{x as x,PC as persistent};"
+  ].join("");
+}
+
+function linux9647OwnerFixture() {
+  return ownerFixture().replace(
+    'import{x as P}from"./app-initial-fixture.js";',
+    'import{x as P}from"./app-initial-fixture.js";import{title as ExistingTitle}from"./app-primary-fixture.js";'
+  );
+}
+
+function linux9647TitleFixture() {
+  return [
+    "const Rg=Symbol(),ip=(...e)=>e;",
+    "function UEn(e){return e}",
+    "const GEn=ip(Rg,(e,{get:t})=>{let r=`title`,n={};return UEn({...n,localTitle:r})});",
+    "export{GEn as title};"
   ].join("");
 }
 
@@ -255,6 +340,25 @@ function conversationTurnFixture() {
 }
 
 function linuxConversationFixture() {
+  const linux = linuxBuild9771.dynamic;
+  return [
+    'import{x as x,persistent as Cp}from"./app-control-fixture.js";',
+    'import{bus as HostBus}from"./app-initial-fixture.js";',
+    "const t=e=>e,r=()=>0,$={jsx(){return{}},jsxs(){return{}}},Dy={c(){return[]}},Ww=Dy,us={useState(e){return[typeof e===`function`?e():e,()=>{}]},useEffect(){}};",
+    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,$.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
+    'function hr(){return"running"}',
+    linux.before,
+    ";return u}",
+    linux.parentBefore,
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Ue=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    "t[377]!==Ue||t[378]!==f||t[379]!==Oe||t[380]!==n?",
+    linux.call,
+    ":e=t[381]}}}",
+    "const toolActivityTurnKey=true;export{Ow};"
+  ].join("");
+}
+
+function linux9647ConversationFixture() {
   const linux = linuxBuild9647.dynamic;
   return [
     'import{x as x,persistent as bh}from"./app-control-fixture.js";',
@@ -276,8 +380,19 @@ function linuxConversationFixture() {
 function linuxTurnFixture() {
   return [
     'import{x as x}from"./conversation-fixture.js";',
+    "const hl={c(){return[]}},$={jsx(){return{}}};",
+    "function Uc(e){let t=(0,hl.c)(189),{conversationId:d,turnId:f,hostId:c}=e,Xi=[],Zi=(e,t,n)=>Xi.push({key:e,node:t,options:n});",
+    "let ea=Xi.length,ta={};return null}",
+    "export{Uc};"
+  ].join("");
+}
+
+function linux9647TurnFixture() {
+  return [
+    'import{x as x}from"./conversation-fixture.js";',
     "const Ba={c(){return[]}},Q={jsx(){return{}}};",
     "function Z(e){let t=(0,Ba.c)(182),{conversationId:l,turnId:p,hostId:c}=e,Qa=[],$=(e,t,n)=>Qa.push({key:e,node:t,options:n});",
+    '$(`user-item-${p}`,USER,{canOwnLatestTurnFollowContent:!1});',
     "let to=Qa.length,no={};return null}",
     "export{Z};"
   ].join("");

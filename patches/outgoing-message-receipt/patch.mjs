@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -115,7 +115,10 @@ function inspectState() {
   const combinedConversationSource = conversationTurnTarget === conversationTarget
     ? conversationSource : `${conversationSource}\n${conversationTurnSource}`;
   const ownerApplied = ownerMarkers.every(marker => source.includes(marker));
-  const linux = linuxBuild9647.dynamic;
+  const linux = [linuxBuild9771.dynamic, linuxBuild9647.dynamic].find(profile =>
+    (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
+      conversationSource.includes(profile.parentTurn)
+  );
   const current = build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
     conversationSource.includes(current.parentTurn);
@@ -127,9 +130,8 @@ function inspectState() {
     count(conversationSource, current.callStorageAfter) === 1 &&
     count(conversationSource, "ReceiptLifecycle:MTKOutboundReceiptLifecycle,") === 1 &&
     count(conversationTurnSource, `${build9922.turn.register}(\`mtk-outbound-turn-receipts\``) === 1;
-  const linuxConversation = (conversationSource.includes(linux.before) || conversationSource.includes(linux.after)) &&
-    conversationSource.includes(linux.parentTurn);
-  const linuxLifecycleApplied = count(conversationSource, linux.after) === 1 &&
+  const linuxConversation = linux != null;
+  const linuxLifecycleApplied = linux != null && count(conversationSource, linux.after) === 1 &&
     count(conversationSource, linux.parentAfter) === 1 &&
     count(conversationSource, linux.callDependencyAfter) === 1 &&
     count(conversationSource, linux.callBodyAfter) === 1 &&
@@ -358,53 +360,56 @@ function dynamicRendererProfile(value) {
       turn: build9922.turn
     };
   }
-  const linux9647 = linuxBuild9647.dynamic;
-  if (value.includes(linux9647.before) && value.includes(linux9647.call) &&
-      value.includes(linux9647.parentBefore)) {
-    const start = value.indexOf(linux9647.owner);
+  for (const [label, profile, build] of [
+    ["Linux build-9771", linuxBuild9771.dynamic, linuxBuild9771],
+    ["Linux build-9647", linuxBuild9647.dynamic, linuxBuild9647]
+  ]) {
+    if (!value.includes(profile.before) || !value.includes(profile.call) ||
+        !value.includes(profile.parentBefore)) continue;
+    const start = value.indexOf(profile.owner);
     const owner = functionAt(value, start);
     const patchedFunction = replaceOnce(
       owner.text,
-      linux9647.before,
-      linux9647.after,
-      "Linux build-9647 dynamic renderer context body"
+      profile.before,
+      profile.after,
+      `${label} dynamic renderer context body`
     );
-    const callIndex = value.indexOf(linux9647.call);
+    const callIndex = value.indexOf(profile.call);
     const parent = containingFunction(value, callIndex);
-    if (!parent.text.startsWith(linux9647.parentBefore) ||
-        !parent.text.includes(linux9647.parentTurn)) {
-      throw new Error("Upstream changed: Linux build-9647 source-turn owner is ambiguous");
+    if (!parent.text.startsWith(profile.parentBefore) ||
+        !parent.text.includes(profile.parentTurn)) {
+      throw new Error(`Upstream changed: ${label} source-turn owner is ambiguous`);
     }
     let patchedParent = replaceOnce(
       parent.text,
-      linux9647.parentBefore,
-      linux9647.parentAfter,
-      "Linux build-9647 source-turn cache size"
+      profile.parentBefore,
+      profile.parentAfter,
+      `${label} source-turn cache size`
     );
     patchedParent = replaceOnce(
       patchedParent,
-      linux9647.callDependencyBefore,
-      linux9647.callDependencyAfter,
-      "Linux build-9647 source-turn call dependency"
+      profile.callDependencyBefore,
+      profile.callDependencyAfter,
+      `${label} source-turn call dependency`
     );
-    const patchedCall = linux9647.call
-      .replace(linux9647.callBodyBefore, linux9647.callBodyAfter)
-      .replace(linux9647.callStorageBefore, linux9647.callStorageAfter);
+    const patchedCall = profile.call
+      .replace(profile.callBodyBefore, profile.callBodyAfter)
+      .replace(profile.callStorageBefore, profile.callStorageAfter);
     return {
-      variant: "split-9647-linux",
+      variant: `split-${label.slice(-4)}-linux`,
       functionText: owner.text,
       patchedFunction,
       callText: parent.text,
       patchedCallText: replaceOnce(
         patchedParent,
-        linux9647.call,
+        profile.call,
         patchedCall,
-        "Linux build-9647 source-turn call"
+        `${label} source-turn call`
       ),
-      helperBoundary: linux9647.helperBoundary,
-      react: linux9647.react,
-      jsx: linux9647.jsx,
-      turn: linuxBuild9647.turn
+      helperBoundary: profile.helperBoundary,
+      react: profile.react,
+      jsx: profile.jsx,
+      turn: build.turn
     };
   }
   if (value.includes("function QS(") && value.includes("bh(o)") && value.includes("e?.render?.(o,l,i,c)")) {
@@ -519,20 +524,20 @@ function resolveHostBus(value) {
   const currentShared = [...value.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g)];
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
-    const internal = uniqueMatch(
-      uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers,
-      new RegExp(`(?:^|,)(?<internal>${id}) as ${escapeRegExp(build9922.hostBus.exported)}(?=,|$)`, "g"),
-      "build-9922 host bus export"
-    ).groups.internal;
-    if (!source.includes(`${internal}=ce.getInstance()`) ||
-        !source.includes("dispatchMessage(e,t)") || !source.includes("subscribe(e,t)")) {
-      throw new Error("Upstream changed: build-9922 host bus singleton contract is missing");
-    }
-    return uniqueMatch(
-      currentShared[0].groups.specifiers,
-      new RegExp(`(?:^|,)${escapeRegExp(build9922.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
-      "build-9922 conversation host bus import"
-    ).groups.local;
+    const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
+    const profiles = [build9922.hostBus, linuxBuild9771.hostBus];
+    const buses = profiles.flatMap(profile => {
+      const internal = [...exportList.matchAll(
+        new RegExp(`(?:^|,)(?<internal>${id}) as ${escapeRegExp(profile.exported)}(?=,|$)`, "g")
+      )];
+      if (internal.length !== 1 || !source.includes(`${internal[0].groups.internal}=ce.getInstance()`) ||
+          !source.includes("dispatchMessage(e,t)") || !source.includes("subscribe(e,t)")) return [];
+      return [...currentShared[0].groups.specifiers.matchAll(
+        new RegExp(`(?:^|,)${escapeRegExp(profile.exported)} as (?<local>${id})(?=,|$)`, "g")
+      )].map(match => match.groups.local);
+    });
+    if (buses.length !== 1) throw new Error("Upstream changed: imported conversation host bus is not unique");
+    return buses[0];
   }
   const imported = uniqueMatch(value, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g, "conversation app-initial import");
   const appInitial = fs.readFileSync(path.resolve(path.dirname(conversationTarget), imported.groups.relative), "utf8");
@@ -861,6 +866,7 @@ function assertPersistentActivityContract(activitySource) {
     "children:[oe,de,fe,pe,ce,he]"
   ];
   if (build9922.persistentActivity.every(contract => value.includes(contract))) return owner;
+  if (linuxBuild9771.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild9647.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build9647Contracts.every(contract => value.includes(contract))) return owner;
   const persistentUnits = uniqueMatch(
@@ -899,6 +905,22 @@ function resolveTaskImports(ownerSource) {
       `${exportedAs(appInitial, current9922.taskAtom)} as MTKoutboundTaskAtom`,
       `${exportedAs(appInitial, current9922.localThreadKey)} as MTKoutboundLocalThreadKey`,
       `${exportedAs(appInitial, current9922.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
+    ];
+    return {
+      before: importMatch[0],
+      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
+      storeHook: "MTKoutboundStoreHook",
+      storeScope: "MTKoutboundStoreScope"
+    };
+  }
+  const linux9771 = linuxBuild9771.taskImports;
+  if (appInitial.includes(linux9771.appRoot) && appInitial.includes(linux9771.taskOwner)) {
+    const additions = [
+      `${exportedAs(appInitial, linux9771.storeHook)} as MTKoutboundStoreHook`,
+      `${exportedAs(appInitial, linux9771.storeScope)} as MTKoutboundStoreScope`,
+      `${exportedAs(appInitial, linux9771.taskAtom)} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, linux9771.localThreadKey)} as MTKoutboundLocalThreadKey`,
+      `${exportedAs(appInitial, linux9771.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
     ];
     return {
       before: importMatch[0],

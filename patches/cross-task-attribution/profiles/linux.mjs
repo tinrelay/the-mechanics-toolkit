@@ -1,31 +1,29 @@
-export const linuxBuild9647 = {
-  titleOwner: "gt=CC(GEn,{hostId:Ge??`local`,threadId:n})??ze?.title??null",
-  titleAtom: "GEn",
+export const linuxBuild9771 = {
   titleSelector: {
-    internal: "GEn",
-    atomFactory: "ip",
-    scope: "Rg",
-    helper: "UEn"
+    atom: "uyc",
+    atomOwner: "uyc=lf($,(e,{get:t})=>",
+    helperOwner: "cyc({...n,localTitle:r})",
+    storeHook: "xf",
+    storeOwner: "function xyl(){let e=(0,wyl.c)(12),t=xf($),",
+    storeScope: "$"
   },
-  storeHook: "tm",
-  storeScope: "Q",
   component: {
-    delegation: "MS", delegationCache: "NS", delegationJsx: "PS",
-    wrapper: "CS", wrapperCache: "wS", wrapperJsx: "TS",
-    bubble: "bt", wrapperBubble: "uh", bubbleCache: "St", collapsedLines: "ES",
-    bubbleCacheSize: 152,
+    delegation: "oy", delegationCache: "sy", delegationJsx: "cy",
+    wrapper: "Zv", wrapperCache: "Qv", wrapperJsx: "$v",
+    bubble: "yt", wrapperBubble: "pp", bubbleCache: "xt", collapsedLines: "ey",
+    bubbleCacheSize: 153,
     externalBubble: true,
     bubbleOwner: [
-      "turnId:w,cwd:T,hostId:E}=e,",
-      "turnId:w,cwd:T,hostId:E,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+      "turnId:S,cwd:C,hostId:w}=e,",
+      "turnId:S,cwd:C,hostId:w,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
     ],
     bubbleDependency: [
-      "t[45]!==K||t[46]!==G||t[47]!==Ke){",
-      "t[45]!==K||t[46]!==G||t[47]!==Ke||t[152]!==MTKbubbleStyleOverride){"
+      "t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke){",
+      "t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke||t[153]!==MTKbubbleStyleOverride){"
     ],
     bubbleStorage: [
-      "t[45]=K,t[46]=G,t[47]=Ke,t[48]=q",
-      "t[45]=K,t[46]=G,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
+      "t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[49]=J",
+      "t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[153]=MTKbubbleStyleOverride,t[49]=J"
     ]
   }
 };

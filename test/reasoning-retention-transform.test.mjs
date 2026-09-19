@@ -20,9 +20,9 @@ try {
   const thread = path.join(assets, "local-conversation-thread-fixture.js");
   const activity = path.join(assets, "subagent-activity-chip-group-fixture.js");
   fs.writeFileSync(roster, rosterFixture());
-  fs.writeFileSync(turn, build9647TurnFixture());
-  fs.writeFileSync(thread, build9647ThreadFixture());
-  fs.writeFileSync(activity, build9647CollapseFixture());
+  fs.writeFileSync(turn, linux9771TurnFixture());
+  fs.writeFileSync(thread, linux9771ThreadFixture());
+  fs.writeFileSync(activity, linux9771CollapseFixture());
 
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
@@ -35,22 +35,26 @@ try {
   for (const [index, file] of [roster, turn, thread, activity].entries()) {
     assert.deepEqual(fs.readFileSync(file), once[index], `${path.basename(file)} second application is byte-identical`);
   }
-  process.stdout.write("reasoning retention transform probe passed\n");
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(c\).*preventAutoCollapse:Ge\|\|In\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Fk\(y,\{conversationId:e,turnSearchKey:n\},!0\)/);
+  process.stdout.write("reasoning retention Linux build-9771 transform probe passed\n");
 
   fs.writeFileSync(turn, linux9647TurnFixture());
   fs.writeFileSync(thread, linux9647ThreadFixture());
   fs.writeFileSync(activity, linux9647CollapseFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const linuxOnce = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
-  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(l\).*preventAutoCollapse:St\|\|ir\|\|MTKreasoningRetained/);
-  assert.doesNotMatch(fs.readFileSync(turn, "utf8"), /preventAutoCollapse:Ct\|\|ir\|\|MTKreasoningRetained/);
-  assert.match(fs.readFileSync(thread, "utf8"), /gA\(b,\{conversationId:e,turnSearchKey:t\},!0\);Ge\.current=le/);
-  assert.match(fs.readFileSync(thread, "utf8"), /gA\(y,\{conversationId:e,turnSearchKey:t\},!0\);Ve\.current=le/);
-  assert.doesNotMatch(fs.readFileSync(thread, "utf8"), /MTKreasoningThreadRetained\)for\(let t of i\)gA\(y/);
+  const linux9647Once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"),
+    /MTKuseReasoningRetention\(l\).*preventAutoCollapse:St\|\|ir\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"),
+    /gA\(b,\{conversationId:e,turnSearchKey:t\},!0\);Ge\.current=le/);
+  assert.match(fs.readFileSync(thread, "utf8"),
+    /gA\(y,\{conversationId:e,turnSearchKey:t\},!0\);Ve\.current=le/);
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [roster, turn, thread, activity].entries()) {
-    assert.deepEqual(fs.readFileSync(file), linuxOnce[index], `${path.basename(file)} Linux second application is byte-identical`);
+    assert.deepEqual(fs.readFileSync(file), linux9647Once[index],
+      `${path.basename(file)} Linux build-9647 second application is byte-identical`);
   }
   process.stdout.write("reasoning retention Linux build-9647 transform probe passed\n");
 
@@ -81,28 +85,28 @@ function rosterFixture() {
   return 'globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});export const fixture=true;';
 }
 
-function build9647TurnFixture() {
+function linux9771TurnFixture() {
   return [
-    'const Ha={useSyncExternalStore(){return false}},I=()=>null;',
-    'function Z(e){let t=(0,Ba.c)(182),{conversationId:l,turn:v}=e,L="turn",xt=L==null?void 0:Ra(l,L);',
-    'let R=xt,Ct=I(Ir,R);return {preventAutoCollapse:Ct||ir}}',
+    'const _l={useSyncExternalStore(){return false}},q=()=>null;',
+    'function Uc(e){let t=(0,hl.c)(189),{conversationId:c}=e,Ue="turn";',
+    'let We=Ue,Ge=q(Dt,We),In=false;return {preventAutoCollapse:Ge||In}}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build9647ThreadFixture() {
+function linux9771ThreadFixture() {
   return [
-    'const wM={useEffect(){},useSyncExternalStore(){return false}},_s=()=>({}),qn={},gA=()=>{};',
-    'function bM({conversationId:e,isBackgroundSubagentsEnabled:l,usesUnifiedTimeline:v}){let y=_s(qn),le=null,fe=[],Ve={current:null};',
-    '(0,wM.useEffect)(()=>{let i=new Set;for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0);Ve.current=le},[e,l,le,y,fe]);return v}',
+    'const hj={useEffect(){},useSyncExternalStore(){return false}},Ai=()=>({}),Td={},Fk=()=>{},fj=()=>false;',
+    'function dj({conversationId:e,isBackgroundSubagentsEnabled:c,usesUnifiedTimeline:v}){let y=Ai(Td),fe=null,Y=[],qe={current:null},r=null;',
+    '(0,hj.useEffect)(()=>{let n="turn";n!=null&&n!==fe&&!fj(r)&&Fk(y,{conversationId:e,turnSearchKey:n},!0),qe.current=fe},[e,c,fe,y,Y]);return v}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build9647CollapseFixture() {
+function linux9771CollapseFixture() {
   return [
     'function pk({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
-    'function toggle(){let K=false,M={current:null},d=null,A=()=>{};return {onToggle:e=>{let t=!K;if(M.current=e,d==null){A(t);return}d(t)}}}',
+    'function toggle(){let ae=false,M={current:null},d=null,A=()=>{};return {onToggle:e=>{let t=!ae;if(M.current=e,d==null){A(t);return}d(t)}}}',
     'export{pk,toggle};'
   ].join("");
 }

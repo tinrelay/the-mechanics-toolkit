@@ -5,12 +5,18 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
+import {
+  linuxBuild9647Contracts,
+  linuxBuild9771Contracts
+} from "../patches/terminal-toggle/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/terminal-toggle.test.mjs");
-runFixture("9647", fixtureSource(build9647Contracts()));
-runFixture("9922", fixtureSource(build9922Contracts()));
+runFixture("linux-9771", fixtureSource(linuxBuild9771Contracts));
+runFixture("linux-9647", fixtureSource(linuxBuild9647Contracts));
+runFixture("9922", fixtureSource(build9922Contracts));
 process.stdout.write("terminal toggle transform probe passed\n");
 
 function runFixture(label, fixture) {
@@ -55,23 +61,4 @@ defaultKeybindings:[{key:"Control+\`"}]
 */
 export const fixture = true;
 `;
-}
-
-function build9647Contracts() {
-  return [
-    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})",
-    "[`toggleTerminal`,$wi]"
-  ];
-}
-
-function build9922Contracts() {
-  return [
-    "function X6c(e){let t=(0,e8c.c)(10)",
-    "{id:n,accelerator:r,allowRepeat:i,enabled:a,onlyWithin:o,yieldToSelectedText:s}=e",
-    "allowWithinEditable:c,enabled:a,onKeyDown:l",
-    "R6r=()=>{_kt.run({action:{type:`windows.terminal.toggle`,windowId:Op}})",
-    "[`toggleTerminal`,R6r]"
-  ];
 }

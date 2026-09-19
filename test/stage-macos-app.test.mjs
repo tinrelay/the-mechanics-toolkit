@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { inspectAppBundle } from "../src/app-bundle.mjs";
 import { asarHeaderSha256 } from "../src/asar-integrity.mjs";
 import { patchDefinitions } from "../src/patch-catalog.mjs";
+import {build9922Contracts} from "../patches/terminal-toggle/profiles/build9922.mjs";
 
 if (process.platform !== "darwin") {
   process.stdout.write("macOS application staging probe skipped on this platform\n");
@@ -259,10 +260,7 @@ function terminalFixture() {
   return `/*
 {id:\`toggleTerminal\`,titleIntlId:\`codex.command.toggleTerminal\`,descriptionIntlId:\`codex.commandDescription.toggleTerminal\`,requiredAccess:\`codexLocal\`,commandMenuGroupKey:\`panels\`,commandMenu:!0,commandMenuFeature:\`codex\`,electron:{menuTitle:\`Open Terminal\`,menuTitleIntlId:\`codex.commandMenuTitle.toggleTerminal\`,
 c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
-accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u
-allowWithinEditable:c,enabled:a,onKeyDown:l
-$wi=()=>{fen.run({action:{type:\`windows.terminal.toggle\`,windowId:bv}})
-[\`toggleTerminal\`,$wi]
+${build9922Contracts.join("\n")}
 defaultKeybindings:[{key:"Control+\`"}]
 */
 const g={dispatchMessage(){}};function MHs(){g.dispatchMessage(\`ready\`,{persistedStateResponsePriority:R9?\`critical\`:void 0})}

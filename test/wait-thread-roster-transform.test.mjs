@@ -9,15 +9,19 @@ import { fileURLToPath } from "node:url";
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/wait-thread-roster.test.mjs");
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-wait-roster-test-"));
+runFixture("linux-9771", initialFixture(), /Bpn as MTKwaitStoreScope/);
+runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
+process.stdout.write("wait-thread roster transform probe passed\n");
 
-try {
+function runFixture(label, initialSource, expectedScope) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), `mechanics-toolkit-wait-roster-${label}-`));
+  try {
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");
   fs.mkdirSync(assets, {recursive: true});
   const initialTarget = path.join(assets, "app-initial-fixture.js");
   const ownerTarget = path.join(assets, "agent-activity-item-fixture.js");
-  fs.writeFileSync(initialTarget, initialFixture());
+  fs.writeFileSync(initialTarget, initialSource);
   fs.writeFileSync(ownerTarget, ownerFixture());
 
   assert.equal(runToolkit("check").state, "needs-apply");
@@ -25,8 +29,7 @@ try {
   assert.equal(applied.state, "applied");
   assert.deepEqual(applied.targets, [path.join("webview", "assets", "agent-activity-item-fixture.js")]);
   const once = fs.readFileSync(ownerTarget);
-  assert.match(once.toString(), /q as MTKwaitStoreScope/,
-    "build 9647 imports the task selector's Q scope");
+  assert.match(once.toString(), expectedScope, `${label} imports the task selector's scope`);
 
   const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
@@ -44,27 +47,40 @@ try {
     fs.writeFileSync(ownerTarget, once);
   }
 
-  assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialFixture()), "task metadata owner stays untouched");
-  process.stdout.write("wait-thread roster transform probe passed\n");
+  assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialSource),
+    "task metadata owner stays untouched");
 
   function runToolkit(action) {
     const result = spawnSync(process.execPath, [toolkit, "patch", "wait-thread-roster", action, extracted], {encoding: "utf8"});
     assert.equal(result.status, 0, result.stderr || result.stdout);
     return JSON.parse(result.stdout);
   }
-} finally {
-  fs.rmSync(scratch, {recursive: true, force: true});
+  } finally {
+    fs.rmSync(scratch, {recursive: true, force: true});
+  }
 }
 
 function initialFixture() {
   return [
-    "const x=0,Q=Symbol(`scope`);",
-    "function nm(e){return e}",
+    "const x=0,$=Symbol(`scope`);",
+    "function xf(e){return e}",
+    "function cT(e){return `local:${e}`}",
+    "function lT(e){return `remote:${e}`}",
+    "const lf=(...e)=>e,JF=lf($,0);",
+    "function xyl(){}",
+    "export{x as x,xf as kmn,$ as Bpn,JF as task,cT as local,lT as remote};"
+  ].join("");
+}
+
+function linux9647InitialFixture() {
+  return [
+    "const x=0,Q=Symbol(`scope`),qp=Symbol(`context`),pNt={useContext(){}};",
+    "function tm(e){let t=(0,pNt.useContext)(qp),n={};return e}",
     "function jj(e){return `local:${e}`}",
     "function Mj(e){return `remote:${e}`}",
-    "const Hp=(...e)=>e,AH=Hp(Q,0);",
+    "const Vp=(...e)=>e,AH=Vp(Q,0);",
     "function PYs(){}",
-    "export{x as x,nm as h,Q as q,AH as task,jj as local,Mj as remote};"
+    "export{x as x,tm as h,Q as q,AH as task,jj as local,Mj as remote};"
   ].join("");
 }
 

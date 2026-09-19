@@ -145,13 +145,11 @@ function rendererProfile(value) {
   if (matches.length > 1) throw new Error("Upstream changed: runtime JSON renderer host-bus owner is not unique");
   const imports = [...value.matchAll(/import\{(?<bindings>[^}]+)\}from"\.\/app-shared-[0-9a-f]+\.js";/g)];
   if (imports.length !== 1) throw new Error("Upstream changed: runtime JSON renderer shared import is not unique");
-  const buses = [...imports[0].groups.bindings.matchAll(/(?:^|,)RB as (?<bus>[$A-Z_a-z][$\w]*)(?=,|$)/g)];
-  if (buses.length !== 1) throw new Error("Upstream changed: runtime JSON renderer imported host bus is not unique");
-  const bus = buses[0].groups.bus;
-  if (count(value, `${bus}.dispatchMessage(`) < 1 || count(value, `${bus}.subscribe(`) < 1) {
-    throw new Error("Upstream changed: runtime JSON renderer imported host bus contract is incomplete");
-  }
-  return {kind: "imported-9922", bus};
+  const buses = [...imports[0].groups.bindings.matchAll(/(?:^|,)[$A-Z_a-z][$\w]* as (?<bus>[$A-Z_a-z][$\w]*)(?=,|$)/g)]
+    .map(match => match.groups.bus)
+    .filter(bus => count(value, `${bus}.dispatchMessage(`) >= 1 && count(value, `${bus}.subscribe(`) >= 1);
+  if (buses.length !== 1) throw new Error("Upstream changed: runtime JSON imported host bus is not unique");
+  return {kind: "imported-current", bus: buses[0]};
 }
 
 function patchMain(value) {

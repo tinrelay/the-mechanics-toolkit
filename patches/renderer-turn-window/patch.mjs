@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -109,6 +110,8 @@ function inspectPristineSelector(source) {
   }
   if (isBuild9922Selector(body)) {
     inspectBuild9922PristineSelector(body);
+  } else if (isLinuxBuild9771Selector(body)) {
+    inspectProfilePristineSelector(body, linuxBuild9771, "Linux build-9771");
   } else if (isBuild9647Selector(body)) {
     inspectBuild9647PristineSelector(body);
   } else {
@@ -132,6 +135,11 @@ function inspectAppliedSelector(source) {
   if (owner.body.includes("f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap") &&
       owner.body.includes("return dlc({conversationRequests:a,isAeonThread:!1")) {
     inspectBuild9922AppliedSelector(source, owner);
+    return;
+  }
+  if (owner.body.includes(linuxBuild9771.currentAfter) &&
+      owner.body.includes(linuxBuild9771.returnOwner)) {
+    inspectProfileAppliedSelector(source, owner, linuxBuild9771, "Linux build-9771");
     return;
   }
   if (owner.body.includes("UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)") &&
@@ -179,6 +187,7 @@ function inspectAppliedSelector(source) {
 function patchSelector(source) {
   const owner = selectorOwner(source);
   if (isBuild9922Selector(owner.body)) return patchBuild9922Selector(source, owner);
+  if (isLinuxBuild9771Selector(owner.body)) return patchProfileSelector(source, owner, linuxBuild9771, "Linux build-9771");
   if (isBuild9647Selector(owner.body)) return patchBuild9647Selector(source, owner);
   const names = owner.header.groups;
   const declaration = selectorDeclaration(source, names.selector, owner.header.index);
@@ -248,6 +257,68 @@ function patchSelector(source) {
     "renderer selector declarations"
   );
   return patched;
+}
+
+function isLinuxBuild9771Selector(body) {
+  return body.includes(linuxBuild9771.currentBefore) &&
+    body.includes(linuxBuild9771.windowBefore) &&
+    body.includes(linuxBuild9771.parentBefore) &&
+    body.includes(linuxBuild9771.entityBefore) &&
+    body.includes(linuxBuild9771.returnOwner);
+}
+
+function inspectProfilePristineSelector(body, profile, label) {
+  for (const contract of [
+    profile.currentBefore,
+    profile.windowBefore,
+    profile.parentBefore,
+    profile.entityBefore,
+    profile.returnOwner
+  ]) {
+    if (count(body, contract) !== 1) throw new Error(`Upstream changed: ${label} selector contract ${contract}`);
+  }
+}
+
+function patchProfileSelector(source, owner, profile, label) {
+  let body = owner.body;
+  body = replaceOnce(body, profile.currentBefore, profile.currentAfter, `${label} current turn materialization`);
+  body = replaceOnce(body, profile.windowBefore, profile.windowAfter, `${label} parent window ownership`);
+  body = replaceOnce(body, profile.parentBefore, profile.parentAfter, `${label} parent turn materialization`);
+  body = replaceOnce(body, profile.entityBefore, profile.entityAfter, `${label} bounded entity keys`);
+  const names = owner.header.groups;
+  const headerAfter = owner.header[0].replace(
+    `isBackgroundSubagentsEnabled:${names.background}}`,
+    `isBackgroundSubagentsEnabled:${names.background},rendererTailLimit:UHrendererTailLimit}`
+  );
+  const helper = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t),";
+  const patchedOwner = helper + owner.text.replace(owner.header[0], headerAfter).replace(owner.body, body);
+  let patched = replaceOnce(source, owner.text, patchedOwner, `${label} renderer selector owner`);
+  const declaration = selectorDeclaration(source, names.selector, owner.header.index);
+  const declaredNames = declaration.names.replace(`,${names.selector},`, `,UHrendererTail,${names.selector},`);
+  if (declaredNames === declaration.names) throw new Error(`Upstream changed: ${label} selector declaration shape`);
+  return replaceOnce(
+    patched,
+    declaration.text,
+    declaration.text.replace(declaration.names, declaredNames),
+    `${label} renderer selector declarations`
+  );
+}
+
+function inspectProfileAppliedSelector(source, owner, profile, label) {
+  for (const contract of [
+    "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
+    profile.currentAfter,
+    profile.windowAfter,
+    profile.parentAfter,
+    profile.entityAfter
+  ]) {
+    if (count(source, contract) !== 1) throw new Error(`Unrecognized ${label} renderer window: missing ${contract}`);
+  }
+  const declaration = selectorDeclaration(source, owner.header.groups.selector, owner.header.index);
+  if (count(declaration.names, "UHrendererTail") !== 1) {
+    throw new Error(`Unrecognized ${label} renderer window: helper declaration ownership changed`);
+  }
+  inspectTranscriptConsumer(source, owner.header.groups.selector, true);
 }
 
 function isBuild9922Selector(body) {

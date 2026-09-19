@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { build9922 } from "../patches/sidebar-action-collapse/profiles/build9922.mjs";
-import { linuxBuild9647 } from "../patches/sidebar-action-collapse/profiles/linux.mjs";
+import {
+  linuxBuild9647,
+  linuxBuild9771
+} from "../patches/sidebar-action-collapse/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: sidebar-action-collapse.test.mjs EXTRACTED_ASAR_ROOT");
@@ -14,22 +17,24 @@ const matches = fs.readdirSync(assets).filter(name => name.endsWith(".js") &&
 assert.equal(matches.length, 1, "unique sidebar-collapse owner");
 const source = fs.readFileSync(path.join(assets, matches[0]), "utf8");
 const helperStart = source.indexOf('const MTK_SIDEBAR_ACTIONS_STORAGE_KEY=');
-const helperEnd = ["function KKn(e){", build9922.ownerAfter]
+const helperEnd = [linuxBuild9771.ownerAfter, linuxBuild9647.ownerAfter, build9922.ownerAfter]
   .map(marker => source.indexOf(marker, helperStart))
   .filter(position => position >= 0)
   .sort((left, right) => left - right)[0] ?? -1;
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "sidebar helper seam");
 const rawHelper = source.slice(helperStart, helperEnd);
-const linux = rawHelper.includes(`function MTKuseSidebarActionCollapse${linuxBuild9647.suffix}(`);
-const generic = rawHelper.includes("function MTKuseSidebarActionCollapse9647(");
+const linuxProfile = [linuxBuild9771, linuxBuild9647].find(profile =>
+  rawHelper.includes(`function MTKuseSidebarActionCollapse${profile.suffix}(`)
+);
 const current9922 = rawHelper.includes(`function MTKuseSidebarActionCollapse${build9922.suffix}(`);
-assert.equal(Number(linux) + Number(generic) + Number(current9922), 1, "exactly one qualified sidebar profile");
+assert.equal(Number(linuxProfile != null) + Number(current9922), 1,
+  "exactly one qualified sidebar profile");
 
-const profile = current9922 ? build9922 : linux ? linuxBuild9647 : null;
-const suffix = profile?.suffix ?? "9647";
-const reactOwner = profile?.react ?? "X0";
-const jsxOwner = profile?.jsx ?? "Z0";
-const intlOwner = profile?.intl ?? "ch";
+const profile = current9922 ? build9922 : linuxProfile;
+const suffix = profile.suffix;
+const reactOwner = profile.react;
+const jsxOwner = profile.jsx;
+const intlOwner = profile.intl;
 assert.ok(rawHelper.includes(`(0,${reactOwner}.useState)(MTKreadSidebarActionsCollapsed${suffix})`),
   "state hook uses the current sidebar owner's React namespace");
 assert.ok(rawHelper.includes(`${reactOwner}.useEffect(`) && rawHelper.includes(`${reactOwner}.useCallback(`),
@@ -114,20 +119,16 @@ for (const label of ["New chat", "Pull requests", "Sites", "Scheduled", "Plugins
 }
 assert.equal(count(source, `function MTKuseSidebarActionCollapse${suffix}(`), 1);
 assert.equal(count(source, `function MTKsidebarActionDisclosure${suffix}(`), 1);
-if (linux) {
-  for (const marker of linuxBuild9647.applied) {
-    assert.ok(source.includes(marker), `Linux build-9647 sidebar contract: ${marker}`);
-  }
+if (linuxProfile != null) {
+  assert.ok(source.includes(linuxProfile.destinationAfter));
+  assert.ok(source.includes(`MTKsidebarActionsCollapsed?null:${linuxProfile.actionBefore}`));
+  assert.ok(source.includes(linuxProfile.headerAfter));
+  assert.ok(source.includes(linuxProfile.memoAfter) && source.includes(linuxProfile.assignmentAfter));
 } else if (current9922) {
   assert.ok(source.includes(`Me=MTKsidebarCollapsedDestinations${suffix}(MTKsidebarActionsCollapsed,Me,j3.projects)`));
   assert.ok(source.includes(`MTKsidebarActionsCollapsed?null:(0,Z5.jsx)(Xmc,`));
   assert.ok(source.includes(`(0,Z5.jsx)(MTKsidebarActionDisclosure${suffix},{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})`));
   assert.ok(source.includes("t[181]!==MTKsidebarActionsCollapsed") && source.includes("t[181]=MTKsidebarActionsCollapsed"));
-} else {
-  assert.ok(source.includes("ge=MTKsidebarCollapsedDestinations9647(MTKsidebarActionsCollapsed,ge,IT.projects);let _e=ge.length>0"));
-  assert.ok(source.includes("MTKsidebarActionsCollapsed?null:(0,Z0.jsx)(ACn,"));
-  assert.ok(source.includes("(0,Z0.jsx)(MTKsidebarActionDisclosure9647,{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})"));
-  assert.ok(source.includes("t[133]!==MTKsidebarActionsCollapsed") && source.includes("t[133]=MTKsidebarActionsCollapsed"));
 }
 
 process.stdout.write(`${JSON.stringify({

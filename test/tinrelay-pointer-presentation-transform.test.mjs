@@ -19,12 +19,14 @@ try {
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(build, { recursive: true });
   const initialTarget = path.join(assets, "app-initial-fixture.js");
+  const sharedTarget = path.join(assets, "app-shared-fixture.js");
   const rendererTarget = path.join(assets, "conversation-blocks-fixture.js");
   const turnTarget = path.join(assets, "local-conversation-turn-fixture.js");
   const activityTarget = path.join(assets, "agent-activity-item-fixture.js");
   const mainTarget = path.join(build, "main-fixture.js");
   const config = path.join(scratch, "toolkit.json");
   fs.writeFileSync(initialTarget, initialFixture());
+  fs.writeFileSync(sharedTarget, sharedFixture());
   fs.writeFileSync(rendererTarget, rendererFixture());
   fs.writeFileSync(turnTarget, turnFixture());
   fs.writeFileSync(activityTarget, activityFixture());
@@ -135,6 +137,54 @@ try {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
 
+verifyLinux9647Profile();
+
+function verifyLinux9647Profile() {
+  const legacyScratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-tinrelay-linux-9647-"));
+  try {
+    const extracted = path.join(legacyScratch, "extracted");
+    const assets = path.join(extracted, "webview/assets");
+    const build = path.join(extracted, ".vite/build");
+    fs.mkdirSync(assets, {recursive: true});
+    fs.mkdirSync(build, {recursive: true});
+    const initial = path.join(assets, "app-initial-fixture.js");
+    const renderer = path.join(assets, "conversation-blocks-fixture.js");
+    const turn = path.join(assets, "local-conversation-turn-fixture.js");
+    const activity = path.join(assets, "agent-activity-item-fixture.js");
+    const main = path.join(build, "main-fixture.js");
+    const config = path.join(legacyScratch, "toolkit.json");
+    fs.writeFileSync(initial, linux9647InitialFixture());
+    fs.writeFileSync(renderer, linux9647RendererFixture());
+    fs.writeFileSync(turn, turnFixture());
+    fs.writeFileSync(activity, activityFixture());
+    fs.writeFileSync(main, mainFixture());
+    fs.writeFileSync(config, JSON.stringify({tinrelay: {client: "/opt/tinrelay/bin/tinrelay"}}));
+
+    run("runtime-json-reload", "apply", true);
+    assert.equal(run("tinrelay-pointer-presentation", "check").state, "needs-apply");
+    assert.equal(run("tinrelay-pointer-presentation", "apply", true).state, "applied");
+    const once = [initial, renderer, turn, activity, main].map(file => fs.readFileSync(file));
+    const behavior = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
+    assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
+    assert.equal(run("tinrelay-pointer-presentation", "apply").state, "applied");
+    for (const [index, file] of [initial, renderer, turn, activity, main].entries()) {
+      assert.deepEqual(fs.readFileSync(file), once[index],
+        `${path.basename(file)} Linux build-9647 second application is byte-identical`);
+    }
+    process.stdout.write("TinRelay Linux build-9647 transform probe passed\n");
+
+    function run(name, action, withConfig = false) {
+      const args = [toolkit, "patch", name, action, extracted];
+      if (withConfig) args.push("--config", config);
+      const result = spawnSync(process.execPath, args, {encoding: "utf8"});
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+      return JSON.parse(result.stdout);
+    }
+  } finally {
+    fs.rmSync(legacyScratch, {recursive: true, force: true});
+  }
+}
+
 function assertSplitTurnPresentationOrdering() {
   const transform = fs.readFileSync(outgoingTransform, "utf8");
   const patchPresentations = sourceBetween(transform, "function patchAssistantPresentations(", "function helperSlice(");
@@ -189,11 +239,48 @@ function initialFixture() {
   ].join("");
 }
 
+function linux9647InitialFixture() {
+  return [
+    "const x=0,H={getInstance(){return U}},y=e=>e;let U={subscribe(){},dispatchMessage(){}};",
+    "U=H.getInstance(),y((e,t)=>{U.dispatchMessage(e,t)});",
+    "export{x as x,U as host};"
+  ].join("");
+}
+
+function sharedFixture() {
+  return [
+    "const ce={getInstance(){return{dispatchMessage(){},subscribe(){}}}};let H=ce.getInstance();",
+    "function owner(){H.dispatchMessage(`x`,{});H.subscribe(`x`,()=>{})}",
+    "export{H as IB};"
+  ].join("");
+}
+
 function rendererFixture() {
   return [
+    'import{IB as Bus}from"./app-shared-fixture.js";',
+    "const e=e=>e,t=e=>e,q=()=>({c(){}}),ft=()=>null,lp=()=>null,Y=()=>({jsx(){},jsxs(){}}),us={useEffect(){},useState(e){return[e,()=>{}]}},r=()=>({}),At=(...e)=>e.join(` `),PS={jsx(){},jsxs(){}},cy=PS,cE=e=>e,rg=e=>e,Ne=!1,Ae=!1;",
+    "var Qv,$v,ey;function ty(){return(ty=e((()=>{Qv=q(),ft(),lp(),$v=Y(),ey=2})))()}",
+    "function pp(e){return e}",
+    "function Zv(e){let t=(0,Qv.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,f=!0,u=c,m,p;",
+    "t[2]!==n||t[3]!==l?(p=l?(0,$v.jsx)(`button`,{type:`button`,className:At(`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,`cursor-interaction rounded-md hover:text-default`),onClick:l,children:n}):(0,$v.jsx)(`div`,{className:`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,children:n}),t[2]=n,t[3]=l,t[4]=p):p=t[4];",
+    "t[5]!==u?(m=f?(0,$v.jsx)(pp,{message:i,sentAtMs:a,collapsedLineCount:ey,compactActions:u,cwd:o,hostId:s,threadId:r}):null,t[5]=u):m=t[5];return m}",
+    "function oy(e){let t=(0,Qv.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,m;",
+    "m=(0,cy.jsx)(Zv,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:null});return m}",
+    "function tx(e){return e}",
+    "function Render(e){let{conversationId:d,turnId:S,item:n,toolActivityTurnKey:R}=e,m=!1,p=`default`,v=`local`,ve=`default`,ye=!0,r=null,je=!1;switch(n.type){case`exec`:{let e=cE(n);if(!Ne&&Ae&&!e||(n.parsedCmd.type===`read`||n.parsedCmd.type===`search`||n.parsedCmd.type===`list_files`)&&!n.parsedCmd.isFinished&&!e)return null;return(0,PS.jsx)(tx,{item:n,isTurnInProgress:m,threadDetailLevel:p,hostId:v,summaryTone:ve,showSummaryIcon:ye,summaryIcon:r,hideRawCommand:je,toolActivityTurnKey:R})}}}",
+    "function Oy(e){let{conversationId:p,turnId:o,turn:u,isTurnInProgress:L}=e,{userItems:J,assistantItem:K,systemEventItem:G,agentItems:A}=e,Ze=null;return(0,PS.jsx)(`div`,{turn:u,isTurnInProgress:L,assistantItem:K,children:[Ze,null]})}",
+    "function GE(e,{keepMcpAppEntriesPersistent:t=!1,mcpServerStatuses:n,renderMcpApps:r=!1}={}){let i=[],a=[],o=[],s=[],c=null;for(let l of e){if(l.kind===`standalone`&&l.item.item.type===`worked-for`){c=l.item.item;continue}if(l.kind===`standalone`&&l.item.item.type===`realtime-transcript`){a.length===0?s.push(l):(a.push(l),o.push(l));continue}a.push(l),KE({unit:l,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r})?o.push(l):i.push(l)}return{collapsibleUnits:i,expandedUnits:a,persistentUnits:o,preToggleUnits:s,workedForItem:c}}",
+    "function KE({unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r}){if(e.kind!==`standalone`)return!1;let i=e.item.item;return i.type===`dynamic-tool-call`&&Zm(i)||t&&r&&i.type===`mcp-tool-call`&&qE({item:i,mcpServerStatuses:n})?!0:i.type===`user-message`&&(i.steeringStatus!=null||i.hookFeedback===!0)}",
+    "function qE(){return!1}var JE=0;",
+    "const x=0;export{x as x}"
+  ].join("");
+}
+
+function linux9647RendererFixture() {
+  return [
     'import{x as X,host as Bus}from"./app-initial-fixture.js";',
-    "const e=e=>e,t=e=>e,i=()=>({c(){}}),Fl=()=>null,oh=()=>null,Y=()=>({jsx(){},jsxs(){}}),r=()=>({}),At=(...e)=>e.join(` `),PS={jsx(){},jsxs(){}},cE=e=>e,rg=e=>e,Ne=!1,Ae=!1;",
-    "var wS,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),TS=Y(),ES=2}));",
+    "const e=e=>e,t=e=>e,i=()=>({c(){}}),Fl=()=>null,oh=()=>null,Pl=()=>({jsx(){},jsxs(){}}),r=()=>({}),At=(...e)=>e.join(` `),PS={jsx(){},jsxs(){}},cE=e=>e,rg=e=>e,Ne=!1,Ae=!1;",
+    "var wS,TS,ES,DS=e((()=>{wS=i(),Fl(),oh(),TS=Pl(),ES=2}));",
     "function uh(e){return e}",
     "function CS(e){let t=(0,wS.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,f=!0,u=c,m,p;",
     "t[2]!==n||t[3]!==l?(p=l?(0,TS.jsx)(`button`,{type:`button`,className:At(`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,`cursor-interaction rounded-md hover:text-default`),onClick:l,children:n}):(0,TS.jsx)(`div`,{className:`text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description`,children:n}),t[2]=n,t[3]=l,t[4]=p):p=t[4];",

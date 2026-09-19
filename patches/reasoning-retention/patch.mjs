@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -12,13 +12,16 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const assets = path.join(root, "webview/assets");
+const linuxProfiles = [linuxBuild9771, linuxBuild9647];
 const turn = uniqueOwner(source =>
-  source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild9647.turn.owner) ||
+  source.includes("preventAutoCollapse:Ct||ir") ||
+    linuxProfiles.some(profile => source.includes(profile.turn.owner)) ||
     source.includes(build9922.turn.owner) || source.includes("function MTKuseReasoningRetention("),
   "local reasoning-collapse owner"
 );
 const thread = uniqueOwner(source =>
-  source.includes("Ve.current=le},[e,l,le,y,fe])") || source.includes(linuxBuild9647.thread.owner) ||
+  source.includes("Ve.current=le},[e,l,le,y,fe])") ||
+    linuxProfiles.some(profile => source.includes(profile.thread.owner)) ||
     source.includes(build9922.thread.owner) || source.includes("function MTKuseReasoningThreadRetention("),
   "local thread auto-collapse owner"
 );
@@ -53,17 +56,21 @@ function inspectState() {
   const turnMarkers = [
     source.includes("function MTKuseReasoningRetention("),
     source.includes("MTKreasoningRetained=MTKuseReasoningRetention(l)") ||
-      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(d)"),
+      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(d)") ||
+      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(c)"),
     source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
-      source.includes(linuxBuild9647.turn.appliedOwner) || source.includes(build9922.turn.appliedOwner)
+      linuxProfiles.some(profile => source.includes(profile.turn.appliedOwner)) ||
+      source.includes(build9922.turn.appliedOwner)
   ];
   const threadMarkers = [
     threadSource.includes("function MTKuseReasoningThreadRetention("),
     threadSource.includes("MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e)"),
     threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0)") ||
-      threadSource.includes(linuxBuild9647.thread.appliedCollapse) || threadSource.includes(build9922.thread.appliedCollapse),
+      linuxProfiles.some(profile => threadSource.includes(profile.thread.appliedCollapse)) ||
+      threadSource.includes(build9922.thread.appliedCollapse),
     threadSource.includes("[e,l,le,y,fe,MTKreasoningThreadRetained]") ||
-      threadSource.includes(linuxBuild9647.thread.appliedDependencies) || threadSource.includes(build9922.thread.appliedDependencies)
+      linuxProfiles.some(profile => threadSource.includes(profile.thread.appliedDependencies)) ||
+      threadSource.includes(build9922.thread.appliedDependencies)
   ];
   const turnApplied = turnMarkers.every(Boolean);
   const threadApplied = threadMarkers.every(Boolean);
@@ -78,10 +85,14 @@ function inspectState() {
   const turnCurrent = source.includes("function Z(e){let t=(0,Ba.c)(182),") &&
     (source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild9647.turn.owner));
   const turn9922 = source.includes(build9922.turn.ownerFunction) && source.includes(build9922.turn.owner);
+  const turnLinux = linuxProfiles.some(profile =>
+    source.includes(profile.turn.ownerFunction) && source.includes(profile.turn.owner));
   const threadCurrent = threadSource.includes("function bM({conversationId:e,") &&
     (threadSource.includes("Ve.current=le},[e,l,le,y,fe])") || threadSource.includes(linuxBuild9647.thread.owner));
   const thread9922 = threadSource.includes(build9922.thread.ownerFunction) && threadSource.includes(build9922.thread.owner);
-  if (!(turnCurrent && threadCurrent) && !(turn9922 && thread9922)) {
+  const threadLinux = linuxProfiles.some(profile =>
+    threadSource.includes(profile.thread.ownerFunction) && threadSource.includes(profile.thread.owner));
+  if (!(turnCurrent && threadCurrent) && !(turn9922 && thread9922) && !(turnLinux && threadLinux)) {
     throw new Error("Upstream changed: missing qualified reasoning retention contract");
   }
   verifyCollapseContract();
@@ -94,7 +105,8 @@ function verifyCollapseContract() {
     if (!source.includes(contract)) throw new Error(`Upstream changed: missing agent-activity contract ${contract}`);
   }
   if (!source.includes("onToggle:e=>{let t=!K;if(M.current=e,d==null){A(t);return}d(t)}") &&
-      !source.includes(linuxBuild9647.activityToggle) && !source.includes(build9922.activityToggle)) {
+      !linuxProfiles.some(profile => source.includes(profile.activityToggle)) &&
+      !source.includes(build9922.activityToggle)) {
     throw new Error("Upstream changed: missing agent-activity toggle contract");
   }
 }
@@ -123,16 +135,16 @@ function reasoningThreadHook(react) {
 function patchTurn(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningRetention(")) return;
-  const linux = source.includes(linuxBuild9647.turn.owner);
+  const linux = linuxProfiles.find(candidate => source.includes(candidate.turn.owner));
   const current9922 = source.includes(build9922.turn.owner);
-  const profile = current9922 ? build9922.turn : linux ? linuxBuild9647.turn : null;
+  const profile = current9922 ? build9922.turn : linux?.turn ?? null;
   const ownerFunction = profile?.ownerFunction ?? "function Z(e){let t=(0,Ba.c)(182),";
   const helper = reasoningHook(profile?.react ?? "Ha");
   source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning turn hook");
   source = replaceOnce(source, ...(profile
     ? [profile.decisionBefore, profile.decisionAfter]
     : linux
-    ? [linuxBuild9647.turn.decisionBefore, linuxBuild9647.turn.decisionAfter]
+    ? [linux.turn.decisionBefore, linux.turn.decisionAfter]
     : ["let R=xt,Ct=I(Ir,R)", "let R=xt,MTKreasoningRetained=MTKuseReasoningRetention(l),Ct=I(Ir,R)"]), "build-9647 reasoning task decision");
   source = replaceOnce(source, ...(profile
     ? [profile.owner, profile.appliedOwner]
@@ -143,9 +155,9 @@ function patchTurn(file) {
 function patchThread(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningThreadRetention(")) return;
-  const linux = source.includes(linuxBuild9647.thread.owner);
+  const linux = linuxProfiles.find(candidate => source.includes(candidate.thread.owner));
   const current9922 = source.includes(build9922.thread.owner);
-  const profile = current9922 ? build9922.thread : linux ? linuxBuild9647.thread : null;
+  const profile = current9922 ? build9922.thread : linux?.thread ?? null;
   const ownerFunction = profile?.ownerFunction ?? "function bM({conversationId:e,";
   const helper = reasoningThreadHook(profile?.react ?? "wM");
   source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning thread hook");

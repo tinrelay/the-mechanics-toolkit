@@ -22,7 +22,10 @@ const build9647 = app.includes(
 const build9922 = app.includes(
   "f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit)"
 );
-const buildProfiled = build9647 || build9922;
+const linuxBuild9771 = app.includes(
+  "f=n(jI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit)"
+);
+const buildProfiled = build9647 || linuxBuild9771 || build9922;
 
 if (!app.includes("UHrendererTail=(e,t)=>")) {
   const selectorContracts = app.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ? [
@@ -121,6 +124,14 @@ assert.equal(accumulatedTail.at(-1).turnId, "paged-2504");
 
 const selectorContracts = build9922 ? [
   "f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(",
+  "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
+  "UHrendererParentKeys=UHrendererTail(_,UHrendererParentLimit)",
+  "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(_?.length??0)>UHrendererTailLimit)",
+  "m=!UHrendererWindowActive&&",
+  "v=o!=null&&h==null?UHrendererParentKeys?.flatMap(",
+  "turnEntityKeys:UHrendererCurrentKeys?.map("
+] : linuxBuild9771 ? [
+  "f=n(jI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap(",
   "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
   "UHrendererParentKeys=UHrendererTail(_,UHrendererParentLimit)",
   "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(_?.length??0)>UHrendererTailLimit)",

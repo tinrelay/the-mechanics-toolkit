@@ -3,7 +3,10 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { build9922 } from "../patches/task-attention-policy/profiles/build9922.mjs";
-import { linuxBuild9647 } from "../patches/task-attention-policy/profiles/linux.mjs";
+import {
+  linuxBuild9647,
+  linuxBuild9771
+} from "../patches/task-attention-policy/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-attention-policy.test.mjs EXTRACTED_ASAR_ROOT");
@@ -20,12 +23,14 @@ process.stdout.write("task attention roster behavioral probe passed\n");
 
 function testRosterAttention(appSource, appPrimarySource) {
   const start = appSource.indexOf("const MTKattentionRosterBridge=1");
-  const linux = appSource.includes(`function MTKuseAttentionBootstrap${linuxBuild9647.suffix}(`);
+  const linuxProfile = [linuxBuild9771, linuxBuild9647].find(profile =>
+    appSource.includes(`function MTKuseAttentionBootstrap${profile.suffix}(`)
+  );
   const current9922 = appSource.includes(`function MTKuseAttentionBootstrap${build9922.suffix}(`);
-  const suffix = current9922 ? build9922.suffix : linux ? linuxBuild9647.suffix : "9647";
-  const boundary = appSource.indexOf(current9922
-    ? `function Vvl(){MTKuseAttentionBootstrap${suffix}();`
-    : `function PYs(){MTKuseAttentionBootstrap${suffix}();`, start);
+  const profile = current9922 ? build9922 : linuxProfile;
+  assert.ok(profile != null, "qualified task-attention profile");
+  const suffix = profile.suffix;
+  const boundary = appSource.indexOf(profile.appRootAfter, start);
   assert.ok(start >= 0 && boundary > start, "roster attention helper seam");
   const helper = appSource.slice(start, boundary).replaceAll(suffix, "");
   const diagnostics = [];
@@ -45,16 +50,17 @@ function testRosterAttention(appSource, appPrimarySource) {
     ["local", {kind: "local", catalogTitle: "Tamsin — Portfolio Secretary", conversationId: "tamsin-id", threadId: "tamsin-id"}],
     ["remote", {kind: "remote", task: {title: "Tamsin — Remote", id: "tamsin-id"}, taskId: "tamsin-id"}]
   ]);
-  const taskAtom = Symbol.for("build-9647-task-atom");
+  const taskAtom = Symbol.for("current-task-atom");
   const select = (atom, key) => {
     assert.equal(atom, taskAtom);
     return entries.get(key);
   };
   const api = Function(
-    "globalThis", "Nj", "IT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl",
+    "globalThis", "Nj", "IT", "dT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl", "Tyl",
     `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`
   )(
     {__MTK_AGENT_ROSTER__: roster},
+    key => entries.get(key) ?? null,
     key => entries.get(key) ?? null,
     key => entries.get(key) ?? null,
     () => taskAtom,
@@ -63,6 +69,7 @@ function testRosterAttention(appSource, appPrimarySource) {
     () => ({set() {}}),
     Symbol("scope"),
     Symbol("scope"),
+    {useEffect() {}},
     {useEffect() {}},
     {useEffect() {}}
   );
@@ -74,16 +81,10 @@ function testRosterAttention(appSource, appPrimarySource) {
   assert.equal(api.thread(select, "remote"), true);
 
   for (const contract of [
-    `MTKattentionPolicyAtom=${current9922 ? "rf" : linux ? "Fp" : "Ip"}(${current9922 ? "$" : "Q"},0)`,
+    `MTKattentionPolicyAtom=${current9922 ? "rf" : profile === linuxBuild9771 ? "nf" : "Fp"}(${current9922 || profile === linuxBuild9771 ? "$" : "Q"},0)`,
     `s=s.filter(t=>!MTKattentionIgnoredThread${suffix}(e,t))`,
     "[desktop-notifications] suppressed task-attention-policy turn-complete"
   ]) assert.ok(appSource.includes(contract), `roster attention app contract: ${contract}`);
-  const rowContracts = current9922 ? build9922.applied.primary : linux ? linuxBuild9647.applied.primary : [
-    "MTKattentionIgnoredForTask=MTKuseTaskAttention9647(_t,n)",
-    "let Rt=MTKattentionIgnoredForTask?{...Lt,unread:!1,unreadCount:0}:Lt",
-    "Ht=MTKattentionIgnoredForTask?[]:Vt==null?[]:[Vt]",
-    "let Jt=MTKattentionIgnoredForTask?void 0:qt",
-    "hasUnreadTurn:!MTKattentionIgnoredForTask&&!At&&tt===!0"
-  ];
+  const rowContracts = profile.applied.primary;
   for (const contract of rowContracts) assert.ok(appPrimarySource.includes(contract), `roster attention row contract: ${contract}`);
 }

@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { linuxBuild9647 } from "../patches/cross-task-attribution/profiles/linux.mjs";
+import { linuxBuild9771 } from "../patches/cross-task-attribution/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
@@ -55,20 +55,16 @@ const titleImport = uniqueMatch(
 const titleOwner = fs.readFileSync(path.resolve(path.dirname(ownerPath), titleImport.relative), "utf8");
 const titleExport = importedExport(titleImport.specifiers, "MTKtitleAtom");
 const titleInternal = exportedInternal(titleOwner, titleExport);
-const linuxSelector = linuxBuild9647.titleSelector;
-if (titleInternal === linuxSelector.internal &&
-    titleOwner.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {
-  assert.ok(titleOwner.includes(`${linuxSelector.helper}({...n,localTitle:r})`),
-    "Linux build-9647 title atom retains its stock selector owner");
+const linuxSelector = linuxBuild9771.titleSelector;
+if (titleInternal === linuxSelector.atom && titleOwner.includes(linuxSelector.atomOwner)) {
+  assert.ok(titleOwner.includes(linuxSelector.helperOwner),
+    "Linux build-9771 title atom retains its stock selector owner");
 } else if (titleInternal === "uyc" && titleOwner.includes("uyc=uf($,")) {
   assert.ok(titleOwner.includes("cyc({...n,localTitle:r})"),
     "build-9922 title atom retains its stock selector owner");
-} else {
-  assert.match(titleOwner, new RegExp(`${escapeRegExp(titleInternal)}=(?:iS|wx|Rt)\\(`),
-    "shared build-9647 title atom retains its stock selector factory");
-}
+} else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
-  titleOwner.includes("localTitle:r"), "build-9647 title selector retains its stock task metadata");
+  titleOwner.includes("localTitle:r"), "title selector retains its stock task metadata");
 
 const metadata = uniqueMatch(
   source,
@@ -88,8 +84,7 @@ const scopeInternal = exportedInternal(appInitial, importedExport(initialImport.
 const storeFunction = functionSource(appInitial, storeInternal);
 assert.ok(storeFunction.includes(".useContext") && storeFunction.includes(".useRef") &&
   storeFunction.includes("get queryClient"), "metadata uses the stock renderer store hook");
-assert.equal(scopeInternal, titleInternal === "uyc" ? "$" : "Q",
-  "metadata uses the stock renderer store scope");
+assert.equal(scopeInternal, "$", "metadata uses the stock renderer store scope");
 
 for (const contract of [
   "MTKstore.get(MTKtitleAtom,{hostId:",

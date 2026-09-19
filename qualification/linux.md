@@ -1,44 +1,57 @@
 # Linux desktop qualification
 
 This runbook qualifies one exact Linux Codex Desktop package, distribution, desktop session,
-architecture, and TMTK patch fleet. Ubuntu DEB and Fedora RPM are separate package and recovery
-boundaries even when they contain the same ASAR.
+architecture, and TMTK patch fleet. Ubuntu DEB and Fedora RPM are separate package and lifecycle
+boundaries. Their authenticated vendor channels currently expose different Desktop builds, so both
+exact generated-owner profiles are current.
 
-The current Linux target is Codex Desktop `26.911.61220` / build `9647` with the 16-patch fleet.
-It is qualified on Ubuntu 24.04.5 LTS ARM64 and Fedora Workstation 44 ARM64, both under GNOME
-Wayland. The DEB adapter supports `arm64` and `amd64`; the RPM adapter supports `aarch64` and
-`x86_64`. CPU architecture still controls package identity, native payloads, executables, and live
-qualification, but does not earn a second JavaScript profile when the generated ASAR owners are
-identical.
+The Ubuntu target is Codex Desktop `26.915.31029` / build `9771`; the Fedora target remains Codex
+Desktop `26.911.61220` / build `9647`. Both use the same 16 patch implementations. Qualification is
+on Ubuntu 24.04.5 LTS ARM64 and Fedora Workstation 44 ARM64 under GNOME Wayland. The DEB adapter
+supports `arm64` and `amd64`; the RPM adapter supports `aarch64` and `x86_64`. CPU architecture
+controls package identity, native payloads, executables, and live qualification, but does not earn
+an architecture-specific JavaScript profile.
 
-The accepted packages contain the same patched ASAR, SHA-256
-`606d9767a92b2f51749c648a21b5485f1673babc152648be6bcd6e0f576778cb`:
+Ubuntu build `9771` evidence:
 
-- Ubuntu pristine DEB SHA-256
-  `8517ddd0582ba8aa9b7879a2c566b4e622b62e0aebc4830272492d4e123f358b`; accepted
-  `26.911.61220+tmtk1` candidate SHA-256
-  `31c3dedbcbbcd99760a7193c63da2634525054107051d0a936105c87258384f1`.
-- Fedora pristine RPM SHA-256
-  `70d7ac841fa04b7867c84d17b7410fb6a8f9c774c160ae029959efb2f120dfdf`; accepted
-  `26.911.61220-1.tmtk1` candidate SHA-256
-  `96d21a0931dfb02944b223a761aa1bd45a844cbe154ae8021434944944c61d98`.
+- authenticated pristine DEB SHA-256
+  `5c01ce35eccea9e95d16de052c74f16deed381408931e82b106d7dbeeed8de4a`;
+- accepted `26.915.31029+tmtk1` candidate SHA-256
+  `230aa34c712c83a2f8d95bdcc351e75ba18e49ac550519bdc60d3bedb6871828`;
+- installed patched ASAR SHA-256
+  `77fcf390fc27700b65b271b435250f7a213de8f1e0459ec917791c24d64e9f31`;
+- package executable SHA-256
+  `15f4066aff635c8e4ffc39b3653cb8aa8b91481d731e88c8e5a7aaca5c133f41`; and
+- bundled CLI SHA-256
+  `74a97f16b1683f0f8da6c06960b8b7246129397afa0605c74b8d186650507b06`.
 
-Both package formats passed authenticated-source inspection, reconstruction, all 16 transforms,
-post-pack probes, native-payload preservation, and byte-identical second application. Genuine
-task-led supervisor replacements observed the invoking CLI exit, exact package installation,
-renderer readiness, and return to the originating task without supervisor, installer, dialog,
-askpass, or rescue-terminal residue. The accepted Ubuntu and Fedora incident tokens are
-`2026-09-17T21-28-23-072Z-72dfe848-4656-4189-83c6-20ebe3ed853d` and
-`2026-09-17T21-59-41-356Z-76df7a6c-9ff1-45dd-a68b-6da8706b8608` respectively.
+The DEB passed authenticated-source inspection, reconstruction, all 16 transforms, post-pack
+probes, native-payload preservation, and byte-identical second application. The exact candidate was
+installed. The main log reached `ready-to-show`, main-frame load, App Server initialization, and
+React-root rendering; AT-SPI exposed application `Codex` and frame `ChatGPT`. This current-build
+pass deliberately stopped there: it did not rerun the supervisor or the complete live feature
+runbook after the shared transforms and Linux lifecycle were already qualified.
 
-Ubuntu supplied the live feature pass for the byte-identical Linux ASAR: registry and
-observability, roster/palette/policy reload, model protection, archive protection with a mounted
-row changing false-to-true-to-false without remount, sidebar collapse, terminal open and close via
-Control+backtick from composer and focused terminal, task attribution, wait roster, successful and
-failed outgoing receipts, and TinRelay incoming/outgoing presentation across remount. Fedora
-separately proved the RPM package and supervisor boundary; duplicating the same renderer exercises
-there was deliberately omitted. The greater-than-200-turn live fixture and destructive
-blank/Oops/exhaustion recovery fixtures were not rerun; their deterministic probes remain current.
+Fedora build `9647` evidence:
+
+- authenticated pristine RPM SHA-256
+  `70d7ac841fa04b7867c84d17b7410fb6a8f9c774c160ae029959efb2f120dfdf`;
+- accepted `26.911.61220-1.tmtk1` candidate SHA-256
+  `96d21a0931dfb02944b223a761aa1bd45a844cbe154ae8021434944944c61d98`;
+- installed patched ASAR SHA-256
+  `606d9767a92b2f51749c648a21b5485f1673babc152648be6bcd6e0f576778cb`; and
+- genuine supervisor incident
+  `2026-09-17T21-59-41-356Z-76df7a6c-9ff1-45dd-a68b-6da8706b8608`.
+
+The RPM passed authenticated-source inspection, reconstruction, all 16 transforms, post-pack
+probes, native-payload preservation, byte-identical second application, supervised installation,
+and renderer readiness. The existing build-9647 Linux live feature pass covered registry and
+observability, roster/palette/policy reload, model and archive protection, sidebar collapse,
+terminal open and close, task attribution, wait roster, outgoing receipts, and TinRelay
+presentation across remount. It remains evidence for Fedora's current build-9647 generated owners;
+it is not presented as current Ubuntu package evidence. The greater-than-200-turn live fixture and
+destructive blank/Oops/exhaustion recovery fixtures were not rerun; their deterministic probes
+remain current.
 
 Run from the Linux toolkit checkout. Start from an ignored private copy of
 [`examples/toolkit.linux.example.json`](../examples/toolkit.linux.example.json), replacing its

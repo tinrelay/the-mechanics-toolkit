@@ -3,9 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
+const linuxProfiles = [linuxBuild9771, linuxBuild9647];
 const root = path.resolve(process.argv[3] ?? "");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: sidebar-action-collapse.mjs check|apply EXTRACTED_ASAR_ROOT");
@@ -45,29 +46,33 @@ function inspectState(value) {
     "t[133]!==MTKsidebarActionsCollapsed",
     "t[133]=MTKsidebarActionsCollapsed,t[92]=Ne"
   ];
-  const linuxMarkers = linuxBuild9647.applied;
+  const linuxMarkerSets = linuxProfiles.map(appliedMarkers);
   const build9922Markers = appliedMarkers(build9922);
   const genericPresent = genericMarkers.map(marker => value.includes(marker));
-  const linuxPresent = linuxMarkers.map(marker => value.includes(marker));
+  const linuxPresent = linuxMarkerSets.map(markers => markers.map(marker => value.includes(marker)));
   const build9922Present = build9922Markers.map(marker => value.includes(marker));
   if (genericPresent.every(Boolean)) return "applied";
-  if (linuxPresent.every(Boolean)) return "applied";
+  if (linuxPresent.some(markers => markers.every(Boolean))) return "applied";
   if (build9922Present.every(Boolean)) return "applied";
-  if (genericPresent.some(Boolean) || linuxPresent.some(Boolean) || build9922Present.some(Boolean)) {
+  if (genericPresent.some(Boolean) || linuxPresent.some(markers => markers.some(Boolean)) ||
+      build9922Present.some(Boolean)) {
     throw new Error("Unrecognized build-9647 sidebar collapse patch: partial markers");
   }
   const genericPristine = current9647Contracts().every(contract => value.includes(contract));
-  const linuxPristine = linuxBuild9647.contracts.every(contract => value.includes(contract));
+  const linuxPristine = linuxProfiles.filter(profile =>
+    contracts(profile).every(contract => value.includes(contract)));
   const build9922Pristine = contracts(build9922).every(contract => value.includes(contract));
-  if (Number(genericPristine) + Number(linuxPristine) + Number(build9922Pristine) !== 1) {
-    throw new Error(`Upstream changed: found ${Number(genericPristine) + Number(linuxPristine) + Number(build9922Pristine)} sidebar ownership profiles`);
+  const profileCount = Number(genericPristine) + linuxPristine.length + Number(build9922Pristine);
+  if (profileCount !== 1) {
+    throw new Error(`Upstream changed: found ${profileCount} sidebar ownership profiles`);
   }
   return "needs-apply";
 }
 
 function patchSource(value) {
   if (current9647Contracts().every(contract => value.includes(contract))) return patch9647(value);
-  if (linuxBuild9647.contracts.every(contract => value.includes(contract))) return patchLinux9647(value);
+  const linux = linuxProfiles.find(profile => contracts(profile).every(contract => value.includes(contract)));
+  if (linux != null) return patchProfile(value, linux);
   if (contracts(build9922).every(contract => value.includes(contract))) return patchProfile(value, build9922);
   throw new Error("Upstream changed: missing qualified sidebar ownership contract");
 }
@@ -85,11 +90,11 @@ function appliedMarkers(profile) {
     `function MTKsidebarCollapsedDestinations${profile.suffix}(`,
     profile.ownerAfter,
     `[MTKsidebarActionsCollapsed,MTKtoggleSidebarActions]=MTKuseSidebarActionCollapse${profile.suffix}()`,
-    `MTKsidebarCollapsedDestinations${profile.suffix}(MTKsidebarActionsCollapsed,Me,${profile.projects})`,
+    profile.destinationAfter,
     `MTKsidebarActionsCollapsed?null:${profile.actionBefore}`,
-    `(0,${profile.jsx}.jsx)(MTKsidebarActionDisclosure${profile.suffix},{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})`,
-    "t[181]!==MTKsidebarActionsCollapsed",
-    "t[181]=MTKsidebarActionsCollapsed"
+    profile.headerAfter,
+    profile.memoAfter,
+    profile.assignmentAfter
   ];
 }
 
@@ -114,18 +119,6 @@ function current9647Contracts() {
     "t[84]!==p||t[85]!==_||t[86]!==T||t[87]!==le||t[88]!==q||t[89]!==Ce||t[90]!==Se||t[91]!==X?(",
     "t[84]=p,t[85]=_,t[86]=T,t[87]=le,t[88]=q,t[89]=Ce,t[90]=Se,t[91]=X,t[92]=Ne):Ne=t[92]"
   ];
-}
-
-function patchLinux9647(value) {
-  const { suffix, react, jsx, intl } = linuxBuild9647;
-  const helper = `const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1";function MTKreadSidebarActionsCollapsed${suffix}(){try{return localStorage.getItem(MTK_SIDEBAR_ACTIONS_STORAGE_KEY)==="1"}catch{return!1}}function MTKuseSidebarActionCollapse${suffix}(){let[e,t]=(0,${react}.useState)(MTKreadSidebarActionsCollapsed${suffix});return ${react}.useEffect(()=>{let e=e=>{e.key===MTK_SIDEBAR_ACTIONS_STORAGE_KEY&&t(MTKreadSidebarActionsCollapsed${suffix}())};return addEventListener("storage",e),()=>removeEventListener("storage",e)},[]),[e,${react}.useCallback(()=>{t(e=>{let t=!e;try{localStorage.setItem(MTK_SIDEBAR_ACTIONS_STORAGE_KEY,t?"1":"0")}catch{}return t})},[])]}function MTKsidebarCollapsedDestinations${suffix}(e,t,n){return e?t.filter(e=>e.id===n):t}function MTKsidebarActionDisclosure${suffix}({collapsed:e,onToggle:t}){let n=${intl}(),r=n.formatMessage(e?{id:"sidebarElectron.globalActions.show",defaultMessage:"Show navigation actions",description:"Accessible label for expanding the sidebar navigation action group"}:{id:"sidebarElectron.globalActions.hide",defaultMessage:"Hide navigation actions",description:"Accessible label for collapsing the sidebar navigation action group"});return(0,${jsx}.jsx)("button",{type:"button",title:r,"aria-label":r,"aria-expanded":!e,className:"flex size-8 items-center justify-center rounded-md text-secondary hover:bg-tertiary hover:text-primary cursor-pointer",onClick:t,children:(0,${jsx}.jsx)("svg",{"aria-hidden":!0,className:"icon-xs transition-transform "+(e?"":"rotate-90"),viewBox:"0 0 16 16",fill:"none",children:(0,${jsx}.jsx)("path",{d:"M6 3.5 10.5 8 6 12.5",stroke:"currentColor",strokeWidth:1.5,strokeLinecap:"round",strokeLinejoin:"round"})})})}`;
-  let patched = replaceOnce(value, linuxBuild9647.ownerBefore, `${helper}${linuxBuild9647.ownerAfter}`, "Linux build-9647 sidebar owner");
-  patched = replaceOnce(patched, linuxBuild9647.stateBefore, `${linuxBuild9647.stateBefore}[MTKsidebarActionsCollapsed,MTKtoggleSidebarActions]=MTKuseSidebarActionCollapse${suffix}(),`, "Linux build-9647 sidebar state");
-  patched = replaceOnce(patched, linuxBuild9647.destinationBefore, linuxBuild9647.destinationAfter, "Linux build-9647 global destination projection");
-  patched = replaceOnce(patched, linuxBuild9647.headerBefore, linuxBuild9647.headerAfter, "Linux build-9647 header disclosure");
-  patched = replaceOnce(patched, linuxBuild9647.actionBefore, `MTKsidebarActionsCollapsed?null:${linuxBuild9647.actionBefore}`, "Linux build-9647 global action block");
-  patched = replaceOnce(patched, linuxBuild9647.memoBefore, linuxBuild9647.memoAfter, "Linux build-9647 memo dependency");
-  return replaceOnce(patched, linuxBuild9647.assignmentBefore, linuxBuild9647.assignmentAfter, "Linux build-9647 memo assignment");
 }
 
 function patch9647(value) {
@@ -153,10 +146,10 @@ function uniqueOwnershipAsset() {
     .filter(name => {
       const value = fs.readFileSync(path.join(assets, name), "utf8");
       return current9647Contracts().every(contract => value.includes(contract)) ||
-        linuxBuild9647.contracts.every(contract => value.includes(contract)) ||
+        linuxProfiles.some(profile => contracts(profile).every(contract => value.includes(contract))) ||
         contracts(build9922).every(contract => value.includes(contract)) ||
         value.includes("function MTKuseSidebarActionCollapse9647()") ||
-        value.includes(`function MTKuseSidebarActionCollapse${linuxBuild9647.suffix}()`) ||
+        linuxProfiles.some(profile => value.includes(`function MTKuseSidebarActionCollapse${profile.suffix}()`)) ||
         value.includes(`function MTKuseSidebarActionCollapse${build9922.suffix}()`);
     });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} sidebar ownership assets`);

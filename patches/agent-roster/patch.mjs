@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -62,13 +62,14 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  if (value.includes(linuxBuild9647.selector)) {
-    for (const contract of [linuxBuild9647.selector, ...linuxBuild9647.required]) {
+  for (const candidate of [linuxBuild9771, linuxBuild9647]) {
+    if (!value.includes(candidate.selector)) continue;
+    for (const contract of [candidate.selector, ...candidate.required]) {
       if (count(value, contract) !== 1) {
-        throw new Error(`Upstream changed: ${linuxBuild9647.name} owner is not unique: ${contract}`);
+        throw new Error(`Upstream changed: ${candidate.name} owner is not unique: ${contract}`);
       }
     }
-    return linuxBuild9647.profile;
+    return candidate.profile;
   }
   const build9922Seam = "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),";
   if (value.includes(build9922Seam)) {

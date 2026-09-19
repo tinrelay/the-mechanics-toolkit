@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./profiles/build9647.mjs";
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -172,7 +172,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
   if (build9922.archive.applied.every(contract => source.includes(contract))) {
-    if (inspectBuild9922ArchiveRuntime(source) !== "applied") {
+      if (inspectBuild9922ArchiveRuntime(source, build9922RuntimeOwner(source)) !== "applied") {
       throw new Error("Unrecognized build-9922 archive runtime reload");
     }
     return "applied";
@@ -222,6 +222,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 function appProfile(source) {
   const profiles = [
     build9922.app,
+    linuxBuild9771.app,
     linuxBuild9647.app,
     {
       name: "26.911.61220-9647",
@@ -244,6 +245,7 @@ function appProfile(source) {
 function bottomFadeProfile(_appSource, primarySource) {
   const profiles = [
     build9922.bottomFade,
+    linuxBuild9771.bottomFade,
     ...["h3", "g9"].map(jsx => ({
     file: "app-primary",
     before: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`,
@@ -256,6 +258,7 @@ function bottomFadeProfile(_appSource, primarySource) {
 function localProfile(source) {
   const profiles = [
     build9922.local,
+    linuxBuild9771.local,
     linuxBuild9647.local,
     {
       name: "26.911.61220-9647",
@@ -592,7 +595,7 @@ function patchSidebarArchiveAffordances(file, primaryFile) {
     for (const replacement of build9922.archive.replacements) {
       source = replaceOnce(source, ...replacement);
     }
-    source = applyBuild9922ArchiveRuntime(source);
+    source = applyBuild9922ArchiveRuntime(source, build9922RuntimeOwner(source));
     fs.writeFileSync(file, source);
     return;
   }
@@ -644,6 +647,11 @@ function patchSidebarArchiveAffordances(file, primaryFile) {
   );
   primarySource = applyBuild9647ArchiveRuntime(primarySource);
   fs.writeFileSync(primaryFile, primarySource);
+}
+
+function build9922RuntimeOwner(source) {
+  const profile = linuxBuild9771.archiveRuntime;
+  return source.includes(profile.owner[0]) || source.includes(profile.owner[1]) ? profile : void 0;
 }
 function patchLocalPage(file) {
   let source = fs.readFileSync(file, "utf8");

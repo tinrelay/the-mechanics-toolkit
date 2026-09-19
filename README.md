@@ -174,12 +174,15 @@ on **macOS ARM64**. It passed the complete static fleet, supervised installation
 readiness, Computer Use self-target restoration, observability, ordinary task messaging, and a
 TinRelay loopback across task remounts. Windows 11 ARM64 has a 16-patch build-9922 port with
 signed-MSIX proof, healthy supervised adoption, renderer readiness, and an operator-observed
-patched renderer surface. Ubuntu DEB
-(`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) packages use the same 16-patch
-build-9647 ASAR fleet. Both ARM64 package adapters passed static reconstruction, genuine-task
-supervised adoption, and renderer readiness; Ubuntu supplied the live feature pass for the shared
-Linux ASAR. Each platform's qualification runbook records what was proved, carried from an earlier
-build, or deliberately not rerun.
+patched renderer surface. Linux currently has two vendor-current targets: Ubuntu DEB (`arm64` and
+`amd64`) uses Desktop `26.915.31029` / build `9771`, while Fedora RPM (`aarch64` and `x86_64`)
+remains on Desktop `26.911.61220` / build `9647`. Both use the same 16 patch implementations with
+exact fail-closed profiles for their generated owners. The Ubuntu ARM64 build-9771 package passed
+authenticated reconstruction, byte-identical reapplication, installation, application opening,
+and renderer readiness. Fedora ARM64 retains its qualified build-9647 RPM, supervised adoption,
+and renderer-readiness evidence; the live Linux feature pass for the build-9647 owners remains
+valid without being mistaken for current Ubuntu package evidence. Each platform's qualification
+runbook records what was proved, carried from an earlier build, or deliberately not rerun.
 The fleet-wide [extraction ledger](docs/extraction-ledger.md) owns the exact current-build evidence
 and remaining live-acceptance boundaries; patch READMEs describe their own behavior and focused
 evidence. Qualification may carry a previous live result only when the patch's current owner and

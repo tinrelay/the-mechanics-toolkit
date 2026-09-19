@@ -68,9 +68,8 @@ function patchMain(value) {
 }
 
 function safeStartProfile(value) {
-  const markers = ["vae", "ece"].filter(marker =>
-    count(value, `${marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) === 1
-  );
+  const markers = [...value.matchAll(/\b([A-Za-z_$][\w$]*)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/g)]
+    .map(match => match[1]);
   if (markers.length !== 1) {
     throw new Error("Upstream changed: safe-start relaunch marker environment is not unique");
   }
@@ -83,16 +82,25 @@ function safeStartProfile(value) {
   const action = readinessAction(marker, writer);
   const profiles = [
     {
+      marker: "vae",
       before: "if(!N(t))return;",
       applied: `if(!N(t))return;s.type===\`ready\`&&${action};`,
       rendererReady: "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
     },
     {
+      marker: "ece",
       before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{${action};this.windowManager.markWebContentsReady(e),`,
       rendererReady: "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})"
+    },
+    {
+      marker: "xse",
+      before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{${action};this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "qn.dispatchMessage(`ready`,{persistedStateResponsePriority:V9?`critical`:void 0})"
     }
   ].filter(profile => {
+    if (profile.marker !== marker) return false;
     const appliedCount = count(value, profile.applied);
     return appliedCount === 1 || appliedCount === 0 && count(value, profile.before) === 1;
   });

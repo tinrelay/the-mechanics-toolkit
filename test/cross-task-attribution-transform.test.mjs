@@ -12,8 +12,8 @@ const behavioralProbe = path.join(repository, "test/cross-task-attribution.test.
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attribution-test-"));
 
 try {
-  verifyProfile("generic build 9647", genericInitialFixture(), genericPrimaryFixture(), genericBubbleFixture());
-  verifyProfile("Linux build 9647", linuxInitialFixture(), linuxPrimaryFixture(), linuxBubbleFixture());
+  verifyProfile("Linux build 9771", build9922InitialFixture(), linux9771PrimaryFixture(),
+    linux9771BubbleFixture(), build9922OwnerFixture());
   verifyProfile("generic build 9922", build9922InitialFixture(), build9922PrimaryFixture(),
     build9922BubbleFixture(), build9922OwnerFixture());
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
@@ -59,39 +59,11 @@ try {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
 
-function genericInitialFixture() {
+function linux9771PrimaryFixture() {
   return [
-    "const Q=Symbol(`scope`),qp=Symbol(`context`),React={useContext(){},useRef(){}};",
-    "function nm(e){let t=React.useContext(qp),n=React.useRef(null);return{get queryClient(){return t},get(){},watch(){}}}",
-    "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),n=`sidebarElectron.recentChats`;return n}",
-    "export{nm as h,Q as q};"
-  ].join("");
-}
-
-function linuxInitialFixture() {
-  return [
-    "const Q=Symbol(`scope`),qp=Symbol(`context`),React={useContext(){},useRef(){}};",
-    "function tm(e){let t=React.useContext(qp),n=React.useRef(null);return{get queryClient(){return t},get(){},watch(){}}}",
-    "function PYs(){let e=(0,LYs.c)(12),t=tm(Q),n=`sidebarElectron.recentChats`;return n}",
-    "export{tm as h,Q as q};"
-  ].join("");
-}
-
-function genericPrimaryFixture() {
-  return [
-    "const ns=Symbol(`scope`);function UEn(e){return e}",
-    "var GEn,owner=t((()=>{GEn=Rt(ns,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null,summaryTitle:null},r=null;return UEn({...n,localTitle:r})})}));",
-    "function titleUse(){let _t=Fy(GEn,{hostId:Ke??`local`,threadId:n})??Be?.title??null;return _t}",
-    "export{GEn as title};"
-  ].join("");
-}
-
-function linuxPrimaryFixture() {
-  return [
-    "const Rg=Symbol(`scope`);function UEn(e){return e}",
-    "var GEn,owner=t((()=>{GEn=ip(Rg,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return UEn({...n,localTitle:r})})}));",
-    "function titleUse(){let gt=CC(GEn,{hostId:Ge??`local`,threadId:n})??ze?.title??null;return gt}",
-    "export{GEn as title};"
+    "const $=Symbol(`scope`);function cyc(e){return e}",
+    "var uyc,owner=t((()=>{uyc=lf($,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null,summaryTitle:null},r=null;return cyc({...n,localTitle:r})})}));",
+    "export{uyc as fm};"
   ].join("");
 }
 
@@ -141,19 +113,11 @@ function ownerFixture() {
   ].join("");
 }
 
-function genericBubbleFixture() {
+function linux9771BubbleFixture() {
   return [
-    "function bt(e){let t=(0,St.c)(152),{message:n,turnId:C,cwd:w,hostId:T}=e,G,U,Ke,q;",
-    "if(t[45]!==G||t[46]!==U||t[47]!==Ke){q=(0,Z.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[45]=G,t[46]=U,t[47]=Ke,t[48]=q}return q}",
-    "export{bt as t};"
-  ].join("");
-}
-
-function linuxBubbleFixture() {
-  return [
-    "function bt(e){let t=(0,St.c)(152),{message:n,turnId:w,cwd:T,hostId:E}=e,K,G,Ke,q;",
-    "if(t[45]!==K||t[46]!==G||t[47]!==Ke){q=(0,Z.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[45]=K,t[46]=G,t[47]=Ke,t[48]=q}return q}",
-    "export{bt as t};"
+    "function yt(e){let t=(0,xt.c)(153),{message:r,turnId:S,cwd:C,hostId:w}=e,F,I,K,W,Ke,J,qe;",
+    "if(t[30]!==F||t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke){qe=(0,$.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[49]=J,t[50]=qe}return qe}",
+    "export{yt as t};"
   ].join("");
 }
 

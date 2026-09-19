@@ -14,8 +14,8 @@ do not remain in current patch documentation merely as historical evidence.
 | --- | --- | --- | --- |
 | macOS ARM64 | `26.915.31945` / `9922` | 19 patches | Static stage, supervised adoption, renderer readiness, Computer Use self-targeting, observability, task messaging, and TinRelay loopback green |
 | Windows 11 ARM64 | `26.915.31945` / `9922` | 16 patches | Signed-MSIX stage, genuine-task supervised adoption, renderer readiness, complete static registry/fleet probes, and an operator-observed patched surface green |
-| Ubuntu DEB (`arm64`, `amd64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, renderer readiness, and live feature runbook green |
-| Fedora RPM (`aarch64`, `x86_64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, and renderer readiness green on the byte-identical Linux ASAR |
+| Ubuntu DEB (`arm64`, `amd64`) | `26.915.31029` / `9771` | 16 patches | ARM64 authenticated static stage, installation, application opening, and renderer readiness green |
+| Fedora RPM (`aarch64`, `x86_64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, renderer readiness, and build-9647 live feature evidence green |
 
 This table and the root README are the only current-build summaries. A port is not complete until
 both are updated in the same reviewed change. Platform runbooks retain exact hashes and boundaries:
@@ -28,11 +28,11 @@ both are updated in the same reviewed change. Platform runbooks retain exact has
 
 | Area | Current evidence | Next useful boundary |
 | --- | --- | --- |
-| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS and Windows build `9922` and Ubuntu and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
-| Package integrity | macOS signature and ASAR seal green; Windows signed-MSIX reconstruction, re-extraction, native-payload preservation, and source stability green; Ubuntu DEB and Fedora RPM carry the same qualified ASAR through separate authenticated package adapters | Requalify the affected package adapter when package layout or trust changes |
-| Safe restart and rescue | Healthy supervised adoption returned to the exact originating task on macOS, Windows, Ubuntu, and Fedora with no supervisor residue | Re-run controlled failure only when the lifecycle boundary changes |
+| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS and Windows build `9922`, Ubuntu build `9771`, and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
+| Package integrity | macOS signature and ASAR seal green; Windows signed-MSIX reconstruction, re-extraction, native-payload preservation, and source stability green; Ubuntu DEB build `9771` and Fedora RPM build `9647` pass their separate authenticated package adapters | Requalify the affected package adapter when package layout or trust changes |
+| Safe restart and rescue | Healthy supervised adoption returned to the exact originating task on macOS, Windows, and Fedora with no supervisor residue; current Ubuntu build `9771` passed direct installation, opening, and renderer readiness | Re-run a Linux supervisor only when its lifecycle seam changes; re-run controlled failure only when the recovery boundary changes |
 | Renderer identity and policy | Runtime roster, palette, model guard, task attention, reasoning retention, sidebar collapse, registry, and observability passed their current static gates; selected macOS and Windows live surfaces are green | Exercise only changed or still-open live surfaces |
-| Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes; macOS and Ubuntu task messaging and TinRelay presentation are live-green, while Windows inherits the unchanged shared build-`9922` semantics from macOS | Requalify changed generated owners or platform transport seams |
+| Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes for both Linux builds; macOS and Linux build `9647` task messaging and TinRelay presentation are live-green, while Windows inherits the unchanged shared build-`9922` semantics from macOS | Requalify changed generated owners or platform transport seams |
 | Renderer turn window | Current bounded selector and consumers pass deterministic probes | The greater-than-200-turn live fixture remains deliberately unrun |
 | Standalone-output compaction | Exact Codex `rust-v0.155.0-alpha.9.2` source patch and desktop binary integration pass focused source and package gates | Live-accept a task-message-triggered compaction boundary |
 
@@ -107,12 +107,14 @@ package procedure and retained evidence boundary belong in
 
 ## Current Linux qualification
 
-Ubuntu DEB (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) are the current Linux
-build-`9647` targets. Their qualified vendor packages use the same 16-patch fleet and contain the
-same patched ASAR; no CPU- or distribution-specific JavaScript profile is baked into the port.
-Both ARM64 package adapters passed static reconstruction and genuine-task supervised adoption.
-Ubuntu supplied the live renderer-feature pass for the shared ASAR, while Fedora separately proved
-the RPM lifecycle boundary. [Linux qualification](../qualification/linux.md) owns the exact hashes,
+Ubuntu DEB (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) currently expose different
+vendor builds. Ubuntu uses Desktop `26.915.31029` / build `9771`; Fedora remains on Desktop
+`26.911.61220` / build `9647`. They share the 16 patch implementations but keep exact fail-closed
+profiles for their different generated owners. The Ubuntu ARM64 build-9771 package passed
+authenticated static reconstruction, installation, application opening, and renderer readiness.
+Fedora ARM64 retains its qualified build-9647 RPM lifecycle and renderer evidence, and the existing
+build-9647 live feature pass remains semantic evidence for that current profile rather than current
+Ubuntu package evidence. [Linux qualification](../qualification/linux.md) owns the exact hashes,
 receipts, and deliberately unrun gates.
 
 ## Extraction rule

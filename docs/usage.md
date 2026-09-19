@@ -23,8 +23,9 @@ npm test
 The macOS staging path also uses the system `codesign`, `ditto`, and `PlistBuddy` tools. Ubuntu DEB
 staging uses `dpkg-deb`, `ar`, `gpgv`, and the already-installed trusted ChatGPT APT keyring. Fedora
 RPM staging uses `rpm`, `rpmkeys`, `rpm2cpio`, `cpio`, `rpmbuild`, and the installed trusted ChatGPT
-RPM key. The current Ubuntu and Fedora ARM64 VMs both run patched build-9647 Codex; their exact
-remaining live gates stay in the Linux qualification record.
+RPM key. The current Ubuntu ARM64 VM runs patched build `9771`; Fedora ARM64 remains on patched
+build `9647` because the authenticated vendor channels are not synchronized. Their exact evidence
+and deliberately unrun gates stay in the Linux qualification record.
 
 ## Inspect an application
 

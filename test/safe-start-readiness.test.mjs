@@ -16,9 +16,10 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-assert.match(main, /(?:vae|ece)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/,
+assert.match(main, /[$A-Z_a-z][$\w]*=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/,
   "readiness uses the existing per-launch marker path environment boundary");
 assert.equal([
+  "qn.dispatchMessage(`ready`,{persistedStateResponsePriority:V9?`critical`:void 0})",
   "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
   "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})"
 ].reduce((total, contract) => total + count(renderer, contract), 0), 1,

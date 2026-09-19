@@ -15,6 +15,7 @@ const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
 const rootProfiles = [
   {start: "function PYs(){", owner: "let e=(0,LYs.c)(12),"},
+  {start: "function xyl(){", owner: "let e=(0,wyl.c)(12),"},
   {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"}
 ].map(profile => ({...profile, index: source.indexOf(profile.start, helperStart)}))
   .filter(profile => profile.index >= 0);

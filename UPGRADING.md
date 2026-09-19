@@ -17,14 +17,16 @@ retaining the already qualified Windows and Linux ports:
 
 - macOS ARM64 uses the 19-patch fleet on Codex Desktop `26.915.31945` / build `9922`;
 - Windows 11 ARM64 uses the 16-patch fleet on `26.915.31945` / build `9922`;
-- Ubuntu uses the 16-patch DEB fleet on build `9647`, for `arm64` and `amd64`; and
-- Fedora uses the same build-`9647` ASAR fleet in an RPM, for `aarch64` and `x86_64`.
+- Ubuntu uses the 16-patch DEB fleet on Desktop `26.915.31029` / build `9771`, for `arm64` and
+  `amd64`; and
+- Fedora uses the 16-patch RPM fleet on Desktop `26.911.61220` / build `9647`, for `aarch64` and
+  `x86_64`.
 
-The qualified Ubuntu and Fedora vendor packages contain the same ASAR. Their package
-authentication, reconstruction, installation, restart, and recovery boundaries remain
-independently qualified. The current live VMs are ARM64; the package adapters deliberately accept
-the corresponding AMD64 architecture names without adding an architecture-specific JavaScript
-profile.
+The Linux vendor channels currently expose different Desktop builds, so both exact generated-owner
+profiles are current. They share the patch implementations, not the vendor ASAR bytes. Package
+authentication, reconstruction, installation, and lifecycle evidence remain platform-specific.
+The current live VMs are ARM64; the package adapters deliberately accept the corresponding AMD64
+architecture names without adding architecture-specific JavaScript profiles.
 
 1. Check out an exact published `0.2.1` revision, install its Node dependencies, and run
    `npm run check` and `npm test`.

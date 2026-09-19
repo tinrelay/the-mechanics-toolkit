@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -142,7 +142,7 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [build9922Component, linuxBuild9647.component, build9647Component].find(candidate =>
+  const profile = [build9922Component, linuxBuild9771.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
     (candidate.wrapperBubble == null || owner.bubbleLocal === candidate.wrapperBubble) &&
@@ -264,6 +264,17 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  const linuxSelector = linuxBuild9771.titleSelector;
+  if (appInitial.includes(linuxSelector.atomOwner) &&
+      appInitial.includes(linuxSelector.helperOwner) &&
+      appInitial.includes(linuxSelector.storeOwner)) {
+    return {
+      before: initialImport[0],
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxSelector.storeHook)),
+      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxSelector.storeScope))
+    };
+  }
   if (appInitial.includes("uyc=uf($,(e,{get:t})=>") &&
       appInitial.includes("cyc({...n,localTitle:r})") &&
       appInitial.includes("function Vvl(){let e=(0,Wvl.c)(12),t=xf($),")) {
@@ -272,16 +283,6 @@ function resolveImports(ownerSource, ownerFile) {
       after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uyc")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
       storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "xf")),
       storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "$"))
-    };
-  }
-  const linuxSelector = linuxBuild9647.titleSelector;
-  if (appPrimary.includes(linuxBuild9647.titleOwner) &&
-      appPrimary.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {
-    return {
-      before: primaryImport[0],
-      after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, linuxBuild9647.titleAtom)} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
-      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild9647.storeHook)),
-      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxBuild9647.storeScope))
     };
   }
   const titleMarker = appPrimary.indexOf("localTitle:r})})}));");

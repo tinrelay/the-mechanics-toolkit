@@ -21,15 +21,15 @@ try {
     "globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:2});export const fixture=true;"
   );
 
-  verifyProfile(target, genericFixture(), [
-    "function MTKuseAgentRoster(){let e=nm(Q);",
-    "return RYs.useEffect(",
-    "let a=i(VFi);",
-    "e.get(w_)==null&&await e.when(({get:e})=>e(w_)!=null)",
-    'let n=C_(e,"local")'
-  ], "generic build 9647");
-
   verifyProfile(target, linuxFixture(), [
+    "function MTKuseAgentRoster(){let e=xf($);",
+    "return Tyl.useEffect(",
+    "let a=i(woi);",
+    "e.get(ip)==null&&await e.when(({get:e})=>e(ip)!=null)",
+    'let n=rp(e,"local")'
+  ], "Linux build 9771");
+
+  verifyProfile(target, linux9647Fixture(), [
     "function MTKuseAgentRoster(){let e=tm(Q);",
     "return RYs.useEffect(",
     "let a=i(VFi);",
@@ -70,18 +70,20 @@ try {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
 
-function genericFixture() {
+function linuxFixture() {
   return [
-    "const Q=Symbol(`scope`),VFi=Symbol(`projects`),w_=Symbol(`ready`);",
-    "const RYs={useEffect(){}},nm=e=>e;",
-    "function C_(e,t){let n=e.get(w_);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
-    "function owner(){return r(VFi)}",
-    "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),value=0;return e}",
+    "const $=Symbol(`scope`),woi=of($,({get:e})=>e),ip=nf($,()=>null);",
+    "const pNt={useContext(){},useRef(){},useEffect(){}},Tyl={useEffect(){}};",
+    "function xf(e){let t=(0,pNt.useContext)(qp),n={},r={},i={current:null};",
+    "let a={};function o(){}function s(){}function c(){}function l(){}",
+    "a.get=o,a.query=qgt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
+    "function rp(e,t){let n=e.get(ip);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function xyl(){let e=(0,wyl.c)(12),t=xf($),value=0;return e}",
     "export const fixture=true;"
   ].join("");
 }
 
-function linuxFixture() {
+function linux9647Fixture() {
   return [
     "const Q=Symbol(`scope`),qp=Symbol(`context`),VFi=Y(Q,({get:e})=>e),C_=Fp(Q,()=>null);",
     "const pNt={useContext(){},useRef(){},useEffect(){}},RYs={useEffect(){}};",

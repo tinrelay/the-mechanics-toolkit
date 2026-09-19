@@ -18,7 +18,7 @@ try {
   const palette = path.join(assets, "app-initial-fixture.js");
   const owner = path.join(assets, "app-primary-fixture.js");
   fs.writeFileSync(palette, paletteFixture(false));
-  fs.writeFileSync(owner, ownerFixture());
+  fs.writeFileSync(owner, build9922OwnerFixture());
 
   assert.equal(run("check").state, "needs-apply");
   const refused = raw("apply");
@@ -35,16 +35,29 @@ try {
 
   process.stdout.write("model identity guard transform probe passed\n");
 
-  fs.writeFileSync(owner, linux9647OwnerFixture());
+  fs.writeFileSync(owner, linux9771OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
   const linuxOnce = fs.readFileSync(owner);
   const linuxSource = linuxOnce.toString();
-  assert.match(linuxSource, /MTKuseModelIdentityGuard\(r,be,Xe\)/);
-  assert.doesNotMatch(linuxSource, /MTKuseModelIdentityGuard\(r,ve,Xe\)/);
-  assert.match(linuxSource, /macDecoy="Xe=TH\(q\.reasoningEffort,Ke\),Ze="/);
+  assert.match(linuxSource, /MTKuseModelIdentityGuard\(r,Ce,\$e\)/);
+  assert.doesNotMatch(linuxSource, /MTKuseModelIdentityGuard\(r,Te,\$e\)/);
+  assert.match(linuxSource, /macDecoy="\$e=\$A\(ie\.reasoningEffort,Ye\),et="/);
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), linuxOnce, "Linux second application is byte-identical");
+  process.stdout.write("model identity guard Linux build-9771 transform probe passed\n");
+
+  fs.writeFileSync(owner, linux9647OwnerFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linux9647Once = fs.readFileSync(owner);
+  const linux9647Source = linux9647Once.toString();
+  assert.match(linux9647Source, /MTKuseModelIdentityGuard\(r,be,Xe\)/);
+  assert.doesNotMatch(linux9647Source, /MTKuseModelIdentityGuard\(r,ve,Xe\)/);
+  assert.match(linux9647Source, /macDecoy="Xe=TH\(q\.reasoningEffort,Ke\),Ze="/);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(owner), linux9647Once,
+    "Linux build-9647 second application is byte-identical");
   process.stdout.write("model identity guard Linux build-9647 transform probe passed\n");
 
   fs.writeFileSync(owner, build9922OwnerFixture());
@@ -76,12 +89,13 @@ function paletteFixture(withBridge) {
   ].join("");
 }
 
-function ownerFixture() {
+function linux9771OwnerFixture() {
   return [
-    'const L5={useEffect:e=>e()},TH=e=>e;',
+    'const C3={useEffect:e=>e()},YA=e=>e;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function Hcr(e){let t=(0,$cr.c)(242),r=e.conversationId,ve=e.model,q={reasoningEffort:e.reasoningEffort},Ke=[],Xe=TH(q.reasoningEffort,Ke),Ze=true;return{t,r,ve,q,Xe,Ze}}',
-    'export{Hcr};'
+    'function S3(e){let t=(0,AXe.c)(242),r=e.conversationId,Ce=e.model,K={reasoningEffort:e.reasoningEffort},Ye=[];',
+    'let $e=YA(K.reasoningEffort,Ye),et=true;return{t,r,Ce,K,$e,et}}',
+    'export const macDecoy="$e=$A(ie.reasoningEffort,Ye),et=";'
   ].join("");
 }
 

@@ -361,9 +361,10 @@ The task lookup, readiness state
 machine, marker protocol, diagnostics schema, and rescue runner are ordinary Node programs; they
 do not require zsh or another POSIX shell. Bundle layout, process discovery, application shutdown,
 diagnostic locations, default terminal choice, and terminal opening live together in a narrow
-platform adapter. The macOS adapter is implemented and qualified. The Linux DEB and RPM adapters
-have healthy build-9647 installations in the Ubuntu and Fedora ARM64 qualification VMs; their
-remaining live-feature evidence is tracked in the Linux runbook. The Windows ARM64 adapter
+platform adapter. The macOS adapter is implemented and qualified. The Linux lifecycle was
+qualified through supervised adoption on Fedora build `9647`; current Ubuntu build `9771` passed
+package installation, application opening, and renderer readiness without duplicating the
+unchanged supervisor run. Exact current evidence is tracked in the Linux runbook. The Windows ARM64 adapter
 has exact signed-MSIX staging and one complete broken-app rescue/restoration qualification; ordinary
 cross-version rollback provenance remains open. Unsupported platforms fail before changing
 application lifecycle state; another package format or platform port must add its own adapter rather than

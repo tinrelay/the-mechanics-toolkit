@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
+import { incomingBuild9647, incomingBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -679,16 +680,18 @@ function mainHelperOwner(source) {
 }
 
 function resolveHostBus(source) {
-  if (source.includes(incomingBuild9922.moduleAfter)) {
+  const profile = [incomingBuild9922, incomingBuild9771]
+    .find(candidate => source.includes(candidate.moduleAfter));
+  if (profile != null) {
     const imported = uniqueMatch(
       source,
-      new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(incomingBuild9922.hostBus.module)}[^"]+\\.js)";`, "g"),
-      "build-9922 host-bus import"
+      new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
+      "current host-bus import"
     );
     return uniqueMatch(
       imported.groups.specifiers,
-      new RegExp(`(?:^|,)${escapeRegExp(incomingBuild9922.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
-      "build-9922 host-bus binding"
+      new RegExp(`(?:^|,)${escapeRegExp(profile.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
+      "current host-bus binding"
     ).groups.local;
   }
   const busImports = [...source.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/message-bus-[^"]+\.js)";/g)];
@@ -711,10 +714,14 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  if (source.includes("function CS(") && source.includes("function MS(") && source.includes("MTKtinrelayReact=t(r(),1)")) {
-    return {jsx: "TS", boundary: "function MS(", splitTurn: turnRenderer != null};
+  for (const profile of [incomingBuild9771, incomingBuild9647]) {
+    if (source.includes(`function ${profile.message}(`) &&
+        source.includes(`function ${profile.delegation}(`) &&
+        source.includes(profile.moduleAfter)) {
+      return {jsx: profile.helperJsx, boundary: `function ${profile.delegation}(`, splitTurn: turnRenderer != null};
+    }
   }
-  throw new Error("Upstream changed: build-9647 Tinrelay renderer profile is not recognized");
+  throw new Error("Upstream changed: Tinrelay renderer profile is not recognized");
 }
 
 function activityBoundary(source) {

@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 import { build9922 } from "./profiles/build9922.mjs";
 
 const command = process.argv[2];
@@ -197,11 +197,11 @@ function resolveTaskImports(ownerSource) {
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
     taskImportProfile(build9922.taskImports),
+    taskImportProfile(linuxBuild9771.taskImports),
     {
       ...taskImportProfile(linuxBuild9647.taskImports),
       platformMarker: linuxBuild9647.platformMarker
-    },
-    ["function PYs(){", "AH=Hp(Q,", ["nm", "Q", "AH", "jj", "Mj"]]
+    }
   ];
   const normalizedProfiles = profiles.map(profile => Array.isArray(profile) ? taskImportProfile(profile) : profile);
   const match = normalizedProfiles.find(profile => appInitial.includes(profile.owner) &&

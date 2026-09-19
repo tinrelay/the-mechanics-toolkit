@@ -5,7 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
-import { linuxBuild9647 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
+import {
+  linuxBuild9647,
+  linuxBuild9771
+} from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: outgoing-message-receipt.test.mjs EXTRACTED_ASAR_ROOT");
@@ -50,9 +53,10 @@ const helper = owner.slice(helperStart, helperEnd);
 const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-primary-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
-  const currentLinux = linuxBuild9647.taskImports;
+  const linuxProfiles = [linuxBuild9771.taskImports, linuxBuild9647.taskImports];
   return source.includes("Q2t=Jf(o_,(e,{get:t})=>{") && source.includes("X2t({...n,localTitle:r})") ||
-    source.includes(currentLinux.titleOwner) && source.includes(currentLinux.titleHelper);
+    linuxProfiles.some(profile => profile.titleOwner != null && source.includes(profile.titleOwner) &&
+      source.includes(profile.titleHelper));
 });
 assert.equal(
   helper.includes("MTKoutboundTitleAtom"),
