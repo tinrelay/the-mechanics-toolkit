@@ -6,7 +6,7 @@ launched.
 
 ## Current ARM64 checkpoint
 
-The current checkpoint is Windows 11 ARM64 with inner Desktop `26.911.61220`, Codex build `9647`,
+The current checkpoint is Windows 11 ARM64 with inner Desktop `26.915.31945`, Codex build `9922`,
 and AppUserModelID `OpenAI.Codex_2p2nqsd0c76g0!App`. The supported Windows fleet contains 16 ASAR
 transforms. The package has no owned surface for the macOS menu-title or native app-tools
 authorization repairs, and the standalone-output repair requires separately built native and WSL
@@ -14,9 +14,9 @@ executables, so those three patches remain excluded rather than being forced thr
 owners.
 
 The accepted candidate is
-`OpenAI.Codex_26.911.7940.7_arm64__2p2nqsd0c76g0`, package SHA-256
-`8ebf41808920a408e9f831ed8e4d9f0e6b4cf5666681abe084de9ddf2500d43b`, and installed ASAR
-SHA-256 `d4533d56ded97c1b11f28835775dc3467128c300d148c4da3cb815b4d5c8db17`. It retains the OpenAI
+`OpenAI.Codex_26.915.4065.1_arm64__2p2nqsd0c76g0`, package SHA-256
+`2c3c18e5e46c76a2b30451a49ed7e5c6f8d4313c128242ce35dbf5d170843a53`, and installed ASAR
+SHA-256 `c220d47f138d733ac216a66a794607f43eb29702615aa1d4edf587db4126b0a9`. It retains the OpenAI
 package family and publisher identity under a locally trusted qualification certificate; it does
 not claim Store provenance.
 
@@ -29,21 +29,24 @@ rollback packages were removed after acceptance.
 
 ## Live supervisor receipt
 
-The healthy replacement passed on the Windows 11 ARM64 guest on 2026-09-17. A genuine task started
+The healthy replacement passed on the Windows 11 ARM64 guest on 2026-09-19. A genuine task started
 `tmtk-restart`; the supervisor observed the invoking CLI exit, installed the signed candidate,
 launched its exact package root in the logged-in desktop session, and reached renderer readiness.
-The deep link returned to the same task, model, and effort. No invoking CLI, supervisor helper,
-rescue process, toolkit-owned terminal, or `TMTK-*` scheduled task remained.
+The native progress notification was shown during candidate preparation. The deep link returned to
+the same task, model, and effort. No invoking CLI, supervisor helper, rescue process,
+toolkit-owned terminal, or `TMTK-*` scheduled task remained.
 
 This remains same-inner-build adoption evidence. The current `stage-msix` command takes a pristine
 candidate source and a separate installed, live-proven known-good source with the exact same inner
 Desktop identity. It applies the current fleet only to the pristine source and preserves the
 known-good payload for rollback while rebuilding both packages with monotonic outer versions and a
 local signature. The deliberate broken application and repair-exhaustion fixture was not rerun
-because this port did not change the Windows lifecycle boundary. Live observability found the
-focused renderer, the registry exposed the selected fleet including task-attention policy, and the
-configured palette loaded the expected task identities. The greater-than-200-turn fixture remains
-deliberately unrun; the current checkpoint does not claim that gate.
+because this port changed only the best-effort progress notification inside the Windows lifecycle
+adapter. The complete selected fleet and registry passed the composed static probes, and the
+operator directly observed patched renderer surfaces after relaunch. Shared behavior was not
+rerun on Windows; macOS owns the current shared build-`9922` semantic pass. The
+greater-than-200-turn fixture remains deliberately unrun; the current checkpoint does not claim
+that gate.
 
 ## Staging
 

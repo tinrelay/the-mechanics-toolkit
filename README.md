@@ -172,8 +172,9 @@ staging, installation, restart, and live acceptance remain separate actions.
 The current 19-patch desktop fleet is qualified against **Codex Desktop `26.915.31945` (`9922`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
 readiness, Computer Use self-target restoration, observability, ordinary task messaging, and a
-TinRelay loopback across task remounts. Windows 11 ARM64 has a 16-patch build-9647 port with
-signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Ubuntu DEB
+TinRelay loopback across task remounts. Windows 11 ARM64 has a 16-patch build-9922 port with
+signed-MSIX proof, healthy supervised adoption, renderer readiness, and an operator-observed
+patched renderer surface. Ubuntu DEB
 (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) packages use the same 16-patch
 build-9647 ASAR fleet. Both ARM64 package adapters passed static reconstruction, genuine-task
 supervised adoption, and renderer readiness; Ubuntu supplied the live feature pass for the shared

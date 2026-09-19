@@ -13,7 +13,7 @@ do not remain in current patch documentation merely as historical evidence.
 | Platform | Qualified Desktop build | Fleet | State |
 | --- | --- | --- | --- |
 | macOS ARM64 | `26.915.31945` / `9922` | 19 patches | Static stage, supervised adoption, renderer readiness, Computer Use self-targeting, observability, task messaging, and TinRelay loopback green |
-| Windows 11 ARM64 | `26.911.61220` / `9647` | 16 patches | Signed-MSIX stage, genuine-task supervised adoption, renderer readiness, registry, palette, observability, and selected messaging paths green |
+| Windows 11 ARM64 | `26.915.31945` / `9922` | 16 patches | Signed-MSIX stage, genuine-task supervised adoption, renderer readiness, complete static registry/fleet probes, and an operator-observed patched surface green |
 | Ubuntu DEB (`arm64`, `amd64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, renderer readiness, and live feature runbook green |
 | Fedora RPM (`aarch64`, `x86_64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, and renderer readiness green on the byte-identical Linux ASAR |
 
@@ -28,11 +28,11 @@ both are updated in the same reviewed change. Platform runbooks retain exact has
 
 | Area | Current evidence | Next useful boundary |
 | --- | --- | --- |
-| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS build `9922` and Windows, Ubuntu, and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
+| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS and Windows build `9922` and Ubuntu and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
 | Package integrity | macOS signature and ASAR seal green; Windows signed-MSIX reconstruction, re-extraction, native-payload preservation, and source stability green; Ubuntu DEB and Fedora RPM carry the same qualified ASAR through separate authenticated package adapters | Requalify the affected package adapter when package layout or trust changes |
 | Safe restart and rescue | Healthy supervised adoption returned to the exact originating task on macOS, Windows, Ubuntu, and Fedora with no supervisor residue | Re-run controlled failure only when the lifecycle boundary changes |
 | Renderer identity and policy | Runtime roster, palette, model guard, task attention, reasoning retention, sidebar collapse, registry, and observability passed their current static gates; selected macOS and Windows live surfaces are green | Exercise only changed or still-open live surfaces |
-| Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes; macOS and Ubuntu task messaging and TinRelay presentation are live-green, as are selected Windows paths | Requalify changed generated owners or platform transport seams |
+| Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes; macOS and Ubuntu task messaging and TinRelay presentation are live-green, while Windows inherits the unchanged shared build-`9922` semantics from macOS | Requalify changed generated owners or platform transport seams |
 | Renderer turn window | Current bounded selector and consumers pass deterministic probes | The greater-than-200-turn live fixture remains deliberately unrun |
 | Standalone-output compaction | Exact Codex `rust-v0.155.0-alpha.9.2` source patch and desktop binary integration pass focused source and package gates | Live-accept a task-message-triggered compaction boundary |
 
@@ -95,13 +95,15 @@ absent from this public record.
 
 ## Current Windows qualification
 
-The Windows 11 ARM64 build-`9647` candidate uses the supported 16-patch subset. Candidate package
-`OpenAI.Codex_26.911.7940.7_arm64__2p2nqsd0c76g0` has MSIX SHA-256
-`8ebf41808920a408e9f831ed8e4d9f0e6b4cf5666681abe084de9ddf2500d43b` and installed ASAR
-SHA-256 `d4533d56ded97c1b11f28835775dc3467128c300d148c4da3cb815b4d5c8db17`. A genuine task-led
+The Windows 11 ARM64 build-`9922` candidate uses the supported 16-patch subset. Candidate package
+`OpenAI.Codex_26.915.4065.1_arm64__2p2nqsd0c76g0` has MSIX SHA-256
+`2c3c18e5e46c76a2b30451a49ed7e5c6f8d4313c128242ce35dbf5d170843a53` and installed ASAR
+SHA-256 `c220d47f138d733ac216a66a794607f43eb29702615aa1d4edf587db4126b0a9`. A genuine task-led
 supervisor replacement reached renderer readiness, returned to the same task and model settings,
-and left no supervisor residue. The exact package procedure and retained evidence boundary belong
-in [Windows qualification](../qualification/windows.md).
+and left no supervisor residue. The complete selected fleet and registry passed composed static
+probes, and the operator directly observed patched renderer surfaces after relaunch. The exact
+package procedure and retained evidence boundary belong in
+[Windows qualification](../qualification/windows.md).
 
 ## Current Linux qualification
 

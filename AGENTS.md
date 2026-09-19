@@ -59,6 +59,14 @@ one bounded repair in an explicit target, and fail closed when the structure cha
   generated-JavaScript profiles stay in the patch's main transform; when an observed platform build
   genuinely has a different owner shape, put only that exact profile under the patch's
   `profiles/` directory. Do not clone the fleet into macOS, Linux, and Windows patch trees.
+- Treat supported Desktop builds as a per-platform matrix, not one global version and not an excuse
+  to port whatever each vendor channel happens to offer. When Mike hands off an exact qualified
+  frontier build, first authenticate the target platform's offered package and inspect its inner
+  Desktop build. If that build is absent, stop at package identity unless Mike explicitly asks for
+  an independent port to the platform's different vendor-current build. Different vendor channels
+  may therefore require multiple exact current profiles at once; those are current platform targets,
+  not historical migration readers. Do not remove a build profile while any platform in the current
+  matrix still depends on it.
 - Keep package formats, application identity, signing, process discovery, dialogs, launch, and
   rescue-terminal behavior under `src/platforms/` and the platform package/staging modules. Keep
   live evidence and operator procedures under `qualification/<platform>.md`. A shared supervisor
@@ -88,6 +96,27 @@ one bounded repair in an explicit target, and fail closed when the structure cha
   verification, and byte-identical second application.
 - Live acceptance remains separate: launch, open a real task, and exercise the exact changed
   behavior. Static probes do not prove a usable application.
+- Qualify shared JavaScript behavior once on the designated frontier/reference platform. A
+  secondary-platform port inherits that semantic qualification when it consumes the exact same
+  transforms and generated-owner profiles unchanged, the complete selected fleet passes composed
+  static probes and byte-identical reapplication, and no platform-specific runtime seam changes.
+  Do not rerun the shared feature-by-feature live runbook merely because the package format or
+  operating system differs.
+- Secondary-platform qualification proves only the delta: authenticated vendor package identity;
+  package reconstruction, signing, native payload, and bundled-binary placement; changed platform
+  adapter or supervisor behavior; and one healthy adoption that reaches renderer readiness. After
+  launch, inspect the stable patch registry and one visible patched surface to prove that the
+  selected fleet mounted, then stop. Direct operator observation is valid live evidence; do not
+  reproduce what the operator can already see through redundant CDP, accessibility, screenshots,
+  and scripted tours.
+- A supervisor change earns focused adapter tests and one real healthy supervised restart on each
+  affected platform. It does not automatically earn destructive recovery fixtures, every rescue
+  branch, or a complete renderer-feature runbook. Broaden live qualification only when the shared
+  implementation or generated owner differs, the platform owns genuinely different semantics, a
+  concrete mismatch appears, or Mike explicitly asks.
+- Before entering a VM, write down the exact changed seams and their terminal gates. Once those
+  gates pass, freeze the packet. Qualification is not an invitation to collect every available
+  proof or continue until the runbook is exhausted.
 - A port handoff is incomplete until `npm test` passes the repository-hygiene probe and its
   campaign workspace has only one pristine package and one current candidate, with transient
   rollback material removed after the replacement transaction ends.

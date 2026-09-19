@@ -16,7 +16,7 @@ This upgrade applies to TMTK `0.1.x` and `0.2.0` installations. TMTK `0.2.1` adv
 retaining the already qualified Windows and Linux ports:
 
 - macOS ARM64 uses the 19-patch fleet on Codex Desktop `26.915.31945` / build `9922`;
-- Windows 11 ARM64 uses the 16-patch fleet on `26.911.61220` / build `9647`;
+- Windows 11 ARM64 uses the 16-patch fleet on `26.915.31945` / build `9922`;
 - Ubuntu uses the 16-patch DEB fleet on build `9647`, for `arm64` and `amd64`; and
 - Fedora uses the same build-`9647` ASAR fleet in an RPM, for `aarch64` and `x86_64`.
 
