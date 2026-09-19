@@ -285,11 +285,12 @@ assert.equal(presentationOwners.length, 1, "unique durable receipt presentation 
 const presentation = fs.readFileSync(path.join(assets, presentationOwners[0]), "utf8");
 const receiptPresentation = presentation.indexOf("MTKOutboundTurnReceipts,{conversationId:");
 assert.ok(receiptPresentation >= 0, "durable receipts are present in the source turn presentation");
-if (presentation.includes('$(`mtk-outbound-turn-receipts`')) {
-  const userPresentation = presentation.indexOf('$(`user-item-');
-  const taskPresentation = presentation.indexOf('$(`mtk-outbound-turn-receipts`');
-  const tinrelayPresentation = presentation.indexOf('$(`mtk-tinrelay-outgoing-turn`');
-  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length"]
+const turnRegistrar = presentation.includes('Zi(`mtk-outbound-turn-receipts`') ? "Zi" : "$";
+if (presentation.includes(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``)) {
+  const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
+  const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
+  const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
+  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -379,15 +380,9 @@ const mainOwners = fs.readdirSync(mainDirectory).filter(name => {
 assert.equal(mainOwners.length, 1, "unique durable receipt cache owner");
 const main = fs.readFileSync(path.join(mainDirectory, mainOwners[0]), "utf8");
 const mainStart = main.indexOf('const MTKoutboundReceiptContract=');
-const mainEnds = [
-  main.indexOf("const MTKtinrelayClient=", mainStart),
-  main.indexOf("const MTKtinrelayOutgoingContract=", mainStart),
-  main.indexOf("var mQ=i.i(`electron-message-handler`)", mainStart),
-  main.indexOf("var pQ=i.i(`electron-message-handler`)", mainStart),
-  main.indexOf("var fQ=i.i(`electron-message-handler`)", mainStart)
-].filter(index => index > mainStart);
-assert.ok(mainEnds.length >= 1, "localized durable receipt main helper");
-const mainHelper = main.slice(mainStart, Math.min(...mainEnds));
+const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/);
+assert.ok(mainOwner != null && mainOwner.index > 0, "localized durable receipt main helper");
+const mainHelper = main.slice(mainStart, mainStart + mainOwner.index);
 assert.ok(mainHelper.includes('process.platform==="win32"||(e.mode&63)===0'),
   "Windows relies on its inherited user-data ACL instead of unavailable POSIX mode bits");
 const mainHandlerStart = main.indexOf("case`mtk-outbound-receipt-remember`:");
@@ -533,6 +528,9 @@ process.stdout.write(`${JSON.stringify({
 }, null, 2)}\n`);
 
 function evaluateReceiptReactBinding(expression) {
+  if (expression === "Db") return undefined;
+  if (/^[$A-Z_a-z][$\w]*$/.test(expression)) return receiptReact;
+  if (/^[$A-Z_a-z][$\w]*\(\)$/.test(expression)) return receiptReact;
   const wrapped = expression.match(/^(?<wrap>[$A-Z_a-z][$\w]*)\((?<factory>[$A-Z_a-z][$\w]*)\(\),1\)$/);
   if (wrapped) {
     return Function(wrapped.groups.wrap, wrapped.groups.factory, `return (${expression})`)(

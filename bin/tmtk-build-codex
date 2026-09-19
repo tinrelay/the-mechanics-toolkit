@@ -1,0 +1,33 @@
+#!/usr/bin/env node
+import fs from "node:fs";
+import path from "node:path";
+import {spawnSync} from "node:child_process";
+
+const [checkout, ...extra] = process.argv.slice(2);
+if (checkout == null || extra.length !== 0) {
+  fail("usage: tmtk-build-codex CODEX_CHECKOUT", 2);
+}
+
+const codexRs = path.join(path.resolve(checkout), "codex-rs");
+if (!fs.existsSync(path.join(codexRs, "Cargo.toml"))) {
+  fail(`tmtk-build-codex: no codex-rs/Cargo.toml under ${path.resolve(checkout)}`, 1);
+}
+
+const env = {...process.env};
+env.CARGO_PROFILE_RELEASE_LTO ??= "off";
+process.stderr.write(
+  `tmtk-build-codex: CARGO_PROFILE_RELEASE_LTO=${env.CARGO_PROFILE_RELEASE_LTO}\n`
+);
+
+const result = spawnSync("cargo", ["build", "--release", "--bin", "codex"], {
+  cwd: codexRs,
+  env,
+  stdio: "inherit"
+});
+if (result.error != null) fail(`tmtk-build-codex: ${result.error.message}`, 1);
+process.exit(result.status ?? 1);
+
+function fail(message, code) {
+  process.stderr.write(`${message}\n`);
+  process.exit(code);
+}

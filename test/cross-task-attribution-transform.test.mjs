@@ -14,9 +14,11 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attribu
 try {
   verifyProfile("generic build 9647", genericInitialFixture(), genericPrimaryFixture(), genericBubbleFixture());
   verifyProfile("Linux build 9647", linuxInitialFixture(), linuxPrimaryFixture(), linuxBubbleFixture());
-  process.stdout.write("cross-task attribution build-9647 transform probe passed\n");
+  verifyProfile("generic build 9922", build9922InitialFixture(), build9922PrimaryFixture(),
+    build9922BubbleFixture(), build9922OwnerFixture());
+  process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
-  function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture) {
+  function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
     const extracted = path.join(scratch, label.replaceAll(" ", "-"));
     const assets = path.join(extracted, "webview/assets");
     fs.mkdirSync(assets, { recursive: true });
@@ -26,7 +28,7 @@ try {
     const bubbleTarget = path.join(assets, "user-message-fixture.js");
     fs.writeFileSync(initialTarget, initialFixture);
     fs.writeFileSync(primaryTarget, primaryFixture);
-    fs.writeFileSync(ownerTarget, ownerFixture());
+    fs.writeFileSync(ownerTarget, ownerSource);
     fs.writeFileSync(bubbleTarget, bubbleFixture);
 
     assert.equal(runToolkit("check", extracted).state, "needs-apply");
@@ -93,6 +95,36 @@ function linuxPrimaryFixture() {
   ].join("");
 }
 
+function build9922InitialFixture() {
+  return [
+    "const $=Symbol(`scope`),qp=Symbol(`context`),React={useContext(){},useRef(){}};",
+    "function xf(e){let t=React.useContext(qp),n=React.useRef(null);return{get queryClient(){return t},get(){},watch(){}}}",
+    "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),n=`sidebarElectron.recentChats`;return n}",
+    "function cyc({hasConversation:e,liveTitle:t,localTitle:n,summaryTitle:r}){return e?n??r:null}",
+    "var uyc;function dyc(){return(dyc=n((()=>{uyc=uf($,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null,summaryTitle:null},r=null;return cyc({...n,localTitle:r})})})))()}",
+    "export{xf as kmn,$ as Bpn,uyc as fm};"
+  ].join("");
+}
+
+function build9922PrimaryFixture() {
+  return "const noop=true;export{noop as z};";
+}
+
+function build9922OwnerFixture() {
+  return [
+    'import{z as P}from"./app-primary-fixture.js";',
+    'import{kmn as _c,Bpn as Xt}from"./app-initial-fixture.js";',
+    'import{t as pp}from"./user-message-fixture.js";',
+    "const stock={defaultMessage:`Sent by {appName} from another task`};",
+    "function Zv(e){let t=(0,Qv.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,u=c!==void 0&&c,d=i.trim(),f=d.length>0,p=n,m;",
+    "t[5]!==u||t[6]!==r||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==f?(m=f?(0,$v.jsx)(pp,{message:i,sentAtMs:a,collapsedLineCount:ey,compactActions:u,cwd:o,hostId:s,threadId:r}):null,t[5]=u,t[6]=r,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=f,t[12]=m):m=t[12];return m}",
+    "function oy(e){let t=(0,sy.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l=c!==void 0&&c,u=Zi(),d=ii()?`/hotkey-window/thread/${r}`:`/local/${r}`,p,f,m,h;",
+    "t[1]!==f?(p=(0,cy.jsx)(Fmt,{id:`localConversation.codexDelegationUserMessage.app`}),t[1]=p):p=t[1];",
+    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(h=(0,cy.jsx)(Zv,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h):h=t[12];return h}",
+    "export const fixture=true;"
+  ].join("");
+}
+
 function ownerFixture() {
   return [
     'import{title as P}from"./app-primary-fixture.js";',
@@ -122,5 +154,13 @@ function linuxBubbleFixture() {
     "function bt(e){let t=(0,St.c)(152),{message:n,turnId:w,cwd:T,hostId:E}=e,K,G,Ke,q;",
     "if(t[45]!==K||t[46]!==G||t[47]!==Ke){q=(0,Z.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[45]=K,t[46]=G,t[47]=Ke,t[48]=q}return q}",
     "export{bt as t};"
+  ].join("");
+}
+
+function build9922BubbleFixture() {
+  return [
+    "function yt(e){let t=(0,xt.c)(153),{message:r,turnId:C,cwd:w,hostId:T}=e,F,I,K,W,Ke,J,qe;",
+    "if(t[30]!==F||t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke){qe=(0,$.jsx)(`div`,{\"data-user-message-bubble\":!0,className:`max-w-full`}),t[30]=F,t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[49]=J,t[50]=qe}return qe}",
+    "export{yt as t};"
   ].join("");
 }

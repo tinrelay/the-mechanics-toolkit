@@ -33,53 +33,77 @@ process.stdout.write(`${JSON.stringify({
 function inspectState(mainValue, rendererValue) {
   verifyStockContracts(mainValue, rendererValue);
   const profile = safeStartProfile(mainValue);
-  return mainValue.includes(readinessStatement(profile.marker, profile.writer))
+  return mainValue.includes(profile.applied)
     ? "applied"
     : "needs-apply";
 }
 
 function verifyStockContracts(mainValue, rendererValue) {
-  const rendererReady = "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})";
   const profile = safeStartProfile(mainValue);
   const contractFamilies = [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
-    ["development relaunch writer", [`function ${profile.writer}(`]],
-    ["trusted renderer message guard", ["if(!N(t))return;"]]
+    ["development relaunch writer", [`function ${profile.writer}(`]]
   ];
   for (const [label, variants] of contractFamilies) {
     if (variants.reduce((total, contract) => total + count(mainValue, contract), 0) !== 1) {
       throw new Error(`Upstream changed: safe-start ${label} is not unique`);
     }
   }
-  if (count(rendererValue, rendererReady) !== 1) {
+  if (count(mainValue, profile.applied) !== 1 && count(mainValue, profile.before) !== 1) {
+    throw new Error("Upstream changed: safe-start renderer ready handler is not unique");
+  }
+  if (count(rendererValue, profile.rendererReady) !== 1) {
     throw new Error("Upstream changed: safe-start renderer readiness contract is not recognized");
   }
 }
 
 function patchMain(value) {
-  const {marker, writer} = safeStartProfile(value);
+  const profile = safeStartProfile(value);
   return replaceOnce(
     value,
-    "if(!N(t))return;",
-    readinessStatement(marker, writer),
-    "trusted stock renderer readiness message"
+    profile.before,
+    profile.applied,
+    "stock renderer readiness message"
   );
 }
 
 function safeStartProfile(value) {
-  const marker = "vae";
-  if (count(value, `${marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) !== 1) {
+  const markers = ["vae", "ece"].filter(marker =>
+    count(value, `${marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``) === 1
+  );
+  if (markers.length !== 1) {
     throw new Error("Upstream changed: safe-start relaunch marker environment is not unique");
   }
+  const [marker] = markers;
   const match = [...value.matchAll(new RegExp(
     `function (?<writer>[$A-Z_a-z][$\\w]*)\\(\\{markerPath:e=process\\.env\\[${marker}\\]\\?\\.trim\\(\\),writeMarker:t=`, "g"
   ))];
   if (match.length !== 1) throw new Error("Upstream changed: safe-start relaunch writer is not unique");
-  return {marker, writer: match[0].groups.writer};
+  const writer = match[0].groups.writer;
+  const action = readinessAction(marker, writer);
+  const profiles = [
+    {
+      before: "if(!N(t))return;",
+      applied: `if(!N(t))return;s.type===\`ready\`&&${action};`,
+      rendererReady: "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
+    },
+    {
+      before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{${action};this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})"
+    }
+  ].filter(profile => {
+    const appliedCount = count(value, profile.applied);
+    return appliedCount === 1 || appliedCount === 0 && count(value, profile.before) === 1;
+  });
+  if (profiles.length !== 1) {
+    throw new Error("Upstream changed: safe-start renderer ready handler is not unique");
+  }
+  return {marker, writer, ...profiles[0]};
 }
 
-function readinessStatement(marker, writer) {
-  return "if(!N(t))return;s.type===`ready`&&(()=>{" +
+function readinessAction(marker, writer) {
+  return "(()=>{" +
     "let e=process.argv.filter(e=>e.startsWith(`--tmtk-safe-start-marker=`));" +
     "if(e.length===1){let t=Buffer.from(e[0].slice(`--tmtk-safe-start-marker=`.length)," +
     "`base64url`).toString(`utf8`),r=(process.env.USERPROFILE+" +
@@ -87,7 +111,7 @@ function readinessStatement(marker, writer) {
     "n=i.slice(r.length).split(`\\\\`);" +
     `i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])&&` +
     `n[1]===\`renderer.ready\`&&(process.env[${marker}]=t)}` +
-    `${writer}()})();`;
+    `${writer}()})()`;
 }
 
 function uniqueAsset(directory, pattern) {

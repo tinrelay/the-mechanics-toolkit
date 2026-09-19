@@ -62,6 +62,32 @@ try {
   assert.equal(run("apply", extracted).state, "applied");
   assert.deepEqual(fs.readFileSync(main), once[0]);
   assert.deepEqual(fs.readFileSync(renderer), once[1]);
+
+  const currentExtracted = path.join(scratch, "current-extracted");
+  const currentBuild = path.join(currentExtracted, ".vite/build");
+  const currentAssets = path.join(currentExtracted, "webview/assets");
+  fs.mkdirSync(currentBuild, {recursive: true});
+  fs.mkdirSync(currentAssets, {recursive: true});
+  const currentMain = path.join(currentBuild, "main-current.js");
+  const currentRenderer = path.join(currentAssets, "app-initial-current.js");
+  fs.writeFileSync(currentMain, "var ece=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
+    "globalThis.__handler=null;function ace({markerPath:e=process.env[ece]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
+    "class Owner{async handleMessage(e,t){switch(t.type){case`ready`:{this.windowManager.markWebContentsReady(e),globalThis.__ready=true;break}case`other`:break}}}" +
+    "let owner=new Owner;owner.windowManager={markWebContentsReady(){}};await owner.handleMessage(null,{type:`ready`});" +
+    "process.stdout.write(globalThis.__marker??``)");
+  fs.writeFileSync(currentRenderer,
+    "const Dr={dispatchMessage(){}};function qTl(){Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})}");
+  assert.equal(run("check", currentExtracted).state, "needs-apply");
+  assert.equal(run("apply", currentExtracted).state, "applied");
+  const currentOnce = fs.readFileSync(currentMain);
+  const currentReady = spawnSync(process.execPath, [currentMain], {
+    encoding: "utf8",
+    env: {...process.env, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: "/tmp/renderer.ready"}
+  });
+  assert.equal(currentReady.status, 0, currentReady.stderr || currentReady.stdout);
+  assert.equal(currentReady.stdout, "/tmp/renderer.ready");
+  assert.equal(run("apply", currentExtracted).state, "applied");
+  assert.deepEqual(fs.readFileSync(currentMain), currentOnce);
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

@@ -1,0 +1,20 @@
+export const build9922 = {
+  name: "build-9922",
+  suffix: "9922",
+  react: "WVc",
+  jsx: "Z5",
+  intl: "Ir",
+  projects: "j3.projects",
+  ownerBefore: "function zVc(e){let t=(0,UVc.c)(181),",
+  ownerAfter: "function zVc(e){let t=(0,UVc.c)(182),",
+  stateBefore: "{desktopNavItemsEnabled:n,sidebarTriggerState:r,contextualNavigation:i}=e,",
+  destinationBefore: "t[58];let Ne=Me.length>0",
+  destinationAfter: "t[58];Me=MTKsidebarCollapsedDestinations9922(MTKsidebarActionsCollapsed,Me,j3.projects);let Ne=Me.length>0",
+  headerBefore: "(!A||j)&&Te===`header_icon`?(0,Z5.jsx)(fhc,{sidebarMode:he}):null]})",
+  headerAfter: "(!A||j)&&Te===`header_icon`?(0,Z5.jsx)(fhc,{sidebarMode:he}):null,(0,Z5.jsx)(MTKsidebarActionDisclosure9922,{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})]})",
+  actionBefore: "(0,Z5.jsx)(Xmc,{showCustomizeSidebarAction:Re,sidebarMode:he,showSearchNavItem:!1})",
+  memoBefore: "t[108]!==g||t[109]!==b||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he?(",
+  memoAfter: "t[108]!==g||t[109]!==b||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he||t[181]!==MTKsidebarActionsCollapsed?(",
+  assignmentBefore: "t[108]=g,t[109]=b,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[120]=Xe):Xe=t[120]",
+  assignmentAfter: "t[108]=g,t[109]=b,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[181]=MTKsidebarActionsCollapsed,t[120]=Xe):Xe=t[120]"
+};

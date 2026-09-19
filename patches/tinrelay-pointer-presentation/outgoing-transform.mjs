@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { incomingBuild9922 } from "./profiles/build9922.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -597,7 +598,7 @@ function patchAssistantPresentations(value, turnValue, profile) {
       "Tinrelay outgoing turn presentation import"
     );
     const stagedReceipts = [...turnValue.matchAll(
-      /(?<call>\$\(`mtk-outbound-turn-receipts`,\(0,(?<jsx>[$A-Z_a-z][$\w]*)\.jsx\)\(MTKOutboundTurnReceipts,\{conversationId:(?<conversationId>[$A-Z_a-z][$\w]*),turnId:(?<turnId>[$A-Z_a-z][$\w]*)\}\),\{canOwnLatestTurnFollowContent:!1\}\));(?<boundary>let [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.length,[$A-Z_a-z][$\w]*=\{)/g
+      /(?<call>(?<register>[$A-Z_a-z][$\w]*)\(`mtk-outbound-turn-receipts`,\(0,(?<jsx>[$A-Z_a-z][$\w]*)\.jsx\)\(MTKOutboundTurnReceipts,\{conversationId:(?<conversationId>[$A-Z_a-z][$\w]*),turnId:(?<turnId>[$A-Z_a-z][$\w]*)\}\),\{canOwnLatestTurnFollowContent:!1\}\));(?<boundary>let [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.length,[$A-Z_a-z][$\w]*=\{)/g
     )];
     if (stagedReceipts.length > 1) throw new Error("Upstream changed: post-user outbound receipt boundary is ambiguous");
     if (stagedReceipts.length === 1) {
@@ -606,7 +607,7 @@ function patchAssistantPresentations(value, turnValue, profile) {
       turnValue = replaceOnce(
         turnValue,
         stagedReceipt[0],
-        `${stagedReceipt.groups.call};$(\`mtk-tinrelay-outgoing-turn\`,(0,${stagedReceipt.groups.jsx}.jsx)(MTKtinrelayOutgoingTurnPresentations,{conversationId:${stagedReceipt.groups.conversationId},turnId:${stagedReceipt.groups.turnId},turnFinished:${turnFinished}}),{canOwnLatestTurnFollowContent:!1});${stagedReceipt.groups.boundary}`,
+        `${stagedReceipt.groups.call};${stagedReceipt.groups.register}(\`mtk-tinrelay-outgoing-turn\`,(0,${stagedReceipt.groups.jsx}.jsx)(MTKtinrelayOutgoingTurnPresentations,{conversationId:${stagedReceipt.groups.conversationId},turnId:${stagedReceipt.groups.turnId},turnFinished:${turnFinished}}),{canOwnLatestTurnFollowContent:!1});${stagedReceipt.groups.boundary}`,
         "Tinrelay outgoing presentation after the user request and before activity"
       );
       return {rendererSource: value, turnSource: turnValue};
@@ -672,12 +673,24 @@ function mainHelperSlice(source) {
 function mainHelperOwner(source) {
   return uniqueMatch(
     source,
-    /var [$A-Z_a-z][$\w]*=i\.i\(`electron-message-handler`\)/g,
+    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/g,
     "Tinrelay outgoing main helper owner"
   )[0];
 }
 
 function resolveHostBus(source) {
+  if (source.includes(incomingBuild9922.moduleAfter)) {
+    const imported = uniqueMatch(
+      source,
+      new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(incomingBuild9922.hostBus.module)}[^"]+\\.js)";`, "g"),
+      "build-9922 host-bus import"
+    );
+    return uniqueMatch(
+      imported.groups.specifiers,
+      new RegExp(`(?:^|,)${escapeRegExp(incomingBuild9922.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
+      "build-9922 host-bus binding"
+    ).groups.local;
+  }
   const busImports = [...source.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/message-bus-[^"]+\.js)";/g)];
   if (busImports.length === 1) {
     const busSource = fs.readFileSync(path.resolve(path.dirname(renderer), busImports[0].groups.relative), "utf8");
@@ -693,6 +706,11 @@ function resolveHostBus(source) {
 }
 
 function rendererProfile(source) {
+  if (source.includes(`function ${incomingBuild9922.message}(`) &&
+      source.includes(`function ${incomingBuild9922.delegation}(`) &&
+      source.includes(incomingBuild9922.moduleAfter)) {
+    return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
+  }
   if (source.includes("function CS(") && source.includes("function MS(") && source.includes("MTKtinrelayReact=t(r(),1)")) {
     return {jsx: "TS", boundary: "function MS(", splitTurn: turnRenderer != null};
   }

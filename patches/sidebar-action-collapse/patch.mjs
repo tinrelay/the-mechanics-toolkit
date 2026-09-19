@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922 } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -45,17 +46,21 @@ function inspectState(value) {
     "t[133]=MTKsidebarActionsCollapsed,t[92]=Ne"
   ];
   const linuxMarkers = linuxBuild9647.applied;
+  const build9922Markers = appliedMarkers(build9922);
   const genericPresent = genericMarkers.map(marker => value.includes(marker));
   const linuxPresent = linuxMarkers.map(marker => value.includes(marker));
+  const build9922Present = build9922Markers.map(marker => value.includes(marker));
   if (genericPresent.every(Boolean)) return "applied";
   if (linuxPresent.every(Boolean)) return "applied";
-  if (genericPresent.some(Boolean) || linuxPresent.some(Boolean)) {
+  if (build9922Present.every(Boolean)) return "applied";
+  if (genericPresent.some(Boolean) || linuxPresent.some(Boolean) || build9922Present.some(Boolean)) {
     throw new Error("Unrecognized build-9647 sidebar collapse patch: partial markers");
   }
   const genericPristine = current9647Contracts().every(contract => value.includes(contract));
   const linuxPristine = linuxBuild9647.contracts.every(contract => value.includes(contract));
-  if (genericPristine === linuxPristine) {
-    throw new Error(`Upstream changed: found ${Number(genericPristine) + Number(linuxPristine)} build-9647 sidebar ownership profiles`);
+  const build9922Pristine = contracts(build9922).every(contract => value.includes(contract));
+  if (Number(genericPristine) + Number(linuxPristine) + Number(build9922Pristine) !== 1) {
+    throw new Error(`Upstream changed: found ${Number(genericPristine) + Number(linuxPristine) + Number(build9922Pristine)} sidebar ownership profiles`);
   }
   return "needs-apply";
 }
@@ -63,7 +68,40 @@ function inspectState(value) {
 function patchSource(value) {
   if (current9647Contracts().every(contract => value.includes(contract))) return patch9647(value);
   if (linuxBuild9647.contracts.every(contract => value.includes(contract))) return patchLinux9647(value);
-  throw new Error("Upstream changed: missing build-9647 sidebar ownership contract");
+  if (contracts(build9922).every(contract => value.includes(contract))) return patchProfile(value, build9922);
+  throw new Error("Upstream changed: missing qualified sidebar ownership contract");
+}
+
+function contracts(profile) {
+  return [profile.ownerBefore, profile.stateBefore, profile.destinationBefore, profile.headerBefore,
+    profile.actionBefore, profile.memoBefore, profile.assignmentBefore];
+}
+
+function appliedMarkers(profile) {
+  return [
+    'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"',
+    `function MTKuseSidebarActionCollapse${profile.suffix}()`,
+    `function MTKsidebarActionDisclosure${profile.suffix}(`,
+    `function MTKsidebarCollapsedDestinations${profile.suffix}(`,
+    profile.ownerAfter,
+    `[MTKsidebarActionsCollapsed,MTKtoggleSidebarActions]=MTKuseSidebarActionCollapse${profile.suffix}()`,
+    `MTKsidebarCollapsedDestinations${profile.suffix}(MTKsidebarActionsCollapsed,Me,${profile.projects})`,
+    `MTKsidebarActionsCollapsed?null:${profile.actionBefore}`,
+    `(0,${profile.jsx}.jsx)(MTKsidebarActionDisclosure${profile.suffix},{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})`,
+    "t[181]!==MTKsidebarActionsCollapsed",
+    "t[181]=MTKsidebarActionsCollapsed"
+  ];
+}
+
+function patchProfile(value, profile) {
+  const helper = `const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1";function MTKreadSidebarActionsCollapsed${profile.suffix}(){try{return localStorage.getItem(MTK_SIDEBAR_ACTIONS_STORAGE_KEY)==="1"}catch{return!1}}function MTKuseSidebarActionCollapse${profile.suffix}(){let[e,t]=(0,${profile.react}.useState)(MTKreadSidebarActionsCollapsed${profile.suffix});return ${profile.react}.useEffect(()=>{let e=e=>{e.key===MTK_SIDEBAR_ACTIONS_STORAGE_KEY&&t(MTKreadSidebarActionsCollapsed${profile.suffix}())};return addEventListener("storage",e),()=>removeEventListener("storage",e)},[]),[e,${profile.react}.useCallback(()=>{t(e=>{let t=!e;try{localStorage.setItem(MTK_SIDEBAR_ACTIONS_STORAGE_KEY,t?"1":"0")}catch{}return t})},[])]}function MTKsidebarCollapsedDestinations${profile.suffix}(e,t,n){return e?t.filter(e=>e.id===n):t}function MTKsidebarActionDisclosure${profile.suffix}({collapsed:e,onToggle:t}){let n=${profile.intl}(),r=n.formatMessage(e?{id:"sidebarElectron.globalActions.show",defaultMessage:"Show navigation actions",description:"Accessible label for expanding the sidebar navigation action group"}:{id:"sidebarElectron.globalActions.hide",defaultMessage:"Hide navigation actions",description:"Accessible label for collapsing the sidebar navigation action group"});return(0,${profile.jsx}.jsx)("button",{type:"button",title:r,"aria-label":r,"aria-expanded":!e,className:"flex size-8 items-center justify-center rounded-md text-secondary hover:bg-tertiary hover:text-primary cursor-pointer",onClick:t,children:(0,${profile.jsx}.jsx)("svg",{"aria-hidden":!0,className:"icon-xs transition-transform "+(e?"":"rotate-90"),viewBox:"0 0 16 16",fill:"none",children:(0,${profile.jsx}.jsx)("path",{d:"M6 3.5 10.5 8 6 12.5",stroke:"currentColor",strokeWidth:1.5,strokeLinecap:"round",strokeLinejoin:"round"})})})}`;
+  let patched = replaceOnce(value, profile.ownerBefore, `${helper}${profile.ownerAfter}`, `${profile.name} sidebar owner`);
+  patched = replaceOnce(patched, profile.stateBefore, `${profile.stateBefore}[MTKsidebarActionsCollapsed,MTKtoggleSidebarActions]=MTKuseSidebarActionCollapse${profile.suffix}(),`, `${profile.name} sidebar state`);
+  patched = replaceOnce(patched, profile.destinationBefore, profile.destinationAfter, `${profile.name} destination projection`);
+  patched = replaceOnce(patched, profile.headerBefore, profile.headerAfter, `${profile.name} header disclosure`);
+  patched = replaceOnce(patched, profile.actionBefore, `MTKsidebarActionsCollapsed?null:${profile.actionBefore}`, `${profile.name} action block`);
+  patched = replaceOnce(patched, profile.memoBefore, profile.memoAfter, `${profile.name} memo dependency`);
+  return replaceOnce(patched, profile.assignmentBefore, profile.assignmentAfter, `${profile.name} memo assignment`);
 }
 
 function current9647Contracts() {
@@ -116,8 +154,10 @@ function uniqueOwnershipAsset() {
       const value = fs.readFileSync(path.join(assets, name), "utf8");
       return current9647Contracts().every(contract => value.includes(contract)) ||
         linuxBuild9647.contracts.every(contract => value.includes(contract)) ||
+        contracts(build9922).every(contract => value.includes(contract)) ||
         value.includes("function MTKuseSidebarActionCollapse9647()") ||
-        value.includes(`function MTKuseSidebarActionCollapse${linuxBuild9647.suffix}()`);
+        value.includes(`function MTKuseSidebarActionCollapse${linuxBuild9647.suffix}()`) ||
+        value.includes(`function MTKuseSidebarActionCollapse${build9922.suffix}()`);
     });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} sidebar ownership assets`);
   return path.join(assets, matches[0]);

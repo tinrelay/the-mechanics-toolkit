@@ -44,6 +44,16 @@ try {
   assert.equal(runToolkit("apply", scratch).state, "applied");
   assert.deepEqual(fs.readFileSync(target), linuxOnce, "Linux second application is byte-identical");
   process.stdout.write("sidebar action collapse Linux build-9647 transform probe passed\n");
+
+  fs.writeFileSync(target, build9922FixtureSource());
+  assert.equal(runToolkit("check", scratch).state, "needs-apply");
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  const build9922Once = fs.readFileSync(target);
+  const build9922Probe = spawnSync(process.execPath, [behavioralProbe, scratch], { encoding: "utf8" });
+  assert.equal(build9922Probe.status, 0, build9922Probe.stderr || build9922Probe.stdout);
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  assert.deepEqual(fs.readFileSync(target), build9922Once, "build-9922 second application is byte-identical");
+  process.stdout.write("sidebar action collapse build-9922 transform probe passed\n");
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
@@ -89,5 +99,16 @@ function linux9647FixtureSource() {
     "{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}",
     "];",
     "export const fixture=true;"
+  ].join("");
+}
+
+function build9922FixtureSource() {
+  return [
+    "function zVc(e){let t=(0,UVc.c)(181),Xe=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r,contextualNavigation:i}=e,placeholder=0;",
+    "let Me=[];t[58];let Ne=Me.length>0;",
+    '(0,Z5.jsxs)(Z5.Fragment,{children:[(0,Z5.jsx)(Q5s,{}),(0,Z5.jsx)(g7s,{showCustomizeSidebarAction:Re,children:(0,Z5.jsx)(pfc,{})}),(!A||j)&&Te===`header_icon`?(0,Z5.jsx)(fhc,{sidebarMode:he}):null]});',
+    '(0,Z5.jsx)(Xmc,{showCustomizeSidebarAction:Re,sidebarMode:he,showSearchNavItem:!1});',
+    "t[108]!==g||t[109]!==b||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he?(Xe=1,t[108]=g,t[109]=b,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[120]=Xe):Xe=t[120];return Xe}",
+    "const labels=[{defaultMessage:`New chat`},{defaultMessage:`Pull requests`},{defaultMessage:`Sites`},{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}];"
   ].join("");
 }

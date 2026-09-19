@@ -90,6 +90,7 @@ function ownerFor(profile, defaultAuthorizer) {
 
 function ownershipProfile(value) {
   const profiles = [
+    { owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce", addon: "i" },
     { owner: "Tse", authorizer: "Dl", envConst: "vse", addonConst: "yse", addon: "i" },
     { owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie", addon: "i" },
     { owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie", addon: "i" },

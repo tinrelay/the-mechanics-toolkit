@@ -92,6 +92,17 @@ export function confirmTaskHandoff({
   return implementation(platform).confirmTaskHandoff({processRunner, iconFile, environment});
 }
 
+export function notifyCandidatePreparation({
+  platform = process.platform,
+  processRunner = undefined,
+  environment = undefined
+} = {}) {
+  const selected = implementation(platform);
+  return typeof selected.notifyCandidatePreparation === "function"
+    ? selected.notifyCandidatePreparation({processRunner, environment})
+    : {shown: false, reason: "unsupported"};
+}
+
 export function diagnosticLocations(home, platform = process.platform, app = undefined) {
   return implementation(platform).diagnosticLocations(home, {app});
 }

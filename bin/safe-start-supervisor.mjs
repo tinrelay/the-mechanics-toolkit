@@ -14,6 +14,7 @@ import {
   finishRescueTerminalClosure,
   launchApplication,
   launchSupervisor,
+  notifyCandidatePreparation,
   openRescueTerminal,
   releaseApplicationLaunch,
   replaceApplicationWithVerifiedSource,
@@ -238,6 +239,15 @@ async function supervise(stateFile, {
         invokingCliExitObserved: true,
         invokingCliExitedAt: new Date().toISOString()
       });
+    }
+
+    if (configuration.candidate != null && state.candidateInstalled !== true &&
+        state.candidateAdoptionDisabled !== true) {
+      save({phase: "preparing-candidate"});
+      const preparationNotification = notifyCandidatePreparation({
+        platform: configuration.platform
+      });
+      save({preparationNotification});
     }
 
     save({phase: "waiting-for-codex-state-quiescence"});

@@ -18,7 +18,7 @@ assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
 const externalBubbleImport = source.match(
-  /import\{[^}]*\bt as uh[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
+  /import\{[^}]*\bt as [$A-Z_a-z][$\w]*[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
 );
 const completeSource = externalBubbleImport?.groups?.relative == null
   ? source
@@ -49,7 +49,7 @@ const capturedStore = uniqueMatch(
 ).groups;
 const titleImport = uniqueMatch(
   source,
-  /import\{(?<specifiers>[^}]*MTKtitleAtom[^}]*)\}from"(?<relative>\.\/app-primary-[^"]+\.js)";/g,
+  /import\{(?<specifiers>[^}]*MTKtitleAtom[^}]*)\}from"(?<relative>\.\/app-(?:primary|initial)-[^"]+\.js)";/g,
   "title atom import"
 ).groups;
 const titleOwner = fs.readFileSync(path.resolve(path.dirname(ownerPath), titleImport.relative), "utf8");
@@ -60,6 +60,9 @@ if (titleInternal === linuxSelector.internal &&
     titleOwner.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {
   assert.ok(titleOwner.includes(`${linuxSelector.helper}({...n,localTitle:r})`),
     "Linux build-9647 title atom retains its stock selector owner");
+} else if (titleInternal === "uyc" && titleOwner.includes("uyc=uf($,")) {
+  assert.ok(titleOwner.includes("cyc({...n,localTitle:r})"),
+    "build-9922 title atom retains its stock selector owner");
 } else {
   assert.match(titleOwner, new RegExp(`${escapeRegExp(titleInternal)}=(?:iS|wx|Rt)\\(`),
     "shared build-9647 title atom retains its stock selector factory");
@@ -85,7 +88,8 @@ const scopeInternal = exportedInternal(appInitial, importedExport(initialImport.
 const storeFunction = functionSource(appInitial, storeInternal);
 assert.ok(storeFunction.includes(".useContext") && storeFunction.includes(".useRef") &&
   storeFunction.includes("get queryClient"), "metadata uses the stock renderer store hook");
-assert.equal(scopeInternal, "Q", "metadata uses the stock renderer store scope");
+assert.equal(scopeInternal, titleInternal === "uyc" ? "$" : "Q",
+  "metadata uses the stock renderer store scope");
 
 for (const contract of [
   "MTKstore.get(MTKtitleAtom,{hostId:",

@@ -13,13 +13,15 @@ const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-bl
 const source = readAsset(appInitial);
 const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
-const rootBoundaries = [...source.matchAll(/function PYs\(\)\{/g)]
-  .map(match => match.index)
-  .filter(index => index > helperStart);
-assert.equal(rootBoundaries.length, 1, "unique build-9647 application root");
-const rootBoundary = rootBoundaries[0];
-const rootOwnerEnd = source.indexOf("let e=(0,LYs.c)(12),", rootBoundary);
-assert.ok(rootOwnerEnd > rootBoundary, "build-9647 application root owner");
+const rootProfiles = [
+  {start: "function PYs(){", owner: "let e=(0,LYs.c)(12),"},
+  {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"}
+].map(profile => ({...profile, index: source.indexOf(profile.start, helperStart)}))
+  .filter(profile => profile.index >= 0);
+assert.equal(rootProfiles.length, 1, "unique qualified application root");
+const rootBoundary = rootProfiles[0].index;
+const rootOwnerEnd = source.indexOf(rootProfiles[0].owner, rootBoundary);
+assert.ok(rootOwnerEnd > rootBoundary, "qualified application root owner");
 const rootBootstrap = source.slice(rootBoundary, rootOwnerEnd);
 assert.equal(count(rootBootstrap, "MTKuseAgentRoster();"), 1, "agent roster bootstrap is composed once");
 assert.equal(count(rootBootstrap, "MTKusePaletteBootstrap();"), 1, "palette bootstrap is composed once");
@@ -33,7 +35,7 @@ const attentionBoundary = attentionBoundaries.length === 0 ? -1 : Math.min(...at
 const helperEnd = attentionBoundary >= 0 && attentionBoundary < rootBoundary ? attentionBoundary : rootBoundary;
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "palette helper seam");
 const helper = source.slice(helperStart, helperEnd);
-assert.equal(rosterConsumer, true, "build-9647 palette uses the shared agent roster");
+assert.equal(rosterConsumer, true, "palette uses the shared agent roster");
 await testRosterConsumer(helper, source);
 process.stdout.write("task visual palette roster behavioral probe passed\n");
 function uniqueAsset(pattern, marker = null) {

@@ -62,7 +62,7 @@ function mainProfile(value) {
   const id = "[$A-Z_a-z][$\\w]*";
   const helperOwner = uniqueMatch(
     value,
-    new RegExp("var " + id + "=i\\.i\\(`electron-message-handler`\\)", "g"),
+    new RegExp("var " + id + "=" + id + "\\.i\\(`electron-message-handler`\\)", "g"),
     "Codex observability main helper owner"
   );
   const startup = uniqueMatch(

@@ -13,6 +13,7 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-native-
 
 try {
   for (const profile of [
+    {owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce"},
     {owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie"},
     {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"}
   ]) {

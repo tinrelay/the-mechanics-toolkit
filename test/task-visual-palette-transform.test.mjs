@@ -91,6 +91,7 @@ try {
   for (const [index, file] of [initialTarget, primaryTarget, localTarget, delegationTarget].entries()) {
     assert.deepEqual(fs.readFileSync(file), once[index], `${path.basename(file)} second application is byte-identical`);
   }
+  testBuild9922Transform();
   process.stdout.write("task visual palette build-9647 transform probe passed\n");
 
   function runRoster(action) {
@@ -106,6 +107,42 @@ try {
   }
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});
+}
+
+function testBuild9922Transform() {
+  const extracted = path.join(scratch, "build-9922-extracted");
+  const assets = path.join(extracted, "webview/assets");
+  fs.mkdirSync(assets, {recursive: true});
+  const targets = [
+    path.join(assets, "app-initial-fixture.js"),
+    path.join(assets, "app-primary-fixture.js"),
+    path.join(assets, "local-conversation-page-fixture.js"),
+    path.join(assets, "conversation-blocks-fixture.js")
+  ];
+  fs.writeFileSync(targets[0], build9922InitialFixture());
+  fs.writeFileSync(targets[1], build9922PrimaryFixture());
+  fs.writeFileSync(targets[2], build9922LocalFixture());
+  fs.writeFileSync(targets[3], build9922DelegationFixture());
+  fs.writeFileSync(path.join(assets, "message-bus-fixture.js"),
+    "globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:2});export const fixture=true;");
+
+  const roster = spawnSync(process.execPath, [rosterPatch, "apply", extracted], {encoding: "utf8"});
+  assert.equal(roster.status, 0, roster.stderr || roster.stdout);
+  const check = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", "check", extracted], {encoding: "utf8"});
+  assert.equal(check.status, 0, check.stderr || check.stdout);
+  assert.equal(JSON.parse(check.stdout).state, "needs-apply");
+  const apply = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", "apply", extracted], {encoding: "utf8"});
+  assert.equal(apply.status, 0, apply.stderr || apply.stdout);
+  assert.equal(JSON.parse(apply.stdout).state, "applied");
+  const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
+  assert.equal(probe.status, 0, probe.stderr || probe.stdout);
+  const once = targets.map(file => fs.readFileSync(file));
+  const again = spawnSync(process.execPath, [toolkit, "patch", "task-visual-palette", "apply", extracted], {encoding: "utf8"});
+  assert.equal(again.status, 0, again.stderr || again.stdout);
+  assert.equal(JSON.parse(again.stdout).state, "applied");
+  for (const [index, file] of targets.entries()) {
+    assert.deepEqual(fs.readFileSync(file), once[index], `${path.basename(file)} build-9922 second application is byte-identical`);
+  }
 }
 
 function initialFixture() {
@@ -157,6 +194,58 @@ function delegationFixture() {
     "function CS(e){let t=(0,wS.c)(17),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l,messageBubbleStyle:MTKbubbleStyleOverride}=e,f=true,u=c,m,p,h;",
     "m=f?(0,TS.jsx)(bt,{message:i,sentAtMs:a,collapsedLineCount:ES,compactActions:u,cwd:o,hostId:s,threadId:r,messageBubbleStyle:MTKbubbleStyleOverride}):null;",
     "t[13]!==p||t[14]!==m?(h=(0,TS.jsxs)(`div`,{className:`flex w-full flex-col items-end justify-end gap-1`,children:[p,m]}),t[13]=p,t[14]=m,t[15]=h):h=t[15];return h}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build9922InitialFixture() {
+  return [
+    "const $=Symbol(`scope`),woi=sf($,({get:e})=>e),tp=rf($,()=>null);",
+    "const Gvl={useEffect(){}},xf=e=>e;",
+    "function store(){let a={},i={current:null};function o(){}function s(){}function c(){}function l(){}",
+    "a.get=o,a.query=Ggt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
+    "function ep(e,t){let n=e.get(tp);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),value=0;return e}",
+    "function nSc({scope:e,target:t,actions:n,onRename:r,onArchive:i,x}){let h=t.conversationId,T=!1;return {archive:T?void 0:{id:`archive-thread`,message:void 0,onSelect:()=>{i()}}}}",
+    "function ySc({items:e,onArchive:t,onSelect:n,selectedThreadKeys:r,threadKey:i}){return r.length<2?e:e.filter(e=>e.id!==`rename-thread`)}",
+    "function QSc(e){let t=(0,eCc.c)(154),x=0,g=0,w=0,n=`task`,S=!1,T={get(){return null}},r=`row`,nt=null;let rt=ct(nt),it;",
+    "t[71]!==x?(it=e=>ySc({items:[],onArchive:null,onSelect:null,selectedThreadKeys:Lhc(T,r),threadKey:r}),t[88]=w,t[89]=it):it=t[89];",
+    "let at=ct(it),ot=S&&x,st;t[90]!==n?(st={archive:t!=null&&(Fe||V)?Ve:t,getMenuItems:null},t[100]=ot,t[101]=st):st=t[101];return st}",
+    "function cCc(e){let t=(0,uCc.c)(89),ke=!0,pe=`task`,Re=()=>{},F=[],I=void 0,de={query:{snapshot(){return{getData(){return null}}}}},L=null;let Je=ke?Re:null;let nt;",
+    "t[78]!==ke?(nt=()=>{let e=[...F??[],...I?.()??[]];if(ke&&e.push({id:`archive-task`,message:null,onSelect:Re}));return e},t[84]=L,t[85]=nt):nt=t[85];return Je}",
+    "var Xwc,Zwc,X8,Qwc;function $wc(){return($wc=n((()=>{Xwc=G(),Gi(),Q(),Br(),Zwc=X(),X8=K()})))()}",
+    "function Hwc(e){let t=(0,Xwc.c)(178),u=0,ze=0,Ve=0,z=0,B=0,tt=0,Ze=0,ue=0,pe=0,ee=0,r=0,ce=0,l=0,oe=!0,V=0,i=0,g=0,a=0,L=0,I=0,st=0,rt=0,We=0,ae=0,ne={get(){return null}},E=0,$e=0,at=0,U=0,se=0,k=0,D=0,te=0,O=0,me=0,Ye=0,_e=0,ve=0,ge=0,et=(e,t)=>ySc({items:t,onArchive:null,onSelect:null,selectedThreadKeys:Lhc(ne,e),threadKey:e}),dt=()=>{};let ft=dt,pt;",
+    "t[80]!==u?(pt=function(e){let n=1,d=e=>e;return{archive:n,getMenuItems:oe?e=>d([e]):null}},t[113]=O,t[114]=pt):pt=t[114];return pt}",
+    "function ct(e){return e}function Lhc(){return[]}const YF=Symbol();",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build9922PrimaryFixture() {
+  return [
+    "function fade(){return (0,w7.jsx)(`div`,{\"aria-hidden\":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build9922LocalFixture() {
+  return [
+    "function pl(e){let t=(0,bl.c)(99),r=e,G,K,q,ie,ae,oe,se,ce,le,ue,de,fe,pe,me;",
+    "t[79]!==G||t[80]!==K||t[81]!==q||t[82]!==ie||t[83]!==oe||t[84]!==se||t[85]!==ce||t[86]!==le||t[87]!==ue||t[88]!==de||t[89]!==fe||t[90]!==pe?(me=(0,Q.jsxs)(`div`,{ref:N,className:`relative h-full min-h-0`,children:[G,K,q,ie,ae,oe,se,ce,le,ue,de,fe,pe]}),t[79]=G,t[80]=K,t[81]=q,t[82]=ie,t[83]=oe,t[84]=se,t[85]=ce,t[86]=le,t[87]=ue,t[88]=de,t[89]=fe,t[90]=pe,t[91]=me):me=t[91];return me}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build9922DelegationFixture() {
+  return [
+    "var MTKdelegatedBubbleStyle={backgroundColor:`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`};",
+    "function MTKsender(e){return e}function marker(){return messageBubbleStyle=MTKdelegatedBubbleStyle}",
+    "const stock={defaultMessage:`localConversation.codexDelegationUserMessage.app`};",
+    "function oy(e){let t=(0,sy.c)(14),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l=c!==void 0&&c,MTKtitle=`sender`,m,p;",
+    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m||t[13]!==p?(h=(0,cy.jsx)(Zv,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m,messageBubbleStyle:MTKdelegatedBubbleStyle}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h):h=t[12];return h}",
+    "function Zv(e){let t=(0,Qv.c)(17),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l,messageBubbleStyle:MTKbubbleStyleOverride}=e,p,m,h;",
+    "m=(0,$v.jsx)(pp,{message:i,sentAtMs:a,collapsedLineCount:ey,compactActions:c,cwd:o,hostId:s,threadId:r,messageBubbleStyle:MTKbubbleStyleOverride});",
+    "t[13]!==p||t[14]!==m?(h=(0,$v.jsxs)(`div`,{className:`flex w-full flex-col items-end justify-end gap-1`,children:[p,m]}),t[13]=p,t[14]=m,t[15]=h):h=t[15];return h}",
     "export const fixture=true;"
   ].join("");
 }

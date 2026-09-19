@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922Contracts } from "./profiles/build9922.mjs";
 import { linuxBuild9647Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -67,6 +68,7 @@ function verifyOwnedBehavior(value) {
     "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})",
     "[`toggleTerminal`,$wi]"
   ];
+  if (build9922Contracts.every(contract => count(value, contract) === 1)) return;
   if (linuxBuild9647Contracts.every(contract => count(value, contract) === 1)) return;
   if (build9647Contracts.every(contract => count(value, contract) === 1)) return;
   throw new Error("Upstream changed: missing build-9647 terminal toggle contract");

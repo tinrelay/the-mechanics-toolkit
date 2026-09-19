@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922 } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -14,7 +15,9 @@ const assets = path.join(root, "webview/assets");
 const owner = uniqueOwner(source =>
   ((source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke)")) ||
    (source.includes(linuxBuild9647.ownerFunction) &&
-    (source.includes(linuxBuild9647.publicationBefore) || source.includes(linuxBuild9647.appliedPublication)))) &&
+    (source.includes(linuxBuild9647.publicationBefore) || source.includes(linuxBuild9647.appliedPublication))) ||
+   (source.includes(build9922.ownerFunction) &&
+    (source.includes(build9922.publicationBefore) || source.includes(build9922.appliedPublication)))) &&
   source.includes('"data-codex-intelligence-trigger"'),
   "build-9647 composer model owner"
 );
@@ -39,7 +42,8 @@ function inspectState() {
   const markers = [
     source.includes("function MTKinstallModelIdentityGuard("),
     source.includes("function MTKuseModelIdentityGuard("),
-    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)") || source.includes(linuxBuild9647.appliedPublication),
+    source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)") ||
+      source.includes(linuxBuild9647.appliedPublication) || source.includes(build9922.appliedPublication),
     source.includes('data-mtk-model-guard-mismatch'),
     source.includes('content:"BAD MODEL"'),
     source.includes('data-mtk-model-guard-message'),
@@ -49,8 +53,9 @@ function inspectState() {
   if (markers.some(Boolean)) throw new Error("Unrecognized model identity guard patch: partial markers");
   const build9647 = source.includes("function Hcr(e){let t=(0,$cr.c)(242),") && source.includes("Xe=TH(q.reasoningEffort,Ke),Ze=");
   const linuxBuild9647Owner = source.includes(linuxBuild9647.ownerFunction) && source.includes(linuxBuild9647.publicationBefore);
-  if (!build9647 && !linuxBuild9647Owner) {
-    throw new Error("Upstream changed: missing build-9647 model selector contract");
+  const build9922Owner = source.includes(build9922.ownerFunction) && source.includes(build9922.publicationBefore);
+  if (!build9647 && !linuxBuild9647Owner && !build9922Owner) {
+    throw new Error("Upstream changed: missing qualified model selector contract");
   }
   return "needs-apply";
 }
@@ -98,10 +103,12 @@ const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelI
 
 function patchOwner(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
-  if (source.includes(linuxBuild9647.ownerFunction) && source.includes(linuxBuild9647.publicationBefore)) {
-    const helper = modelGuardHelper(roster).replace("S7.useEffect", `${linuxBuild9647.reactAlias}.useEffect`);
-    source = replaceOnce(source, linuxBuild9647.ownerFunction, `${helper}${linuxBuild9647.ownerFunction}`, "Linux build-9647 composer model guard helper");
-    source = replaceOnce(source, linuxBuild9647.publicationBefore, linuxBuild9647.publicationAfter, "Linux build-9647 live model and effort publication");
+  const profile = [linuxBuild9647, build9922].find(candidate =>
+    source.includes(candidate.ownerFunction) && source.includes(candidate.publicationBefore));
+  if (profile != null) {
+    const helper = modelGuardHelper(roster).replace("S7.useEffect", `${profile.reactAlias}.useEffect`);
+    source = replaceOnce(source, profile.ownerFunction, `${helper}${profile.ownerFunction}`, "composer model guard helper");
+    source = replaceOnce(source, profile.publicationBefore, profile.publicationAfter, "live model and effort publication");
   } else {
     const helper = modelGuardHelper(roster).replace("S7.useEffect", "L5.useEffect");
     source = replaceOnce(source, "function Hcr(e){let t=(0,$cr.c)(242),", `${helper}function Hcr(e){let t=(0,$cr.c)(242),`, "build-9647 composer model guard helper");

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { incomingBuild9647 } from "./profiles/linux.mjs";
+import { incomingBuild9922 } from "./profiles/build9922.mjs";
 
 const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.34) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
 
@@ -151,8 +152,7 @@ function inspectAppliedRenderer(source) {
   if (helpers.includes("MTKtinrelayLocalShip")) {
     throw new Error("Tinrelay renderer retains a build-time ship identity");
   }
-  if (!["MTKtinrelayReact=t(x(),1)", "MTKtinrelayReact=t(Wo(),1)", "MTKtinrelayReact=t(ic(),1)", "MTKtinrelayReact=t(Mc(),1)", "MTKtinrelayReact=t(r(),1)",
-    "MTKtinrelayReact=t(_e(),1)"].some(marker => source.includes(marker))) {
+  if (!source.includes(profile.moduleAfter)) {
     throw new Error("Tinrelay renderer React owner is not initialized");
   }
   if (source.includes("dangerouslySetInnerHTML") &&
@@ -245,6 +245,11 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
+  if (value.includes(`function ${incomingBuild9922.delegation}(`) &&
+      value.includes(`function ${incomingBuild9922.message}(`) &&
+      (value.includes(incomingBuild9922.moduleBefore) || value.includes(incomingBuild9922.moduleAfter))) {
+    return incomingBuild9922;
+  }
   if (value.includes("function MS(") && value.includes("function CS(") &&
       (value.includes(incomingBuild9647.moduleBefore) || value.includes(incomingBuild9647.moduleAfter))) {
     return incomingBuild9647;
@@ -361,12 +366,12 @@ function mainHelpers(config, childProcess) {
 function mainProcessProfile(source) {
   const child = uniqueMatch(
     source,
-    /let (?<child>[$A-Z_a-z][$\w]*)=require\("node:child_process"\)/g,
+    /(?:let |,)(?<child>[$A-Z_a-z][$\w]*)=require\("node:child_process"\)/g,
     "Tinrelay child-process owner"
   ).groups.child;
   const helper = uniqueMatch(
     source,
-    /var (?<helper>[$A-Z_a-z][$\w]*)=i\.i\(`electron-message-handler`\)/g,
+    /var (?<helper>[$A-Z_a-z][$\w]*)=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/g,
     "Tinrelay main helper owner"
   );
   return {childProcess: child, helperOwner: helper[0]};
@@ -392,6 +397,19 @@ function patchTinrelayLabelOwner(value, profile = incomingRendererProfile(value)
 
 
 function resolveHostBus(source) {
+  const profile = incomingRendererProfile(source);
+  if (profile.hostBus != null) {
+    const imported = uniqueMatch(
+      source,
+      new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
+      "profile host-bus import"
+    );
+    return uniqueMatch(
+      imported.groups.specifiers,
+      new RegExp(`(?:^|,)${escapeRegExp(profile.hostBus.exported)} as (?<local>[$A-Z_a-z][$\\w]*)(?=,|$)`, "g"),
+      "profile host-bus binding"
+    ).groups.local;
+  }
   const busImports = [...source.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/message-bus-[^"]+\.js)";/g)];
   if (busImports.length === 1) {
     const busSource = fs.readFileSync(path.resolve(path.dirname(renderer), busImports[0].groups.relative), "utf8");

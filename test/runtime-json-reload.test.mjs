@@ -94,7 +94,7 @@ assert.deepEqual(serialized, [{ initial: true }, { initial: false }],
   "changes during validation coalesce into one later acceptance pass");
 
 const mainStart = mainSource.indexOf('const MTKruntimeJsonFs=');
-const mainOwner = mainSource.slice(mainStart).match(/var [$\w]+=i\.i\(`electron-message-handler`\)/);
+const mainOwner = mainSource.slice(mainStart).match(/var [$\w]+=[$\w]+\.i\(`electron-message-handler`\)/);
 const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "main helper boundary");
 const mainHelper = mainSource.slice(mainStart, mainEnd);
@@ -164,7 +164,11 @@ assert.doesNotThrow(() => errorCallback(), "late watcher error cleanup is idempo
 assert.equal(closeCount, 2);
 
 assert.ok(mainSource.includes('case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break'));
-assert.match(rendererSource, new RegExp(`${rendererTerminator.groups.bus}=[$A-Z_a-z][$\\w]*\\.getInstance\\(\\),MTKinstallRuntimeJsonReload\\(\\),`));
+assert.ok(
+  new RegExp(`${rendererTerminator.groups.bus}=[$A-Z_a-z][$\\w]*\\.getInstance\\(\\),MTKinstallRuntimeJsonReload\\(\\),`).test(rendererSource) ||
+  rendererSource.includes("MTKinstallRuntimeJsonReload();export{"),
+  "runtime reload installs after the host bus is available"
+);
 process.stdout.write(`${JSON.stringify({
   state: "green",
   watchedDirectory: ".codex",

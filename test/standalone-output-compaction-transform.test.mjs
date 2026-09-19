@@ -19,8 +19,8 @@ try {
   const replacement = path.join(scratch, "patched-codex");
   const bundledProbeLog = path.join(scratch, "bundled-probe.log");
   fs.mkdirSync(path.dirname(bundled), {recursive: true});
-  writeFakeCodex(bundled, "stock", "codex-cli 0.155.0-alpha.2.6", bundledProbeLog);
-  writeFakeCodex(replacement, "patched", "codex-cli 0.155.0-alpha.2.6");
+  writeFakeCodex(bundled, "stock", "codex-cli 0.155.0-alpha.9.2", bundledProbeLog);
+  writeFakeCodex(replacement, "patched", "codex-cli 0.155.0-alpha.9.2");
   const config = path.join(scratch, "toolkit.json");
   fs.writeFileSync(config, JSON.stringify({codexBinary: replacement}));
 
@@ -61,7 +61,7 @@ try {
     [bundledWsl, "stock-wsl"],
     [replacementNative, "patched-native"],
     [replacementWsl, "patched-wsl"]
-  ]) writeFakeCodex(target, marker, "codex-cli 0.155.0-alpha.2.6");
+  ]) writeFakeCodex(target, marker, "codex-cli 0.155.0-alpha.9.2");
   const windowsConfig = path.join(scratch, "windows-toolkit.json");
   fs.writeFileSync(windowsConfig, JSON.stringify({
     windows: {codexBinaries: {native: replacementNative, wsl: replacementWsl}}

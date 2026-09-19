@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
+import { build9922 } from "./profiles/build9922.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -132,11 +133,11 @@ function rendererProfile(value) {
   const sendTool = statusOwners.length === 1
     ? statusOwners[0].groups.sendTool
     : importedToolConstant(value, "send_message_to_thread");
-  const position = value.indexOf('e.tool===`create_thread`&&e.completed&&e.success===!0&&t===`row`');
+  const position = value.indexOf('e.tool===`read_thread`');
   const owner = containingFunction(value, position);
   const header = uniqueMatch(
     owner.text,
-    /function (?<genericRender>[$A-Z_a-z][$\w]*)\(e,t,n,[$A-Z_a-z][$\w]*=!0\)\{/g,
+    new RegExp(`function (?<genericRender>${id})\\(${id},${id},${id},${id}=!0\\)\\{`, "g"),
     "generic app-control renderer"
   ).groups;
   const render = uniqueMatch(
@@ -144,7 +145,7 @@ function rendererProfile(value) {
     new RegExp(
       `(?<node>${id})=\\(0,(?<jsx>${id})\\.jsxs\\)\\((?<container>${id}),\\{className:(?<classNames>${id})\\([\\s\\S]{0,500}?` +
         `children:\\[[^\\]]{0,120}?(?<iconFunction>${id})\\(e\\),\\(0,\\k<jsx>\\.jsx\\)\\((?<spinner>${id}),[\\s\\S]{0,700}?` +
-        `return ${id}\\?\\(0,\\k<jsx>\\.jsx\\)\\((?<summaryWrapper>${id}),\\{icon:n,summary:${id}\\}\\):${id}`,
+        `return ${id}\\?\\(0,\\k<jsx>\\.jsx\\)\\((?<summaryWrapper>${id}),\\{icon:${id},summary:${id}\\}\\):${id}`,
       "g"
     ),
     "generic app-control presentation"
@@ -195,6 +196,7 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
+    taskImportProfile(build9922.taskImports),
     {
       ...taskImportProfile(linuxBuild9647.taskImports),
       platformMarker: linuxBuild9647.platformMarker
@@ -239,7 +241,9 @@ function requiresDedicatedTitleSelector(ownerSource) {
   return resolveTaskImports(ownerSource).titleImport != null;
 }
 
-function taskImportProfile([owner, atom, internals]) {
+function taskImportProfile(profile) {
+  if (!Array.isArray(profile)) return profile;
+  const [owner, atom, internals] = profile;
   return {owner, atom, internals};
 }
 

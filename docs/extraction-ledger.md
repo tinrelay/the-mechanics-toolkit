@@ -12,7 +12,7 @@ do not remain in current patch documentation merely as historical evidence.
 
 | Platform | Qualified Desktop build | Fleet | State |
 | --- | --- | --- | --- |
-| macOS ARM64 | `26.911.61220` / `9647` | 19 patches | Static stage, supervised adoption, renderer readiness, task messaging, and TinRelay loopback green |
+| macOS ARM64 | `26.915.31945` / `9922` | 19 patches | Static stage, supervised adoption, renderer readiness, Computer Use self-targeting, observability, task messaging, and TinRelay loopback green |
 | Windows 11 ARM64 | `26.911.61220` / `9647` | 16 patches | Signed-MSIX stage, genuine-task supervised adoption, renderer readiness, registry, palette, observability, and selected messaging paths green |
 | Ubuntu DEB (`arm64`, `amd64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, renderer readiness, and live feature runbook green |
 | Fedora RPM (`aarch64`, `x86_64`) | `26.911.61220` / `9647` | 16 patches | ARM64 static stage, genuine-task supervised adoption, and renderer readiness green on the byte-identical Linux ASAR |
@@ -28,27 +28,39 @@ both are updated in the same reviewed change. Platform runbooks retain exact has
 
 | Area | Current evidence | Next useful boundary |
 | --- | --- | --- |
-| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS, Windows, Ubuntu, and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
+| Desktop ASAR transforms | Complete selected fleets recognize pristine sources, apply in catalog order, pass syntax and focused probes, and reapply byte-identically on macOS build `9922` and Windows, Ubuntu, and Fedora build `9647` | Requalify only when a generated owner or selected fleet changes |
 | Package integrity | macOS signature and ASAR seal green; Windows signed-MSIX reconstruction, re-extraction, native-payload preservation, and source stability green; Ubuntu DEB and Fedora RPM carry the same qualified ASAR through separate authenticated package adapters | Requalify the affected package adapter when package layout or trust changes |
 | Safe restart and rescue | Healthy supervised adoption returned to the exact originating task on macOS, Windows, Ubuntu, and Fedora with no supervisor residue | Re-run controlled failure only when the lifecycle boundary changes |
 | Renderer identity and policy | Runtime roster, palette, model guard, task attention, reasoning retention, sidebar collapse, registry, and observability passed their current static gates; selected macOS and Windows live surfaces are green | Exercise only changed or still-open live surfaces |
 | Task messaging | Current cross-task attribution, send receipt, wait roster, and TinRelay presentation transforms pass composed static probes; macOS and Ubuntu task messaging and TinRelay presentation are live-green, as are selected Windows paths | Requalify changed generated owners or platform transport seams |
 | Renderer turn window | Current bounded selector and consumers pass deterministic probes | The greater-than-200-turn live fixture remains deliberately unrun |
-| Standalone-output compaction | Exact Codex `rust-v0.155.0-alpha.2.6` source patch and desktop binary integration pass focused source and package gates | Live-accept a task-message-triggered compaction boundary |
+| Standalone-output compaction | Exact Codex `rust-v0.155.0-alpha.9.2` source patch and desktop binary integration pass focused source and package gates | Live-accept a task-message-triggered compaction boundary |
 
 ## Current macOS qualification
 
-Codex Desktop `26.911.61220` (build `9647`) was staged from a pristine vendor application with the
-current 19-patch fleet on 2026-09-17. The selected transforms passed their focused probes before and
+Codex Desktop `26.915.31945` (build `9922`) was staged from a pristine vendor application with the
+current 19-patch fleet on 2026-09-18. The selected transforms passed their focused probes before and
 after repacking, remained byte-identical on a second application, preserved the native package
 tree, and produced a valid code signature and ASAR seal. The accepted ASAR SHA-256 is
-`51fde579f5cc71183aa33b5b4da0ffcfaee60c93a2a64706a9d500f3e80635ee`; the integrated Codex
-executable SHA-256 is `31957ea9d8245657c39ca92fdd353ae915c79d70d2b13e2c68fc0b921b4bd930`.
+`baed57b803d911e6870d566ba4b0c2890ce16e0a2b14ab8f5de9ffc340353822`; the pristine ASAR
+SHA-256 is `1f7939c1c781887c167043c4d1d307af3400d324685cfc315dfe2f80e634f483`, and the integrated
+Codex executable SHA-256 is `eaf312b0da253a9dbb989e420f2fdfd862a729a1fad2c972d48fb31c45ecbf1d`.
 
-The supervisor installed that candidate at the canonical path, observed renderer readiness, and
-returned to the originating task without an overlapping CLI writer. A normal task message and an
-addressed TinRelay loopback completed afterward. The greater-than-200-turn live fixture remains an
-explicitly accepted omission rather than an implied success.
+Supervisor incident `2026-09-19T02-27-11-364Z-6991949b-2354-4264-8194-c37cfeccbd7f`
+installed that candidate at the canonical path, showed the preparation notification, observed the
+invoking CLI exit and renderer readiness, and returned to the originating task without supervisor
+or rollback-payload residue. The current task retained Sol/High and Full Access. Computer Use could
+inspect Codex after the documented self-target preference was enabled. Sidebar disclosure,
+archive protection, observability metrics/profile/trace, an ordinary Tamsin task exchange with
+persistent attribution/receipt, and a TinRelay self-loop with incoming and outgoing cards all
+passed live, including task-away/task-back remount. The configured terminal toggle was also
+observed working by the operator.
+
+The greater-than-200-turn fixture and a live task-message-triggered compaction boundary remain
+explicit omissions rather than implied successes. Current static probes cover those contracts.
+The current pass did not deliberately force a wrong-model state or mutate roster/attention policy;
+their current generated owners and composed fleet passed static proof, while the correctly loaded
+roster and model identity were visible live.
 
 The qualified macOS fleet contains:
 
@@ -77,8 +89,9 @@ The qualified macOS fleet contains:
 ```
 
 `standalone-output-compaction` integrates the separately built Codex
-`rust-v0.155.0-alpha.2.6` repair. Private paths and user policy are intentionally absent from this
-public record.
+`rust-v0.155.0-alpha.9.2` repair at upstream commit
+`4607249e430dac1c961df4dc615beae88e33cec8`. Private paths and user policy are intentionally
+absent from this public record.
 
 ## Current Windows qualification
 

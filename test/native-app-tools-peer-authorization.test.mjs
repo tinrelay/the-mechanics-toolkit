@@ -11,7 +11,9 @@ const matches = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name))
 assert.equal(matches.length, 1, "unique main-process asset");
 const source = fs.readFileSync(path.join(build, matches[0]), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
-const profile = source.indexOf("async function goe(", start) > start
+const profile = source.indexOf("async function $ce(", start) > start
+  ? {owner: "$ce", authorizer: "kl", addon: "i"}
+  : source.indexOf("async function goe(", start) > start
   ? {owner: "goe", authorizer: "Gu", addon: "i"}
   : source.includes("async function Tse(")
   ? {owner: "Tse", authorizer: "Dl", addon: "i"}

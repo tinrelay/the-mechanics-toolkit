@@ -37,7 +37,15 @@ try {
     'let n=S_(e,"local")'
   ], "Linux build 9647");
 
-  process.stdout.write("agent roster build-9647 transform probe passed\n");
+  verifyProfile(target, build9922Fixture(), [
+    "function MTKuseAgentRoster(){let e=xf($);",
+    "return Gvl.useEffect(",
+    "let a=i(woi);",
+    "e.get(tp)==null&&await e.when(({get:e})=>e(tp)!=null)",
+    'let n=ep(e,"local")'
+  ], "generic build 9922");
+
+  process.stdout.write("agent roster current-build transform probe passed\n");
 
   function verifyProfile(target, fixture, expected, label) {
     fs.writeFileSync(target, fixture);
@@ -82,6 +90,18 @@ function linuxFixture() {
     "a.get=o,a.query=vjt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
     "function S_(e,t){let n=e.get(C_);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
     "function PYs(){let e=(0,LYs.c)(12),t=tm(Q),value=0;return e}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build9922Fixture() {
+  return [
+    "const $=Symbol(`scope`),woi=sf($,({get:e})=>e),tp=rf($,()=>null);",
+    "const Gvl={useEffect(){}},xf=e=>e;",
+    "function store(){let a={},i={current:null};function o(){}function s(){}function c(){}function l(){}",
+    "a.get=o,a.query=Ggt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
+    "function ep(e,t){let n=e.get(tp);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),value=0;return e}",
     "export const fixture=true;"
   ].join("");
 }

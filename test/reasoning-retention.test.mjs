@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { build9922 } from "../patches/reasoning-retention/profiles/build9922.mjs";
 import { linuxBuild9647 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
@@ -66,14 +67,16 @@ policy.rules[0].keepReasoningOpen = true;
 assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
   "thread transitions validate the same roster extension boundary");
 
-assert.match(
-  thread.source,
-  /if\(!MTKreasoningThreadRetained\)for\(let t of i\)[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*,\{conversationId:e,turnSearchKey:t\},!0\)/,
+assert.equal(
+  /if\(!MTKreasoningThreadRetained\)for\(let t of i\)[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*,\{conversationId:e,turnSearchKey:t\},!0\)/.test(thread.source) ||
+    thread.source.includes(build9922.thread.appliedCollapse),
+  true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
 assert.ok(
   /(?:\[e,[A-Za-z_$][\w$]*,G,[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*|\[e,u,ue,x,pe|\[e,l,ce,x,q|\[e,l,le,y,fe),MTKreasoningThreadRetained\]/.test(thread.source) ||
-    thread.source.includes(linuxBuild9647.thread.appliedDependencies),
+    thread.source.includes(linuxBuild9647.thread.appliedDependencies) ||
+    thread.source.includes(build9922.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
@@ -86,7 +89,8 @@ assert.deepEqual(collapse({...base, preventAutoCollapse: true, persistedCollapse
 assert.deepEqual(collapse({...base, preventAutoCollapse: true, persistedCollapsed: false}), {shouldAllowCollapse: true, isCollapsed: false}, "manual reopen still wins");
 assert.equal(
     turn.source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
-    turn.source.includes(linuxBuild9647.turn.appliedOwner),
+    turn.source.includes(linuxBuild9647.turn.appliedOwner) ||
+    turn.source.includes(build9922.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

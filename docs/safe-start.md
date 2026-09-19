@@ -84,8 +84,9 @@ pre-adoption rollback to offer. The command:
    blocking native dialog with **Don't Restart** and **Relaunch Codex**;
 6. after **Relaunch Codex**, asks the exact platform application identity at the target executable
    path to quit, waits for the
-   exact invoking Codex CLI ancestor recorded when the supervisor was armed, and proves the Codex
-   state databases accept a writer;
+   exact invoking Codex CLI ancestor recorded when the supervisor was armed, then records
+   `preparing-candidate`; on macOS it shows a best-effort progress notification before proving the
+   Codex state databases accept a writer;
 7. when adopting, installs the still-verified candidate through the platform package boundary and
    verifies the result before launching it with a fresh private marker;
 8. accepts readiness only when Codex's stock trusted-renderer `ready` event reaches the patched
@@ -112,6 +113,37 @@ the dialog until that click. **Don't Restart** records a cancelled attempt and e
 Codex to quit. The supervisor sends a normal application quit request and waits without an
 artificial shell timeout for it to complete. Cancelling either dialog leaves the app open and does
 not start rescue. Automatic repair retries do not show the toolkit confirmation again.
+
+On macOS the progress notification reads **Preparing the verified candidate for relaunch…** under
+**The Mechanics Toolkit**. It is intentionally implemented through the stock AppleScript
+notification path rather than a persistent helper application. Depending on macOS notification
+presentation, the system may add a **Show** action associated with Script Editor; that incidental
+system chrome has no role in the restart. Delivery failure is recorded in the incident receipt and
+does not block candidate preparation, installation, or relaunch.
+
+## Computer Use self-target restoration
+
+Recent Codex builds prevent Computer Use from targeting Codex itself. Earlier builds allowed this,
+and TMTK restores that functionality so an authorized agent can inspect and qualify TMTK's own live
+surfaces instead of requiring a person to relay every UI observation.
+
+On macOS, enable OpenAI's existing vendor preference once for the current user:
+
+```sh
+defaults write com.openai.sky.CUAService ComputerUseAllowForbiddenTargets -bool YES
+```
+
+This is an explicit opt-in at the Computer Use service's own policy seam. TMTK does not modify,
+patch, inject into, or re-sign `Codex Computer Use.app`. The restoration removes only the special
+blanket prohibition on Codex as a target. It does not bypass Accessibility or Screen Recording
+permission, organization or per-app authorization, the person's stop control, URL restrictions,
+or any other Computer Use safety check.
+
+The preference persists independently of TMTK and does not need to be rewritten during each
+restart. Remove it with
+`defaults delete com.openai.sky.CUAService ComputerUseAllowForbiddenTargets` to restore the stock
+prohibition. Successful qualification must use Computer Use to make a harmless read-only
+observation of Codex itself and must not infer that unrelated Computer Use policy was weakened.
 
 The rollback source is not inferred from filenames, neighboring applications, or version order.
 On macOS it is the exact canonical application inspected and copied before candidate adoption. On

@@ -9,13 +9,17 @@ import { fileURLToPath } from "node:url";
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/terminal-toggle.test.mjs");
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-terminal-test-"));
+runFixture("9647", fixtureSource(build9647Contracts()));
+runFixture("9922", fixtureSource(build9922Contracts()));
+process.stdout.write("terminal toggle transform probe passed\n");
 
-try {
+function runFixture(label, fixture) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), `mechanics-toolkit-terminal-${label}-`));
+  try {
   const assets = path.join(scratch, "webview/assets");
   fs.mkdirSync(assets, { recursive: true });
   const target = path.join(assets, "app-initial-fixture.js");
-  fs.writeFileSync(target, fixtureSource());
+  fs.writeFileSync(target, fixture);
 
   assert.equal(runToolkit("check", scratch).state, "needs-apply");
   assert.equal(runToolkit("apply", scratch).state, "applied");
@@ -27,9 +31,9 @@ try {
 
   assert.equal(runToolkit("apply", scratch).state, "applied");
   assert.deepEqual(fs.readFileSync(target), once, "second application is byte-identical");
-  process.stdout.write("terminal toggle transform probe passed\n");
-} finally {
-  fs.rmSync(scratch, { recursive: true, force: true });
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
+  }
 }
 
 function runToolkit(action, root) {
@@ -42,16 +46,32 @@ function runToolkit(action, root) {
   return JSON.parse(result.stdout);
 }
 
-function fixtureSource() {
+function fixtureSource(contracts) {
   return `/*
 {id:\`toggleTerminal\`,titleIntlId:\`codex.command.toggleTerminal\`,descriptionIntlId:\`codex.commandDescription.toggleTerminal\`,requiredAccess:\`codexLocal\`,commandMenuGroupKey:\`panels\`,commandMenu:!0,commandMenuFeature:\`codex\`,electron:{menuTitle:\`Open Terminal\`,menuTitleIntlId:\`codex.commandMenuTitle.toggleTerminal\`,
 c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
-accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u
-allowWithinEditable:c,enabled:a,onKeyDown:l
-$wi=()=>{fen.run({action:{type:\`windows.terminal.toggle\`,windowId:bv}})
-[\`toggleTerminal\`,$wi]
+${contracts.join("\n")}
 defaultKeybindings:[{key:"Control+\`"}]
 */
 export const fixture = true;
 `;
+}
+
+function build9647Contracts() {
+  return [
+    "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
+    "allowWithinEditable:c,enabled:a,onKeyDown:l",
+    "$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})",
+    "[`toggleTerminal`,$wi]"
+  ];
+}
+
+function build9922Contracts() {
+  return [
+    "function X6c(e){let t=(0,e8c.c)(10)",
+    "{id:n,accelerator:r,allowRepeat:i,enabled:a,onlyWithin:o,yieldToSelectedText:s}=e",
+    "allowWithinEditable:c,enabled:a,onKeyDown:l",
+    "R6r=()=>{_kt.run({action:{type:`windows.terminal.toggle`,windowId:Op}})",
+    "[`toggleTerminal`,R6r]"
+  ];
 }

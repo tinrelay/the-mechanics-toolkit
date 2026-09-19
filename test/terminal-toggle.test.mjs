@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
 import { linuxBuild9647Contracts } from "../patches/terminal-toggle/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -25,9 +26,10 @@ assert.equal(
 );
 const build9647 = source.includes("$wi=()=>{fen.run({action:{type:`windows.terminal.toggle`,windowId:bv}})");
 const build9647Linux = source.includes(linuxBuild9647Contracts[2]);
-assert.ok(build9647Linux || build9647, "the current build-9647 terminal owner is present");
+const build9922 = source.includes(build9922Contracts[3]);
+assert.ok(build9922 || build9647Linux || build9647, "the qualified terminal owner is present");
 assert.equal(
-  count(source, "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u"),
+  count(source, build9922 ? build9922Contracts[1] : "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u"),
   1,
   "the configured accelerators feed the existing hotkey dispatcher"
 );
@@ -36,7 +38,12 @@ assert.equal(
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build9647Linux) {
+if (build9922) {
+  assert.equal(count(source, build9922Contracts[3]), 1,
+    "the build-9922 command keeps the stock terminal action owner");
+  assert.equal(count(source, build9922Contracts[4]), 1,
+    "the build-9922 configurable command remains routed through the stock terminal toggle action");
+} else if (build9647Linux) {
   assert.equal(count(source, linuxBuild9647Contracts[2]), 1,
     "the Linux command keeps the stock terminal action owner");
   assert.equal(count(source, linuxBuild9647Contracts[3]), 1,

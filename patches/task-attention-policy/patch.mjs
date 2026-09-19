@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922 } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -14,7 +15,9 @@ const assets = path.join(root, "webview/assets");
 const target = uniqueAsset(/^app-initial-.*\.js$/);
 const primaryTarget = uniqueAsset(/^app-primary-.*\.js$/);
 let source = fs.readFileSync(target, "utf8");
-let primarySource = fs.readFileSync(primaryTarget, "utf8");
+const rowTarget = source.includes(build9922.primaryOwner) || source.includes(`function MTKuseTaskAttention${build9922.suffix}(`)
+  ? target : primaryTarget;
+let primarySource = fs.readFileSync(rowTarget, "utf8");
 let state = inspectState(source, primarySource);
 
 if (command === "apply" && state === "needs-apply") {
@@ -23,15 +26,18 @@ if (command === "apply" && state === "needs-apply") {
   }
   if (linux9647Contracts(source, primarySource).every(Boolean)) {
     ({ appSource: source, primarySource } = patchLinux9647(source, primarySource));
+  } else if (build9922Contracts(source, primarySource).every(Boolean)) {
+    source = patchBuild9922(source);
+    primarySource = source;
   } else if (current9647Contracts(source, primarySource).every(Boolean)) {
     ({ appSource: source, primarySource } = patch9647(source, primarySource));
   } else {
     throw new Error("Upstream changed: missing build-9647 task attention contract");
   }
   fs.writeFileSync(target, source);
-  fs.writeFileSync(primaryTarget, primarySource);
+  if (rowTarget !== target) fs.writeFileSync(rowTarget, primarySource);
   syntaxCheck(target);
-  syntaxCheck(primaryTarget);
+  if (rowTarget !== target) syntaxCheck(rowTarget);
   state = inspectState(source, primarySource);
   if (state !== "applied") throw new Error("task attention policy transform did not verify");
 }
@@ -39,10 +45,14 @@ if (command === "apply" && state === "needs-apply") {
 process.stdout.write(`${JSON.stringify({
   state,
   policy: ".codex/agent-roster.json",
-  targets: [target, primaryTarget].map(file => path.relative(root, file))
+  targets: [...new Set([target, rowTarget])].map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
 function inspectState(value, primaryValue) {
+  const build9922Markers = [
+    ...build9922.applied.app.map(marker => value.includes(marker)),
+    ...build9922.applied.primary.map(marker => primaryValue.includes(marker))
+  ];
   const linuxMarkers = [
     ...linuxBuild9647.applied.app.map(marker => value.includes(marker)),
     ...linuxBuild9647.applied.primary.map(marker => primaryValue.includes(marker))
@@ -67,6 +77,12 @@ function inspectState(value, primaryValue) {
     primaryValue.includes(`function MTKuseTaskAttention${linuxBuild9647.suffix}(`);
   const hasCurrent = value.includes("function MTKuseAttentionBootstrap9647(") ||
     primaryValue.includes("function MTKuseTaskAttention9647(");
+  const hasBuild9922 = value.includes(`function MTKuseAttentionBootstrap${build9922.suffix}(`) ||
+    primaryValue.includes(`function MTKuseTaskAttention${build9922.suffix}(`);
+  if (hasBuild9922) {
+    if (!build9922Markers.every(Boolean)) throw new Error("Unrecognized build-9922 task attention patch: partial markers");
+    return "applied";
+  }
   if (hasLinux) {
     if (!linuxMarkers.every(Boolean)) throw new Error("Unrecognized Linux build-9647 task attention patch: partial markers");
     return "applied";
@@ -78,10 +94,45 @@ function inspectState(value, primaryValue) {
   if (value.includes("MTKattention") || primaryValue.includes("MTKattention")) {
     throw new Error("Unrecognized build-9647 task attention patch: partial markers");
   }
-  if (linux9647Contracts(value, primaryValue).every(Boolean) || current9647Contracts(value, primaryValue).every(Boolean)) {
+  if (linux9647Contracts(value, primaryValue).every(Boolean) ||
+      current9647Contracts(value, primaryValue).every(Boolean) ||
+      build9922Contracts(value, primaryValue).every(Boolean)) {
     return "needs-apply";
   }
-  throw new Error("Upstream changed: missing build-9647 task attention contract");
+  throw new Error("Upstream changed: missing qualified task attention contract");
+}
+
+function build9922Contracts(appValue, primaryValue) {
+  return [
+    [build9922.pristineAppRoot, build9922.appRootBefore]
+      .some(contract => appValue.includes(contract)),
+    appValue.includes(build9922.notificationOwner),
+    appValue.includes(build9922.notificationBefore),
+    appValue.includes(build9922.atomFactoryContract),
+    appValue.includes(build9922.atomBefore),
+    appValue.includes(build9922.dockBefore),
+    primaryValue.includes(build9922.primaryOwner),
+    primaryValue.includes(build9922.titleBefore),
+    ...build9922.pristinePrimary.map(contract => primaryValue.includes(contract))
+  ];
+}
+
+function patchBuild9922(value) {
+  const suffix = build9922.suffix;
+  const helper = `const MTKattentionRosterBridge=1;var MTKattentionPolicyAtom;function MTKattentionMatch${suffix}(e,t){let n=globalThis.__MTK_AGENT_ROSTER__,r=n?.matches(e,t)??[],i=!1;for(let e of r){let t=e.data.muteCompletion;if(t===void 0)continue;if(typeof t!=="boolean"){n?.diagnose("invalid-mute-completion",{ownerRoot:e.ownerRoot,key:e.key});continue}t&&(i=!0)}return i}function MTKattentionIgnored${suffix}(e,t){return MTKattentionMatch${suffix}(e,t)}function MTKattentionIgnoredThread${suffix}(e,t){let n=${build9922.decoder}(t);return n?.kind==="local"?MTKattentionMatch${suffix}(null,n.threadId):n?.kind==="remote"?MTKattentionMatch${suffix}(null,n.taskId):!1}function MTKattentionSubscribe${suffix}(e){return globalThis.__MTK_AGENT_ROSTER__?.subscribe(e)??(()=>{})}function MTKuseAttentionBootstrap${suffix}(){let e=${build9922.scopeAfter};return ${build9922.react}.useEffect(()=>MTKattentionSubscribe${suffix}(()=>e.set(MTKattentionPolicyAtom,e=>(e??0)+1)),[e]),globalThis.__MTKattentionIgnored=MTKattentionIgnored${suffix},globalThis.__MTKattentionSubscribe=MTKattentionSubscribe${suffix},null}`;
+  let patched = replaceOnce(value, build9922.appRootBefore, helper + build9922.appRootAfter, "build-9922 attention bootstrap");
+  patched = replaceOnce(patched, build9922.atomBefore, build9922.atomAfter, "build-9922 attention atom");
+  patched = replaceOnce(patched, build9922.dockBefore, build9922.dockAfter, "build-9922 Dock badge projection");
+  patched = replaceOnce(patched, build9922.notificationBefore,
+    `let a=uYr(e.getConversation(t.conversationId));if(MTKattentionIgnored${suffix}(a,t.conversationId)){$t.debug(\`[desktop-notifications] suppressed task-attention-policy turn-complete\`,{safe:{conversationId:t.conversationId},sensitive:{}});return}let{navigationPath:o,navigateToNotification:s}=h(t.conversationId)`,
+    "build-9922 native notification projection");
+  const rowHelper = `function MTKuseTaskAttention${suffix}(e,t){let n=globalThis.__MTKattentionSubscribe??(()=>()=>{});return ${build9922.primaryReact}.useSyncExternalStore(n,()=>globalThis.__MTKattentionIgnored?.(e,t)===!0,()=>!1)}`;
+  patched = replaceOnce(patched, build9922.primaryOwner, rowHelper + build9922.primaryOwner, "build-9922 task attention hook");
+  patched = replaceOnce(patched, build9922.titleBefore, build9922.titleAfter, "build-9922 local title");
+  patched = replaceOnce(patched, build9922.pristinePrimary[0], "):Wt=t[25];let Gt=MTKattentionIgnoredForTask?{...Wt,unread:!1,unreadCount:0}:Wt,Kt;t[26]", "build-9922 status projection");
+  patched = replaceOnce(patched, build9922.pristinePrimary[1], "Yt=MTKattentionIgnoredForTask?[]:Jt==null?[]:[Jt]", "build-9922 approval projection");
+  patched = replaceOnce(patched, build9922.pristinePrimary[2], "):en=t[45];let tn=MTKattentionIgnoredForTask?void 0:en,nn;t[46]", "build-9922 waiting projection");
+  return replaceOnce(patched, build9922.pristinePrimary[3], "hasUnreadTurn:!MTKattentionIgnoredForTask&&!Rt&&lt===!0", "build-9922 hover-card unread projection");
 }
 
 function current9647Contracts(appValue, primaryValue) {

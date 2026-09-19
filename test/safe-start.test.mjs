@@ -19,6 +19,7 @@ import {
   diagnosticLocations,
   launchApplication,
   launchSupervisor,
+  notifyCandidatePreparation,
   openRescueTerminal,
   releaseApplicationLaunch,
   replaceApplicationWithVerifiedSource,
@@ -169,6 +170,29 @@ try {
   assert.throws(() => confirmApplicationRestart({platform: "darwin", processRunner() {
     return {status: 1, stdout: "", stderr: "dialog failed", error: null};
   }}), /dialog failed/);
+  const preparationNotificationCalls = [];
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "darwin",
+    processRunner(command, arguments_, options) {
+      preparationNotificationCalls.push({command, arguments_, options});
+      return {status: 0, stdout: "", stderr: "", error: null};
+    }
+  }), {shown: true});
+  assert.deepEqual(preparationNotificationCalls, [{
+    command: "/usr/bin/osascript",
+    arguments_: [
+      "-e",
+      'display notification "Preparing the verified candidate for relaunch…" with title "The Mechanics Toolkit"'
+    ],
+    options: {encoding: "utf8"}
+  }]);
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "darwin",
+    processRunner() {
+      return {status: 1, stdout: "", stderr: "notifications disabled", error: null};
+    }
+  }), {shown: false, error: "notifications disabled"},
+  "an informational notification failure never blocks the replacement");
   const applicationExecutable = path.join(app, "Contents/MacOS/ChatGPT");
   const quitCalls = [];
   assert.equal(requestApplicationQuit(applicationExecutable, {

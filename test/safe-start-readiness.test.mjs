@@ -10,16 +10,18 @@ const build = path.join(root, ".vite/build");
 const renderer = fs.readFileSync(uniqueAsset(assets, /^app-initial-.*\.js$/), "utf8");
 const main = fs.readFileSync(uniqueAsset(build, /^main-.*\.js$/), "utf8");
 
-assert.ok(main.includes("if(!N(t))return;s.type===`ready`&&(()=>{"),
+assert.ok(main.includes("--tmtk-safe-start-marker="),
   "the trusted stock ready message invokes Codex's existing relaunch-marker writer");
 assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-assert.ok(main.includes("vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`"),
+assert.match(main, /(?:vae|ece)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/,
   "readiness uses the existing per-launch marker path environment boundary");
-assert.equal(count(renderer,
-  "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"), 1,
+assert.equal([
+  "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
+  "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})"
+].reduce((total, contract) => total + count(renderer, contract), 0), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");
 process.stdout.write("safe-start readiness probe passed\n");

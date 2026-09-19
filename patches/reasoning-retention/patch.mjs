@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922 } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -12,11 +13,13 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const turn = uniqueOwner(source =>
-  source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild9647.turn.owner) || source.includes("function MTKuseReasoningRetention("),
+  source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild9647.turn.owner) ||
+    source.includes(build9922.turn.owner) || source.includes("function MTKuseReasoningRetention("),
   "local reasoning-collapse owner"
 );
 const thread = uniqueOwner(source =>
-  source.includes("Ve.current=le},[e,l,le,y,fe])") || source.includes(linuxBuild9647.thread.owner) || source.includes("function MTKuseReasoningThreadRetention("),
+  source.includes("Ve.current=le},[e,l,le,y,fe])") || source.includes(linuxBuild9647.thread.owner) ||
+    source.includes(build9922.thread.owner) || source.includes("function MTKuseReasoningThreadRetention("),
   "local thread auto-collapse owner"
 );
 const collapse = uniqueOwner(source =>
@@ -49,14 +52,18 @@ function inspectState() {
   const threadSource = fs.readFileSync(thread.file, "utf8");
   const turnMarkers = [
     source.includes("function MTKuseReasoningRetention("),
-    source.includes("MTKreasoningRetained=MTKuseReasoningRetention(l)"),
-    source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") || source.includes(linuxBuild9647.turn.appliedOwner)
+    source.includes("MTKreasoningRetained=MTKuseReasoningRetention(l)") ||
+      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(d)"),
+    source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
+      source.includes(linuxBuild9647.turn.appliedOwner) || source.includes(build9922.turn.appliedOwner)
   ];
   const threadMarkers = [
     threadSource.includes("function MTKuseReasoningThreadRetention("),
     threadSource.includes("MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e)"),
-    threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0)") || threadSource.includes(linuxBuild9647.thread.appliedCollapse),
-    threadSource.includes("[e,l,le,y,fe,MTKreasoningThreadRetained]") || threadSource.includes(linuxBuild9647.thread.appliedDependencies)
+    threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0)") ||
+      threadSource.includes(linuxBuild9647.thread.appliedCollapse) || threadSource.includes(build9922.thread.appliedCollapse),
+    threadSource.includes("[e,l,le,y,fe,MTKreasoningThreadRetained]") ||
+      threadSource.includes(linuxBuild9647.thread.appliedDependencies) || threadSource.includes(build9922.thread.appliedDependencies)
   ];
   const turnApplied = turnMarkers.every(Boolean);
   const threadApplied = threadMarkers.every(Boolean);
@@ -70,9 +77,13 @@ function inspectState() {
   if (threadApplied) throw new Error("Unrecognized reasoning retention patch: thread guard without turn retention");
   const turnCurrent = source.includes("function Z(e){let t=(0,Ba.c)(182),") &&
     (source.includes("preventAutoCollapse:Ct||ir") || source.includes(linuxBuild9647.turn.owner));
+  const turn9922 = source.includes(build9922.turn.ownerFunction) && source.includes(build9922.turn.owner);
   const threadCurrent = threadSource.includes("function bM({conversationId:e,") &&
     (threadSource.includes("Ve.current=le},[e,l,le,y,fe])") || threadSource.includes(linuxBuild9647.thread.owner));
-  if (!turnCurrent || !threadCurrent) throw new Error("Upstream changed: missing build-9647 reasoning retention contract");
+  const thread9922 = threadSource.includes(build9922.thread.ownerFunction) && threadSource.includes(build9922.thread.owner);
+  if (!(turnCurrent && threadCurrent) && !(turn9922 && thread9922)) {
+    throw new Error("Upstream changed: missing qualified reasoning retention contract");
+  }
   verifyCollapseContract();
   return "needs-apply";
 }
@@ -83,7 +94,7 @@ function verifyCollapseContract() {
     if (!source.includes(contract)) throw new Error(`Upstream changed: missing agent-activity contract ${contract}`);
   }
   if (!source.includes("onToggle:e=>{let t=!K;if(M.current=e,d==null){A(t);return}d(t)}") &&
-      !source.includes(linuxBuild9647.activityToggle)) {
+      !source.includes(linuxBuild9647.activityToggle) && !source.includes(build9922.activityToggle)) {
     throw new Error("Upstream changed: missing agent-activity toggle contract");
   }
 }
@@ -113,13 +124,18 @@ function patchTurn(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningRetention(")) return;
   const linux = source.includes(linuxBuild9647.turn.owner);
-  const helper = reasoningHook(linux ? linuxBuild9647.turn.react : "Ha");
-  source = replaceOnce(source, "function Z(e){let t=(0,Ba.c)(182),", `${helper}function Z(e){let t=(0,Ba.c)(182),`, "build-9647 reasoning turn hook");
-  source = replaceOnce(source, ...(linux
+  const current9922 = source.includes(build9922.turn.owner);
+  const profile = current9922 ? build9922.turn : linux ? linuxBuild9647.turn : null;
+  const ownerFunction = profile?.ownerFunction ?? "function Z(e){let t=(0,Ba.c)(182),";
+  const helper = reasoningHook(profile?.react ?? "Ha");
+  source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning turn hook");
+  source = replaceOnce(source, ...(profile
+    ? [profile.decisionBefore, profile.decisionAfter]
+    : linux
     ? [linuxBuild9647.turn.decisionBefore, linuxBuild9647.turn.decisionAfter]
     : ["let R=xt,Ct=I(Ir,R)", "let R=xt,MTKreasoningRetained=MTKuseReasoningRetention(l),Ct=I(Ir,R)"]), "build-9647 reasoning task decision");
-  source = replaceOnce(source, ...(linux
-    ? [linuxBuild9647.turn.owner, linuxBuild9647.turn.appliedOwner]
+  source = replaceOnce(source, ...(profile
+    ? [profile.owner, profile.appliedOwner]
     : ["preventAutoCollapse:Ct||ir", "preventAutoCollapse:Ct||ir||MTKreasoningRetained"]), "build-9647 reasoning auto-collapse gate");
   fs.writeFileSync(file, source);
 }
@@ -128,13 +144,16 @@ function patchThread(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("function MTKuseReasoningThreadRetention(")) return;
   const linux = source.includes(linuxBuild9647.thread.owner);
-  const helper = reasoningThreadHook(linux ? linuxBuild9647.thread.react : "wM");
-  source = replaceOnce(source, "function bM({conversationId:e,", `${helper}function bM({conversationId:e,`, "build-9647 reasoning thread hook");
-  source = replaceOnce(source, ...(linux
-    ? [linuxBuild9647.thread.decisionBefore, linuxBuild9647.thread.decisionAfter]
+  const current9922 = source.includes(build9922.thread.owner);
+  const profile = current9922 ? build9922.thread : linux ? linuxBuild9647.thread : null;
+  const ownerFunction = profile?.ownerFunction ?? "function bM({conversationId:e,";
+  const helper = reasoningThreadHook(profile?.react ?? "wM");
+  source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning thread hook");
+  source = replaceOnce(source, ...(profile
+    ? [profile.decisionBefore, profile.decisionAfter]
     : ["usesUnifiedTimeline:v}){let y=_s(qn)", "usesUnifiedTimeline:v}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),y=_s(qn)"]), "build-9647 reasoning thread decision");
-  source = replaceOnce(source, ...(linux
-    ? [linuxBuild9647.thread.collapseBefore, linuxBuild9647.thread.collapseAfter]
+  source = replaceOnce(source, ...(profile
+    ? [profile.collapseBefore, profile.collapseAfter]
     : ["for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0);Ve.current=le},[e,l,le,y,fe])", "if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0);Ve.current=le},[e,l,le,y,fe,MTKreasoningThreadRetained])"]), "build-9647 next-turn auto-collapse gate");
   fs.writeFileSync(file, source);
 }

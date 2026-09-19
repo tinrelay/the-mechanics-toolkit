@@ -107,7 +107,9 @@ function inspectPristineSelector(source) {
   ]) {
     if (!source.includes(contract)) throw new Error(`Upstream changed: missing selector contract ${contract}`);
   }
-  if (isBuild9647Selector(body)) {
+  if (isBuild9922Selector(body)) {
+    inspectBuild9922PristineSelector(body);
+  } else if (isBuild9647Selector(body)) {
     inspectBuild9647PristineSelector(body);
   } else {
     matchSelectorPrefix(body, owner.header.groups);
@@ -126,6 +128,11 @@ function inspectAppliedSelector(source) {
   const { limit } = owner.header.groups;
   if (limit !== "UHrendererTailLimit") {
     throw new Error("Unrecognized renderer selector: wrong tail-limit owner");
+  }
+  if (owner.body.includes("f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap") &&
+      owner.body.includes("return dlc({conversationRequests:a,isAeonThread:!1")) {
+    inspectBuild9922AppliedSelector(source, owner);
+    return;
   }
   if (owner.body.includes("UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(g?.length??0)>UHrendererTailLimit)") &&
       owner.body.includes("return Uds({conversationRequests:a,isAeonThread:!1")) {
@@ -171,6 +178,7 @@ function inspectAppliedSelector(source) {
 
 function patchSelector(source) {
   const owner = selectorOwner(source);
+  if (isBuild9922Selector(owner.body)) return patchBuild9922Selector(source, owner);
   if (isBuild9647Selector(owner.body)) return patchBuild9647Selector(source, owner);
   const names = owner.header.groups;
   const declaration = selectorDeclaration(source, names.selector, owner.header.index);
@@ -240,6 +248,92 @@ function patchSelector(source) {
     "renderer selector declarations"
   );
   return patched;
+}
+
+function isBuild9922Selector(body) {
+  return body.includes("f=n(MI,s),p=f?.flatMap") &&
+    body.includes("g=o==null?null:{hostId:n(cD,o),threadId:o},_=n(MI,g),v=o!=null&&h==null?_?.flatMap") &&
+    body.includes("return dlc({conversationRequests:a,isAeonThread:!1") &&
+    body.includes("turnEntityKeys:f?.map(({entityKey:e})=>e)");
+}
+
+function inspectBuild9922PristineSelector(body) {
+  for (const contract of [
+    "f=n(MI,s),p=f?.flatMap",
+    "m=l?.length===p.length&&(o==null||d!=null)&&!0",
+    "g=o==null?null:{hostId:n(cD,o),threadId:o},_=n(MI,g),v=o!=null&&h==null?_?.flatMap",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+  ]) {
+    if (count(body, contract) !== 1) throw new Error(`Upstream changed: build-9922 selector contract ${contract}`);
+  }
+}
+
+function patchBuild9922Selector(source, owner) {
+  let body = owner.body;
+  body = replaceOnce(
+    body,
+    "f=n(MI,s),p=f?.flatMap",
+    "f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap",
+    "build-9922 current turn materialization"
+  );
+  body = replaceOnce(
+    body,
+    "m=l?.length===p.length&&(o==null||d!=null)&&!0,",
+    "g=o==null?null:{hostId:n(cD,o),threadId:o},_=n(MI,g)," +
+      "UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))," +
+      "UHrendererParentKeys=UHrendererTail(_,UHrendererParentLimit)," +
+      "UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(_?.length??0)>UHrendererTailLimit)," +
+      "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0,",
+    "build-9922 parent window ownership"
+  );
+  body = replaceOnce(
+    body,
+    "g=o==null?null:{hostId:n(cD,o),threadId:o},_=n(MI,g),v=o!=null&&h==null?_?.flatMap",
+    "v=o!=null&&h==null?UHrendererParentKeys?.flatMap",
+    "build-9922 parent turn materialization"
+  );
+  body = replaceOnce(
+    body,
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)",
+    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)",
+    "build-9922 bounded entity keys"
+  );
+  const names = owner.header.groups;
+  const headerAfter = owner.header[0].replace(
+    `isBackgroundSubagentsEnabled:${names.background}}`,
+    `isBackgroundSubagentsEnabled:${names.background},rendererTailLimit:UHrendererTailLimit}`
+  );
+  const helper = "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t),";
+  const patchedOwner = helper + owner.text.replace(owner.header[0], headerAfter).replace(owner.body, body);
+  let patched = replaceOnce(source, owner.text, patchedOwner, "build-9922 renderer selector owner");
+  const declaration = selectorDeclaration(source, names.selector, owner.header.index);
+  const declaredNames = declaration.names.replace(`,${names.selector},`, `,UHrendererTail,${names.selector},`);
+  if (declaredNames === declaration.names) throw new Error("Upstream changed: build-9922 selector declaration shape");
+  return replaceOnce(
+    patched,
+    declaration.text,
+    declaration.text.replace(declaration.names, declaredNames),
+    "build-9922 renderer selector declarations"
+  );
+}
+
+function inspectBuild9922AppliedSelector(source, owner) {
+  for (const contract of [
+    "UHrendererTail=(e,t)=>e==null||t==null||e.length<=t?e:t<=0?[]:e.slice(-t)",
+    "f=n(MI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap",
+    "g=o==null?null:{hostId:n(cD,o),threadId:o},_=n(MI,g),UHrendererParentLimit=UHrendererTailLimit==null?null:Math.max(0,UHrendererTailLimit-(UHrendererCurrentKeys?.length??0))",
+    "UHrendererParentKeys=UHrendererTail(_,UHrendererParentLimit),UHrendererWindowActive=UHrendererTailLimit!=null&&((f?.length??0)+(_?.length??0)>UHrendererTailLimit)",
+    "m=!UHrendererWindowActive&&l?.length===p.length&&(o==null||d!=null)&&!0",
+    "v=o!=null&&h==null?UHrendererParentKeys?.flatMap",
+    "turnEntityKeys:UHrendererCurrentKeys?.map(({entityKey:e})=>e)"
+  ]) {
+    if (count(source, contract) !== 1) throw new Error(`Unrecognized build-9922 renderer window: missing ${contract}`);
+  }
+  const declaration = selectorDeclaration(source, owner.header.groups.selector, owner.header.index);
+  if (count(declaration.names, "UHrendererTail") !== 1) {
+    throw new Error("Unrecognized build-9922 renderer window: helper declaration ownership changed");
+  }
+  inspectTranscriptConsumer(source, owner.header.groups.selector, true);
 }
 
 function isBuild9647Selector(body) {
@@ -382,8 +476,11 @@ function selectorOwner(source) {
 
 function selectorDeclaration(source, selector, ownerPosition) {
   const id = "[$A-Z_a-z][$\\w]*";
-  const pattern = new RegExp(`var (?<names>${id}(?:,${id})*)=(?<initializer>${id})\\(\\(\\(\\)=>\\{`, "g");
-  const matches = [...source.matchAll(pattern)].filter(match => {
+  const patterns = [
+    new RegExp(`var (?<names>${id}(?:,${id})*)=(?<initializer>${id})\\(\\(\\(\\)=>\\{`, "g"),
+    new RegExp(`var (?<names>${id}(?:,${id})*);function (?<initializer>${id})\\(\\)\\{return\\(\\k<initializer>=${id}\\(\\(\\(\\)=>\\{`, "g")
+  ];
+  const matches = patterns.flatMap(pattern => [...source.matchAll(pattern)]).filter(match => {
     if (!match.groups.names.split(",").includes(selector)) return false;
     const open = match.index + match[0].length - 1;
     return ownerPosition > open && ownerPosition < extractBlock(source, open).end;

@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { build9922 } from "../patches/outgoing-message-receipt/profiles/build9922.mjs";
 import { linuxBuild9647 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -47,6 +48,16 @@ try {
   fs.writeFileSync(
     path.join(linuxPristine, "webview/assets/conversation-turn-fixture.js"),
     linuxTurnFixture()
+  );
+  const build9922Pristine = path.join(scratch, "build-9922-pristine");
+  fs.cpSync(extracted, build9922Pristine, { recursive: true });
+  fs.writeFileSync(
+    path.join(build9922Pristine, "webview/assets/conversation-fixture.js"),
+    build9922ConversationFixture()
+  );
+  fs.writeFileSync(
+    path.join(build9922Pristine, "webview/assets/conversation-turn-fixture.js"),
+    build9922TurnFixture()
   );
 
   assert.equal(runToolkit(extracted, "check").state, "needs-apply");
@@ -91,6 +102,7 @@ try {
   assert.deepEqual(fs.readFileSync(consumerTarget), Buffer.from(consumerFixture()), "message formatter consumer stays untouched");
   assert.deepEqual(fs.readFileSync(styleTarget), Buffer.from(styleFixture()), "stylesheet stays untouched");
   assertLinuxAppliedInspection(linuxPristine);
+  assertBuild9922AppliedInspection(build9922Pristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
   assert.equal(registry.status, 0, registry.stderr || registry.stdout);
@@ -140,6 +152,32 @@ function assertLinuxAppliedInspection(pristineRoot) {
   assert.match(runToolkit(missingOwnerBranch, "check", 1).stderr, /Upstream changed/,
     "an applied tree missing the owner lifecycle branch fails closed");
 
+}
+
+function assertBuild9922AppliedInspection(pristineRoot) {
+  assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  assert.equal(runToolkit(pristineRoot, "check").state, "applied");
+  const conversation = fs.readFileSync(
+    path.join(pristineRoot, "webview/assets/conversation-fixture.js"),
+    "utf8"
+  );
+  const reactBinding = conversation.match(
+    /const MTKOutboundReceiptReact=(?<expression>[^;]+);const MTKoutboundReceiptContract=/
+  );
+  assert.equal(reactBinding?.groups.expression, "ot()",
+    "build-9922 resolves React at module evaluation instead of capturing a lazy alias before initialization");
+
+  const missingHandoff = path.join(scratch, "missing-build-9922-lifecycle-handoff");
+  fs.cpSync(pristineRoot, missingHandoff, { recursive: true });
+  replaceInFixture(
+    path.join(missingHandoff, "webview/assets/conversation-fixture.js"),
+    "ReceiptLifecycle:MTKOutboundReceiptLifecycle,",
+    "",
+    "build-9922 lifecycle handoff"
+  );
+  assert.match(runToolkit(missingHandoff, "check", 1).stderr, /Upstream changed/,
+    "an applied build-9922 tree missing its lifecycle handoff fails closed");
 }
 
 function replaceInFixture(file, before, after, label) {
@@ -242,6 +280,35 @@ function linuxTurnFixture() {
     "function Z(e){let t=(0,Ba.c)(182),{conversationId:l,turnId:p,hostId:c}=e,Qa=[],$=(e,t,n)=>Qa.push({key:e,node:t,options:n});",
     "let to=Qa.length,no={};return null}",
     "export{Z};"
+  ].join("");
+}
+
+function build9922ConversationFixture() {
+  const current = build9922.dynamic;
+  return [
+    'import{x as x,persistent as Cp}from"./app-control-fixture.js";',
+    'import{bus as HostBus}from"./app-initial-fixture.js";',
+    "const e=x=>x,$={jsx(){return{}},jsxs(){return{}}},Dy={c(){return[]}},Ww=Dy,Db={useState(e){return[typeof e===`function`?e():e,()=>{}]},useEffect(){}};function ot(){return Db}",
+    'function NativeActions(e){let{copyText:t,sentAtMs:n,timestampHoverOnly:r}=e;return(0,$.jsx)("span",{"data-assistant-message-sent-time":!0,children:"Copy response"})}',
+    'function Lr(){return"running"}',
+    current.before,
+    ";return u}",
+    current.parentBefore,
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Y=null,De=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    "t[377]!==Y||t[378]!==f||t[379]!==De||t[380]!==n?",
+    current.call,
+    ":e=t[381]}}}",
+    "const toolActivityTurnKey=true;export{Ow};"
+  ].join("");
+}
+
+function build9922TurnFixture() {
+  return [
+    'import{x as x}from"./conversation-fixture.js";',
+    "const hl={c(){return[]}},$={jsx(){return{}}};",
+    "function Uc(e){let t=(0,hl.c)(189),{conversationId:d,turnId:h,hostId:f}=e,Xi=[],Zi=(e,t,n)=>Xi.push({key:e,node:t,options:n});",
+    "let ea=Xi.length,ta={};return null}",
+    "export{Uc};"
   ].join("");
 }
 

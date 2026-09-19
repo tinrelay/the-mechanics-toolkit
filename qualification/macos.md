@@ -15,6 +15,26 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## Current accepted receipt
+
+The current accepted macOS ARM64 target is Codex Desktop `26.915.31945` / build `9922` with the
+19-patch fleet. A pristine ASAR with SHA-256
+`1f7939c1c781887c167043c4d1d307af3400d324685cfc315dfe2f80e634f483` produced the accepted
+ASAR `baed57b803d911e6870d566ba4b0c2890ce16e0a2b14ab8f5de9ffc340353822`. The integrated
+`codex-cli 0.155.0-alpha.9.2` executable has SHA-256
+`eaf312b0da253a9dbb989e420f2fdfd862a729a1fad2c972d48fb31c45ecbf1d` and was built from
+upstream commit `4607249e430dac1c961df4dc615beae88e33cec8` with the current standalone-output
+compaction patch.
+
+Supervisor incident `2026-09-19T02-27-11-364Z-6991949b-2354-4264-8194-c37cfeccbd7f`
+replaced the canonical app, observed the invoking CLI exit, displayed the preparation notification,
+returned to the exact originating task, and reached renderer readiness without supervisor or
+rollback-payload residue. Live acceptance covered Computer Use self-target inspection, sidebar
+disclosure and archive protection, observability, one ordinary task exchange, and one TinRelay
+self-loop across remount. The operator also observed the configured terminal toggle working. The
+greater-than-200-turn and live compaction fixtures remain explicit omissions; see the
+[extraction ledger](../docs/extraction-ledger.md) for the evidence boundary.
+
 This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
 matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It
 must not run section 2 merely to reproduce the maintainer's evidence. Section 2 requires explicit
@@ -251,6 +271,7 @@ marked `not selected`, never passed.
 | Codex observability | Run `tmtk-observe list`, capture a short CPU profile and timeline trace from the active renderer while interacting with a real task, then run one read-only CDP command. | Target metadata is current, both output files open in Chrome DevTools, the interaction appears in the captures, and every capture detaches without leaving profiling active. |
 | Renderer patch registry | Inspect the packed registry bootstrap and run its composition probe after all selected publishers/consumers. | Exactly one registry exists, known optional capabilities are callable, and cross-task/wait/Tinrelay surfaces above compose without requiring one another. |
 | Safe-start readiness | Complete the healthy case in section 3 and cite the current supervisor capability receipt. Re-run section 2 only when one of its named inputs changed. | This exact patchset writes readiness through LaunchServices, opens no rescue, and does not ask for Terminal Computer Use or network privacy access. The separate current capability receipt proves blank-renderer and living-Oops recovery. |
+| Computer Use self-target restoration | Record the exact `ComputerUseAllowForbiddenTargets` preference value, bind Computer Use to Codex, and make one harmless read-only accessibility observation. | The stock Computer Use path observes Codex without modifying the signed service. The agent records this as restoration of previously available functionality and verifies no unrelated permission or safety policy was bypassed. |
 | Renderer turn window | Run its bounded-turn probe against the packed candidate, then switch into a long-lived real task that previously stalled. | The mounted UI projection keeps only the newest 200 complete turns, transport pagination and transcript export remain intact, and task switching no longer stalls. |
 
 ## 5. Close the receipt

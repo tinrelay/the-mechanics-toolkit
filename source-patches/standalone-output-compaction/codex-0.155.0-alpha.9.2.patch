@@ -1,8 +1,8 @@
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index 55cc1718ba..ef4106d36c 100644
+index c2ab78acb45f9cf2cabac085cc87f0df2560dca5..694b9c8b9cec63f5e658e825b5fe4e01c9682703 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
-@@ -60,6 +60,7 @@ use tracing::error;
+@@ -58,6 +58,7 @@ use tracing::error;
  pub use codex_prompts::SUMMARIZATION_PROMPT;
  pub use codex_prompts::SUMMARY_PREFIX;
  const COMPACT_USER_MESSAGE_MAX_TOKENS: usize = 20_000;
@@ -10,7 +10,7 @@ index 55cc1718ba..ef4106d36c 100644
  
  /// Controls whether compaction replacement history must include initial context.
  ///
-@@ -606,7 +607,8 @@ pub(crate) fn is_summary_message(message: &str) -> bool {
+@@ -599,7 +600,8 @@ pub(crate) fn is_summary_message(message: &str) -> bool {
  /// model-expected boundary.
  ///
  /// Placement rules:
@@ -20,7 +20,7 @@ index 55cc1718ba..ef4106d36c 100644
  /// - If no real user messages remain, insert before the compaction summary so
  ///   the summary stays last.
  /// - If there are no user messages, insert before the last compaction item so
-@@ -617,8 +619,12 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -610,8 +612,12 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      initial_context: Vec<ResponseItemEnvelope>,
  ) -> Vec<ResponseItemEnvelope> {
      let mut last_user_or_summary_index = None;
@@ -34,7 +34,7 @@ index 55cc1718ba..ef4106d36c 100644
          if let ResponseItem::AgentMessage { content, .. } = &item.item
              && !matches!(
                  content.first(),
-@@ -626,7 +632,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -619,7 +625,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
                      if text.starts_with("Message Type: FINAL_ANSWER\n")
              )
          {
@@ -43,7 +43,7 @@ index 55cc1718ba..ef4106d36c 100644
              break;
          }
          let Some(TurnItem::UserMessage(user)) = crate::event_mapping::parse_turn_item(&item.item)
-@@ -638,7 +644,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -631,7 +637,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
          // user-message-like item (fallback summary insertion point).
          last_user_or_summary_index.get_or_insert(i);
          if !is_summary_message(&user.message()) {
@@ -52,7 +52,7 @@ index 55cc1718ba..ef4106d36c 100644
              break;
          }
      }
-@@ -653,7 +659,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -646,7 +652,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
              )
              .then_some(i)
          });
@@ -61,7 +61,7 @@ index 55cc1718ba..ef4106d36c 100644
          .or(last_user_or_summary_index)
          .or(last_compaction_index);
  
-@@ -670,6 +676,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -663,6 +669,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      compacted_history
  }
  
@@ -73,7 +73,7 @@ index 55cc1718ba..ef4106d36c 100644
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index 376ad06c99..c60d191d11 100644
+index 680deca87c25a985fe3ee54edd4d613c71048347..67303824fd431f06d58e6b9c538dad725d2fd5e9 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
 @@ -8,9 +8,11 @@ use crate::compact::CompactedHistoryMetadata;
@@ -88,7 +88,7 @@ index 376ad06c99..c60d191d11 100644
  use crate::compact_model_fallback::record_model_fallback;
  use crate::compact_model_fallback::should_retry_with_current_model;
  use crate::compact_remote_history::HistoryItemGroup;
-@@ -72,7 +74,6 @@ enum RetainedImageBudget {
+@@ -73,7 +75,6 @@ enum RetainedImageBudget {
  }
  
  pub(crate) const RETAINED_MESSAGE_TOKEN_BUDGET: usize = 64_000;
@@ -96,7 +96,7 @@ index 376ad06c99..c60d191d11 100644
  // Compact attempts can run much longer than normal turns, so keep the per-transport
  // retry budget smaller than the general Responses stream retry budget.
  const MAX_REMOTE_COMPACTION_V2_STREAM_RETRIES: u64 = 2;
-@@ -544,6 +545,10 @@ fn is_retained_for_remote_compaction_v2(
+@@ -554,6 +555,10 @@ fn is_retained_for_remote_compaction_v2(
      retain_client_developer_messages: bool,
  ) -> bool {
      let item = &envelope.item;
@@ -107,7 +107,7 @@ index 376ad06c99..c60d191d11 100644
      if let ResponseItem::AgentMessage {
          author,
          recipient,
-@@ -566,7 +571,7 @@ fn is_retained_for_remote_compaction_v2(
+@@ -576,7 +581,7 @@ fn is_retained_for_remote_compaction_v2(
          );
          return !is_descendant_progress
              && !is_completion
@@ -116,7 +116,7 @@ index 376ad06c99..c60d191d11 100644
      }
  
      let ResponseItem::Message { role, .. } = item else {
-@@ -768,6 +773,7 @@ mod tests {
+@@ -778,6 +783,7 @@ mod tests {
      use super::*;
      use codex_protocol::models::ContentItem;
      use codex_protocol::models::ContentItemKind;
@@ -124,7 +124,7 @@ index 376ad06c99..c60d191d11 100644
      use codex_protocol::models::InternalChatMessageMetadataPassthrough;
      use codex_protocol::models::MessagePhase;
      use pretty_assertions::assert_eq;
-@@ -834,6 +840,14 @@ mod tests {
+@@ -844,6 +850,14 @@ mod tests {
  
      #[test]
      fn build_v2_compacted_history_filters_to_installed_retention_shape() {
@@ -139,7 +139,7 @@ index 376ad06c99..c60d191d11 100644
          let hook = codex_protocol::items::build_hook_prompt_message(&[
              codex_protocol::items::HookPromptFragment::from_single_hook("hook", "hook-run"),
          ])
-@@ -854,6 +868,15 @@ mod tests {
+@@ -864,6 +878,15 @@ mod tests {
                  encrypted_function_args: None,
                  internal_chat_message_metadata_passthrough: None,
              },
@@ -155,7 +155,7 @@ index 376ad06c99..c60d191d11 100644
              ResponseItem::Compaction {
                  id: None,
                  encrypted_content: "old".to_string(),
-@@ -870,7 +893,12 @@ mod tests {
+@@ -880,7 +903,12 @@ mod tests {
  
          assert_eq!(
              raw(history),
@@ -170,18 +170,10 @@ index 376ad06c99..c60d191d11 100644
      }
  
 diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
-index 953175a045..1a8993c8cf 100644
+index 531d093061202f17f4127edbf2e776a5b0cfbdfe..67d9a42086bd8e83556a01e927501f80218949e2 100644
 --- a/codex-rs/core/src/compact_tests.rs
 +++ b/codex-rs/core/src/compact_tests.rs
-@@ -4,6 +4,7 @@ use codex_history::ResponseItemEnvelope;
- use codex_protocol::ResponseItemId;
- use codex_protocol::models::ContentItemKind;
- use codex_protocol::models::DEFAULT_IMAGE_DETAIL;
-+use codex_protocol::models::FunctionCallOutputPayload;
- use codex_protocol::models::InternalChatMessageMetadataPassthrough;
- use pretty_assertions::assert_eq;
- 
-@@ -413,6 +414,47 @@ fn insert_initial_context_before_last_real_user_or_summary_keeps_summary_last()
+@@ -562,6 +562,47 @@ fn insert_initial_context_before_last_real_user_or_summary_keeps_summary_last()
      assert_eq!(refreshed, expected);
  }
  

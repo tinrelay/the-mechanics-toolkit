@@ -120,6 +120,25 @@ end run`;
   throw new Error(`macOS task handoff confirmation returned an unknown choice: ${choice || "<empty>"}`);
 }
 
+export function notifyCandidatePreparation({processRunner = spawnSync} = {}) {
+  try {
+    const result = processRunner("/usr/bin/osascript", [
+      "-e",
+      'display notification "Preparing the verified candidate for relaunch…" with title "The Mechanics Toolkit"'
+    ], {encoding: "utf8"});
+    if (result.error != null) return {shown: false, error: result.error.message.slice(0, 1000)};
+    if (result.status !== 0) {
+      return {
+        shown: false,
+        error: (result.stderr || result.stdout || "macOS notification failed").trim().slice(0, 1000)
+      };
+    }
+    return {shown: true};
+  } catch (error) {
+    return {shown: false, error: String(error?.message ?? error).slice(0, 1000)};
+  }
+}
+
 export function diagnosticLocations(home) {
   return {
     desktopLogs: path.join(home, "Library/Logs/com.openai.codex"),

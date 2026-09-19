@@ -333,11 +333,8 @@ for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "markdown", "ev
   assert.ok(!helper.includes(forbidden), `renderer omits ${forbidden}`);
 
 const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
-const mainEnd = [mainSource.indexOf("var dQ=i.i(`electron-message-handler`)", mainStart),
-  mainSource.indexOf("var mQ=i.i(`electron-message-handler`)", mainStart),
-  mainSource.indexOf("var pQ=i.i(`electron-message-handler`)", mainStart),
-  mainSource.indexOf("var fQ=i.i(`electron-message-handler`)", mainStart),
-  mainSource.indexOf('const MTKobserveContract="tmtk-codex-observability-v1"', mainStart)].find(index => index >= 0);
+const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/);
+const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "outgoing main helpers are localized");
 assert.ok(mainSource.slice(mainStart, mainEnd).includes('process.platform==="win32"'),
   "the outgoing observer carries its explicit Windows transport and ACL boundary");

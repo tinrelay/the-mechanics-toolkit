@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { build9922 } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -115,6 +116,17 @@ function inspectState() {
     ? conversationSource : `${conversationSource}\n${conversationTurnSource}`;
   const ownerApplied = ownerMarkers.every(marker => source.includes(marker));
   const linux = linuxBuild9647.dynamic;
+  const current = build9922.dynamic;
+  const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
+    conversationSource.includes(current.parentTurn);
+  const currentLifecycleApplied = count(conversationSource, current.after) === 1 &&
+    count(conversationSource, current.parentAfter) === 1 &&
+    count(conversationSource, `const MTKOutboundReceiptReact=${current.react};`) === 1 &&
+    count(conversationSource, current.callDependencyAfter) === 1 &&
+    count(conversationSource, current.callBodyAfter) === 1 &&
+    count(conversationSource, current.callStorageAfter) === 1 &&
+    count(conversationSource, "ReceiptLifecycle:MTKOutboundReceiptLifecycle,") === 1 &&
+    count(conversationTurnSource, `${build9922.turn.register}(\`mtk-outbound-turn-receipts\``) === 1;
   const linuxConversation = (conversationSource.includes(linux.before) || conversationSource.includes(linux.after)) &&
     conversationSource.includes(linux.parentTurn);
   const linuxLifecycleApplied = count(conversationSource, linux.after) === 1 &&
@@ -123,7 +135,7 @@ function inspectState() {
     count(conversationSource, linux.callBodyAfter) === 1 &&
     count(conversationSource, linux.callStorageAfter) === 1 &&
     count(conversationSource, "ReceiptLifecycle:MTKOutboundReceiptLifecycle,") === 1;
-  const sourceTurnApplied = linuxConversation ? linuxLifecycleApplied :
+  const sourceTurnApplied = currentConversation ? currentLifecycleApplied : linuxConversation ? linuxLifecycleApplied :
     conversationSource.includes("sourceTurnId:w");
   const conversationApplied = conversationMarkers.every(marker => combinedConversationSource.includes(marker)) &&
     sourceTurnApplied;
@@ -218,7 +230,7 @@ function inspectPristineConversation(value, turnValue = conversationTurnSource) 
   }
   const dynamic = dynamicRendererProfile(value);
   if (dynamic.variant.startsWith("split-")) {
-    splitTurnProfile(turnValue, linuxBuild9647.turn);
+    splitTurnProfile(turnValue, dynamic.turn);
   } else {
     assistantProfile(value);
   }
@@ -251,7 +263,7 @@ function patchConversation(value, turnValue) {
     "outbound source turn context"
   );
   if (dynamic.variant.startsWith("split-")) {
-    const turn = splitTurnProfile(turnValue, linuxBuild9647.turn);
+    const turn = splitTurnProfile(turnValue, dynamic.turn);
     patched = replaceOnce(
       patched,
       "export{",
@@ -297,6 +309,55 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
+  const current9922 = build9922.dynamic;
+  if (value.includes(current9922.before) && value.includes(current9922.call) &&
+      value.includes(current9922.parentBefore)) {
+    const start = value.indexOf(current9922.owner);
+    const owner = functionAt(value, start);
+    const patchedFunction = replaceOnce(
+      owner.text,
+      current9922.before,
+      current9922.after,
+      "build-9922 dynamic renderer context body"
+    );
+    const callIndex = value.indexOf(current9922.call);
+    const parent = containingFunction(value, callIndex);
+    if (!parent.text.startsWith(current9922.parentBefore) ||
+        !parent.text.includes(current9922.parentTurn)) {
+      throw new Error("Upstream changed: build-9922 source-turn owner is ambiguous");
+    }
+    let patchedParent = replaceOnce(
+      parent.text,
+      current9922.parentBefore,
+      current9922.parentAfter,
+      "build-9922 source-turn cache size"
+    );
+    patchedParent = replaceOnce(
+      patchedParent,
+      current9922.callDependencyBefore,
+      current9922.callDependencyAfter,
+      "build-9922 source-turn call dependency"
+    );
+    const patchedCall = current9922.call
+      .replace(current9922.callBodyBefore, current9922.callBodyAfter)
+      .replace(current9922.callStorageBefore, current9922.callStorageAfter);
+    return {
+      variant: "split-9922",
+      functionText: owner.text,
+      patchedFunction,
+      callText: parent.text,
+      patchedCallText: replaceOnce(
+        patchedParent,
+        current9922.call,
+        patchedCall,
+        "build-9922 source-turn call"
+      ),
+      helperBoundary: current9922.helperBoundary,
+      react: current9922.react,
+      jsx: current9922.jsx,
+      turn: build9922.turn
+    };
+  }
   const linux9647 = linuxBuild9647.dynamic;
   if (value.includes(linux9647.before) && value.includes(linux9647.call) &&
       value.includes(linux9647.parentBefore)) {
@@ -342,7 +403,8 @@ function dynamicRendererProfile(value) {
       ),
       helperBoundary: linux9647.helperBoundary,
       react: linux9647.react,
-      jsx: linux9647.jsx
+      jsx: linux9647.jsx,
+      turn: linuxBuild9647.turn
     };
   }
   if (value.includes("function QS(") && value.includes("bh(o)") && value.includes("e?.render?.(o,l,i,c)")) {
@@ -396,10 +458,12 @@ function splitTurnProfile(value, linux) {
   );
   if (linux != null && value.includes(linux.owner) && value.includes(linux.marker) && value.includes(linux.boundary)) {
     const before = linux.boundary;
+    const jsx = linux.jsx ?? "Q";
+    const register = linux.register ?? "$";
     return {
       importText: imported[0], specifiers: imported.groups.specifiers, relative,
       before,
-      after: `$(\`mtk-outbound-turn-receipts\`,(0,Q.jsx)(MTKOutboundTurnReceipts,{conversationId:${linux.conversationId},turnId:${linux.turnId}}),{canOwnLatestTurnFollowContent:!1});${before}`
+      after: `${register}(\`mtk-outbound-turn-receipts\`,(0,${jsx}.jsx)(MTKOutboundTurnReceipts,{conversationId:${linux.conversationId},turnId:${linux.turnId}}),{canOwnLatestTurnFollowContent:!1});${before}`
     };
   }
   if (value.includes("function Z(e){let t=(0,Ba.c)(182),") && value.includes("conversationId:l") &&
@@ -435,6 +499,7 @@ function nativeActionsProfile(value) {
 }
 
 function conversationHelperBoundary(value) {
+  if (value.includes("function Ey(")) return "function Ey(";
   if (value.includes("function QS(")) return "function QS(";
   throw new Error("Upstream changed: build-9647 outgoing receipt helper boundary is missing");
 }
@@ -449,6 +514,24 @@ function resolveHostBus(value) {
       busImports[0].groups.specifiers,
       new RegExp(`(?:^|,)${escapeRegExp(exported)} as (?<local>${id})(?=,|$)`, "g"),
       "conversation message bus import"
+    ).groups.local;
+  }
+  const currentShared = [...value.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g)];
+  if (currentShared.length === 1) {
+    const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
+    const internal = uniqueMatch(
+      uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers,
+      new RegExp(`(?:^|,)(?<internal>${id}) as ${escapeRegExp(build9922.hostBus.exported)}(?=,|$)`, "g"),
+      "build-9922 host bus export"
+    ).groups.internal;
+    if (!source.includes(`${internal}=ce.getInstance()`) ||
+        !source.includes("dispatchMessage(e,t)") || !source.includes("subscribe(e,t)")) {
+      throw new Error("Upstream changed: build-9922 host bus singleton contract is missing");
+    }
+    return uniqueMatch(
+      currentShared[0].groups.specifiers,
+      new RegExp(`(?:^|,)${escapeRegExp(build9922.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
+      "build-9922 conversation host bus import"
     ).groups.local;
   }
   const imported = uniqueMatch(value, /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g, "conversation app-initial import");
@@ -513,7 +596,7 @@ function patchMain(value) {
 function mainHelperOwner(value) {
   return uniqueMatch(
     value,
-    new RegExp("var (?<helper>" + id + ")=i\\.i\\(`electron-message-handler`\\)", "g"),
+    new RegExp("var (?<helper>" + id + ")=" + id + "\\.i\\(`electron-message-handler`\\)", "g"),
     "outgoing receipt main helper owner"
   );
 }
@@ -698,7 +781,7 @@ function sendProfile(value) {
   const owner = containingFunction(value, functionAt);
   const header = uniqueMatch(
     owner.text,
-    /function (?<genericRender>[$A-Z_a-z][$\w]*)\(e,t,n,[$A-Z_a-z][$\w]*=!0\)\{/g,
+    new RegExp(`function (?<genericRender>${id})\\(${id},${id},${id},${id}=!0\\)\\{`, "g"),
     "generic app-control renderer"
   ).groups;
   const render = header.genericRender === "X" && owner.text.includes("let e=r(l);ae.dispatchHostMessage({type:`navigate-to-route`,path:Ee()?A(e):p(e)})")
@@ -777,6 +860,7 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
+  if (build9922.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild9647.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build9647Contracts.every(contract => value.includes(contract))) return owner;
   const persistentUnits = uniqueMatch(
@@ -806,6 +890,23 @@ function resolveTaskImports(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  const current9922 = build9922.taskImports;
+  if (appInitial.includes(current9922.appRoot) && appInitial.includes(current9922.taskOwner) &&
+      appInitial.includes("function xf(e){let t=(0,Kvt.useContext)(hvt(e)),")) {
+    const additions = [
+      `${exportedAs(appInitial, current9922.storeHook)} as MTKoutboundStoreHook`,
+      `${exportedAs(appInitial, current9922.storeScope)} as MTKoutboundStoreScope`,
+      `${exportedAs(appInitial, current9922.taskAtom)} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, current9922.localThreadKey)} as MTKoutboundLocalThreadKey`,
+      `${exportedAs(appInitial, current9922.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
+    ];
+    return {
+      before: importMatch[0],
+      after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
+      storeHook: "MTKoutboundStoreHook",
+      storeScope: "MTKoutboundStoreScope"
+    };
+  }
   const linux9647 = linuxBuild9647.taskImports;
   if (appInitial.includes(linux9647.appRoot) && appInitial.includes(linux9647.taskOwner) &&
       appInitial.includes("function tm(e){let t=(0,pNt.useContext)(qp),")) {
@@ -1110,7 +1211,8 @@ function uniqueConversationOwner() {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js")) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    const split = (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+    const split = (value.includes("function Ow(") && value.includes("let e=Cp(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+      (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
     return split && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
@@ -1124,8 +1226,8 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return value.includes("function Z(e){let t=(0,") &&
-      (value.includes("let to=Qa.length,no={") ||
+    return (value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Z(e){let t=(0,")) &&
+      (value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });

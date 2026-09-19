@@ -43,8 +43,7 @@ function inspectState() {
     "function MTKruntimeJsonRegister(",
     "function MTKinstallRuntimeJsonReload(",
     '.subscribe("mtk-runtime-json-changed"',
-    '.dispatchMessage("mtk-runtime-json-watch",{roots:',
-    "MTKinstallRuntimeJsonReload(),"
+    '.dispatchMessage("mtk-runtime-json-watch",{roots:'
   ];
   const mainMarkers = [
     "const MTKruntimeJsonFs=require(\"node:fs\")",
@@ -54,11 +53,16 @@ function inspectState() {
     'type:"mtk-runtime-json-changed"',
     'case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break'
   ];
-  const rendererApplied = rendererMarkers.every(marker => rendererSource.includes(marker));
+  const rendererInstalled = rendererSource.includes("MTKinstallRuntimeJsonReload(),") ||
+    rendererSource.includes("MTKinstallRuntimeJsonReload();export{");
+  const rendererApplied = rendererMarkers.every(marker => rendererSource.includes(marker)) && rendererInstalled;
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker));
-  if (rendererApplied && mainApplied) return "applied";
+  if (rendererApplied && mainApplied) {
+    inspectAppliedRenderer();
+    return "applied";
+  }
   if (rendererMarkers.some(marker => rendererSource.includes(marker)) ||
-      mainMarkers.some(marker => mainSource.includes(marker))) {
+      rendererInstalled || mainMarkers.some(marker => mainSource.includes(marker))) {
     throw new Error("Upstream changed: runtime JSON reload patch is partial");
   }
   inspectPristineRenderer();
@@ -66,18 +70,36 @@ function inspectState() {
   return "needs-apply";
 }
 
+function inspectAppliedRenderer() {
+  const profile = rendererProfile(rendererSource);
+  const subscribers = [...rendererSource.matchAll(/(?<bus>[$A-Z_a-z][$\w]*)\.subscribe\("mtk-runtime-json-changed"/g)];
+  const dispatchers = [...rendererSource.matchAll(/(?<bus>[$A-Z_a-z][$\w]*)\.dispatchMessage\("mtk-runtime-json-watch"/g)];
+  if (subscribers.length !== 1 || dispatchers.length !== 2 ||
+      subscribers[0].groups.bus !== profile.bus || dispatchers.some(match => match.groups.bus !== profile.bus)) {
+    throw new Error("Upstream changed: runtime JSON renderer host bus wiring is inconsistent");
+  }
+  if (profile.kind === "local") {
+    if (!profile.contract.includes(",MTKinstallRuntimeJsonReload(),")) {
+      throw new Error("Upstream changed: runtime JSON renderer local installation is missing");
+    }
+  } else if (count(rendererSource, "MTKinstallRuntimeJsonReload();export{") !== 1) {
+    throw new Error("Upstream changed: runtime JSON renderer imported installation is not unique");
+  }
+}
+
 function inspectPristineRenderer() {
   const profile = rendererProfile(rendererSource);
   if (count(rendererSource, "export{") !== 1) {
     throw new Error("Upstream changed: runtime JSON renderer export list is not unique");
   }
-  if (!new RegExp(`(?:\\{|,)${profile.bus} as [$A-Z_a-z][$\\w]*(?=,|})`).test(rendererSource.slice(rendererSource.lastIndexOf("export{")))) {
+  if (profile.kind === "local" &&
+      !new RegExp(`(?:\\{|,)${profile.bus} as [$A-Z_a-z][$\\w]*(?=,|})`).test(rendererSource.slice(rendererSource.lastIndexOf("export{")))) {
     throw new Error("Upstream changed: renderer host bus is not exported from app-initial");
   }
 }
 
 function inspectPristineMain() {
-  const owner = mainSource.match(/var [$\w]+=i\.i\(`electron-message-handler`\)/g) ?? [];
+  const owner = mainSource.match(/var [$\w]+=[$\w]+\.i\(`electron-message-handler`\)/g) ?? [];
   if (owner.length !== 1) {
     throw new Error("Upstream changed: runtime JSON main-process owner is not unique");
   }
@@ -95,12 +117,21 @@ function patchRenderer(value) {
   const profile = rendererProfile(value);
   const helper = rendererHelper(profile.bus);
   let patched = helper + value;
-  patched = replaceOnce(
-    patched,
-    profile.contract,
-    profile.contract.replace(",", ",MTKinstallRuntimeJsonReload(),"),
-    "renderer host-bus initialization"
-  );
+  if (profile.kind === "local") {
+    patched = replaceOnce(
+      patched,
+      profile.contract,
+      profile.contract.replace(",", ",MTKinstallRuntimeJsonReload(),"),
+      "renderer host-bus initialization"
+    );
+  } else {
+    patched = replaceOnce(
+      patched,
+      "export{",
+      "MTKinstallRuntimeJsonReload();export{",
+      "renderer imported host-bus initialization"
+    );
+  }
   return patched;
 }
 
@@ -109,13 +140,22 @@ function rendererHelper(bus) {
 }
 
 function rendererProfile(value) {
-  const matches = [...value.matchAll(/(?<bus>[$A-Z_a-z][$\w]*)=(?<owner>[$A-Z_a-z][$\w]*)\.getInstance\(\),(?<bridge>[$A-Z_a-z][$\w]*)\(\(e,t\)=>\{\k<bus>\.dispatchMessage\(e,t\)\}\)/g)];
-  if (matches.length !== 1) throw new Error("Upstream changed: runtime JSON renderer host-bus owner is not unique");
-  return {bus: matches[0].groups.bus, contract: matches[0][0]};
+  const matches = [...value.matchAll(/(?<bus>[$A-Z_a-z][$\w]*)=(?<owner>[$A-Z_a-z][$\w]*)\.getInstance\(\),(?:MTKinstallRuntimeJsonReload\(\),)?(?<bridge>[$A-Z_a-z][$\w]*)\(\(e,t\)=>\{\k<bus>\.dispatchMessage\(e,t\)\}\)/g)];
+  if (matches.length === 1) return {kind: "local", bus: matches[0].groups.bus, contract: matches[0][0]};
+  if (matches.length > 1) throw new Error("Upstream changed: runtime JSON renderer host-bus owner is not unique");
+  const imports = [...value.matchAll(/import\{(?<bindings>[^}]+)\}from"\.\/app-shared-[0-9a-f]+\.js";/g)];
+  if (imports.length !== 1) throw new Error("Upstream changed: runtime JSON renderer shared import is not unique");
+  const buses = [...imports[0].groups.bindings.matchAll(/(?:^|,)RB as (?<bus>[$A-Z_a-z][$\w]*)(?=,|$)/g)];
+  if (buses.length !== 1) throw new Error("Upstream changed: runtime JSON renderer imported host bus is not unique");
+  const bus = buses[0].groups.bus;
+  if (count(value, `${bus}.dispatchMessage(`) < 1 || count(value, `${bus}.subscribe(`) < 1) {
+    throw new Error("Upstream changed: runtime JSON renderer imported host bus contract is incomplete");
+  }
+  return {kind: "imported-9922", bus};
 }
 
 function patchMain(value) {
-  const owners = value.match(/var [$\w]+=i\.i\(`electron-message-handler`\)/g) ?? [];
+  const owners = value.match(/var [$\w]+=[$\w]+\.i\(`electron-message-handler`\)/g) ?? [];
   if (owners.length !== 1) throw new Error("Upstream changed: main-process runtime JSON helper owner is not unique");
   let patched = replaceOnce(value, owners[0], mainHelper() + owners[0],
     "main-process runtime JSON helper owner");

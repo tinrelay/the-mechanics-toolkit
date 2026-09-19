@@ -1,6 +1,6 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK is source-only and currently reports package version `0.2.0`. Exact TMTK revisions and exact
+TMTK is source-only and currently reports package version `0.2.1`. Exact TMTK revisions and exact
 Codex Desktop versions and builds still define compatibility. This file tells an operator what must
 change when adopting the current toolkit; Git history preserves the upgrade instructions for older
 ports.
@@ -10,15 +10,15 @@ published revision, and stage from a pristine official Codex package rather than
 installation. The [current build matrix](docs/extraction-ledger.md#current-build-matrix) is the
 authority for supported packages and selected fleets.
 
-## 0.2.0
+## 0.2.1
 
-This upgrade applies to TMTK `0.1.x` installations. TMTK `0.2.0` is the first coherent current
-cross-platform release for Codex Desktop `26.911.61220` / build `9647`:
+This upgrade applies to TMTK `0.1.x` and `0.2.0` installations. TMTK `0.2.1` advances macOS while
+retaining the already qualified Windows and Linux ports:
 
-- macOS ARM64 uses the 19-patch fleet;
-- Windows 11 ARM64 uses the 16-patch fleet;
-- Ubuntu uses the 16-patch DEB fleet on `arm64` and `amd64`; and
-- Fedora uses the same 16-patch ASAR fleet in an RPM on `aarch64` and `x86_64`.
+- macOS ARM64 uses the 19-patch fleet on Codex Desktop `26.915.31945` / build `9922`;
+- Windows 11 ARM64 uses the 16-patch fleet on `26.911.61220` / build `9647`;
+- Ubuntu uses the 16-patch DEB fleet on build `9647`, for `arm64` and `amd64`; and
+- Fedora uses the same build-`9647` ASAR fleet in an RPM, for `aarch64` and `x86_64`.
 
 The qualified Ubuntu and Fedora vendor packages contain the same ASAR. Their package
 authentication, reconstruction, installation, restart, and recovery boundaries remain
@@ -26,7 +26,7 @@ independently qualified. The current live VMs are ARM64; the package adapters de
 the corresponding AMD64 architecture names without adding an architecture-specific JavaScript
 profile.
 
-1. Check out an exact published `0.2.0` revision, install its Node dependencies, and run
+1. Check out an exact published `0.2.1` revision, install its Node dependencies, and run
    `npm run check` and `npm test`.
 2. Replace the old private example with the platform-specific template under [`examples/`](examples/):
    `toolkit.macos.example.json`, `toolkit.linux.example.json`, or
@@ -42,8 +42,8 @@ profile.
 
    TMTK discovers the active ship from that file. Zero or multiple valid observer configurations
    disable outgoing presentation only; they do not block incoming messages.
-4. Acquire the pristine official build-`9647` package for the target platform. Stage the selected
-   fleet with `stage-macos`, `stage-deb`, `stage-rpm`, or `stage-msix`. The former macOS-only
+4. Acquire the pristine official package named by the current build matrix for the target platform.
+   Stage the selected fleet with `stage-macos`, `stage-deb`, `stage-rpm`, or `stage-msix`. The former macOS-only
    `stage` command is now named `stage-macos`. Do not use a patched installed application as the
    candidate source.
 5. Adopt the candidate through `tmtk-restart`. Confirm renderer readiness, roster and policy

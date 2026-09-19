@@ -169,9 +169,10 @@ staging, installation, restart, and live acceptance remain separate actions.
 
 ## Codex Desktop package patches
 
-The current 19-patch desktop fleet is qualified against **Codex Desktop `26.911.61220` (`9647`)**
+The current 19-patch desktop fleet is qualified against **Codex Desktop `26.915.31945` (`9922`)**
 on **macOS ARM64**. It passed the complete static fleet, supervised installation, renderer
-readiness, and selected live message paths. Windows 11 ARM64 has a 16-patch build-9647 port with
+readiness, Computer Use self-target restoration, observability, ordinary task messaging, and a
+TinRelay loopback across task remounts. Windows 11 ARM64 has a 16-patch build-9647 port with
 signed-MSIX proof, healthy supervised adoption, and selected live renderer checks. Ubuntu DEB
 (`arm64` and `amd64`) and Fedora RPM (`aarch64` and `x86_64`) packages use the same 16-patch
 build-9647 ASAR fleet. Both ARM64 package adapters passed static reconstruction, genuine-task
@@ -203,6 +204,7 @@ unnamed Codex build.
 | [Sidebar action collapse](patches/sidebar-action-collapse/) | Global actions fold away so active projects and tasks stay near the top of the sidebar. |
 | [Terminal toggle](patches/terminal-toggle/) | Repairs a recently introduced shortcut bug so the configured terminal key opens and closes the bottom terminal from focused editors. This patch is expected to be temporary. |
 | [Safe restart and rescue](docs/safe-start.md) | Detects a failed or wedged Codex restart and opens the same task in a terminal with bounded startup diagnostics. |
+| [Computer Use self-target restoration](docs/safe-start.md#computer-use-self-target-restoration) | Restores the recently removed ability for an authorized Codex agent to inspect and operate Codex itself, while preserving the rest of the stock Computer Use permission and safety boundary. |
 | [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Native Codex app tools keep working after a narrow local repair and re-signing. |
 | [Codex observability](patches/codex-observability/) | Gives a local agent or operator explicit DevTools, CDP, renderer metrics, CPU-profile, and timeline-trace access without exposing a remote-debugging port. |
 | [Patched Codex binary integration](patches/standalone-output-compaction/) | Places the separately built, same-version `codex` executable into a staged desktop candidate and verifies the exact copied bytes. |
@@ -215,7 +217,7 @@ desktop-package transforms above.
 
 | Source patch | Qualified source | What it repairs |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.2.6` / Desktop `26.911.61220` (`9647`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.9.2` / Desktop `26.915.31945` (`9922`) | Preserves the current externally sourced agent-to-agent instruction when that turn triggers compaction, without manufacturing a user message or retaining ordinary paired tool output. |
 
 ## See the patches
 
@@ -322,7 +324,17 @@ and opens the invoking Codex task in a terminal. It recovers the task's stored p
 from Codex's local catalog rather than trusting `PWD`, and it gives a freshly signed build time to
 wait for a person at a macOS Keychain prompt. On macOS, the detached supervisor first blocks behind
 an explicit **Don't Restart** / **Relaunch Codex** dialog so active agents can reach a safe stopping
-point and the person—not a race—chooses when the application closes.
+point and the person—not a race—chooses when the application closes. After Codex and its invoking
+CLI have exited, a best-effort macOS notification says that TMTK is preparing the verified
+candidate for relaunch. The notification is progress feedback only; notification failure cannot
+strand the restart.
+
+TMTK also documents how to restore a capability Codex previously provided: an authorized Codex
+agent may use Computer Use on Codex itself. On macOS this is a one-time opt-in through OpenAI's
+existing `ComputerUseAllowForbiddenTargets` preference for `com.openai.sky.CUAService`, not an ASAR
+patch or a recurring restart action. Accessibility and Screen Recording permission, organization
+and per-app policy, user stop, URL restrictions, and every other stock Computer Use check remain in
+force. See [Computer Use self-target restoration](docs/safe-start.md#computer-use-self-target-restoration).
 
 The Linux DEB and RPM adapters use the same supervisor protocol with desktop-native dialogs, exact
 `/proc` executable identity, a native askpass dialog around `sudo -A` package installation, and a Linux

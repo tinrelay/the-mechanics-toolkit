@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./profiles/build9647.mjs";
+import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { linuxBuild9647 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -168,7 +169,15 @@ function inspectArchiveIdentity(source) {
 }
 
 function inspectSidebarArchiveProtection(source, primarySource) {
-  if (primarySource == null) throw new Error("build-9647 archive owner is missing");
+  if (primarySource == null) throw new Error("sidebar archive owner is missing");
+
+  if (build9922.archive.applied.every(contract => source.includes(contract))) {
+    if (inspectBuild9922ArchiveRuntime(source) !== "applied") {
+      throw new Error("Unrecognized build-9922 archive runtime reload");
+    }
+    return "applied";
+  }
+  if (build9922.archive.pristine.every(contract => source.includes(contract))) return "needs-apply";
 
   if (linuxBuild9647.archive.applied.every(contract => source.includes(contract) || primarySource.includes(contract))) {
     if (inspectBuild9647ArchiveRuntime(primarySource, linuxBuild9647.archive.runtime) !== "applied") {
@@ -212,6 +221,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
+    build9922.app,
     linuxBuild9647.app,
     {
       name: "26.911.61220-9647",
@@ -232,16 +242,20 @@ function appProfile(source) {
   return matches.length === 1 ? matches[0] : null;
 }
 function bottomFadeProfile(_appSource, primarySource) {
-  const profiles = ["h3", "g9"].map(jsx => ({
+  const profiles = [
+    build9922.bottomFade,
+    ...["h3", "g9"].map(jsx => ({
     file: "app-primary",
     before: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`,
     after: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`
-  }));
+    }))
+  ];
   const matches = profiles.filter(profile => primarySource.includes(profile.before));
   return matches.length === 1 ? matches[0] : null;
 }
 function localProfile(source) {
   const profiles = [
+    build9922.local,
     linuxBuild9647.local,
     {
       name: "26.911.61220-9647",
@@ -572,7 +586,16 @@ function addArchiveReloadNotification(source, prefix) {
   throw new Error(`Unrecognized palette archive reload notification: before=${beforeCount} after=${afterCount}`);
 }
 
-function patchSidebarArchiveAffordances(_file, primaryFile) {
+function patchSidebarArchiveAffordances(file, primaryFile) {
+  let source = fs.readFileSync(file, "utf8");
+  if (build9922.archive.pristine.every(contract => source.includes(contract))) {
+    for (const replacement of build9922.archive.replacements) {
+      source = replaceOnce(source, ...replacement);
+    }
+    source = applyBuild9922ArchiveRuntime(source);
+    fs.writeFileSync(file, source);
+    return;
+  }
   let primarySource = fs.readFileSync(primaryFile, "utf8");
   if (linuxBuild9647.archive.pristine.every(contract => primarySource.includes(contract))) {
     for (const replacement of linuxBuild9647.archive.replacements) {
@@ -635,6 +658,13 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
+  if (source.includes(build9922.delegation.owner)) {
+    for (const replacement of build9922.delegation.replacements) {
+      source = replaceOnce(source, ...replacement);
+    }
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (!source.includes("function MS(e){let t=(0,NS.c)(14),")) {
     throw new Error("unrecognized build-9647 delegation provenance ownership profile");
   }

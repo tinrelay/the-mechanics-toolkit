@@ -31,6 +31,25 @@ const build9647Component = {
     "t[45]=G,t[46]=U,t[47]=Ke,t[152]=MTKbubbleStyleOverride,t[48]=q"
   ]
 };
+const build9922Component = {
+  delegation: "oy", delegationCache: "sy", delegationJsx: "cy",
+  wrapper: "Zv", wrapperCache: "Qv", wrapperJsx: "$v",
+  bubble: "yt", wrapperBubble: "pp", bubbleCache: "xt", collapsedLines: "ey",
+  bubbleCacheSize: 153,
+  externalBubble: true,
+  bubbleOwner: [
+    "turnId:C,cwd:w,hostId:T}=e,",
+    "turnId:C,cwd:w,hostId:T,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+  ],
+  bubbleDependency: [
+    "t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke){",
+    "t[45]!==I||t[46]!==K||t[47]!==W||t[48]!==Ke||t[153]!==MTKbubbleStyleOverride){"
+  ],
+  bubbleStorage: [
+    "t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[49]=J",
+    "t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[153]=MTKbubbleStyleOverride,t[49]=J"
+  ]
+};
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
 let state = inspectState(owner);
@@ -67,12 +86,18 @@ function findOwner() {
         source.includes("sourceThreadId")) {
       const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
       if (containingFunction(source, labelAt).text.includes("sourceThreadId")) {
-        const bubbleImport = source.match(/import\{[^}]*\bt as (?<local>[$\w]+)[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/);
-        if (bubbleImport?.groups?.local === "uh") {
+        const bubbleImports = [...source.matchAll(/import\{[^}]*\bt as (?<local>[$\w]+)[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/g)]
+          .filter(match => source.includes(`.jsx)(${match.groups.local},{message:`));
+        if (bubbleImports.length > 1) {
+          throw new Error("Upstream changed: delegated bubble import is ambiguous");
+        }
+        const bubbleImport = bubbleImports[0];
+        if (bubbleImport != null) {
           const bubbleFile = ownedImport(file, bubbleImport.groups.relative);
-          candidates.push({ file, source, bubbleFile, bubbleSource: fs.readFileSync(bubbleFile, "utf8") });
+          candidates.push({ file, source, bubbleFile, bubbleLocal: bubbleImport.groups.local,
+            bubbleSource: fs.readFileSync(bubbleFile, "utf8") });
         } else {
-          candidates.push({ file, source, bubbleFile: null, bubbleSource: null });
+          candidates.push({ file, source, bubbleFile: null, bubbleLocal: null, bubbleSource: null });
         }
       }
     }
@@ -117,9 +142,10 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [linuxBuild9647.component, build9647Component].find(candidate =>
+  const profile = [build9922Component, linuxBuild9647.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
+    (candidate.wrapperBubble == null || owner.bubbleLocal === candidate.wrapperBubble) &&
     (candidate.bubbleOwner == null || (candidate.externalBubble ? externalBubbleSource : source).includes(candidate.bubbleOwner[0])) &&
     (candidate.marker == null || source.includes(candidate.marker)));
   if (profile == null) throw new Error("Upstream changed: attribution component family is unknown");
@@ -145,14 +171,9 @@ function inspectPristine(source, externalBubbleSource = null) {
     wrapper,
     bubble,
     profile,
-    bubbleFile: profile.externalBubble ? ownerBubbleFile() : null,
+    bubbleFile: profile.externalBubble ? owner.bubbleFile : null,
     bubbleSource
   };
-
-  function ownerBubbleFile() {
-    const imported = uniqueMatch(source, /import\{[^}]*\bt as uh[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/g, "user-message bubble import");
-    return ownedImport(owner.file, imported.groups.relative);
-  }
 }
 
 function patchAttribution(source, ownerFile, details) {
@@ -243,6 +264,16 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  if (appInitial.includes("uyc=uf($,(e,{get:t})=>") &&
+      appInitial.includes("cyc({...n,localTitle:r})") &&
+      appInitial.includes("function Vvl(){let e=(0,Wvl.c)(12),t=xf($),")) {
+    return {
+      before: initialImport[0],
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uyc")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "xf")),
+      storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "$"))
+    };
+  }
   const linuxSelector = linuxBuild9647.titleSelector;
   if (appPrimary.includes(linuxBuild9647.titleOwner) &&
       appPrimary.includes(`${linuxSelector.internal}=${linuxSelector.atomFactory}(${linuxSelector.scope},`)) {

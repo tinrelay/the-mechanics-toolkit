@@ -70,6 +70,26 @@ function currentProfile(value) {
     }
     return linuxBuild9647.profile;
   }
+  const build9922Seam = "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),";
+  if (value.includes(build9922Seam)) {
+    const contracts = [
+      build9922Seam,
+      "function ep(e,t){let n=e.get(tp);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+      "woi=sf($,",
+      "a.get=o,a.query=Ggt(a),a.set=l,a.watch=s,a.when=c"
+    ];
+    if (!contracts.every(contract => count(value, contract) === 1)) {
+      throw new Error("Upstream changed: build-9922 agent roster owner is not unique");
+    }
+    return {
+      seam: build9922Seam,
+      scope: "xf($)",
+      react: "Gvl",
+      projectsAtom: "woi",
+      readyAtom: "tp",
+      client: "ep"
+    };
+  }
   const build9647Seam = "function PYs(){let e=(0,LYs.c)(12),t=nm(Q),";
   if (value.includes(build9647Seam)) {
     const contracts = [

@@ -12,6 +12,7 @@ const behavioralProbe = path.join(repository, "test/task-attention-policy.test.m
 
 testMac9647Profile();
 testLinux9647Profile();
+testBuild9922Profile();
 
 function testMac9647Profile() {
   const profileScratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attention-mac-9647-"));
@@ -58,6 +59,40 @@ function testMac9647Profile() {
     }
   } finally {
     fs.rmSync(profileScratch, { recursive: true, force: true });
+  }
+}
+
+function testBuild9922Profile() {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attention-9922-"));
+  try {
+    const assets = path.join(scratch, "webview/assets");
+    fs.mkdirSync(assets, { recursive: true });
+    const initial = path.join(assets, "app-initial-9922.js");
+    fs.writeFileSync(initial, build9922InitialFixture());
+    fs.writeFileSync(path.join(assets, "app-primary-9922.js"), "export const fixture=true;");
+    const composed = fs.readFileSync(initial, "utf8");
+    fs.writeFileSync(initial, composed.replace(
+      "function Vvl(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Wvl.c)(12);",
+      "function Vvl(){let e=(0,Wvl.c)(12),"
+    ));
+    assert.equal(run("check").state, "needs-apply",
+      "the independently checked pristine build-9922 owner is recognized before fleet composition");
+    fs.writeFileSync(initial, composed);
+    assert.equal(run("check").state, "needs-apply");
+    assert.equal(run("apply").state, "applied");
+    const once = fs.readFileSync(initial);
+    const behavior = spawnSync(process.execPath, [behavioralProbe, scratch], { encoding: "utf8" });
+    assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
+    assert.equal(run("apply").state, "applied");
+    assert.deepEqual(fs.readFileSync(initial), once, "build-9922 second application is byte-identical");
+
+    function run(action) {
+      const result = spawnSync(process.execPath, [toolkit, "patch", "task-attention-policy", action, scratch], { encoding: "utf8" });
+      assert.equal(result.status, 0, result.stderr || result.stdout);
+      return JSON.parse(result.stdout);
+    }
+  } finally {
+    fs.rmSync(scratch, { recursive: true, force: true });
   }
 }
 
@@ -169,5 +204,22 @@ function linux9647PrimaryFixture() {
     "flag?(Gt=1):Gt=t[45];let Kt=Gt,qt;t[46];",
     "let hover={hasUnreadTurn:!kt&&et===!0,hasSystemError:It.type===`error`};return hover}",
     "export const fixture=true;"
+  ].join("");
+}
+
+function build9922InitialFixture() {
+  return [
+    "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
+    "function rf(e,t,n){let r=tf(`signal`,e,t);return r}",
+    "function IT(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function Vvl(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Wvl.c)(12);return e}",
+    "function rfl(e,t){$t.info(`[desktop-notifications] service starting`);let n=t.scope;",
+    "let a=uYr(e.getConversation(t.conversationId)),{navigationPath:o,navigateToNotification:s}=h(t.conversationId);return a}",
+    "var fOa;function pOa(){return(pOa=n((()=>{fOa=sf($,({get:e})=>e)})))}",
+    "function unreadBadge(e,t,o,r,i){let s=t===`work`?qQn({cloudThreadsAllowed:i,localThreadsAllowed:aE(e(vy)),threadKeys:o}):o;return r+s}",
+    "function hbc(e){let t=(0,_bc.c)(148),Wt,en,Jt,n=e.conversationId,et=`local`,Je={},Tt=bf(uyc,{hostId:et??`local`,threadId:n})??Je?.title??null,Et=1;",
+    "flag?(Wt={type:`idle`,unread:!1,unreadCount:0}):Wt=t[25];let Gt=Wt,Kt;t[26];",
+    "let Yt=Jt==null?[]:[Jt];flag?(en=1):en=t[45];let tn=en,nn;t[46];",
+    "let hover={hasUnreadTurn:!Rt&&lt===!0};return hover}"
   ].join("");
 }

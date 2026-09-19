@@ -44,9 +44,9 @@ results discardable.
 
 ## Qualified source
 
-[`codex-0.155.0-alpha.2.6.patch`](codex-0.155.0-alpha.2.6.patch) applies only to OpenAI Codex tag
-`rust-v0.155.0-alpha.2.6`, commit `bf6f0a4ec97919bf697cdc532e7b8af4ec482fc6`. Codex Desktop
-`26.911.61220` (build `9647`) bundles that same CLI version, and the qualified desktop fleet
+[`codex-0.155.0-alpha.9.2.patch`](codex-0.155.0-alpha.9.2.patch) applies only to OpenAI Codex tag
+`rust-v0.155.0-alpha.9.2`, commit `4607249e430dac1c961df4dc615beae88e33cec8`. Codex Desktop
+`26.915.31945` (build `9922`) bundles that same CLI version, and the qualified desktop fleet
 integrates the patched binary. The source-patch command verifies the exact commit and every target
 file's qualified before or after hash.
 
@@ -66,8 +66,14 @@ From the patched checkout:
 cd codex-rs
 just test -p codex-core compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
 just test -p codex-core compact::tests::insert_initial_context_before_standalone_function_output
-cargo build --release --bin codex
+bin/tmtk-build-codex /path/to/codex
 ```
+
+The TMTK wrapper builds the ordinary release binary with
+`CARGO_PROFILE_RELEASE_LTO=off` by default. Codex enables ThinLTO in its release profile, but the
+frontier build is qualification input rather than a performance release and does not justify the
+extra link time. Set `CARGO_PROFILE_RELEASE_LTO=thin` explicitly when production-identical LTO is
+required; the wrapper preserves an explicit caller value.
 
 The complete `codex-core` package gate remains worthwhile in a fully provisioned build environment.
 It requires helper binaries and sandbox facilities beyond the focused tests.
