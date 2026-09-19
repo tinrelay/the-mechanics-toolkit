@@ -97,6 +97,35 @@ function Show-ChoiceDialog(
   Write-Result $script:dialogResult
 }
 
+function Show-CandidatePreparationNotification([string]$IconPath) {
+  if (-not (Test-Path -LiteralPath $IconPath -PathType Leaf)) {
+    throw "candidate preparation notification icon does not exist"
+  }
+  Add-Type -AssemblyName System.Drawing
+  Add-Type -AssemblyName System.Windows.Forms
+  $icon = [System.Drawing.Icon]::new([IO.Path]::GetFullPath($IconPath))
+  $notification = New-Object System.Windows.Forms.NotifyIcon
+  try {
+    $notification.Icon = $icon
+    $notification.Text = "The Mechanics Toolkit"
+    $notification.BalloonTipTitle = "The Mechanics Toolkit"
+    $notification.BalloonTipText = "Preparing the verified candidate for relaunch..."
+    $notification.BalloonTipIcon = [System.Windows.Forms.ToolTipIcon]::None
+    $notification.Visible = $true
+    $notification.ShowBalloonTip(10000)
+    $deadline = [DateTime]::UtcNow.AddSeconds(3)
+    while ([DateTime]::UtcNow -lt $deadline) {
+      [System.Windows.Forms.Application]::DoEvents()
+      Start-Sleep -Milliseconds 100
+    }
+    Write-Result "shown"
+  } finally {
+    $notification.Visible = $false
+    $notification.Dispose()
+    $icon.Dispose()
+  }
+}
+
 function Require-Arguments([int]$Count) {
   $supplied = @($ActionArguments | Where-Object { $null -ne $_ -and $_ -ne '' })
   if ($supplied.Count -ne $Count) {
@@ -422,6 +451,10 @@ switch ($Action) {
     Show-ChoiceDialog `
       "Codex closed, but the agent task that armed this restart is still active.`r`n`r`nClose its existing terminal or session, then click Continue." `
       "Continue" "Don't Relaunch" "continue" "cancel" $iconPath
+  }
+  "notify-candidate-preparation" {
+    Require-Arguments 1
+    Show-CandidatePreparationNotification $ActionArguments[0]
   }
   "is-running" {
     Require-Arguments 1

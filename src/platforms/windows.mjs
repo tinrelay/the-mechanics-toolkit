@@ -251,6 +251,18 @@ export function confirmTaskHandoff({processRunner = spawnSync, iconFile = toolki
   ]), "Windows task handoff confirmation", processRunner, iconFile);
 }
 
+export function notifyCandidatePreparation({processRunner = spawnSync} = {}) {
+  try {
+    const result = runHelper("notify-candidate-preparation", [toolkitIcon], processRunner);
+    if (result !== "shown") {
+      return {shown: false, error: `Windows notification returned ${result || "<empty>"}`};
+    }
+    return {shown: true};
+  } catch (error) {
+    return {shown: false, error: String(error?.message ?? error).slice(0, 1000)};
+  }
+}
+
 export function diagnosticLocations(home, {app} = {}) {
   const family = packageFamilyName(app);
   const packageCache = path.win32.join(home, "AppData", "Local", "Packages", family, "LocalCache");

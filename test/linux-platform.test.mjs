@@ -16,6 +16,7 @@ import {
   diagnosticLocations,
   launchApplication,
   launchSupervisor,
+  notifyCandidatePreparation,
   openRescueTerminal,
   releaseApplicationLaunch,
   requestApplicationQuit,
@@ -40,7 +41,7 @@ try {
 
   const tools = path.join(scratch, "tools");
   fs.mkdirSync(tools);
-  for (const name of ["zenity", "kdialog", "ptyxis", "gnome-terminal", "konsole"]) {
+  for (const name of ["zenity", "kdialog", "notify-send", "ptyxis", "gnome-terminal", "konsole"]) {
     const file = path.join(tools, name);
     fs.writeFileSync(file, "#!/bin/sh\nexit 0\n", {mode: 0o755});
   }
@@ -107,6 +108,40 @@ try {
       throw new Error("must not run");
     }
   }), /no supported Linux dialog program/);
+
+  const notificationCalls = [];
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "linux",
+    environment: gnome,
+    processRunner(command, arguments_, options) {
+      notificationCalls.push({command, arguments_, options});
+      return {status: 0, stdout: "", stderr: "", error: null};
+    }
+  }), {shown: true});
+  assert.equal(notificationCalls[0].command, path.join(tools, "notify-send"));
+  assert.deepEqual(notificationCalls[0].arguments_.slice(-2), [
+    "The Mechanics Toolkit",
+    "Preparing the verified candidate for relaunch…"
+  ]);
+  assert.deepEqual(notificationCalls[0].arguments_.slice(0, 8), [
+    "--app-name", "The Mechanics Toolkit",
+    "--icon", path.resolve(import.meta.dirname, "../assets/the-mechanics-toolkit-icon-1024.png"),
+    "--urgency", "low",
+    "--hint", "boolean:suppress-sound:true"
+  ]);
+  assert.equal(notificationCalls[0].options.env, gnome);
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "linux",
+    environment: {PATH: path.join(scratch, "empty")}
+  }), {shown: false, reason: "notify-send unavailable"});
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "linux",
+    environment: gnome,
+    processRunner() {
+      return {status: 1, stdout: "", stderr: "notifications disabled", error: null};
+    }
+  }), {shown: false, error: "notifications disabled"},
+  "a Linux notification failure never blocks the replacement");
 
   assert.deepEqual(diagnosticLocations(scratch, "linux"), {
     desktopLogs: path.join(scratch, ".local/state/codex/logs"),

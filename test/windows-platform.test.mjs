@@ -18,6 +18,7 @@ import {
   inspectApplicationSource,
   launchApplication,
   launchSupervisor,
+  notifyCandidatePreparation,
   openRescueTerminal,
   prepareCandidateAdoption,
   releaseApplicationLaunch,
@@ -101,6 +102,26 @@ try {
     }
   }), false);
   assert.deepEqual(missingIconCalls[0].arguments_.slice(-1), ["confirm-restart"]);
+
+  const notificationCalls = [];
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "win32",
+    processRunner(command, arguments_, options) {
+      notificationCalls.push({command, arguments_, options});
+      return {status: 0, stdout: "shown\r\n", stderr: "", error: null};
+    }
+  }), {shown: true});
+  assert.equal(notificationCalls[0].command, "powershell.exe");
+  assert.equal(notificationCalls[0].arguments_.at(-2), "notify-candidate-preparation");
+  assert.match(notificationCalls[0].arguments_.at(-1), /TheMechanicsToolkit\.ico$/);
+  assert.equal(notificationCalls[0].options.windowsHide, true);
+  assert.deepEqual(notifyCandidatePreparation({
+    platform: "win32",
+    processRunner() {
+      return {status: 1, stdout: "", stderr: "notifications disabled", error: null};
+    }
+  }), {shown: false, error: "notifications disabled"},
+  "an informational Windows notification failure never blocks replacement");
 
   const executable = String.raw`C:\Program Files\WindowsApps\OpenAI.Codex_1.0.0.0_x64__2p2nqsd0c76g0\app\ChatGPT.exe`;
   const applicationRoot = String.raw`C:\Program Files\WindowsApps\OpenAI.Codex_1.0.0.0_x64__2p2nqsd0c76g0`;
@@ -549,6 +570,12 @@ try {
   assert.match(helperSource, /"Don't Restart" "restart" "cancel"/);
   assert.match(helperSource, /BitmapFrame\]::Create/);
   assert.match(helperSource, /"Restore Known-Working" "Open Terminal Line with Agent"/);
+  assert.match(helperSource, /System\.Windows\.Forms\.NotifyIcon/);
+  assert.match(helperSource, /ShowBalloonTip\(10000\)/);
+  assert.match(helperSource, /The Mechanics Toolkit/);
+  assert.match(helperSource, /Preparing the verified candidate for relaunch/);
+  assert.match(helperSource, /Application\]::DoEvents\(\)/);
+  assert.match(helperSource, /\$notification\.Dispose\(\)/);
   assert.match(helperSource, /Start-Process -FilePath \$ActionArguments\[0\]/);
   assert.match(helperSource, /Wait-Process -Id \$terminalPid -Timeout 30/);
   assert.match(helperSource, /Get-ExactApplicationId \$package \$ActionArguments\[1\]/);

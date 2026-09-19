@@ -11,6 +11,8 @@ import {
 } from "../linux-rpm.mjs";
 
 const dialogTitle = "The Mechanic's Toolkit";
+const notificationTitle = "The Mechanics Toolkit";
+const toolkitIcon = path.resolve(import.meta.dirname, "../../assets/the-mechanics-toolkit-icon-1024.png");
 const taskIdPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function resolveApplication(argument) {
@@ -79,6 +81,28 @@ export function confirmTaskHandoff({
     processRunner,
     environment
   });
+}
+
+export function notifyCandidatePreparation({
+  processRunner = spawnSync,
+  environment = process.env
+} = {}) {
+  const command = findExecutable("notify-send", environment);
+  if (command == null) return {shown: false, reason: "notify-send unavailable"};
+  const result = processRunner(command, [
+    "--app-name", notificationTitle,
+    "--icon", toolkitIcon,
+    "--urgency", "low",
+    "--hint", "boolean:suppress-sound:true",
+    notificationTitle,
+    "Preparing the verified candidate for relaunch…"
+  ], {encoding: "utf8", env: environment});
+  if (result.error == null && result.status === 0) return {shown: true};
+  return {
+    shown: false,
+    error: (result.error?.message || result.stderr || result.stdout ||
+      "Linux notification failed").trim().slice(0, 1000)
+  };
 }
 
 export function diagnosticLocations(home) {
