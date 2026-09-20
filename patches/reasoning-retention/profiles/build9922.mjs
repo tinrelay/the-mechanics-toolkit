@@ -14,9 +14,9 @@ export const build9922 = {
     owner: "Ke.current=ue},[e,c,ue,b,fe])",
     decisionBefore: "usesUnifiedTimeline:y}){let b=ju(il)",
     decisionAfter: "usesUnifiedTimeline:y}){let MTKreasoningThreadRetained=MTKuseReasoningThreadRetention(e),b=ju(il)",
-    collapseBefore: "Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe])",
-    collapseAfter: "MTKreasoningThreadRetained||Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe,MTKreasoningThreadRetained])",
-    appliedCollapse: "MTKreasoningThreadRetained||Fk(b,{conversationId:e,turnSearchKey:n},!0)",
+    collapseBefore: "n!=null&&n!==ue&&!fj(r)&&Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe])",
+    collapseAfter: "n!=null&&n!==ue&&!fj(r)&&!MTKreasoningThreadRetained&&Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe,MTKreasoningThreadRetained])",
+    appliedCollapse: "!MTKreasoningThreadRetained&&Fk(b,{conversationId:e,turnSearchKey:n},!0)",
     appliedDependencies: "[e,c,ue,b,fe,MTKreasoningThreadRetained]"
   }
 };

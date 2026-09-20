@@ -17,11 +17,16 @@ const rootProfiles = [
   {start: "function PYs(){", owner: "let e=(0,LYs.c)(12),"},
   {start: "function xyl(){", owner: "let e=(0,wyl.c)(12),"},
   {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"}
-].map(profile => ({...profile, index: source.indexOf(profile.start, helperStart)}))
-  .filter(profile => profile.index >= 0);
+].map(profile => {
+  const index = source.indexOf(profile.start, helperStart);
+  const ownerIndex = index < 0 ? -1 : source.indexOf(profile.owner, index + profile.start.length);
+  const nextFunction = index < 0 ? -1 : source.indexOf("function ", index + profile.start.length);
+  return {...profile, index, ownerIndex, nextFunction};
+}).filter(profile => profile.index >= 0 && profile.ownerIndex >= 0 &&
+  (profile.nextFunction < 0 || profile.ownerIndex < profile.nextFunction));
 assert.equal(rootProfiles.length, 1, "unique qualified application root");
 const rootBoundary = rootProfiles[0].index;
-const rootOwnerEnd = source.indexOf(rootProfiles[0].owner, rootBoundary);
+const rootOwnerEnd = rootProfiles[0].ownerIndex;
 assert.ok(rootOwnerEnd > rootBoundary, "qualified application root owner");
 const rootBootstrap = source.slice(rootBoundary, rootOwnerEnd);
 assert.equal(count(rootBootstrap, "MTKuseAgentRoster();"), 1, "agent roster bootstrap is composed once");

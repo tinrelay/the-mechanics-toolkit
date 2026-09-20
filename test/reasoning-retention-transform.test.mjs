@@ -65,7 +65,8 @@ try {
   assert.equal(run("apply").state, "applied");
   const build9922Once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
   assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(d\).*preventAutoCollapse:Ke\|\|Pn\|\|MTKreasoningRetained/);
-  assert.match(fs.readFileSync(thread, "utf8"), /MTKreasoningThreadRetained\|\|Fk\(b,\{conversationId:e,turnSearchKey:n\},!0\)/);
+  assert.match(fs.readFileSync(thread, "utf8"), /n!=null&&n!==ue&&!fj\(r\)&&!MTKreasoningThreadRetained&&Fk\(b,\{conversationId:e,turnSearchKey:n\},!0\)/);
+  verifyBuild9922ThreadGuard(fs.readFileSync(thread, "utf8"));
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [roster, turn, thread, activity].entries()) {
     assert.deepEqual(fs.readFileSync(file), build9922Once[index], `${path.basename(file)} build-9922 second application is byte-identical`);
@@ -148,11 +149,30 @@ function build9922TurnFixture() {
 
 function build9922ThreadFixture() {
   return [
-    'const hj={useEffect(){},useSyncExternalStore(){return false}},ju=()=>({}),il={},Fk=()=>{};',
-    'function dj({conversationId:e,isBackgroundSubagentsEnabled:c,usesUnifiedTimeline:y}){let b=ju(il),ue=null,fe=[],Ke={current:null};',
-    '(0,hj.useEffect)(()=>{let n="turn";Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe]);return y}',
+    'const hj={useEffect(){},useSyncExternalStore(){return false}},ju=()=>({get(){return[]}}),il={},Fk=()=>{},fj=()=>false,mf={};',
+    'function dj({conversationId:e,isBackgroundSubagentsEnabled:c,usesUnifiedTimeline:y}){let b=ju(il),ue="turn",fe=[],Ke={current:"turn"};',
+    '(0,hj.useEffect)(()=>{let t=b.get(mf,{conversationId:e,isBackgroundSubagentsEnabled:c}),n=Ke.current,r=t.find(e=>e.turnId===n);n!=null&&n!==ue&&!fj(r)&&Fk(b,{conversationId:e,turnSearchKey:n},!0),Ke.current=ue},[e,c,ue,b,fe]);return y}',
     'export const fixture=true;'
   ].join("");
+}
+
+function verifyBuild9922ThreadGuard(source) {
+  const start = source.indexOf("n!=null&&n!==ue&&!fj(r)&&");
+  const end = source.indexOf(",Ke.current=ue", start);
+  assert.ok(start >= 0 && end > start, "build-9922 thread auto-collapse guard seam");
+  const guard = Function(
+    "n", "ue", "r", "MTKreasoningThreadRetained", "Fk", "fj", "b", "e",
+    `${source.slice(start, end)};`
+  );
+  let collapses = 0;
+  const Fk = () => { collapses += 1; };
+  const fj = () => false;
+  guard("turn", "turn", null, true, Fk, fj, {}, "task");
+  assert.equal(collapses, 0, "an opted-in completed turn does not collapse when its ID is unchanged");
+  guard("previous", "current", {}, true, Fk, fj, {}, "task");
+  assert.equal(collapses, 0, "an opted-in previous turn does not auto-collapse when a new turn starts");
+  guard("previous", "current", {}, false, Fk, fj, {}, "task");
+  assert.equal(collapses, 1, "an ordinary previous turn retains stock auto-collapse behavior");
 }
 
 function build9922CollapseFixture() {
