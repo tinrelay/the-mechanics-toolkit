@@ -56,12 +56,13 @@ const pointer = {
 const pointerText = `TINRELAY LOCAL POINTER\n${JSON.stringify(pointer)}`;
 assert.deepEqual(parsePointer(pointerText), pointer);
 assert.deepEqual(parsePointer(`${pointerText}\n`), pointer, "one final LF is allowed");
+assert.deepEqual(parsePointer(`TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, future_metadata: {version: 2}})}`),
+  pointer, "additive pointer fields are ignored after required fields are validated");
 for (const [label, text] of [
   ["CRLF", pointerText.replace("\n", "\r\n")],
   ["third line", `${pointerText}\nprose`],
   ["two final LFs", `${pointerText}\n\n`],
   ["markdown fence", `TINRELAY LOCAL POINTER\n\`${JSON.stringify(pointer)}\``],
-  ["unknown key", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, path: "/tmp/no"})}`],
   ["bad local id", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, local_id: "tr_BAD"})}`],
   ["bad sender ship", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, sender_ship: "Bad Ship"})}`],
   ["non-string label", `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, attention_label: null})}`]
@@ -69,28 +70,41 @@ for (const [label, text] of [
 assert.deepEqual(parsePointer(`TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, local_ship: "other-ship"})}`),
   {...pointer, local_ship: "other-ship"}, "pointer identity comes from the runtime message");
 
+const receivedAt = 1_789_605_582;
 const delivery = {
-  contract: "tinrelay-message-delivery-v1",
+  contract: "tinrelay-message-delivery-v2",
   kind: "transmission",
-  local_id: pointer.local_id,
+  transmission_id: "11111111-1111-4111-8111-111111111111",
   local_ship: localShip,
+  received_at: receivedAt,
   sender_ship: pointer.sender_ship,
   attention_label: pointer.attention_label,
   author_label: "aster",
   body: "Exact message text.\nSecond line."
 };
+const normalizedDelivery = {
+  contract: delivery.contract,
+  kind: delivery.kind,
+  transmission_id: delivery.transmission_id,
+  local_ship: delivery.local_ship,
+  receivedAtMs: receivedAt * 1000,
+  sender_ship: delivery.sender_ship,
+  attention_label: delivery.attention_label,
+  author_label: delivery.author_label,
+  body: delivery.body
+};
 const deliveryText = `TINRELAY MESSAGE DELIVERY\n${JSON.stringify(delivery)}`;
-assert.deepEqual(parsers.delivery(deliveryText), delivery);
-assert.deepEqual(parsers.delivery(`${deliveryText}\n`), delivery, "one final LF is allowed");
+assert.deepEqual(parsers.delivery(deliveryText), normalizedDelivery);
+assert.deepEqual(parsers.delivery(`${deliveryText}\n`), normalizedDelivery, "one final LF is allowed");
 assert.equal(parsePointer(deliveryText), null, "a delivery is not a local pointer");
-const receivedAt = 1_789_605_582;
-const receivedDelivery = {...delivery, received_at: receivedAt};
-const receivedDeliveryText = `TINRELAY MESSAGE DELIVERY\n${JSON.stringify(receivedDelivery)}`;
-assert.deepEqual(parsers.delivery(receivedDeliveryText), {...delivery, receivedAtMs: receivedAt * 1000},
-  "a full delivery canonicalizes its authoritative receipt time");
+assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, future_metadata: {version: 3}})}`),
+  normalizedDelivery, "additive delivery fields are ignored after required fields are validated");
 for (const [label, text] of [
   ["pointer presented as delivery", pointerText.replace("LOCAL POINTER", "MESSAGE DELIVERY")],
-  ["unknown key", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, extra: true})}`],
+  ["old local identity", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery,
+    contract: "tinrelay-message-delivery-v1", local_id: pointer.local_id, transmission_id: undefined})}`],
+  ["missing receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify((({received_at, ...rest}) => rest)(delivery))}`],
+  ["bad transmission id", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, transmission_id: "tr_BAD"})}`],
   ["empty author", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: ""})}`],
   ["non-string body", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, body: null})}`],
   ["zero receive time", `TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, received_at: 0})}`],
@@ -103,9 +117,9 @@ for (const [label, text] of [
   ["literal extra line", `${deliveryText}\nnot-json`]
 ]) assert.equal(parsers.delivery(text), null, `delivery ${label}`);
 assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, local_ship: "other-ship"})}`),
-  {...delivery, local_ship: "other-ship"}, "delivery identity comes from the runtime message");
+  {...normalizedDelivery, local_ship: "other-ship"}, "delivery identity comes from the runtime message");
 assert.deepEqual(parsers.delivery(`TINRELAY MESSAGE DELIVERY\n${JSON.stringify({...delivery, author_label: null})}`),
-  {...delivery, author_label: null}, "an unlabeled delivery is valid");
+  {...normalizedDelivery, author_label: null}, "an unlabeled delivery is valid");
 
 const pointerNodeStart = rendererEnd;
 const pointerNodeEnd = rendererSource.indexOf("function MTKtinrelayAddress(", pointerNodeStart);
@@ -122,12 +136,10 @@ const pointerNode = Function(
    function MTKtinrelayPointerView(){} function MTKtinrelayDeliveryView(){}
    ${pointerNodeSource};return MTKtinrelayPointerNode`
 )();
-assert.equal(pointerNode(receivedDeliveryText, null).props.sentAtMs, receivedAt * 1000,
+assert.equal(pointerNode(deliveryText, null).props.sentAtMs, receivedAt * 1000,
   "receipt time supplies the stock timestamp when the native time is absent");
-assert.equal(pointerNode(receivedDeliveryText, 1_789_605_296_000).props.sentAtMs, 1_789_605_296_000,
+assert.equal(pointerNode(deliveryText, 1_789_605_296_000).props.sentAtMs, 1_789_605_296_000,
   "a valid native timestamp remains authoritative");
-assert.equal(pointerNode(deliveryText, null).props.sentAtMs, null,
-  "persisted legacy deliveries retain their native timestamp semantics");
 
 const helpersStart = mainSource.indexOf("const MTKtinrelayClient=");
 const helpersEnd = [
@@ -160,6 +172,9 @@ const request = {
   requestId: "01234567-89ab-4cde-8fab-0123456789ab",
   pointerText
 };
+assert.deepEqual(mainHelpers.parse({...request,
+  pointerText: `TINRELAY LOCAL POINTER\n${JSON.stringify({...pointer, future_metadata: true})}`}), pointer,
+"main-process pointer parsing also ignores additive fields");
 executorResult = {
   contract: "tinrelay-inspected-inbox-v1",
   kind: "transmission",

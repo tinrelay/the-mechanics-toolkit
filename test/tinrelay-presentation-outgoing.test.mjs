@@ -276,11 +276,16 @@ const unlabeled = {...event, author_label: null, attention_label: ""};
 const unlabeledRoute = rendererApi.view({event: unlabeled}).props.children[0].props.children[1];
 assert.equal(unlabeledRoute, `@${localShip} → @friendly-ship`, "ship-wide endpoints retain canonical @ship addresses");
 
+for (const [label, extended] of [
+  ["local identity", {...acceptance, local_id: "tr_0123456789abcdef0123456789abcdef"}],
+  ["unrelated additive metadata", {...acceptance, future_metadata: {version: 2}}]
+]) assert.deepEqual(rendererApi.acceptance(execItem(extended)), acceptance,
+  `${label} is ignored after the required acceptance fields are validated`);
+
 for (const [label, candidate] of [
   ["nonzero exit", execItem(acceptance, {exitCode: 2})],
   ["invalid sender", execItem({...acceptance, sender_ship: "Bad Ship"})],
   ["wrong state", execItem({...acceptance, state: "delivered"})],
-  ["unknown field", execItem({...acceptance, secret: "no"})],
   ["empty id", execItem({...acceptance, transmission_id: ""})],
   ["non-UUID id", execItem({...acceptance, transmission_id: "tr-outgoing-test-1"})],
   ["extra output", execItem(acceptance, {suffix: "noise\n"})],
@@ -383,7 +388,7 @@ try {
   const socketPath = windows
     ? `\\\\.\\pipe\\mtk-outgoing-${process.pid}-${Date.now()}`
     : path.join(socketDir, "observer.sock");
-  fs.writeFileSync(configPath, JSON.stringify({socket_path: socketPath}));
+  fs.writeFileSync(configPath, JSON.stringify({socket_path: socketPath, future_metadata: {version: 2}}));
   if (!windows) fs.chmodSync(configPath, 0o600);
   const dispose = await mainApi.start(appUserData);
   if (windows) {
@@ -394,7 +399,8 @@ try {
       "observer socket is accessible only to its owning user");
   }
 
-  assert.equal(mainApi.event({...event, extra: true}), null, "observer event shape is exact");
+  assert.deepEqual(mainApi.event({...event, extra: true}), event,
+    "additive observer fields are ignored after required fields are validated");
   assert.equal(mainApi.event({...event, sender_ship: "other-ship"}), null, "observer is runtime-ship scoped");
   assert.equal(mainApi.event({...event, transmission_id: "not-a-uuid"}), null,
     "observer transmission IDs use Tinrelay's exact UUID grammar");
@@ -402,7 +408,6 @@ try {
   assert.deepEqual(mainApi.event(unlabeledEvent), normalizedUnlabeledEvent,
     "an omitted optional author label is normalized to null");
   for (const candidate of [
-    {...unlabeledEvent, extra: true},
     {...unlabeledEvent, author_label: ""},
     {...unlabeledEvent, author_label: 42},
     {...unlabeledEvent, author_label: undefined},
@@ -493,10 +498,12 @@ try {
   assert.deepEqual(await mainApi.lookup({requestId: "request-2", transmissionId: delayedId,
     senderShip: localShip, recipientShip: "friendly-ship"}), delayedEvent, "first valid event wins by transmission ID");
 
-  const malformedId = "33333333-3333-4333-8333-333333333333";
-  await send(socketPath, `${JSON.stringify({...event, transmission_id: malformedId, extra: true})}\n`);
-  assert.equal(await mainApi.lookup({requestId: "request-3", transmissionId: malformedId,
-    senderShip: localShip, recipientShip: "friendly-ship"}), null, "malformed socket events are ignored");
+  const extendedId = "33333333-3333-4333-8333-333333333333";
+  const extendedEvent = {...event, transmission_id: extendedId, extra: true};
+  await send(socketPath, `${JSON.stringify(extendedEvent)}\n`);
+  assert.deepEqual(await mainApi.lookup({requestId: "request-3", transmissionId: extendedId,
+    senderShip: localShip, recipientShip: "friendly-ship"}),
+  {...event, transmission_id: extendedId}, "additive socket-event fields are ignored");
 
   const oversizedId = "44444444-4444-4444-8444-444444444444";
   const oversized = {...event, transmission_id: oversizedId, body: "x".repeat(21 * 1024)};

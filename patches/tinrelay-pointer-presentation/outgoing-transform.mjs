@@ -148,6 +148,9 @@ function inspectPristineMain(source) {
 function inspectAppliedRenderer(source) {
   const profile = rendererProfile(source);
   const helpers = helperSlice(source);
+  if (count(helpers, acceptanceParser()) !== 1) {
+    throw new Error("Tinrelay outgoing renderer acceptance parser is not current");
+  }
   for (const marker of [
     'i.state!=="accepted"',
     "MTKtinrelayOutgoingAcceptance(n)",
@@ -179,6 +182,9 @@ function inspectAppliedRenderer(source) {
 
 function inspectAppliedActivity(source) {
   const helpers = activityHelperSlice(source);
+  if (count(helpers, acceptanceParser()) !== 1) {
+    throw new Error("Tinrelay outgoing activity acceptance parser is not current");
+  }
   for (const marker of [
     'i.state!=="accepted"',
     "typeof i.sender_ship!==\"string\"",
@@ -203,6 +209,9 @@ function inspectAppliedMain(source) {
   if (count(helpers, currentOutgoingEvent()) !== 1) {
     throw new Error("Tinrelay outgoing event parser is not the current optional-author contract");
   }
+  if (count(helpers, runtimeOutgoingConfig()) !== 1) {
+    throw new Error("Tinrelay outgoing observer configuration parser is not current");
+  }
   for (const marker of [
     '".config","tinrelay"',
     '"outgoing-observer.json"',
@@ -214,7 +223,6 @@ function inspectAppliedMain(source) {
     "a=a.then(o,o)",
     "MTKtinrelayResetOutgoingObserver()",
     '"mechanics-toolkit","tinrelay",MTKtinrelayOutgoingLocalShip,"outgoing-presentations"',
-    '.sort().join("\\0")!=="socket_path"',
     'process.platform==="win32"',
     "MTKtinrelayOutgoingPrivate(",
     "!MTKtinrelayOutgoingPrivate(e)",
@@ -453,17 +461,17 @@ function currentMainHandlers() {
 }
 
 function acceptanceParser() {
-  return `function MTKtinrelayOutgoingAcceptance(e){let n=e?.output;if(n==null||n.exitCode!==0||typeof n.aggregatedOutput!=="string"||n.aggregatedOutput.includes("\\r"))return null;let r=n.aggregatedOutput.endsWith("\\n")?n.aggregatedOutput.slice(0,-1):n.aggregatedOutput;if(r.includes("\\n")||new TextEncoder().encode(r).length>20480)return null;let i;try{i=JSON.parse(r)}catch{return null}if(i==null||typeof i!=="object"||Array.isArray(i)||Object.keys(i).sort().join("\\0")!=="recipient_ship\\0sender_ship\\0state\\0transmission_id"||i.state!=="accepted"||typeof i.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(i.sender_ship)||typeof i.recipient_ship!=="string"||i.recipient_ship.length===0||typeof i.transmission_id!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(i.transmission_id))return null;return i}`;
+  return `function MTKtinrelayOutgoingAcceptance(e){let n=e?.output;if(n==null||n.exitCode!==0||typeof n.aggregatedOutput!=="string"||n.aggregatedOutput.includes("\\r"))return null;let r=n.aggregatedOutput.endsWith("\\n")?n.aggregatedOutput.slice(0,-1):n.aggregatedOutput;if(r.includes("\\n")||new TextEncoder().encode(r).length>20480)return null;let i;try{i=JSON.parse(r)}catch{return null}if(i==null||typeof i!=="object"||Array.isArray(i)||i.state!=="accepted"||typeof i.sender_ship!=="string"||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(i.sender_ship)||typeof i.recipient_ship!=="string"||i.recipient_ship.length===0||typeof i.transmission_id!=="string"||!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(i.transmission_id))return null;return{state:i.state,transmission_id:i.transmission_id,sender_ship:i.sender_ship,recipient_ship:i.recipient_ship}}`;
 }
 
 function currentOutgoingEvent() {
-  return 'function MTKtinrelayOutgoingEvent(e){if(e==null||typeof e!=="object"||Array.isArray(e))return null;let t=Object.keys(e).sort().join("\\0"),n=t==="attention_label\\0body\\0contract\\0kind\\0recipient_ship\\0sender_ship\\0transmission_id";if(t!=="attention_label\\0author_label\\0body\\0contract\\0kind\\0recipient_ship\\0sender_ship\\0transmission_id"&&!n||e.contract!==MTKtinrelayOutgoingContract||e.kind!=="transmission"||typeof e.transmission_id!=="string"||!MTKtinrelayOutgoingUuid.test(e.transmission_id)||e.sender_ship!==MTKtinrelayOutgoingLocalShip||typeof e.recipient_ship!=="string"||e.recipient_ship.length===0||typeof e.attention_label!=="string"||!n&&e.author_label!==null&&(typeof e.author_label!=="string"||e.author_label.length===0)||typeof e.body!=="string")return null;return n?{...e,author_label:null}:e}';
+  return 'function MTKtinrelayOutgoingEvent(e){if(e==null||typeof e!=="object"||Array.isArray(e))return null;let t=Object.prototype.hasOwnProperty.call(e,"author_label");if(e.contract!==MTKtinrelayOutgoingContract||e.kind!=="transmission"||typeof e.transmission_id!=="string"||!MTKtinrelayOutgoingUuid.test(e.transmission_id)||e.sender_ship!==MTKtinrelayOutgoingLocalShip||typeof e.recipient_ship!=="string"||e.recipient_ship.length===0||typeof e.attention_label!=="string"||t&&e.author_label!==null&&(typeof e.author_label!=="string"||e.author_label.length===0)||typeof e.body!=="string")return null;return{contract:e.contract,kind:e.kind,transmission_id:e.transmission_id,sender_ship:e.sender_ship,recipient_ship:e.recipient_ship,attention_label:e.attention_label,author_label:t?e.author_label:null,body:e.body}}';
 }
 
 function mainObserverTemplate(ship) {
   return String.raw`const MTKtinrelayOutgoingContract="tinrelay-outgoing-observer-v1",MTKtinrelayOutgoingLocalShip=${JSON.stringify(ship)},MTKtinrelayOutgoingMaxBytes=20480,MTKtinrelayOutgoingLimit=256,MTKtinrelayOutgoingUuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,MTKtinrelayOutgoingEvents=new Map,MTKtinrelayOutgoingWaiters=new Map,MTKtinrelayOutgoingFs=require("node:fs"),MTKtinrelayOutgoingNet=require("node:net"),MTKtinrelayOutgoingOs=require("node:os"),MTKtinrelayOutgoingPath=require("node:path"),MTKtinrelayOutgoingCrypto=require("node:crypto");let MTKtinrelayOutgoingCacheDir=null;
 function MTKtinrelayOutgoingPrivate(e){return process.platform==="win32"||(e.mode&63)===0}
-function MTKtinrelayOutgoingConfig(){let e=MTKtinrelayOutgoingPath.join(MTKtinrelayOutgoingOs.homedir(),".config","tinrelay",MTKtinrelayOutgoingLocalShip,"outgoing-observer.json"),t;try{t=JSON.parse(MTKtinrelayOutgoingFs.readFileSync(e,"utf8"))}catch{return null}if(t==null||typeof t!=="object"||Array.isArray(t)||Object.keys(t).sort().join("\0")!=="socket_path"||typeof t.socket_path!=="string"||!MTKtinrelayOutgoingPath.isAbsolute(t.socket_path))return null;if(process.platform==="win32")return t.socket_path.startsWith("\\\\.\\pipe\\")&&t.socket_path.length>9&&!t.socket_path.slice(9).includes("\\")?t.socket_path:null;let n;try{n=MTKtinrelayOutgoingFs.statSync(MTKtinrelayOutgoingPath.dirname(t.socket_path))}catch{return null}return!n.isDirectory()||(n.mode&63)!==0?null:t.socket_path}
+function MTKtinrelayOutgoingConfig(){let e=MTKtinrelayOutgoingPath.join(MTKtinrelayOutgoingOs.homedir(),".config","tinrelay",MTKtinrelayOutgoingLocalShip,"outgoing-observer.json"),t;try{t=JSON.parse(MTKtinrelayOutgoingFs.readFileSync(e,"utf8"))}catch{return null}if(t==null||typeof t!=="object"||Array.isArray(t)||typeof t.socket_path!=="string"||!MTKtinrelayOutgoingPath.isAbsolute(t.socket_path))return null;if(process.platform==="win32")return t.socket_path.startsWith("\\\\.\\pipe\\")&&t.socket_path.length>9&&!t.socket_path.slice(9).includes("\\")?t.socket_path:null;let n;try{n=MTKtinrelayOutgoingFs.statSync(MTKtinrelayOutgoingPath.dirname(t.socket_path))}catch{return null}return!n.isDirectory()||(n.mode&63)!==0?null:t.socket_path}
 ${currentOutgoingEvent()}
 function MTKtinrelayPrepareOutgoingCache(e){MTKtinrelayOutgoingCacheDir=null;if(typeof e!=="string"||!MTKtinrelayOutgoingPath.isAbsolute(e))return;let t=MTKtinrelayOutgoingPath.join(e,"mechanics-toolkit","tinrelay",MTKtinrelayOutgoingLocalShip,"outgoing-presentations");try{MTKtinrelayOutgoingFs.mkdirSync(t,{recursive:!0,mode:448}),MTKtinrelayOutgoingFs.chmodSync(t,448);let e=MTKtinrelayOutgoingFs.lstatSync(t);e.isDirectory()&&MTKtinrelayOutgoingPrivate(e)&&(MTKtinrelayOutgoingCacheDir=t)}catch{}}
 function MTKtinrelayOutgoingCachePath(e){return MTKtinrelayOutgoingCacheDir==null||!MTKtinrelayOutgoingUuid.test(e)?null:MTKtinrelayOutgoingPath.join(MTKtinrelayOutgoingCacheDir,e+".json")}
@@ -527,7 +535,7 @@ function runtimeMainObserverHelpers() {
 }
 
 function runtimeOutgoingConfig() {
-  return String.raw`function MTKtinrelayOutgoingConfig(){let e=MTKtinrelayOutgoingPath.join(MTKtinrelayOutgoingOs.homedir(),".config","tinrelay"),MTKtinrelayOutgoingConfigs=[];try{let t=MTKtinrelayOutgoingFs.lstatSync(e);if(!t.isDirectory())return null;for(let t of MTKtinrelayOutgoingFs.readdirSync(e,{withFileTypes:!0})){if(!t.isDirectory()||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(t.name))continue;let n=MTKtinrelayOutgoingPath.join(e,t.name),r=MTKtinrelayOutgoingPath.join(n,"outgoing-observer.json"),i,a;try{let e=MTKtinrelayOutgoingFs.lstatSync(n),t=MTKtinrelayOutgoingFs.lstatSync(r);if(!e.isDirectory()||!MTKtinrelayOutgoingPrivate(e)||!t.isFile()||!MTKtinrelayOutgoingPrivate(t)||t.size<2||t.size>8192)continue;i=JSON.parse(MTKtinrelayOutgoingFs.readFileSync(r,"utf8"))}catch{continue}if(i==null||typeof i!=="object"||Array.isArray(i)||Object.keys(i).sort().join("\0")!=="socket_path"||typeof i.socket_path!=="string"||!MTKtinrelayOutgoingPath.isAbsolute(i.socket_path))continue;if(process.platform==="win32"){i.socket_path.startsWith("\\\\.\\pipe\\")&&i.socket_path.length>9&&!i.socket_path.slice(9).includes("\\")&&MTKtinrelayOutgoingConfigs.push({ship:t.name,socketPath:i.socket_path});continue}try{a=MTKtinrelayOutgoingFs.lstatSync(MTKtinrelayOutgoingPath.dirname(i.socket_path))}catch{continue}a.isDirectory()&&MTKtinrelayOutgoingPrivate(a)&&MTKtinrelayOutgoingConfigs.push({ship:t.name,socketPath:i.socket_path})}}catch{return null}return MTKtinrelayOutgoingConfigs.length!==1?null:MTKtinrelayOutgoingConfigs[0]}`;
+  return String.raw`function MTKtinrelayOutgoingConfig(){let e=MTKtinrelayOutgoingPath.join(MTKtinrelayOutgoingOs.homedir(),".config","tinrelay"),MTKtinrelayOutgoingConfigs=[];try{let t=MTKtinrelayOutgoingFs.lstatSync(e);if(!t.isDirectory())return null;for(let t of MTKtinrelayOutgoingFs.readdirSync(e,{withFileTypes:!0})){if(!t.isDirectory()||!/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(t.name))continue;let n=MTKtinrelayOutgoingPath.join(e,t.name),r=MTKtinrelayOutgoingPath.join(n,"outgoing-observer.json"),i,a;try{let e=MTKtinrelayOutgoingFs.lstatSync(n),t=MTKtinrelayOutgoingFs.lstatSync(r);if(!e.isDirectory()||!MTKtinrelayOutgoingPrivate(e)||!t.isFile()||!MTKtinrelayOutgoingPrivate(t)||t.size<2||t.size>8192)continue;i=JSON.parse(MTKtinrelayOutgoingFs.readFileSync(r,"utf8"))}catch{continue}if(i==null||typeof i!=="object"||Array.isArray(i)||typeof i.socket_path!=="string"||!MTKtinrelayOutgoingPath.isAbsolute(i.socket_path))continue;if(process.platform==="win32"){i.socket_path.startsWith("\\\\.\\pipe\\")&&i.socket_path.length>9&&!i.socket_path.slice(9).includes("\\")&&MTKtinrelayOutgoingConfigs.push({ship:t.name,socketPath:i.socket_path});continue}try{a=MTKtinrelayOutgoingFs.lstatSync(MTKtinrelayOutgoingPath.dirname(i.socket_path))}catch{continue}a.isDirectory()&&MTKtinrelayOutgoingPrivate(a)&&MTKtinrelayOutgoingConfigs.push({ship:t.name,socketPath:i.socket_path})}}catch{return null}return MTKtinrelayOutgoingConfigs.length!==1?null:MTKtinrelayOutgoingConfigs[0]}`;
 }
 
 function runtimeOutgoingStart() {

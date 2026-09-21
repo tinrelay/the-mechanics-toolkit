@@ -30,14 +30,15 @@ cannot answer hails.
 The patch recognizes two exact delegated-message shapes. A `tinrelay-local-pointer-v1` pointer makes
 the main process ask the configured local Tinrelay client to inspect that one inbox item, verify the
 returned routing and author fields against the pointer, and return only display-safe fields. A
-`tinrelay-message-delivery-v1` envelope already contains those validated display fields, so the
-renderer presents it directly without another process call. Unknown keys, malformed fields, and a
-delivery for another local ship leave the delegated message untouched. The renderer shows the route
-and body through Codex's complete stock user-message bubble, including its
+`tinrelay-message-delivery-v2` envelope already contains those validated display fields, so the
+renderer presents it directly without another process call. Its stable identity is the signed
+transmission ID. Additive fields are ignored after required fields are validated; malformed fields
+and a delivery for another local ship leave the delegated message untouched. The renderer shows the
+route and body through Codex's complete stock user-message bubble, including its
 safe Markdown surface, dimensions, padding, radius, **Show more** behavior after six lines, and
 native hover actions for copying the body and reading the event time. Incoming cards prefer Codex's
-native delegation time; a new full-delivery envelope otherwise uses Tinrelay's validated receipt
-time. Persisted legacy deliveries remain compatible. Outgoing cards retain the relay-acceptance
+native delegation time; a full-delivery envelope otherwise uses Tinrelay's validated receipt
+time. Outgoing cards retain the relay-acceptance
 anchor time across active rendering, hoisting, restart, and later pagination.
 Source-style single newlines render as ordinary Markdown
 soft breaks while blank-line paragraph boundaries remain visible. Named endpoints render as
@@ -56,7 +57,8 @@ Arguments, stdout, stderr, exit status, delivery, and outbox behavior are unchan
 send is accepted and its encrypted outbox envelope is removed, a compatible Tinrelay client may
 emit the exact plaintext transmission to a private Unix socket. Codex joins that observer event to
 the ordinary acceptance JSON by transmission ID, sender ship, and recipient ship. The event's
-sender ship must also equal the ship named by the sole selected runtime observer config.
+sender ship must also equal the ship named by the sole selected runtime observer config. Unknown
+additive fields in either JSON object are ignored after those required fields are validated.
 
 The surface means **accepted by the relay**, not received, read, or acted upon by the remote ship.
 Missing or mismatched observer evidence leaves the stock command result visible. Duplicate events
@@ -95,7 +97,7 @@ Outgoing cards require Tinrelay's observer configuration at:
 ~/.config/tinrelay/SHIP/outgoing-observer.json
 ```
 
-Its complete shape is:
+Its required field is:
 
 ```json
 {"socket_path":"/absolute/path/to/private/observer.sock"}
@@ -106,6 +108,9 @@ On Windows the same field carries one local named-pipe name instead:
 ```json
 {"socket_path":"\\\\.\\pipe\\tinrelay-SHIP-outgoing"}
 ```
+
+Unknown additive fields in this cross-tool configuration are ignored after `socket_path` is
+validated.
 
 The ship directory and `outgoing-observer.json` must be private (`0700` and `0600` respectively) on
 POSIX, and the socket's immediate parent must already exist without group or world permission bits.
@@ -183,8 +188,8 @@ restart without the command activity, corrupt-cache rejection, the 256-event obs
 256-anchor per-task ceiling, cross-task retention isolation, socket cleanup, and clean application
 to a disposable pristine extraction.
 
-Current macOS, Linux, and Windows package and live evidence—including legacy-envelope remount,
-fresh loopback, timestamp precedence, and deliberately unrun gates—belongs in the fleet
+Current macOS, Linux, and Windows package and live evidence—including fresh loopback, timestamp
+precedence, and deliberately unrun gates—belongs in the fleet
 [extraction ledger](../../docs/extraction-ledger.md) and platform qualification runbooks.
 
 ## Non-goals
