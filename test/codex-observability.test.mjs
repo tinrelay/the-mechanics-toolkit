@@ -135,9 +135,10 @@ try {
     const devtools = await request(endpoint, {contract: "tmtk-codex-observability-v1", action: "devtools", targetId: 7});
     assert.equal(devtools.at(-1).result.opened, true);
 
-    const malformed = await request(endpoint, {contract: "tmtk-codex-observability-v1", action: "list", extra: true});
-    assert.equal(malformed.at(-1).ok, false);
-    assert.match(malformed.at(-1).error, /request/i);
+    const extended = await request(endpoint,
+      {contract: "tmtk-codex-observability-v1", action: "list", futureMetadata: {version: 2}});
+    assert.equal(extended.at(-1).ok, true, "additive request fields do not invalidate required fields");
+    assert.equal(extended.at(-1).result[0].id, 7);
 
     dispose();
     await new Promise(resolve => setTimeout(resolve, 10));

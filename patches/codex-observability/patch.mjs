@@ -38,6 +38,7 @@ function inspectState(value) {
     'case"trace"',
     'case"cdp"',
     'case"devtools"',
+    "t.every(t=>Object.prototype.hasOwnProperty.call(e,t))",
     `${profile.disposers}.add(await MTKobserveStart(${profile.electron}.webContents))`
   ];
   const counts = markers.map(marker => count(value, marker));
@@ -93,7 +94,7 @@ function mainHelpers() {
   return String.raw`const MTKobserveContract="tmtk-codex-observability-v1",MTKobserveMaxRequestBytes=1048576,MTKobserveFs=require("node:fs"),MTKobserveNet=require("node:net"),MTKobserveOs=require("node:os"),MTKobservePath=require("node:path"),MTKobserveCrypto=require("node:crypto");let MTKobserveTracing=false;
 function MTKobservePrivate(e){return process.platform==="win32"||(e.mode&63)===0}
 function MTKobserveEndpoint(){let e=MTKobserveOs.homedir();if(process.platform==="win32")return"\\\\.\\pipe\\tmtk-codex-observability-"+MTKobserveCrypto.createHash("sha256").update(e.toLowerCase()).digest("hex").slice(0,24);let t=MTKobservePath.join(e,".codex","tmtk-observability");try{MTKobserveFs.mkdirSync(t,{recursive:true,mode:448}),MTKobserveFs.chmodSync(t,448);let e=MTKobserveFs.lstatSync(t);if(!e.isDirectory()||!MTKobservePrivate(e)||typeof process.getuid==="function"&&e.uid!==process.getuid())return null}catch{return null}return MTKobservePath.join(t,"control.sock")}
-function MTKobserveKeys(e,t){return e!=null&&typeof e==="object"&&!Array.isArray(e)&&Object.keys(e).sort().join("\0")===t.slice().sort().join("\0")}
+function MTKobserveKeys(e,t){return e!=null&&typeof e==="object"&&!Array.isArray(e)&&t.every(t=>Object.prototype.hasOwnProperty.call(e,t))}
 function MTKobserveError(e){return e instanceof Error?e.message:String(e)}
 function MTKobserveSend(e,t){if(e.destroyed)return false;try{return e.write(JSON.stringify({contract:MTKobserveContract,...t})+"\n")}catch{return false}}
 function MTKobserveWrite(e,t){return new Promise((n,r)=>{if(e.destroyed){r(Error("observability client disconnected"));return}let i=()=>{a(),n()},o=()=>{a(),r(Error("observability client disconnected"))},a=()=>{e.off("drain",i),e.off("close",o)};try{if(e.write(JSON.stringify({contract:MTKobserveContract,...t})+"\n")){n();return}e.once("drain",i),e.once("close",o)}catch(e){a(),r(e)}})}

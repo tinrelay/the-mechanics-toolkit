@@ -22,7 +22,9 @@ After Electron's exact app-ready boundary, the patch starts a local Node socket 
 `~/.codex/tmtk-observability/control.sock` on POSIX systems. Windows uses a user-derived named-pipe
 name. The POSIX directory is mode `0700` and the socket is mode `0600`; an unexpected file,
 ownership mismatch, live listener, partial patch, or changed main-process owner disables the bridge
-instead of broadening access. Each request selects one current Electron `webContents` ID.
+instead of broadening access. Each request selects one current Electron `webContents` ID. Request
+parsing validates the required contract and action fields while ignoring additive fields it does
+not use, so compatible clients can extend their metadata without breaking an older bridge.
 
 Debugger attachment is request-scoped. Success, CDP failure, timeout, target destruction, and
 client disconnect all detach it. Opening ordinary DevTools while a capture owns the debugger, or

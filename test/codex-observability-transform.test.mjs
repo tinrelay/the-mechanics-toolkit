@@ -38,6 +38,14 @@ try {
   assert.ok(source.includes('case"devtools"'));
   assert.ok(source.includes("getAllWebContents"));
   assert.ok(source.includes("fromId"));
+  const fieldsStart = source.indexOf("function MTKobserveKeys(");
+  const fieldsEnd = source.indexOf("function MTKobserveError(", fieldsStart);
+  assert.ok(fieldsStart >= 0 && fieldsEnd > fieldsStart, "localized observability field validator");
+  const requiredFields = Function(
+    `${source.slice(fieldsStart, fieldsEnd)};return MTKobserveKeys`
+  )();
+  assert.equal(requiredFields({contract: "v1", action: "list", futureMetadata: true},
+    ["contract", "action"]), true, "additive request fields are tolerated");
 
   const first = fs.readFileSync(main);
   assert.equal(run("apply").state, "applied");
