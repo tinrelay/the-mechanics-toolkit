@@ -28,7 +28,17 @@ const linuxBuild9771 = app.includes(
 const buildProfiled = build9647 || linuxBuild9771 || build9922;
 
 if (!app.includes("UHrendererTail=(e,t)=>")) {
-  const selectorContracts = app.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ? [
+  const selectorContracts = app.includes("Qjs=Ia(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{") ? [
+    "Qjs=Ia(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
+    "f=n(QL,s),p=f?.flatMap",
+    "_=n(QL,g),v=o!=null&&h==null?_?.flatMap",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+  ] : app.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{") ? [
+    "Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
+    "f=n(bR,s),p=f?.flatMap",
+    "_=n(bR,g),v=o!=null&&h==null?_?.flatMap",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+  ] : app.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ? [
     "cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{",
     "d=n(NI,o),f=d?.flatMap",
     "h=n(NI,a==null?null:{hostId:n(II,a),threadId:a}),g=a!=null&&m==null?h?.flatMap",

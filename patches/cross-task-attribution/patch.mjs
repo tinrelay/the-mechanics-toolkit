@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -133,8 +133,8 @@ function inspectState(owner) {
   const markers = [
     "var MTKdelegatedBubbleStyle=",
     "function MTKsender(",
-    ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook"],
-    ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope"],
+    ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook", "PX as MTKcrossTaskStoreHook"],
+    ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope", "XI as MTKcrossTaskStoreScope"],
     "MTKstore.get(MTKtitleAtom,{hostId:",
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
@@ -162,7 +162,8 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [build10789Component, build9922Component, linuxBuild9771.component, build9647Component].find(candidate =>
+  const profile = [linuxBuild10954.component, build10789Component, build9922Component,
+    linuxBuild9771.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
     (candidate.wrapperBubble == null || owner.bubbleLocal === candidate.wrapperBubble) &&
@@ -178,7 +179,7 @@ function inspectPristine(source, externalBubbleSource = null) {
     `h=(0,${profile.delegationJsx}.jsx)(${profile.wrapper},{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m})`,
     `function ${profile.wrapper}(e){let t=(0,${profile.wrapperCache}.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,`,
     `m=f?(0,${profile.wrapperJsx}.jsx)(${profile.wrapperBubble ?? profile.bubble},{message:i,sentAtMs:a,collapsedLineCount:${profile.collapsedLines},compactActions:u,cwd:o,hostId:s,threadId:r}):null`,
-    `function ${profile.bubble}(e){let t=(0,${profile.bubbleCache}.c)(${profile.bubbleCacheSize ?? 127}),`,
+    `function ${profile.bubble}(e){let ${profile.bubbleCacheVar ?? "t"}=(0,${profile.bubbleCache}.c)(${profile.bubbleCacheSize ?? 127}),`,
     '"data-user-message-bubble":!0,className:'
   ]) {
     if (!completeSource.includes(contract)) throw new Error(`Upstream changed: attribution contract ${contract}`);
@@ -234,7 +235,8 @@ function patchAttribution(source, ownerFile, details) {
   wrapper = replaceOnce(wrapper, "t[10]=a,t[11]=f,t[12]=m)", "t[10]=a,t[11]=f,t[16]=MTKbubbleStyleOverride,t[12]=m)", "wrapper style storage");
 
   const bubbleCacheSize = profile.bubbleCacheSize ?? 127;
-  bubble = replaceOnce(bubble, `function ${profile.bubble}(e){let t=(0,${profile.bubbleCache}.c)(${bubbleCacheSize}),`, `function ${profile.bubble}(e){let t=(0,${profile.bubbleCache}.c)(${bubbleCacheSize + 1}),`, "bubble cache size");
+  const bubbleCacheVar = profile.bubbleCacheVar ?? "t";
+  bubble = replaceOnce(bubble, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize}),`, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize + 1}),`, "bubble cache size");
   const bubbleOwner = profile.bubbleOwner ?? (bubble.includes("cwd:D,hostId:O}=e,") ?
     ["cwd:D,hostId:O}=e,", "cwd:D,hostId:O,messageBubbleStyle:MTKbubbleStyleOverride}=e,"] :
     ["cwd:E,hostId:D}=e,", "cwd:E,hostId:D,messageBubbleStyle:MTKbubbleStyleOverride}=e,"]);
@@ -308,10 +310,31 @@ function resolveImports(ownerSource, ownerFile) {
       }
     };
   }
-  const linuxSelector = linuxBuild9771.titleSelector;
-  if (appInitial.includes(linuxSelector.atomOwner) &&
-      appInitial.includes(linuxSelector.helperOwner) &&
-      appInitial.includes(linuxSelector.storeOwner)) {
+  const linuxSelector = [linuxBuild10954.titleSelector, linuxBuild9771.titleSelector].find(selector =>
+    appInitial.includes(selector.atomOwner) &&
+    appInitial.includes(selector.helperOwner) &&
+    appInitial.includes(selector.storeOwner));
+  if (linuxSelector != null) {
+    if (linuxSelector.sharedStoreExports != null) {
+      const sharedImport = uniqueMatch(ownerSource,
+        /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
+        "app-shared import");
+      const {hook, scope} = linuxSelector.sharedStoreExports;
+      if (!appInitial.includes(`${hook} as ${linuxSelector.storeHook}`) ||
+          !appInitial.includes(`${scope} as ${linuxSelector.storeScope}`)) {
+        throw new Error("Upstream changed: Linux renderer store binding is missing");
+      }
+      return {
+        before: initialImport[0],
+        after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+        storeHook: "MTKcrossTaskStoreHook",
+        storeScope: "MTKcrossTaskStoreScope",
+        sharedImport: {
+          before: sharedImport[0],
+          after: `import{${sharedImport.groups.specifiers},${hook} as MTKcrossTaskStoreHook,${scope} as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
+        }
+      };
+    }
     return {
       before: initialImport[0],
       after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom}from"${initialImport.groups.relative}";`,

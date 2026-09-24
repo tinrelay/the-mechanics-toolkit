@@ -12,6 +12,8 @@ const behavioralProbe = path.join(repository, "test/cross-task-attribution.test.
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attribution-test-"));
 
 try {
+  verifyProfile("Linux build 10954", linux10954InitialFixture(), build9922PrimaryFixture(),
+    linux10954BubbleFixture(), linux10954OwnerFixture());
   verifyProfile("Linux build 9771", build9922InitialFixture(), linux9771PrimaryFixture(),
     linux9771BubbleFixture(), build9922OwnerFixture());
   verifyProfile("generic build 9922", build9922InitialFixture(), build9922PrimaryFixture(),
@@ -90,6 +92,27 @@ function build10789InitialFixture() {
     'function _Bs(e){return e.localTitle}var yBs;function bBs(){yBs=ns(X,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return _Bs({...n,localTitle:r})})}',
     'function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),n=Ao();return n}',
     'export{yBs as x7};'
+  ].join("");
+}
+
+function linux10954InitialFixture() {
+  return [
+    'import{PX as Qr,XI as X}from"./app-shared-fixture.js";',
+    'function _Bs(e){return e.localTitle}var yBs;function bBs(){yBs=Ia(X,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return _Bs({...n,localTitle:r})})}',
+    'function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),n=`sidebarElectron.recentChats`;return n}',
+    'export{yBs as x7};'
+  ].join("");
+}
+
+function linux10954OwnerFixture() {
+  return build10789OwnerFixture().replace('t as jf', 't as Mf').replace('(jf,{message:', '(Mf,{message:');
+}
+
+function linux10954BubbleFixture() {
+  return [
+    'function yt(e){let n=(0,xt.c)(153),{message:r,turnId:O,cwd:k,hostId:A}=e,F,Re,Ye,J;',
+    'if(n[47]!==Re||n[48]!==Ye){J=(0,$.jsx)(`div`,{"data-user-message-bubble":!0,className:`max-w-full`}),n[47]=Re,n[48]=Ye,n[49]=J}return J}',
+    'export{yt as t};'
   ].join("");
 }
 

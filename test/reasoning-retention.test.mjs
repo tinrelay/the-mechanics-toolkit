@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { build9922 } from "../patches/reasoning-retention/profiles/build9922.mjs";
 import { build10789 } from "../patches/reasoning-retention/profiles/build10789.mjs";
-import { linuxBuild9771 } from "../patches/reasoning-retention/profiles/linux.mjs";
+import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
@@ -57,7 +57,7 @@ const Ui = {
 };
 const hookReact = hookText.match(/return ([A-Za-z_$][\w$]*)(\(\))?\.useSyncExternalStore\(/);
 assert.ok(hookReact, "turn hook names its React owner");
-if (turn.source.includes(build10789.turn.ownerFunction)) {
+if (turn.source.includes(build10789.turn.decisionAfter)) {
   assert.equal(hookReact[1], "de", "build-10789 uses the stock React provider");
   assert.equal(hookReact[2], "()");
   assert.ok(turn.source.includes("Ao=de()") && turn.source.includes("(0,Ao.useState)"),
@@ -78,6 +78,7 @@ assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
 assert.equal(
   /if\(!MTKreasoningThreadRetained\)for\(let t of i\)[A-Za-z_$][\w$]*\([A-Za-z_$][\w$]*,\{conversationId:e,turnSearchKey:t\},!0\)/.test(thread.source) ||
     thread.source.includes(linuxBuild9771.thread.appliedCollapse) ||
+    thread.source.includes(linuxBuild10954.thread.appliedCollapse) ||
     thread.source.includes(build9922.thread.appliedCollapse) ||
     thread.source.includes(build10789.thread.appliedCollapse),
   true,
@@ -86,6 +87,7 @@ assert.equal(
 assert.ok(
   /(?:\[e,[A-Za-z_$][\w$]*,G,[A-Za-z_$][\w$]*,[A-Za-z_$][\w$]*|\[e,u,ue,x,pe|\[e,l,ce,x,q|\[e,l,le,y,fe),MTKreasoningThreadRetained\]/.test(thread.source) ||
     thread.source.includes(linuxBuild9771.thread.appliedDependencies) ||
+    thread.source.includes(linuxBuild10954.thread.appliedDependencies) ||
     thread.source.includes(build9922.thread.appliedDependencies) ||
     thread.source.includes(build10789.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
@@ -101,6 +103,7 @@ assert.deepEqual(collapse({...base, preventAutoCollapse: true, persistedCollapse
 assert.equal(
     turn.source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
     turn.source.includes(linuxBuild9771.turn.appliedOwner) ||
+    turn.source.includes(linuxBuild10954.turn.appliedOwner) ||
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner),
   true,

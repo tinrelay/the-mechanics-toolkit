@@ -47,6 +47,16 @@ try {
   assert.deepEqual(fs.readFileSync(owner), linuxOnce, "Linux second application is byte-identical");
   process.stdout.write("model identity guard Linux build-9771 transform probe passed\n");
 
+  fs.writeFileSync(owner, linux10954OwnerFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linux10954Once = fs.readFileSync(owner);
+  assert.match(linux10954Once.toString(), /MTKuseModelIdentityGuard\(r,Ee,nt\)/);
+  assert.match(linux10954Once.toString(), /return y3\.useEffect\(/);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(owner), linux10954Once,
+    "Linux build-10954 second application is byte-identical");
+
   fs.writeFileSync(owner, linux9647OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
@@ -104,6 +114,15 @@ function linux9771OwnerFixture() {
     'function S3(e){let t=(0,AXe.c)(242),r=e.conversationId,Ce=e.model,K={reasoningEffort:e.reasoningEffort},Ye=[];',
     'let $e=YA(K.reasoningEffort,Ye),et=true;return{t,r,Ce,K,$e,et}}',
     'export const macDecoy="$e=$A(ie.reasoningEffort,Ye),et=";'
+  ].join("");
+}
+
+function linux10954OwnerFixture() {
+  return [
+    'const y3={useEffect:e=>e()},RM=e=>e;',
+    'const selector={"data-codex-intelligence-trigger":true};',
+    'function v3(e){let t=(0,aat.c)(242),r=e.conversationId,Ee=e.model,re={reasoningEffort:e.reasoningEffort},Qe=[];',
+    'let nt=RM(re.reasoningEffort,Qe),rt=true;return{t,r,Ee,re,nt,rt}}'
   ].join("");
 }
 

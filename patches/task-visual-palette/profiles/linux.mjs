@@ -1,3 +1,63 @@
+const linux10954ArchiveBehavior = [
+  ["function PUs(", "function MTKuseSidebarArchivePolicy(e){return e.useSyncExternalStore(MTKsidebarArchiveSubscribe,MTKsidebarArchiveSnapshot,MTKsidebarArchiveSnapshot)}function PUs("],
+  ["archive:T?void 0:{id:`archive-thread`,message:void 0,onSelect:()=>{i()}}", "archive:T||MTKsidebarArchiveProtected(h)?void 0:{id:`archive-thread`,message:void 0,onSelect:()=>{i()}}"],
+  ["function PUs({items:e,onArchive:t,onSelect:n,selectedThreadKeys:r,threadKey:i}){return r.length<2?e:", "function PUs({items:e,onArchive:t,onSelect:n,selectedThreadKeys:r,threadKey:i,archiveProtected:a}){return a&&(e=e.filter(e=>e.id!==`archive-thread`&&e.id!==`archive-task`)),r.length<2?e:"],
+  ["selectedThreadKeys:HLs(E,r),threadKey:r})", "selectedThreadKeys:HLs(E,r),threadKey:r,archiveProtected:HLs(E,r).some(e=>MTKsidebarArchiveProtected(Pw(e)))})"],
+  ["selectedThreadKeys:HLs(re,e),threadKey:e})", "selectedThreadKeys:HLs(re,e),threadKey:e,archiveProtected:HLs(re,e).some(e=>MTKsidebarArchiveProtected(Pw(e)))})"],
+  ["archive:t!=null&&(Ye||oe)?tt:t,getMenuItems:", "archive:MTKsidebarArchiveProtected(n)?null:t!=null&&(Ye||oe)?tt:t,getMenuItems:"],
+  ["let Ye=Ae?ze:null", "let Ye=Ae&&!MTKsidebarArchiveProtected(me)?ze:null"],
+  ["if(Ae&&e.push({id:`archive-task`", "if(Ae&&!MTKsidebarArchiveProtected(me)&&e.push({id:`archive-task`"],
+  ["archive:n,getMenuItems:se?e=>l([", "archive:MTKsidebarArchiveProtected(e.task.id)?null:n,getMenuItems:se&&!MTKsidebarArchiveProtected(e.task.id)?e=>l(["]
+];
+
+const linux10954ArchiveRuntime = [
+  ["var hWs,gWs,H6;function _Ws(){return(_Ws=n((()=>{hWs=Y(),G(),dt(),gWs=na(),", "var MTKarchiveReact,hWs,gWs,H6;function _Ws(){return(_Ws=n((()=>{hWs=Y(),G(),dt(),gWs=na(),MTKarchiveReact=gWs,"] ,
+  ["function pWs(e){let t=(0,hWs.c)(171),", "function pWs(e){let MTKsidebarArchiveEpoch=MTKuseSidebarArchivePolicy(MTKarchiveReact),t=(0,hWs.c)(173),"],
+  ["let vt=la(_t),yt;t[83]!==S", "let vt=la(_t),yt;t[171]!==MTKsidebarArchiveEpoch||t[83]!==S"],
+  ["t[100]=T,t[101]=yt):yt=t[101]", "t[100]=T,t[171]=MTKsidebarArchiveEpoch,t[101]=yt):yt=t[101]"],
+  ["let bt=la(yt),xt=C&&S,St;t[102]!==n", "let bt=la(yt),xt=C&&S,St;t[172]!==MTKsidebarArchiveEpoch||t[102]!==n"],
+  ["t[112]=xt,t[113]=St):St=t[113]", "t[112]=xt,t[172]=MTKsidebarArchiveEpoch,t[113]=St):St=t[113]"],
+  ["function $qs(e){let t=(0,tJs.c)(89),", "function $qs(e){let MTKsidebarArchiveEpoch=MTKuseSidebarArchivePolicy(MTKarchiveReact),t=(0,tJs.c)(90),"],
+  ["let rt;t[78]!==Ae", "let rt;t[89]!==MTKsidebarArchiveEpoch||t[78]!==Ae"],
+  ["t[84]=R,t[85]=rt):rt=t[85]", "t[84]=R,t[89]=MTKsidebarArchiveEpoch,t[85]=rt):rt=t[85]"],
+  ["function MYs(e){let t=(0,BYs.c)(181),", "function MYs(e){let MTKsidebarArchiveEpoch=MTKuseSidebarArchivePolicy(MTKarchiveReact),t=(0,BYs.c)(182),"],
+  ["let vt=_t,yt;t[83]!==d", "let vt=_t,yt;t[181]!==MTKsidebarArchiveEpoch||t[83]!==d"],
+  ["t[116]=k,t[117]=yt):yt=t[117]", "t[116]=k,t[181]=MTKsidebarArchiveEpoch,t[117]=yt):yt=t[117]"]
+];
+
+export const linuxBuild10954 = {
+  app: {
+    name: "26.917.71314-10954-linux",
+    pristineSeam: "function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),",
+    seam: "function Bzc(){MTKuseAgentRoster();let e=(0,Uzc.c)(12),t=Qr(X),",
+    patchedSeam: "function Bzc(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Uzc.c)(12),t=Qr(X),",
+    agentRoster: true,
+    helperReplacements: [["QSl.useEffect", "Wzc.useEffect"]],
+    bottomFadeBefore: null,
+    bottomFadeAfter: null
+  },
+  bottomFade: {
+    file: "app-primary",
+    before: '(0,S7.jsx)(`div`,{"aria-hidden":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})',
+    after: '(0,S7.jsx)(`div`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary`})'
+  },
+  local: {
+    name: "26.917.71314-10954-linux",
+    cacheBefore: "function hl(e){let t=(0,Sl.c)(98),",
+    cacheAfter: "function hl(e){let t=(0,Sl.c)(99),",
+    rootBefore: 't[78]!==ne||t[79]!==re||t[80]!==ie||t[81]!==ae||t[82]!==se||t[83]!==ce||t[84]!==le||t[85]!==ue||t[86]!==de||t[87]!==fe||t[88]!==pe||t[89]!==me?(he=(0,Q.jsxs)(`div`,{ref:N,className:`relative h-full min-h-0`,children:[ne,re,ie,ae,oe,se,ce,le,ue,de,fe,pe,me]}),t[78]=ne,t[79]=re,t[80]=ie,t[81]=ae,t[82]=se,t[83]=ce,t[84]=le,t[85]=ue,t[86]=de,t[87]=fe,t[88]=pe,t[89]=me,t[90]=he):he=t[90];',
+    rootAfter: 't[78]!==ne||t[79]!==re||t[80]!==ie||t[81]!==ae||t[82]!==se||t[83]!==ce||t[84]!==le||t[85]!==ue||t[86]!==de||t[87]!==fe||t[88]!==pe||t[89]!==me||t[98]!==r?(he=(0,Q.jsxs)(`div`,{ref:N,"data-mtk-palette-room-host":!0,"data-mtk-palette-thread-id":r,className:`relative h-full min-h-0`,children:[ne,re,ie,ae,oe,se,ce,le,ue,de,fe,pe,me]}),t[78]=ne,t[79]=re,t[80]=ie,t[81]=ae,t[82]=se,t[83]=ce,t[84]=le,t[85]=ue,t[86]=de,t[87]=fe,t[88]=pe,t[89]=me,t[98]=r,t[90]=he):he=t[90];'
+  },
+  archive: {
+    pristine: linux10954ArchiveBehavior.map(([before]) => before),
+    applied: linux10954ArchiveBehavior.map(([, after]) => after),
+    replacements: linux10954ArchiveBehavior,
+    runtimePristine: linux10954ArchiveRuntime.map(([before]) => before),
+    runtimeApplied: linux10954ArchiveRuntime.map(([, after]) => after),
+    runtimeReplacements: linux10954ArchiveRuntime
+  }
+};
+
 export const linuxBuild9771 = {
   app: {
     name: "26.915.31029-9771-linux",

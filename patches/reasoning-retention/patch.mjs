@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -13,7 +13,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const assets = path.join(root, "webview/assets");
-const linuxProfiles = [linuxBuild9771, linuxBuild9647];
+const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];
 const turn = uniqueOwner(source =>
   source.includes("preventAutoCollapse:Ct||ir") ||
     linuxProfiles.some(profile => source.includes(profile.turn.owner)) ||
@@ -58,7 +58,8 @@ function inspectState() {
     source.includes("function MTKuseReasoningRetention("),
     source.includes("MTKreasoningRetained=MTKuseReasoningRetention(l)") ||
       source.includes("MTKreasoningRetained=MTKuseReasoningRetention(d)") ||
-      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(c)"),
+      source.includes("MTKreasoningRetained=MTKuseReasoningRetention(c)") ||
+      source.includes(linuxBuild10954.turn.decisionAfter),
     source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
       linuxProfiles.some(profile => source.includes(profile.turn.appliedOwner)) ||
       source.includes(build9922.turn.appliedOwner) || source.includes(build10789.turn.appliedOwner)

@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { incomingBuild9647, incomingBuild9771 } from "./profiles/linux.mjs";
+import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 
@@ -260,7 +260,7 @@ function incomingRendererProfile(value) {
       (value.includes(incomingBuild9922.moduleBefore) || value.includes(incomingBuild9922.moduleAfter))) {
     return incomingBuild9922;
   }
-  for (const profile of [incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild10954, incomingBuild9771, incomingBuild9647]) {
     if (value.includes(`function ${profile.delegation}(`) &&
         value.includes(`function ${profile.message}(`) &&
         (value.includes(profile.moduleBefore) || value.includes(profile.moduleAfter))) {

@@ -15,9 +15,32 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current accepted receipt
+## Current accepted build 10954
 
-The current accepted macOS ARM64 target is Codex Desktop `26.917.62051` / build `10789` with an
+On 2026-09-24, the offered Codex Desktop `26.917.71314` / build `10954` was staged without
+touching the installed build `10789`. The official ARM64 Sparkle ZIP has SHA-256
+`e3f436f729295bdb72b9acc9115bbf767a1fda7d081f2f83de84f70b93fdca9c`; its signed pristine
+ASAR has SHA-256 `03108a728bdb1616958ab89587c5495cab0cf4cd1bbe109bdfb186df0a113804`.
+The staged and subsequently installed app has ASAR SHA-256
+`b0b248cf12f160bc738b6c130fc166c9bac589d59eb1261278d4bd09e023908a` and a valid local
+signature and ASAR seal. Its `codex-cli 0.155.0-alpha.16.4` has SHA-256
+`d94ac2a41c48409471bd7c5c2de8e09fd96223f6a77241f6531080d66787e4fc`.
+
+The 18-patch fleet passed full static staging, post-repack probes, native payload preservation,
+and byte-identical second application; `npm run check` and `npm test` passed. The current
+standalone-output repair applied to upstream tag `rust-v0.155.0-alpha.16.4` at commit
+`3853cf0c49daadcacaacceb2cbb732f512eaacdb`. Its three target source files were byte-identical
+to the tested build-`10789` originals and passed exact before/after hash verification; focused
+Rust tests were not repeated for this revision. A genuine supervised restart installed build
+`10954` at `/Applications/ChatGPT.app`; the installed ASAR hash, signature, and seal verify. The
+original task resumed with a usable UI. An outgoing self-task message and a TinRelay self-loop
+both reached that task. The previous build-`10789` focused live behavior remains earlier evidence,
+not a claim that every feature was retested on `10954`. The early-ready Oops limitation remains.
+Only the official ZIP and one staged candidate app remain as campaign bulk artifacts.
+
+## Previous build 10789 receipt
+
+The previously accepted macOS ARM64 target was Codex Desktop `26.917.62051` / build `10789` with an
 18-patch fleet; vendor-owned turn pagination makes the TMTK renderer-turn-window patch unnecessary
 in this selection. The accepted installed ASAR is
 `391800e4d7703f58b79310aceb128462f54acff35cbc79284f2a02a02d979e36`. The integrated

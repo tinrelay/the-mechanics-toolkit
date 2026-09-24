@@ -16,7 +16,7 @@ const rendererSource = fs.readFileSync(rendererTarget, "utf8");
 let state = inspectState(mainSource, rendererSource);
 
 if (command === "apply" && state === "needs-apply") {
-  mainSource = patchMain(mainSource);
+  mainSource = patchMain(mainSource, rendererSource);
   fs.writeFileSync(mainTarget, mainSource);
   syntaxCheck(mainTarget);
   state = inspectState(mainSource, rendererSource);
@@ -32,14 +32,14 @@ process.stdout.write(`${JSON.stringify({
 
 function inspectState(mainValue, rendererValue) {
   verifyStockContracts(mainValue, rendererValue);
-  const profile = safeStartProfile(mainValue);
+  const profile = safeStartProfile(mainValue, rendererValue);
   return mainValue.includes(profile.applied)
     ? "applied"
     : "needs-apply";
 }
 
 function verifyStockContracts(mainValue, rendererValue) {
-  const profile = safeStartProfile(mainValue);
+  const profile = safeStartProfile(mainValue, rendererValue);
   const contractFamilies = [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
     ["development relaunch writer", [`function ${profile.writer}(`]]
@@ -57,8 +57,8 @@ function verifyStockContracts(mainValue, rendererValue) {
   }
 }
 
-function patchMain(value) {
-  const profile = safeStartProfile(value);
+function patchMain(value, rendererValue) {
+  const profile = safeStartProfile(value, rendererValue);
   return replaceOnce(
     value,
     profile.before,
@@ -67,7 +67,7 @@ function patchMain(value) {
   );
 }
 
-function safeStartProfile(value) {
+function safeStartProfile(value, rendererValue) {
   const markers = [...value.matchAll(/\b([A-Za-z_$][\w$]*)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/g)]
     .map(match => match[1]);
   if (markers.length !== 1) {
@@ -104,9 +104,15 @@ function safeStartProfile(value) {
       before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
       rendererReady: "Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
+    },
+    {
+      marker: "Woe",
+      before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
     }
   ].filter(profile => {
-    if (profile.marker !== marker) return false;
+    if (profile.marker !== marker || !rendererValue.includes(profile.rendererReady)) return false;
     const appliedCount = count(value, profile.applied);
     return appliedCount === 1 || appliedCount === 0 && count(value, profile.before) === 1;
   });

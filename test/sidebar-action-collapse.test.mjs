@@ -6,7 +6,8 @@ import { build9922 } from "../patches/sidebar-action-collapse/profiles/build9922
 import { build10789 } from "../patches/sidebar-action-collapse/profiles/build10789.mjs";
 import {
   linuxBuild9647,
-  linuxBuild9771
+  linuxBuild9771,
+  linuxBuild10954
 } from "../patches/sidebar-action-collapse/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -18,13 +19,14 @@ const matches = fs.readdirSync(assets).filter(name => name.endsWith(".js") &&
 assert.equal(matches.length, 1, "unique sidebar-collapse owner");
 const source = fs.readFileSync(path.join(assets, matches[0]), "utf8");
 const helperStart = source.indexOf('const MTK_SIDEBAR_ACTIONS_STORAGE_KEY=');
-const helperEnd = [linuxBuild9771.ownerAfter, linuxBuild9647.ownerAfter, build9922.ownerAfter, build10789.ownerAfter]
+const helperEnd = [linuxBuild10954.ownerAfter, linuxBuild9771.ownerAfter,
+  linuxBuild9647.ownerAfter, build9922.ownerAfter, build10789.ownerAfter]
   .map(marker => source.indexOf(marker, helperStart))
   .filter(position => position >= 0)
   .sort((left, right) => left - right)[0] ?? -1;
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "sidebar helper seam");
 const rawHelper = source.slice(helperStart, helperEnd);
-const linuxProfile = [linuxBuild9771, linuxBuild9647].find(profile =>
+const linuxProfile = [linuxBuild10954, linuxBuild9771, linuxBuild9647].find(profile =>
   rawHelper.includes(`function MTKuseSidebarActionCollapse${profile.suffix}(`)
 );
 const macProfile = [build10789, build9922].find(profile =>

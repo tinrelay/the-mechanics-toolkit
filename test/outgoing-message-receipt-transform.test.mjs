@@ -70,6 +70,26 @@ try {
     build10789OwnerFixture());
   fs.writeFileSync(path.join(build10789Pristine, "webview/assets/app-shared-70a4f71efb70.js"),
     "const LX=()=>{},ZI=Symbol(`scope`),EX=0;export{LX,ZI,EX};");
+  const build10954Pristine = path.join(scratch, "build-10954-pristine");
+  fs.cpSync(build10789Pristine, build10954Pristine, {recursive: true});
+  for (const name of ["app-initial-fixture.js", "app-control-fixture.js"]) {
+    replaceInFixture(path.join(build10954Pristine, "webview/assets", name),
+      "app-shared-70a4f71efb70.js", "app-shared-7b9edc1bfb7f.js", "build 10954 shared owner");
+  }
+  fs.renameSync(
+    path.join(build10954Pristine, "webview/assets/app-shared-70a4f71efb70.js"),
+    path.join(build10954Pristine, "webview/assets/app-shared-7b9edc1bfb7f.js")
+  );
+  const windows10954Pristine = path.join(scratch, "windows-10954-pristine");
+  fs.cpSync(build10954Pristine, windows10954Pristine, {recursive: true});
+  for (const name of ["app-initial-fixture.js", "app-control-fixture.js"]) {
+    replaceInFixture(path.join(windows10954Pristine, "webview/assets", name),
+      "app-shared-7b9edc1bfb7f.js", "app-shared-dc8f183e4945.js", "Windows 10954 shared owner");
+  }
+  fs.renameSync(
+    path.join(windows10954Pristine, "webview/assets/app-shared-7b9edc1bfb7f.js"),
+    path.join(windows10954Pristine, "webview/assets/app-shared-dc8f183e4945.js")
+  );
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -128,6 +148,8 @@ try {
   assertLinux9647AppliedInspection(linux9647Pristine);
   assertBuild9922AppliedInspection(build9922Pristine);
   assertBuild10789TitleInspection(build10789Pristine);
+  assertBuild10789TitleInspection(build10954Pristine);
+  assertBuild10789TitleInspection(windows10954Pristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
   assert.equal(registry.status, 0, registry.stderr || registry.stdout);

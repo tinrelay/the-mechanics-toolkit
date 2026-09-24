@@ -22,7 +22,8 @@ assert.equal([
   "qn.dispatchMessage(`ready`,{persistedStateResponsePriority:V9?`critical`:void 0})",
   "g.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
   "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})",
-  "Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
+  "Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
+  "ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
 ].reduce((total, contract) => total + count(renderer, contract), 0), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");

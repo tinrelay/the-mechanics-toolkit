@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 
@@ -225,6 +225,7 @@ function resolveTaskImports(ownerSource) {
   const profiles = [
     taskImportProfile(build10789.taskImports),
     taskImportProfile(build9922.taskImports),
+    taskImportProfile(linuxBuild10954.taskImports),
     taskImportProfile(linuxBuild9771.taskImports),
     {
       ...taskImportProfile(linuxBuild9647.taskImports),

@@ -17,6 +17,23 @@ export const linuxBuild9771 = {
   }
 };
 
+export const linuxBuild10954 = {
+  name: "26.917.71314-10954-linux",
+  selector: "function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),",
+  required: [
+    "PX as Qr",
+    "XI as X",
+    "MZr=io(X,",
+    "jd=Cs(X,()=>null)",
+    "function Ad(e,t){let n=e.get(jd);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "var Uzc,Wzc;function Gzc()"
+  ],
+  profile: {
+    seam: "function Bzc(){let e=(0,Uzc.c)(12),",
+    scope: "Qr(X)", react: "Wzc", projectsAtom: "MZr", readyAtom: "jd", client: "Ad"
+  }
+};
+
 export const linuxBuild9647 = {
   name: "26.911.61220-9647-linux",
   selector: "function PYs(){let e=(0,LYs.c)(12),t=tm(Q),",

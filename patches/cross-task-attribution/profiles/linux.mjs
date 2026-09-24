@@ -27,3 +27,33 @@ export const linuxBuild9771 = {
     ]
   }
 };
+
+export const linuxBuild10954 = {
+  titleSelector: {
+    atom: "yBs",
+    atomOwner: "yBs=Ia(X,(e,{get:t})=>",
+    helperOwner: "_Bs({...n,localTitle:r})",
+    storeHook: "Qr",
+    storeOwner: "function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),",
+    storeScope: "X",
+    sharedStoreExports: {hook: "PX", scope: "XI"}
+  },
+  component: {
+    delegation: "_v", delegationCache: "vv", delegationJsx: "yv",
+    wrapper: "cv", wrapperCache: "lv", wrapperJsx: "uv",
+    bubble: "yt", wrapperBubble: "Mf", bubbleCache: "xt", bubbleCacheVar: "n",
+    collapsedLines: "dv", bubbleCacheSize: 153, externalBubble: true,
+    bubbleOwner: [
+      "turnId:O,cwd:k,hostId:A}=e,",
+      "turnId:O,cwd:k,hostId:A,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+    ],
+    bubbleDependency: [
+      "n[47]!==Re||n[48]!==Ye){",
+      "n[47]!==Re||n[48]!==Ye||n[153]!==MTKbubbleStyleOverride){"
+    ],
+    bubbleStorage: [
+      "n[47]=Re,n[48]=Ye,n[49]=J",
+      "n[47]=Re,n[48]=Ye,n[153]=MTKbubbleStyleOverride,n[49]=J"
+    ]
+  }
+};

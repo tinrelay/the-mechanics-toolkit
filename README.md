@@ -23,13 +23,21 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.917.62051`, build `10789` | Complete 18-patch fleet; static proof, corrected supervised adoption, and focused live behavior. |
-| Windows 11 ARM64 MSIX | `26.915.31945`, build `9922` | 16-patch fleet; signed reconstruction, supervised adoption, renderer readiness, registry, and a visible patched surface. |
-| Ubuntu DEB | `26.915.31029`, build `9771` | `arm64` and `amd64` package support; ARM64 authenticated reconstruction, install, application opening, and renderer readiness. |
+| macOS ARM64 application | `26.917.71314`, build `10954` | Complete 18-patch fleet; static proof, supervised adoption, usable task, and focused live behavior. |
+| Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
+| Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
 
-Different Linux vendor channels currently ship different Desktop builds. TMTK keeps exact profiles
-for both current targets while sharing the same patch implementations.
+Fedora's vendor channel also offers build `10954`, with an ASAR byte-identical to Ubuntu's pristine
+build, but its RPM stage and launch have not been qualified. Build `9647` remains the last
+qualified Fedora target. TMTK keeps exact profiles for both builds while sharing the patch
+implementations.
+
+Windows tooling accepts both x64 and ARM64 package identities; the completed package and live
+qualification used ARM64. Ubuntu and Fedora package adapters likewise accept their x86-family
+architectures. An installing agent may use those paths after inspecting the official package's
+exact inner build and passing the normal stage and adoption gates; lack of an x86-family lab run
+is an evidence boundary, not an architecture restriction.
 
 An `active` patch is maintained on the current branch. That does not mean it is installed locally
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
@@ -117,7 +125,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.16.3` / Desktop `26.917.62051` build `10789` | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.155.0-alpha.16.4` / Desktop `26.917.71314` build `10954` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
 
 ## Documentation map
 

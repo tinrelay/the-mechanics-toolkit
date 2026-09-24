@@ -15,6 +15,27 @@ try {
   const assets = path.join(scratch, "webview/assets");
   fs.mkdirSync(assets, { recursive: true });
   const target = path.join(assets, "app-primary-fixture.js");
+  fs.writeFileSync(target, linux10954FixtureSource());
+  assert.equal(runToolkit("check", scratch).state, "needs-apply");
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  const linux10954Once = fs.readFileSync(target);
+  const linux10954Source = linux10954Once.toString();
+  assert.match(linux10954Source, /O=s\(\),k=Us\(cus\)/);
+  assert.match(linux10954Source, /label:O\.formatMessage\(/);
+  assert.match(linux10954Source,
+    /function MTKsidebarActionDisclosure10954Linux\([^]*?let n=s\(\),r=n\.formatMessage/);
+  assert.doesNotMatch(linux10954Source,
+    /function MTKsidebarActionDisclosure10954Linux\([^]*?let n=Ao\(\),r=n\.formatMessage/);
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  assert.deepEqual(fs.readFileSync(target), linux10954Once,
+    "Linux build-10954 second application is byte-identical");
+  fs.writeFileSync(target, linux10954Source.replace(
+    "let n=s(),r=n.formatMessage(", "let n=Ao(),r=n.formatMessage("));
+  const wrongIntl = spawnSync(process.execPath,
+    [toolkit, "patch", "sidebar-action-collapse", "check", scratch], {encoding: "utf8"});
+  assert.notEqual(wrongIntl.status, 0, "wrong applied intl owner must fail closed");
+  process.stdout.write("sidebar action collapse Linux build-10954 transform probe passed\n");
+
   fs.writeFileSync(target, linux9771FixtureSource());
   assert.equal(runToolkit("check", scratch).state, "needs-apply");
   assert.equal(runToolkit("apply", scratch).state, "applied");
@@ -81,6 +102,19 @@ function runToolkit(action, root) {
   );
   assert.equal(result.status, 0, result.stderr || result.stdout);
   return JSON.parse(result.stdout);
+}
+
+function linux10954FixtureSource() {
+  return [
+    "function t9s(e){let t=(0,i9s.c)(177),Ye=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r,contextualNavigation:i}=e,O=s(),k=Us(cus),placeholder=0;",
+    "let Me=[];t[58];let Ne=Me.length>0;",
+    'const nav={label:O.formatMessage({defaultMessage:"Projects"})};',
+    '(0,f5.jsxs)(f5.Fragment,{children:[(0,f5.jsx)(Q5s,{}),(!A||j)&&Te===`header_icon`?(0,f5.jsx)(vLs,{sidebarMode:he}):null]});',
+    '(0,f5.jsx)(rLs,{showCustomizeSidebarAction:Re,sidebarMode:he,showSearchNavItem:!1});',
+    "t[108]!==_||t[109]!==x||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he?(Ye=1,t[108]=_,t[109]=x,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[120]=Ye):Ye=t[120];return Ye}",
+    "const wrongIntl=Ao;",
+    "export const fixture=true;"
+  ].join("");
 }
 
 function linux9771FixtureSource() {

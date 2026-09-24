@@ -11,6 +11,7 @@ const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/wait-thread-roster.test.mjs");
 runFixture("linux-9771", initialFixture(), /Bpn as MTKwaitStoreScope/);
 runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
+runFixture("linux-10954", linux10954InitialFixture(), /XI as MTKwaitStoreScope/, true);
 runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
@@ -24,7 +25,7 @@ function runFixture(label, initialSource, expectedScope, splitStore = false) {
   const ownerTarget = path.join(assets, "agent-activity-item-fixture.js");
   fs.writeFileSync(initialTarget, initialSource);
   if (splitStore) fs.writeFileSync(path.join(assets, "app-shared-fixture.js"),
-    "const LX=e=>e,ZI=Symbol(`scope`);export{LX,ZI};");
+    "const LX=e=>e,ZI=Symbol(`scope`),PX=e=>e,XI=Symbol(`scope`);export{LX,ZI,PX,XI};");
   fs.writeFileSync(ownerTarget, ownerFixture(splitStore));
 
   assert.equal(runToolkit("check").state, "needs-apply");
@@ -95,6 +96,16 @@ function build10789InitialFixture() {
     "const ns=(...e)=>e,OF=ns(X,0);function Bzc(){}",
     "const eo=(...e)=>e,fE=0,vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,0);",
     "export{x as x,OF as task,Hw as local,Uw as remote,vE as summary};"
+  ].join("");
+}
+
+function linux10954InitialFixture() {
+  return [
+    'import{PX as Qr,XI as X}from"./app-shared-fixture.js";',
+    "const x=0;function Aw(e){return `local:${e}`}function jw(e){return `remote:${e}`}",
+    "const Ia=(...e)=>e,n=e=>e;var pF;function yF(){return(yF=n((()=>{pF=Ia(X,0)})))()}",
+    "const _s=(...e)=>e,$T=0,aE=_s(X,({hostId:e,conversationId:t},{get:n})=>n($T,e)?.getThreadSummary(t)??null,0);",
+    "export{x as x,pF as task,Aw as local,jw as remote,aE as summary};"
   ].join("");
 }
 

@@ -9,7 +9,8 @@ import { build9922Contracts } from "../patches/terminal-toggle/profiles/build992
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import {
   linuxBuild9647Contracts,
-  linuxBuild9771Contracts
+  linuxBuild9771Contracts,
+  linuxBuild10954Contracts
 } from "../patches/terminal-toggle/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -18,7 +19,8 @@ const behavioralProbe = path.join(repository, "test/terminal-toggle.test.mjs");
 runFixture("linux-9771", fixtureSource(linuxBuild9771Contracts));
 runFixture("linux-9647", fixtureSource(linuxBuild9647Contracts));
 runFixture("9922", fixtureSource(build9922Contracts));
-runSplitFixture();
+runSplitFixture("10789", build10789Contracts);
+runSplitFixture("linux-10954", linuxBuild10954Contracts);
 process.stdout.write("terminal toggle transform probe passed\n");
 
 function runFixture(label, fixture) {
@@ -65,8 +67,8 @@ export const fixture = true;
 `;
 }
 
-function runSplitFixture() {
-  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-terminal-10789-"));
+function runSplitFixture(label, contracts) {
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), `mechanics-toolkit-terminal-${label}-`));
   try {
     const assets = path.join(scratch, "webview/assets");
     const build = path.join(scratch, ".vite/build");
@@ -78,7 +80,7 @@ function runSplitFixture() {
     const worker = path.join(build, "worker.js");
     fs.writeFileSync(app, `/*
 c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
-${build10789Contracts.join("\n")}
+${contracts.join("\n")}
 */export const fixture=true;`);
     const command = "/*{id:`toggleTerminal`,titleIntlId:`codex.command.toggleTerminal`,descriptionIntlId:`codex.commandDescription.toggleTerminal`,requiredAccess:`codexLocal`,commandMenuGroupKey:`panels`,commandMenu:!0,commandMenuFeature:`codex`,electron:{menuTitle:`Open Terminal`,menuTitleIntlId:`codex.commandMenuTitle.toggleTerminal`,defaultKeybindings:[{key:\"Control+`\"}]}}*/export const fixture=true;";
     fs.writeFileSync(shared, command);

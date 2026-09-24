@@ -6,7 +6,8 @@ import { build9922 } from "../patches/task-attention-policy/profiles/build9922.m
 import { build10789 } from "../patches/task-attention-policy/profiles/build10789.mjs";
 import {
   linuxBuild9647,
-  linuxBuild9771
+  linuxBuild9771,
+  linuxBuild10954
 } from "../patches/task-attention-policy/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -24,7 +25,7 @@ process.stdout.write("task attention roster behavioral probe passed\n");
 
 function testRosterAttention(appSource, appPrimarySource) {
   const start = appSource.indexOf("const MTKattentionRosterBridge=1");
-  const linuxProfile = [linuxBuild9771, linuxBuild9647].find(profile =>
+  const linuxProfile = [linuxBuild10954, linuxBuild9771, linuxBuild9647].find(profile =>
     appSource.includes(`function MTKuseAttentionBootstrap${profile.suffix}(`)
   );
   const macProfile = [build10789, build9922].find(candidate =>
@@ -59,7 +60,7 @@ function testRosterAttention(appSource, appPrimarySource) {
     return entries.get(key);
   };
   const api = Function(
-    "globalThis", "Nj", "IT", "dT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl", "Tyl", "Ww",
+    "globalThis", "Nj", "IT", "dT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl", "Tyl", "Ww", "Mw", "Qr", "X", "Wzc",
     `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`
   )(
     {__MTK_AGENT_ROSTER__: roster},
@@ -75,7 +76,11 @@ function testRosterAttention(appSource, appPrimarySource) {
     {useEffect() {}},
     {useEffect() {}},
     {useEffect() {}},
-    key => entries.get(key) ?? null
+    key => entries.get(key) ?? null,
+    key => entries.get(key) ?? null,
+    () => ({set() {}}),
+    Symbol("scope"),
+    {useEffect() {}}
   );
   assert.equal(api.ignored("Tamsin — Portfolio Secretary", "tamsin-id"), true);
   assert.equal(api.ignored("Tamsin — Portfolio Secretary", "other-id"), false);
@@ -85,7 +90,7 @@ function testRosterAttention(appSource, appPrimarySource) {
   assert.equal(api.thread(select, "remote"), true);
 
   for (const contract of [
-    `MTKattentionPolicyAtom=${macProfile === build10789 ? "Go" : macProfile === build9922 ? "rf" : profile === linuxBuild9771 ? "nf" : "Fp"}(${macProfile === build10789 ? "X" : macProfile === build9922 || profile === linuxBuild9771 ? "$" : "Q"},0)`,
+    profile.applied.app[1],
     `s=s.filter(t=>!MTKattentionIgnoredThread${suffix}(e,t))`,
     "[desktop-notifications] suppressed task-attention-policy turn-complete"
   ]) assert.ok(appSource.includes(contract), `roster attention app contract: ${contract}`);

@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -13,7 +13,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const assets = path.join(root, "webview/assets");
-const linuxProfiles = [linuxBuild9771, linuxBuild9647];
+const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];
 const owner = uniqueOwner(source =>
   (source.includes(build10789.ownerFunction) &&
     (source.includes(build10789.publicationBefore) || source.includes(build10789.appliedPublication)) ||
@@ -109,7 +109,7 @@ const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelI
 
 function patchOwner(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
-  const profile = [build10789, linuxBuild9771, linuxBuild9647, build9922].find(candidate =>
+  const profile = [linuxBuild10954, build10789, linuxBuild9771, linuxBuild9647, build9922].find(candidate =>
     source.includes(candidate.ownerFunction) && source.includes(candidate.publicationBefore));
   if (profile != null) {
     const helper = modelGuardHelper(roster).replace("S7.useEffect", `${profile.reactAlias}.useEffect`);

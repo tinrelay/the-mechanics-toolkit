@@ -4,7 +4,8 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -120,7 +121,7 @@ function inspectState() {
   const combinedConversationSource = conversationTurnTarget === conversationTarget
     ? conversationSource : `${conversationSource}\n${conversationTurnSource}`;
   const ownerApplied = ownerMarkers.every(marker => source.includes(marker));
-  const linux = [linuxBuild9771.dynamic, linuxBuild9647.dynamic].find(profile =>
+  const linux = [linuxBuild10954.dynamic, linuxBuild9771.dynamic, linuxBuild9647.dynamic].find(profile =>
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
@@ -378,6 +379,7 @@ function dynamicRendererProfile(value) {
   }
   }
   for (const [label, profile, build] of [
+    ["Linux build-10954", linuxBuild10954.dynamic, linuxBuild10954],
     ["Linux build-9771", linuxBuild9771.dynamic, linuxBuild9771],
     ["Linux build-9647", linuxBuild9647.dynamic, linuxBuild9647]
   ]) {
@@ -543,7 +545,7 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
-    const profiles = [build10789.hostBus, build9922.hostBus, linuxBuild9771.hostBus];
+    const profiles = [build10789.hostBus, build9922.hostBus, linuxBuild9771.hostBus, linuxBuild10954.hostBus];
     const buses = profiles.flatMap(profile => {
       const internal = [...exportList.matchAll(
         new RegExp(`(?:^|,)(?<internal>${id}) as ${escapeRegExp(profile.exported)}(?=,|$)`, "g")
@@ -884,6 +886,7 @@ function assertPersistentActivityContract(activitySource) {
     "children:[oe,de,fe,pe,ce,he]"
   ];
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
+  if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build9922.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild9771.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild9647.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -915,30 +918,33 @@ function resolveTaskImports(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  const current10789 = build10789.taskImports;
-  if (appInitial.includes(current10789.appRoot) && appInitial.includes(current10789.taskOwner) &&
-      appInitial.includes("function Ww(e){if(e==null)return null;")) {
-    if (!appInitial.includes(`${current10789.sharedHookExport} as ${current10789.storeHook},`) ||
-        !appInitial.includes(`${current10789.sharedScopeExport} as ${current10789.storeScope},`) ||
-        !appInitial.includes(`from"${current10789.sharedModule}"`) ||
-        !fs.existsSync(path.resolve(path.dirname(target), current10789.sharedModule))) {
-      throw new Error("Upstream changed: build-10789 task store owner is missing");
+  const currentDesktop = [build10789.taskImports, build10954.taskImports, windowsBuild10954.taskImports, linuxBuild10954.taskImports].filter(profile =>
+    appInitial.includes(`from"${profile.sharedModule}"`)
+  );
+  if (currentDesktop.length === 1 && appInitial.includes(currentDesktop[0].appRoot) &&
+      appInitial.includes(currentDesktop[0].taskOwner) &&
+      appInitial.includes(currentDesktop[0].threadKeyOwner ?? "function Ww(e){if(e==null)return null;")) {
+    const taskProfile = currentDesktop[0];
+    if (!appInitial.includes(`${taskProfile.sharedHookExport} as ${taskProfile.storeHook},`) ||
+        !appInitial.includes(`${taskProfile.sharedScopeExport} as ${taskProfile.storeScope},`) ||
+        !fs.existsSync(path.resolve(path.dirname(target), taskProfile.sharedModule))) {
+      throw new Error("Upstream changed: Desktop task store owner is missing");
     }
-    if (!appInitial.includes(current10789.threadSummaryOwner)) {
-      throw new Error("Upstream changed: build-10789 direct thread-summary owner is missing");
+    if (!appInitial.includes(taskProfile.threadSummaryOwner)) {
+      throw new Error("Upstream changed: Desktop direct thread-summary owner is missing");
     }
     const additions = [
-      `${exportedAs(appInitial, current10789.taskAtom)} as MTKoutboundTaskAtom`,
-      `${exportedAs(appInitial, current10789.threadSummaryAtom)} as MTKoutboundThreadSummaryAtom`,
-      `${exportedAs(appInitial, current10789.localThreadKey)} as MTKoutboundLocalThreadKey`,
-      `${exportedAs(appInitial, current10789.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
+      `${exportedAs(appInitial, taskProfile.taskAtom)} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, taskProfile.threadSummaryAtom)} as MTKoutboundThreadSummaryAtom`,
+      `${exportedAs(appInitial, taskProfile.localThreadKey)} as MTKoutboundLocalThreadKey`,
+      `${exportedAs(appInitial, taskProfile.remoteThreadKey)} as MTKoutboundRemoteThreadKey`
     ];
     return {
       before: importMatch[0],
       after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
-      sharedModule: current10789.sharedModule,
-      sharedHookExport: current10789.sharedHookExport,
-      sharedScopeExport: current10789.sharedScopeExport,
+      sharedModule: taskProfile.sharedModule,
+      sharedHookExport: taskProfile.sharedHookExport,
+      sharedScopeExport: taskProfile.sharedScopeExport,
       storeHook: "MTKoutboundStoreHook",
       storeScope: "MTKoutboundStoreScope",
       directSummary: true
@@ -1286,6 +1292,7 @@ function uniqueConversationOwner() {
     if (!name.endsWith(".js")) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
     const split = (value.includes("function zC(") && value.includes("let e=Vf(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+      (value.includes("function zC(") && value.includes("let e=Hf(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function Ow(") && value.includes("let e=Cp(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");

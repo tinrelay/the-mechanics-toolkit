@@ -39,6 +39,24 @@ try {
   assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Fk\(y,\{conversationId:e,turnSearchKey:n\},!0\)/);
   process.stdout.write("reasoning retention Linux build-9771 transform probe passed\n");
 
+  fs.writeFileSync(turn, linux10954TurnFixture());
+  fs.writeFileSync(thread, linux10954ThreadFixture());
+  fs.writeFileSync(activity, linux10954CollapseFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const linux10954Once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"), /return z\(\)\.useSyncExternalStore\(/);
+  assert.match(fs.readFileSync(turn, "utf8"),
+    /MTKuseReasoningRetention\(s\).*preventAutoCollapse:Ue\|\|In\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"),
+    /!MTKreasoningThreadRetained&&fA\(S,\{conversationId:e,turnSearchKey:n\},!0\)/);
+  assert.equal(run("apply").state, "applied");
+  for (const [index, file] of [roster, turn, thread, activity].entries()) {
+    assert.deepEqual(fs.readFileSync(file), linux10954Once[index],
+      `${path.basename(file)} Linux build-10954 second application is byte-identical`);
+  }
+  process.stdout.write("reasoning retention Linux build-10954 transform probe passed\n");
+
   fs.writeFileSync(turn, linux9647TurnFixture());
   fs.writeFileSync(thread, linux9647ThreadFixture());
   fs.writeFileSync(activity, linux9647CollapseFixture());
@@ -124,6 +142,32 @@ function linux9771CollapseFixture() {
     'function pk({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
     'function toggle(){let ae=false,M={current:null},d=null,A=()=>{};return {onToggle:e=>{let t=!ae;if(M.current=e,d==null){A(t);return}d(t)}}}',
     'export{pk,toggle};'
+  ].join("");
+}
+
+function linux10954TurnFixture() {
+  return [
+    'const z=()=>({useSyncExternalStore(){return false}}),x=()=>null;',
+    'function rl(e){let t=(0,kl.c)(189),{conversationId:s,hostId:c}=e,Ve="turn";',
+    'let He=Ve,Ue=x(ut,He),In=false;return {preventAutoCollapse:Ue||In}}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function linux10954ThreadFixture() {
+  return [
+    'const Vj={useEffect(){},useSyncExternalStore(){return false}},ge=()=>({get(){return[]}}),sa={},fA=()=>{},Rj=()=>false,rd={};',
+    'function Lj({conversationId:e,isBackgroundSubagentsEnabled:u,usesUnifiedTimeline:x}){let S=ge(sa),fe="turn",X=[],We={current:"turn"};',
+    '(0,Vj.useEffect)(()=>{let t=S.get(rd,{conversationId:e,isBackgroundSubagentsEnabled:u}).visibleTurnEntries,n=We.current,r=t.find(e=>e.turnId===n);n!=null&&n!==fe&&!Rj(r)&&fA(S,{conversationId:e,turnSearchKey:n},!0),We.current=fe},[e,u,fe,S,X]);return x}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function linux10954CollapseFixture() {
+  return [
+    'function Ww({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
+    'function toggle(){let G=false,N={current:null},f=null,j=()=>{};return {onToggle:e=>{let t=!G;if(N.current=e,f==null){j(t);return}f(t)}}}',
+    'export{Ww,toggle};'
   ].join("");
 }
 

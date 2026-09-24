@@ -1,3 +1,53 @@
+export const linuxBuild10954 = {
+  suffix: "10954Linux",
+  pristineAppRoot: "function Bzc(){let e=(0,Uzc.c)(12),",
+  appRootBefore: "function Bzc(){MTKuseAgentRoster();MTKusePaletteBootstrap();",
+  appRootAfter: "function Bzc(){MTKuseAttentionBootstrap10954Linux();MTKuseAgentRoster();MTKusePaletteBootstrap();",
+  scopeAfter: "Qr(X)",
+  react: "Wzc",
+  decoder: "Mw",
+  localMatch: "null,n.threadId",
+  remoteMatch: "null,n.taskId",
+  atomFactoryContract: "dzn=Cs(X,0)",
+  atomBefore: "dzn=Cs(X,0),fzn=cs(X,e=>0",
+  atomAfter: "MTKattentionPolicyAtom=Cs(X,0),dzn=Cs(X,0),fzn=cs(X,e=>0",
+  dockBefore: "s=t===`work`?LAn({cloudThreadsAllowed:i,localThreadsAllowed:rT(e(p_)),threadKeys:o}):o;return r+",
+  dockAfter: "s=t===`work`?LAn({cloudThreadsAllowed:i,localThreadsAllowed:rT(e(p_)),threadKeys:o}):o,c=e(MTKattentionPolicyAtom);c!=null&&(s=s.filter(t=>!MTKattentionIgnoredThread10954Linux(e,t)));return r+",
+  notificationOwner: "function lNc(e,t){Ki.info(`[desktop-notifications] service starting`)",
+  notificationBefore: "let i=TOr(e.getConversation(t.conversationId)),{navigationPath:a,navigateToNotification:o}=h(t.conversationId)",
+  notificationAfter: "let i=TOr(e.getConversation(t.conversationId));if(MTKattentionIgnored10954Linux(i,t.conversationId)){Ki.debug(`[desktop-notifications] suppressed task-attention-policy turn-complete`,{safe:{conversationId:t.conversationId},sensitive:{}});return}let{navigationPath:a,navigateToNotification:o}=h(t.conversationId)",
+  primaryOwner: "function CVs(e){let t=(0,TVs.c)(155),",
+  primaryReact: "xVs",
+  titleBefore: "Mt=zr(yBs,{hostId:tt??`local`,threadId:n})??Xe?.title??null,Nt=",
+  titleAfter: "Mt=zr(yBs,{hostId:tt??`local`,threadId:n})??Xe?.title??null,MTKattentionIgnoredForTask=MTKuseTaskAttention10954Linux(Mt,n),Nt=",
+  pristinePrimary: [
+    "let Qt=Zt,$t;",
+    "hasUnreadTurn:!Gt&&mt===!0"
+  ],
+  patchedPrimary: [
+    "let Qt=MTKattentionIgnoredForTask?{...Zt,unread:!1,unreadCount:0}:Zt,$t;",
+    "hasUnreadTurn:!MTKattentionIgnoredForTask&&!Gt&&mt===!0"
+  ],
+  applied: {
+    app: [
+      "const MTKattentionRosterBridge=1",
+      "MTKattentionPolicyAtom=Cs(X,0)",
+      "function MTKattentionIgnoredThread10954Linux(",
+      "function MTKattentionSubscribe10954Linux(",
+      "function MTKuseAttentionBootstrap10954Linux(",
+      "function Bzc(){MTKuseAttentionBootstrap10954Linux();MTKuseAgentRoster();MTKusePaletteBootstrap();",
+      "s=s.filter(t=>!MTKattentionIgnoredThread10954Linux(e,t))",
+      "[desktop-notifications] suppressed task-attention-policy turn-complete"
+    ],
+    primary: [
+      "function MTKuseTaskAttention10954Linux(",
+      "MTKattentionIgnoredForTask=MTKuseTaskAttention10954Linux(Mt,n)",
+      "let Qt=MTKattentionIgnoredForTask?{...Zt,unread:!1,unreadCount:0}:Zt",
+      "hasUnreadTurn:!MTKattentionIgnoredForTask&&!Gt&&mt===!0"
+    ]
+  }
+};
+
 export const linuxBuild9771 = {
   suffix: "9771Linux",
   pristineAppRoot: "function xyl(){let e=(0,wyl.c)(12),",

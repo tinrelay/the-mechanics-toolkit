@@ -59,13 +59,16 @@ export function applyPatchFleet({
 }) {
   requirePatchRoots(selected, roots);
   const initialChecks = checkPatches(selected, roots, configFile, repository);
-  const unexpected = initialChecks.filter(result => result.output.state !== "needs-apply");
+  const unexpected = initialChecks.filter(result =>
+    result.output.state !== "needs-apply" && !upstreamOwned(result)
+  );
   if (unexpected.length > 0) {
     const states = unexpected.map(result => `${result.name}=${result.output.state}`).join(", ");
     throw new Error(`${sourceLabel} is not pristine for selected patches: ${states}`);
   }
 
   const applied = applyPatches(selected, roots, configFile, repository);
+  requireTransitions(initialChecks, applied);
   const targets = changedTargets(applied);
   syntaxCheckTargets(roots.asar, asarTargets(applied));
   runProbes(selected, roots, config, repository);
@@ -74,6 +77,7 @@ export function applyPatchFleet({
     : null;
   const firstAppTargets = patchTargetSnapshot(applied.filter(result => result.scope === "app"));
   const secondApplied = applyPatches(selected, roots, configFile, repository);
+  requireTransitions(applied, secondApplied);
   if (firstAsarTree != null && !equalRecords(firstAsarTree, treeSnapshot(roots.asar))) {
     throw new Error("Second patch application changed the extracted ASAR tree");
   }
@@ -89,7 +93,7 @@ export function applyPatchFleet({
 export function verifyPatchFleet({selected, roots, configFile, config, repository}) {
   requirePatchRoots(selected, roots);
   const checks = checkPatches(selected, roots, configFile, repository);
-  if (!checks.every(result => result.output.state === "applied")) {
+  if (!checks.every(result => result.output.state === "applied" || upstreamOwned(result))) {
     throw new Error("Final staged application does not satisfy every selected patch");
   }
   syntaxCheckTargets(roots.asar, asarTargets(checks));
@@ -142,9 +146,24 @@ function applyPatches(selected, roots, configFile, repository) {
   return selected.map(definition => {
     const root = roots[definition.scope];
     const output = patchCommand(definition, "apply", root, configFile, repository);
-    if (output.state !== "applied") throw new Error(`${definition.name} apply returned ${output.state}`);
+    if (output.state !== "applied" && !(definition.name === "renderer-turn-window" && output.state === "upstream-owned")) {
+      throw new Error(`${definition.name} apply returned ${output.state}`);
+    }
     return {name: definition.name, scope: definition.scope, root, output};
   });
+}
+
+function upstreamOwned(result) {
+  return result.name === "renderer-turn-window" && result.output.state === "upstream-owned";
+}
+
+function requireTransitions(before, after) {
+  for (let index = 0; index < before.length; index++) {
+    const expected = upstreamOwned(before[index]) ? "upstream-owned" : "applied";
+    if (after[index].output.state !== expected) {
+      throw new Error(`${after[index].name} changed patch ownership during staging`);
+    }
+  }
 }
 
 function patchCommand(definition, action, root, configFile, repository) {
@@ -163,6 +182,7 @@ function runProbes(selected, roots, config, repository) {
 function changedTargets(results) {
   const targets = [];
   for (const {output} of results) {
+    if (output.state === "upstream-owned") continue;
     if (typeof output.target === "string") targets.push(output.target);
     if (Array.isArray(output.targets)) targets.push(...output.targets);
   }

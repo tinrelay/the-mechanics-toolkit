@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
-import { linuxBuild9647Contracts, linuxBuild9771Contracts } from "./profiles/linux.mjs";
+import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -82,6 +82,7 @@ function verifyOwnedBehavior(value) {
       build10789Contracts.every(contract => count(value, contract) === 1)) return;
   if (build9922Contracts.every(contract => count(value, contract) === 1)) return;
   if (linuxBuild9771Contracts.every(contract => count(value, contract) === 1)) return;
+  if (linuxBuild10954Contracts.every(contract => count(value, contract) === 1)) return;
   if (linuxBuild9647Contracts.every(contract => count(value, contract) === 1)) return;
   throw new Error("Upstream changed: missing qualified terminal toggle contract");
 }

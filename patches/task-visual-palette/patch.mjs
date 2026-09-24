@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./profiles/build9647.mjs";
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -172,6 +172,19 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
+  if (linuxBuild10954.archive.applied.every(contract => source.includes(contract))) {
+    if (!linuxBuild10954.archive.runtimeApplied.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized Linux build-10954 archive runtime reload");
+    }
+    return "applied";
+  }
+  if (linuxBuild10954.archive.pristine.every(contract => source.includes(contract))) {
+    if (!linuxBuild10954.archive.runtimePristine.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized Linux build-10954 archive runtime owner");
+    }
+    return "needs-apply";
+  }
+
   if (build10789.archive.applied.every(contract => source.includes(contract))) {
     if (inspectBuild10789ArchiveRuntime(source) !== "applied") {
       throw new Error("Unrecognized build-10789 archive runtime reload");
@@ -232,6 +245,7 @@ function appProfile(source) {
   const profiles = [
     build10789.app,
     build9922.app,
+    linuxBuild10954.app,
     linuxBuild9771.app,
     linuxBuild9647.app,
     {
@@ -255,6 +269,7 @@ function appProfile(source) {
 function bottomFadeProfile(_appSource, primarySource) {
   const profiles = [
     build9922.bottomFade,
+    linuxBuild10954.bottomFade,
     linuxBuild9771.bottomFade,
     ...["h3", "g9"].map(jsx => ({
     file: "app-primary",
@@ -269,6 +284,7 @@ function localProfile(source) {
   const profiles = [
     build10789.local,
     build9922.local,
+    linuxBuild10954.local,
     linuxBuild9771.local,
     linuxBuild9647.local,
     {
@@ -602,6 +618,16 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
+  if (linuxBuild10954.archive.pristine.every(contract => source.includes(contract))) {
+    for (const [before, after] of [
+      ...linuxBuild10954.archive.replacements,
+      ...linuxBuild10954.archive.runtimeReplacements
+    ]) {
+      source = replaceOnce(source, before, after, "Linux build-10954 archive owner");
+    }
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (build10789.archive.pristine.every(contract => source.includes(contract))) {
     for (const replacement of build10789.archive.replacements) {
       source = replaceOnce(source, ...replacement);

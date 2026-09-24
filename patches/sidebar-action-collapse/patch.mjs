@@ -4,10 +4,10 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
-const linuxProfiles = [linuxBuild9771, linuxBuild9647];
+const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];
 const root = path.resolve(process.argv[3] ?? "");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: sidebar-action-collapse.mjs check|apply EXTRACTED_ASAR_ROOT");
@@ -85,7 +85,8 @@ function patchSource(value) {
 
 function contracts(profile) {
   return [profile.ownerBefore, profile.stateBefore, profile.destinationBefore, profile.headerBefore,
-    profile.actionBefore, profile.memoBefore, profile.assignmentBefore];
+    profile.actionBefore, profile.memoBefore, profile.assignmentBefore,
+    ...(profile.intlOwner ? [profile.intlOwner, profile.formatMessageOwner] : [])];
 }
 
 function appliedMarkers(profile) {
@@ -93,6 +94,7 @@ function appliedMarkers(profile) {
     'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"',
     `function MTKuseSidebarActionCollapse${profile.suffix}()`,
     `function MTKsidebarActionDisclosure${profile.suffix}(`,
+    `let n=${profile.intl}(),r=n.formatMessage(`,
     `function MTKsidebarCollapsedDestinations${profile.suffix}(`,
     profile.ownerAfter,
     `[MTKsidebarActionsCollapsed,MTKtoggleSidebarActions]=MTKuseSidebarActionCollapse${profile.suffix}()`,

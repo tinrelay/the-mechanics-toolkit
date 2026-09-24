@@ -7,7 +7,8 @@ import { createHash } from "node:crypto";
 import { createRequire } from "node:module";
 import {
   linuxBuild9647,
-  linuxBuild9771
+  linuxBuild9771,
+  linuxBuild10954
 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -62,7 +63,8 @@ const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("kF=ns(X,") &&
-    source.includes("vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,");
+    source.includes("vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,") ||
+    source.includes(linuxBuild10954.taskImports.threadSummaryOwner);
 });
 assert.equal(
   helper.includes("MTKoutboundTitleAtom"),

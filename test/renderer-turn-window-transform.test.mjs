@@ -5,6 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { patchDefinition } from "../src/patch-catalog.mjs";
+import { applyPatchFleet, verifyPatchFleet } from "../src/stage-patch-fleet.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -45,6 +47,20 @@ try {
   const stockProbe = spawnSync(process.execPath, [probe, extracted], { encoding: "utf8" });
   assert.equal(stockProbe.status, 0, stockProbe.stderr || stockProbe.stdout);
   assert.equal(JSON.parse(stockProbe.stdout).ownership, "upstream-paginated-renderer");
+  const stockStage = applyPatchFleet({
+    selected: [patchDefinition("renderer-turn-window")],
+    roots: {asar: extracted},
+    repository
+  });
+  assert.equal(stockStage.applied[0].output.state, "upstream-owned");
+  assert.deepEqual(stockStage.changedTargets, [], "stock-owned renderer is not a changed staging target");
+  assert.equal(verifyPatchFleet({
+    selected: [patchDefinition("renderer-turn-window")],
+    roots: {asar: extracted},
+    repository
+  })[0].output.state, "upstream-owned");
+  assert.deepEqual([fs.readFileSync(app), fs.readFileSync(local)], stockBefore,
+    "staging preserves the exact stock pagination bytes");
 
   fs.writeFileSync(app, upstream10789Fixture());
   fs.writeFileSync(local, localFixture("Qjs"));
@@ -53,6 +69,27 @@ try {
   assert.equal(run("apply").state, "upstream-owned");
   assert.deepEqual(fs.readFileSync(app), frontierBefore[0]);
   assert.deepEqual(fs.readFileSync(local), frontierBefore[1]);
+  const frontierStage = applyPatchFleet({
+    selected: [patchDefinition("renderer-turn-window")],
+    roots: {asar: extracted},
+    repository
+  });
+  assert.equal(frontierStage.applied[0].output.state, "upstream-owned");
+  assert.deepEqual(frontierStage.changedTargets, []);
+  assert.equal(verifyPatchFleet({
+    selected: [patchDefinition("renderer-turn-window")],
+    roots: {asar: extracted},
+    repository
+  })[0].output.state, "upstream-owned");
+  assert.deepEqual([fs.readFileSync(app), fs.readFileSync(local)], frontierBefore);
+
+  fs.writeFileSync(app, upstream10954Fixture());
+  fs.writeFileSync(local, localFixture("Qjs"));
+  const linuxBefore = [fs.readFileSync(app), fs.readFileSync(local)];
+  assert.equal(run("check").state, "upstream-owned");
+  assert.equal(run("apply").state, "upstream-owned");
+  assert.deepEqual(fs.readFileSync(app), linuxBefore[0]);
+  assert.deepEqual(fs.readFileSync(local), linuxBefore[1]);
 
   fs.writeFileSync(app, upstreamAppFixture().replace("thread/turns/list", "thread/turns/missing"));
   fs.writeFileSync(local, localFixture("gLo"));
@@ -116,6 +153,12 @@ function upstream10789Fixture() {
     "const request={initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}},",
     "endpoint='thread/turns/list';"
   ].join("");
+}
+
+function upstream10954Fixture() {
+  return upstream10789Fixture()
+    .replace("Qjs=ns(X,", "Qjs=Ia(X,")
+    .replaceAll("bR", "QL");
 }
 
 function localFixture(selector) {

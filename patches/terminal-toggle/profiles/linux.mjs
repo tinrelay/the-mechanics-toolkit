@@ -6,6 +6,14 @@ export const linuxBuild9771Contracts = [
   "[`toggleTerminal`,R6r]"
 ];
 
+export const linuxBuild10954Contracts = [
+  "function p_c(e){let t=(0,g_c.c)(10)",
+  "{id:n,accelerator:r,allowRepeat:i,enabled:a,onlyWithin:o,yieldToSelectedText:s}=e",
+  "allowWithinEditable:c,enabled:a,onKeyDown:l",
+  "TBr=()=>{Oit.run({action:{type:`windows.terminal.toggle`,windowId:af}})",
+  "[`toggleTerminal`,TBr]"
+];
+
 export const linuxBuild9647Contracts = [
   "accelerators:i,allowRepeat:d,enabled:f,onlyWithin:p,yieldToSelectedText:u",
   "allowWithinEditable:c,enabled:a,onKeyDown:l",

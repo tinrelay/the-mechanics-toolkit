@@ -362,9 +362,10 @@ machine, marker protocol, diagnostics schema, and rescue runner are ordinary Nod
 do not require zsh or another POSIX shell. Bundle layout, process discovery, application shutdown,
 diagnostic locations, default terminal choice, and terminal opening live together in a narrow
 platform adapter. The macOS adapter is implemented and qualified. The Linux lifecycle was
-qualified through supervised adoption on Fedora build `9647`; current Ubuntu build `9771` passed
-package installation, application opening, and renderer readiness without duplicating the
-unchanged supervisor run. Exact current evidence is tracked in the Linux runbook. The Windows ARM64 adapter
+qualified through supervised adoption on Fedora build `9647`; Ubuntu build `10954` passed direct
+package installation and opened a usable task, but its task-led supervisor was not exercised
+because the previous installed app could not open a task. Exact current evidence is tracked in the
+Linux runbook. The Windows ARM64 adapter
 has exact signed-MSIX staging and one complete broken-app rescue/restoration qualification; ordinary
 cross-version rollback provenance remains open. Unsupported platforms fail before changing
 application lifecycle state; another package format or platform port must add its own adapter rather than

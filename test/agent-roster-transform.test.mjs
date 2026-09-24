@@ -21,6 +21,14 @@ try {
     "globalThis.__MTK_RUNTIME_JSON_RELOAD__=Object.freeze({version:2});export const fixture=true;"
   );
 
+  verifyProfile(target, linux10954Fixture(), [
+    "function MTKuseAgentRoster(){let e=Qr(X);",
+    "return Wzc.useEffect(",
+    "let a=i(MZr);",
+    "e.get(jd)==null&&await e.when(({get:e})=>e(jd)!=null)",
+    'let n=Ad(e,"local")'
+  ], "Linux build 10954");
+
   verifyProfile(target, linuxFixture(), [
     "function MTKuseAgentRoster(){let e=xf($);",
     "return Tyl.useEffect(",
@@ -87,6 +95,17 @@ function linuxFixture() {
     "a.get=o,a.query=qgt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
     "function rp(e,t){let n=e.get(ip);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
     "function xyl(){let e=(0,wyl.c)(12),t=xf($),value=0;return e}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function linux10954Fixture() {
+  return [
+    'import{PX as Qr,XI as X}from"./app-shared-fixture.js";',
+    "var MZr=io(X,({get:e})=>({groups:[],isWorkspaceRootOptionsLoading:!1})),jd=Cs(X,()=>null);",
+    "function Ad(e,t){let n=e.get(jd);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),value=0;return e}",
+    "var Uzc,Wzc;function Gzc(){}Wzc={useEffect(){}};",
     "export const fixture=true;"
   ].join("");
 }

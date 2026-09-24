@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -57,7 +57,8 @@ function inspectState(app, local) {
 }
 
 function isStockPaginatedRenderer(source) {
-  return (source.includes("gLo=Iy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ||
+  return (source.includes(linuxBuild10954.stockPaginated[0]) ||
+    source.includes("gLo=Iy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ||
     source.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ||
     source.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{")) &&
     source.includes("initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}") &&
@@ -66,7 +67,9 @@ function isStockPaginatedRenderer(source) {
 }
 
 function inspectStockPaginatedRenderer(source) {
-  const selectorProfile = source.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{")
+  const selectorProfile = source.includes(linuxBuild10954.stockPaginated[0])
+    ? linuxBuild10954.stockPaginated
+    : source.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{")
     ? [
       "Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
       "f=n(bR,s),p=f?.flatMap",

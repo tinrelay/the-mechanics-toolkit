@@ -19,6 +19,29 @@ export const linuxBuild9771 = {
   assignmentAfter: "t[108]=g,t[109]=b,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[181]=MTKsidebarActionsCollapsed,t[120]=Xe):Xe=t[120]"
 };
 
+export const linuxBuild10954 = {
+  name: "Linux build-10954",
+  suffix: "10954Linux",
+  react: "a9s",
+  jsx: "f5",
+  intl: "s",
+  intlOwner: "O=s(),k=Us(cus)",
+  formatMessageOwner: "label:O.formatMessage(",
+  projects: "B2.projects",
+  ownerBefore: "function t9s(e){let t=(0,i9s.c)(177),",
+  ownerAfter: "function t9s(e){let t=(0,i9s.c)(178),",
+  stateBefore: "{desktopNavItemsEnabled:n,sidebarTriggerState:r,contextualNavigation:i}=e,",
+  destinationBefore: "t[58];let Ne=Me.length>0",
+  destinationAfter: "t[58];Me=MTKsidebarCollapsedDestinations10954Linux(MTKsidebarActionsCollapsed,Me,B2.projects);let Ne=Me.length>0",
+  headerBefore: "(!A||j)&&Te===`header_icon`?(0,f5.jsx)(vLs,{sidebarMode:he}):null]})",
+  headerAfter: "(!A||j)&&Te===`header_icon`?(0,f5.jsx)(vLs,{sidebarMode:he}):null,(0,f5.jsx)(MTKsidebarActionDisclosure10954Linux,{collapsed:MTKsidebarActionsCollapsed,onToggle:MTKtoggleSidebarActions})]})",
+  actionBefore: "(0,f5.jsx)(rLs,{showCustomizeSidebarAction:Re,sidebarMode:he,showSearchNavItem:!1})",
+  memoBefore: "t[108]!==_||t[109]!==x||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he?(",
+  memoAfter: "t[108]!==_||t[109]!==x||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he||t[177]!==MTKsidebarActionsCollapsed?(",
+  assignmentBefore: "t[108]=_,t[109]=x,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[120]=Ye):Ye=t[120]",
+  assignmentAfter: "t[108]=_,t[109]=x,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[177]=MTKsidebarActionsCollapsed,t[120]=Ye):Ye=t[120]"
+};
+
 export const linuxBuild9647 = {
   name: "Linux build-9647",
   suffix: "9647Linux",

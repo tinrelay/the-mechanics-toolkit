@@ -2,7 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
+import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -62,7 +62,7 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  for (const candidate of [linuxBuild9771, linuxBuild9647]) {
+  for (const candidate of [linuxBuild10954, linuxBuild9771, linuxBuild9647]) {
     if (!value.includes(candidate.selector)) continue;
     for (const contract of [candidate.selector, ...candidate.required]) {
       if (count(value, contract) !== 1) {

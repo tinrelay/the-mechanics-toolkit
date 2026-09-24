@@ -95,12 +95,13 @@ try {
   fs.mkdirSync(frontierBuild, {recursive: true});
   fs.mkdirSync(frontierAssets, {recursive: true});
   const frontierMain = path.join(frontierBuild, "main-frontier.js");
-  fs.writeFileSync(frontierMain,
+  const frontierPristine =
     "var Woe=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
     "function Yoe({markerPath:e=process.env[Woe]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
     "class Owner{async handleMessage(e,t){switch(t.type){case`ready`:{this.windowManager.markWebContentsReady(e),globalThis.__ready=true;break}case`other`:break}}}" +
     "let owner=new Owner;owner.windowManager={markWebContentsReady(){},getRendererWindowLogFields(e){return{rendererWindowAppearance:e.appearance}}};" +
-    "await owner.handleMessage({appearance:process.argv[2]},{type:`ready`});process.stdout.write(globalThis.__marker??``)");
+    "await owner.handleMessage({appearance:process.argv[2]},{type:`ready`});process.stdout.write(globalThis.__marker??``)";
+  fs.writeFileSync(frontierMain, frontierPristine);
   fs.writeFileSync(path.join(frontierAssets, "app-initial-frontier.js"),
     "const Jn={dispatchMessage(){}};function routes(){Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})}");
   assert.equal(run("check", frontierExtracted).state, "needs-apply");
@@ -116,6 +117,21 @@ try {
   }
   assert.equal(run("apply", frontierExtracted).state, "applied");
   assert.deepEqual(fs.readFileSync(frontierMain), frontierOnce);
+
+  const linuxExtracted = path.join(scratch, "linux-10954-extracted");
+  const linuxBuild = path.join(linuxExtracted, ".vite/build");
+  const linuxAssets = path.join(linuxExtracted, "webview/assets");
+  fs.mkdirSync(linuxBuild, {recursive: true});
+  fs.mkdirSync(linuxAssets, {recursive: true});
+  const linuxMain = path.join(linuxBuild, "main-linux.js");
+  fs.writeFileSync(linuxMain, frontierPristine);
+  fs.writeFileSync(path.join(linuxAssets, "app-initial-linux.js"),
+    "const ur={dispatchMessage(){}};function routes(){ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})}");
+  assert.equal(run("check", linuxExtracted).state, "needs-apply");
+  assert.equal(run("apply", linuxExtracted).state, "applied");
+  const linuxOnce = fs.readFileSync(linuxMain);
+  assert.equal(run("apply", linuxExtracted).state, "applied");
+  assert.deepEqual(fs.readFileSync(linuxMain), linuxOnce);
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

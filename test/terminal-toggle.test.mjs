@@ -6,7 +6,8 @@ import { build9922Contracts } from "../patches/terminal-toggle/profiles/build992
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import {
   linuxBuild9647Contracts,
-  linuxBuild9771Contracts
+  linuxBuild9771Contracts,
+  linuxBuild10954Contracts
 } from "../patches/terminal-toggle/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -44,8 +45,11 @@ const build9771Linux = source.includes(linuxBuild9771Contracts[3]);
 const build9647Linux = source.includes(linuxBuild9647Contracts[2]);
 const build9922 = source.includes(build9922Contracts[3]);
 const build10789 = source.includes(build10789Contracts[3]);
-assert.ok(build10789 || build9922 || build9771Linux || build9647Linux, "the qualified terminal owner is present");
-const contracts = build10789 ? build10789Contracts : build9922 ? build9922Contracts : build9771Linux ? linuxBuild9771Contracts : linuxBuild9647Contracts;
+const build10954Linux = source.includes(linuxBuild10954Contracts[3]);
+assert.ok(build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
+  "the qualified terminal owner is present");
+const contracts = build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
+  build9922 ? build9922Contracts : build9771Linux ? linuxBuild9771Contracts : linuxBuild9647Contracts;
 assert.equal(
   count(source, contracts[1]),
   1,
@@ -56,7 +60,12 @@ assert.equal(
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build10789) {
+if (build10954Linux) {
+  assert.equal(count(source, linuxBuild10954Contracts[3]), 1,
+    "the Linux build-10954 command keeps the stock terminal action owner");
+  assert.equal(count(source, linuxBuild10954Contracts[4]), 1,
+    "the Linux build-10954 command remains routed through the stock terminal toggle action");
+} else if (build10789) {
   assert.equal(count(source, build10789Contracts[3]), 1,
     "the current command keeps the stock terminal action owner");
   assert.equal(count(source, build10789Contracts[4]), 1,

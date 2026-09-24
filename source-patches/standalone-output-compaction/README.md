@@ -44,8 +44,11 @@ results discardable.
 
 ## Qualified source
 
-[`codex-0.155.0-alpha.9.2.patch`](codex-0.155.0-alpha.9.2.patch) is qualified against two exact
-source trees by separate catalog entries. The current macOS Desktop `26.917.62051` / build `10789`
+[`codex-0.155.0-alpha.9.2.patch`](codex-0.155.0-alpha.9.2.patch) has exact catalog entries for
+three source trees. The accepted macOS Desktop `26.917.71314` / build `10954` bundles
+`codex-cli 0.155.0-alpha.16.4` at upstream commit
+`3853cf0c49daadcacaacceb2cbb732f512eaacdb`; the three repaired source files have the same
+before and after hashes as build `10789`. The previous macOS Desktop `26.917.62051` / build `10789`
 bundles `codex-cli 0.155.0-alpha.16.3`; its qualified upstream commit is
 `ffa06df2317e3e65fc74da977a5884710c5382d5`. The earlier Desktop build `9922` used tag
 `rust-v0.155.0-alpha.9.2` at commit `4607249e430dac1c961df4dc615beae88e33cec8`.
@@ -53,8 +56,8 @@ The source-patch command verifies each selected commit and every target file's e
 before or after hash; the shared textual diff alone is not an applicability claim.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-10789 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-10789 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-10954 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-10954 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

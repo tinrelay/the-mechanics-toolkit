@@ -1,3 +1,18 @@
+export const incomingBuild10954 = {
+  cache: "lv",
+  collapsedLines: "dv",
+  delegation: "_v",
+  delegationJsx: "yv",
+  helperJsx: "uv",
+  jsx: "uv",
+  message: "cv",
+  messageComponent: "Mf",
+  hostBus: {module: "app-shared-", exported: "H3"},
+  moduleBefore: "var lv,uv,dv;function fv(){return(fv=e((()=>{lv=J(),ct(),Of(),uv=B(),dv=2})))()}",
+  moduleAfter: "var lv,MTKtinrelayReact,uv,dv;function fv(){return(fv=e((()=>{lv=J(),ct(),Of(),MTKtinrelayReact=Ae(),uv=B(),dv=2})))()}",
+  labelClass: "text-size-chat-sm flex max-w-full items-center gap-1 px-1 py-0.5 text-codex-description"
+};
+
 export const incomingBuild9771 = {
   cache: "Qv",
   collapsedLines: "ey",

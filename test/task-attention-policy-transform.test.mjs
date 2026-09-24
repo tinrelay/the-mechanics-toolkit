@@ -8,7 +8,8 @@ import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {
   linuxBuild9647,
-  linuxBuild9771
+  linuxBuild9771,
+  linuxBuild10954
 } from "../patches/task-attention-policy/profiles/linux.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -18,6 +19,7 @@ const probe = path.join(repository, "test/task-attention-policy.test.mjs");
 verifyProfile(build9922, build9922InitialFixture(), primaryFixture(), "build 9922");
 verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linux build 9771");
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
+verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -37,8 +39,9 @@ function verifyProfile(profile, initialFixture, primarySource, label) {
     for (const marker of profile.applied.app) {
       assert.ok(initialOnce.includes(marker), `${label} app contract: ${marker}`);
     }
+    const rowOnce = initialFixture.includes(profile.primaryOwner) ? initialOnce : primaryOnce;
     for (const marker of profile.applied.primary) {
-      assert.ok(primaryOnce.includes(marker), `${label} row contract: ${marker}`);
+      assert.ok(rowOnce.includes(marker), `${label} row contract: ${marker}`);
     }
     const behavior = spawnSync(process.execPath, [probe, scratch], {encoding: "utf8"});
     assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
@@ -95,6 +98,22 @@ function linux9647InitialFixture() {
     "let U3a,W3a=t((()=>{X(),dT(),WL(),$(),IO(),iNi(),m$(),uM(),FH(),Fj(),WH(),U3a=Y(Q,({get:e})=>e)}));",
     "function unreadBadge(e,t,o,r,i){let s=t===`work`?Wxr({cloudThreadsAllowed:i,localThreadsAllowed:nM(e(aT)),threadKeys:o}):o;return r+s}",
     "export const fixture=true;"
+  ].join("");
+}
+
+function linux10954InitialFixture() {
+  return [
+    "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
+    "const X=Symbol(`scope`),Wzc={useEffect(){}},xVs={useSyncExternalStore(){}},Cs=()=>0;function Qr(e){return e}",
+    "function Mw(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function Bzc(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Uzc.c)(12);return e}",
+    "function lNc(e,t){Ki.info(`[desktop-notifications] service starting`);",
+    "let i=TOr(e.getConversation(t.conversationId)),{navigationPath:a,navigateToNotification:o}=h(t.conversationId);return i}",
+    "var dzn=Cs(X,0),fzn=cs(X,e=>0);",
+    "function unreadBadge(e,t,o,r,i){let s=t===`work`?LAn({cloudThreadsAllowed:i,localThreadsAllowed:rT(e(p_)),threadKeys:o}):o;return r+s}",
+    "function CVs(e){let t=(0,TVs.c)(155),n=e.conversationId,tt=`local`,Xe={},Zt={},mt=!1,Gt=!1;",
+    "let Mt=zr(yBs,{hostId:tt??`local`,threadId:n})??Xe?.title??null,Nt=1;",
+    "let Qt=Zt,$t;return{hasUnreadTurn:!Gt&&mt===!0}}"
   ].join("");
 }
 

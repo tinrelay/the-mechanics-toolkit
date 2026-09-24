@@ -2,35 +2,39 @@
 
 This runbook qualifies one exact Linux Codex Desktop package, distribution, desktop session,
 architecture, and TMTK patch fleet. Ubuntu DEB and Fedora RPM are separate package and lifecycle
-boundaries. Their authenticated vendor channels currently expose different Desktop builds, so both
-exact generated-owner profiles are current.
+boundaries. Their authenticated vendor offers now both contain Desktop `26.917.71314` / build
+`10954` with byte-identical pristine ASARs. Ubuntu has qualified that build's package and app open;
+Fedora build `9647` remains the last qualified and installed RPM pending its build-10954 package
+gate.
 
-The Ubuntu target is Codex Desktop `26.915.31029` / build `9771`; the Fedora target remains Codex
-Desktop `26.911.61220` / build `9647`. Both use the same 16 patch implementations. Qualification is
-on Ubuntu 24.04.5 LTS ARM64 and Fedora Workstation 44 ARM64 under GNOME Wayland. The DEB adapter
-supports `arm64` and `amd64`; the RPM adapter supports `aarch64` and `x86_64`. CPU architecture
-controls package identity, native payloads, executables, and live qualification, but does not earn
-an architecture-specific JavaScript profile.
+The Ubuntu qualified target is Codex Desktop `26.917.71314` / build `10954`; Fedora's last qualified
+target is Desktop `26.911.61220` / build `9647`. Both use the same 16 patch implementations.
+Qualification is on Ubuntu 24.04.5 LTS ARM64 and Fedora Workstation 44 ARM64 under GNOME Wayland.
+The DEB adapter supports `arm64` and `amd64`; the RPM adapter supports `aarch64` and `x86_64`.
+CPU architecture controls package identity, native payloads, executables, and live qualification,
+but does not earn an architecture-specific JavaScript profile.
 
-Ubuntu build `9771` evidence:
+Ubuntu build `10954` evidence:
 
 - authenticated pristine DEB SHA-256
-  `5c01ce35eccea9e95d16de052c74f16deed381408931e82b106d7dbeeed8de4a`;
-- accepted `26.915.31029+tmtk1` candidate SHA-256
-  `230aa34c712c83a2f8d95bdcc351e75ba18e49ac550519bdc60d3bedb6871828`;
+  `2114883623dae34a4bc7a67faad3e6652dd9bfdc7a28f57c36ed03e350be1cf1`;
+- accepted `26.917.71314+tmtk1` candidate SHA-256
+  `0d69fb5c2fd29775f6a7eda3e070beda3182e9fb78d84272ab67d2ab36379545`;
 - installed patched ASAR SHA-256
-  `77fcf390fc27700b65b271b435250f7a213de8f1e0459ec917791c24d64e9f31`;
+  `3de401d36baac8fd45421938b7818b0ceed18a4c1aa372390b070cbd097b405e`;
 - package executable SHA-256
-  `15f4066aff635c8e4ffc39b3653cb8aa8b91481d731e88c8e5a7aaca5c133f41`; and
+  `f85e5bf1c90a1b20741c92a8d60f1bd8d206b0d21d98540eaaf6d30dfc048022`; and
 - bundled CLI SHA-256
-  `74a97f16b1683f0f8da6c06960b8b7246129397afa0605c74b8d186650507b06`.
+  `e47aa210aa52104bfb164255902a321ae785c84a144875c53b86f5a65c3d14d8`.
 
 The DEB passed authenticated-source inspection, reconstruction, all 16 transforms, post-pack
 probes, native-payload preservation, and byte-identical second application. The exact candidate was
-installed. The main log reached `ready-to-show`, main-frame load, App Server initialization, and
-React-root rendering; AT-SPI exposed application `Codex` and frame `ChatGPT`. This current-build
-pass deliberately stopped there: it did not rerun the supervisor or the complete live feature
-runbook after the shared transforms and Linux lifecycle were already qualified.
+installed directly after the previously installed app could not open a task. The package database,
+installed inner Desktop version/build, and ASAR matched the corrected candidate. The launched app
+opened an existing task with an editable composer; AT-SPI exposed the configured project-agent
+roster, and a sidebar-only visual check showed its distinct palette marks and colors. This proves
+the current build-and-open gate, not a supervisor replacement. The build-10954 supervisor cycle,
+live registry inspection, and complete feature runbook remain unqualified on Ubuntu.
 
 Fedora build `9647` evidence:
 

@@ -4,49 +4,39 @@ Windows qualification separates generated-code compatibility, signed MSIX constr
 live supervised replacement. A green static stage does not imply that the package was installed or
 launched.
 
-## Current ARM64 checkpoint
+## Current build and architecture boundary
 
-The current checkpoint is Windows 11 ARM64 with inner Desktop `26.915.31945`, Codex build `9922`,
-and AppUserModelID `OpenAI.Codex_2p2nqsd0c76g0!App`. The supported Windows fleet contains 16 ASAR
-transforms. The package has no owned surface for the macOS menu-title or native app-tools
-authorization repairs, and the standalone-output repair requires separately built native and WSL
-executables, so those three patches remain excluded rather than being forced through unrelated
-owners.
+The official ARM64 MSIX outer version `26.917.9434.0` contains Desktop `26.917.71314` / build
+`10954`. Its authenticated pristine package SHA-256 is
+`d008b18a325a0fa4341b85c665cca404305a7e9889e6293730bdca06ff6e4897`; its ASAR SHA-256 is
+`5968711c1736d4a6be7ded6fdcc0a285a0cf101a2ec1e097e76512beb93cb217`. The ASAR differs
+from macOS: exact Windows generated-owner recognition and composed package probes are proved here;
+the shared JavaScript behavior inherits the macOS build-`10954` qualification.
 
-The accepted candidate is
-`OpenAI.Codex_26.915.4065.1_arm64__2p2nqsd0c76g0`, package SHA-256
-`2c3c18e5e46c76a2b30451a49ed7e5c6f8d4313c128242ce35dbf5d170843a53`, and installed ASAR
-SHA-256 `c220d47f138d733ac216a66a794607f43eb29702615aa1d4edf587db4126b0a9`. It retains the OpenAI
-package family and publisher identity under a locally trusted qualification certificate; it does
-not claim Store provenance.
+The accepted Windows 11 ARM64 candidate is
+`OpenAI.Codex_26.917.9434.1_arm64__2p2nqsd0c76g0`, locally signed MSIX SHA-256
+`b0a86512cbf209d7fc536aba6ae82c28ad161e6b3e9eb3293703b94be46fa632`, installed ASAR
+SHA-256 `d728c518934a4888d267354ad9fb261c14ea653459a318df435b882fab9c8b93`. It retains
+the package family and publisher identity under a locally trusted qualification certificate; it
+does not claim Store signature or provenance after rebuilding.
 
-The static gate verified exact source identity, pristine patch checks, catalog-order application,
-changed targets, syntax, focused probes, byte-identical second application, native-ASAR payload
-preservation, MakeAppx reconstruction, SignTool signatures, exact same-family package identities,
-full re-extraction, whole-tree equality, post-pack probes, and final source reinspection. The lab
-retains exactly one pristine package and the accepted candidate; failed, superseded, and temporary
-rollback packages were removed after acceptance.
+The 16 selected patches passed authenticated source inspection, catalog-order application,
+post-repack probes, byte-identical second application, native-payload preservation, signed MSIX
+reconstruction and re-extraction, and source reinspection. Fifteen applied; renderer-turn-window
+was verified `upstream-owned` and left unchanged. The official pristine build was installed first
+and opened a real task, supplying a same-inner-build live-proven known-good source. A genuine Alice
+task then ran `tmtk-restart`; the supervisor installed the signed candidate and returned to that
+same usable task with roster and palette visible. No feature-by-feature Windows tour was run. The
+temporary rollback was removed after readiness; the lab retains one pristine and one candidate
+MSIX. The greater-than-200-turn live fixture remains unrun.
 
-## Live supervisor receipt
-
-The healthy replacement passed on the Windows 11 ARM64 guest on 2026-09-19. A genuine task started
-`tmtk-restart`; the supervisor observed the invoking CLI exit, installed the signed candidate,
-launched its exact package root in the logged-in desktop session, and reached renderer readiness.
-The native progress notification was shown during candidate preparation. The deep link returned to
-the same task, model, and effort. No invoking CLI, supervisor helper, rescue process,
-toolkit-owned terminal, or `TMTK-*` scheduled task remained.
-
-This remains same-inner-build adoption evidence. The current `stage-msix` command takes a pristine
-candidate source and a separate installed, live-proven known-good source with the exact same inner
-Desktop identity. It applies the current fleet only to the pristine source and preserves the
-known-good payload for rollback while rebuilding both packages with monotonic outer versions and a
-local signature. The deliberate broken application and repair-exhaustion fixture was not rerun
-because this port changed only the best-effort progress notification inside the Windows lifecycle
-adapter. The complete selected fleet and registry passed the composed static probes, and the
-operator directly observed patched renderer surfaces after relaunch. Shared behavior was not
-rerun on Windows; macOS owns the current shared build-`9922` semantic pass. The
-greater-than-200-turn fixture remains deliberately unrun; the current checkpoint does not claim
-that gate.
+The Windows package, staging, supervisor, and launch code accept **x64 and ARM64** package
+identities. An official x64 MSIX exists at the same outer version, but its inner build, complete
+stage, and live launch were not checked. This is an evidence boundary, not an ARM64-only product
+restriction: an installing agent can inspect the exact x64 package and use the same fail-closed
+stage and adoption gates. The package has no Windows owner for macOS menu-title or native
+app-tools authorization. Standalone-output repair requires separate same-version native and WSL
+executables and is not part of the 16-patch Windows fleet.
 
 ## Staging
 

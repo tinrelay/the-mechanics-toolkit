@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { linuxBuild9771 } from "../patches/cross-task-attribution/profiles/linux.mjs";
+import { linuxBuild9771, linuxBuild10954 } from "../patches/cross-task-attribution/profiles/linux.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
@@ -29,7 +29,8 @@ const helperTail = source.slice(helperStart);
 const componentBoundary = helperTail.match(/function [$A-Z_a-z][$\w]*\(e\)\{let t=/);
 assert.ok(helperStart >= 0 && componentBoundary, "attribution helper seam");
 const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
-const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope");
+const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
+  source.includes("PX as MTKcrossTaskStoreHook,XI as MTKcrossTaskStoreScope");
 assert.ok((bindingStart >= 0 && bindingStart < componentBoundary.index) || sharedStoreImported,
   "stock store bindings are captured outside the component");
 const helperEnd = [bindingStart, componentBoundary.index,
@@ -62,7 +63,11 @@ const titleOwner = fs.readFileSync(path.resolve(path.dirname(ownerPath), titleIm
 const titleExport = importedExport(titleImport.specifiers, "MTKtitleAtom");
 const titleInternal = exportedInternal(titleOwner, titleExport);
 const linuxSelector = linuxBuild9771.titleSelector;
-if (titleInternal === linuxSelector.atom && titleOwner.includes(linuxSelector.atomOwner)) {
+if (titleInternal === linuxBuild10954.titleSelector.atom &&
+    titleOwner.includes(linuxBuild10954.titleSelector.atomOwner)) {
+  assert.ok(titleOwner.includes(linuxBuild10954.titleSelector.helperOwner),
+    "Linux build-10954 title atom retains its stock selector owner");
+} else if (titleInternal === linuxSelector.atom && titleOwner.includes(linuxSelector.atomOwner)) {
   assert.ok(titleOwner.includes(linuxSelector.helperOwner),
     "Linux build-9771 title atom retains its stock selector owner");
 } else if (titleInternal === "uyc" && titleOwner.includes("uyc=uf($,")) {
@@ -90,8 +95,9 @@ const initialImport = uniqueMatch(
 ).groups;
 const appInitial = fs.readFileSync(path.resolve(path.dirname(ownerPath), initialImport.relative), "utf8");
 if (sharedStoreImported) {
-  assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)"),
-    "metadata uses the build-10789 shared stock store and scope");
+  assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
+    appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)"),
+  "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
   const scopeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.scope));

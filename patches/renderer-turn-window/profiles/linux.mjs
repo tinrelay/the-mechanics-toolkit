@@ -1,3 +1,12 @@
+export const linuxBuild10954 = {
+  stockPaginated: [
+    "Qjs=Ia(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
+    "f=n(QL,s),p=f?.flatMap",
+    "_=n(QL,g),v=o!=null&&h==null?_?.flatMap",
+    "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+  ]
+};
+
 export const linuxBuild9771 = {
   currentBefore: "f=n(jI,s),p=f?.flatMap",
   currentAfter: "f=n(jI,s),UHrendererCurrentKeys=UHrendererTail(f,UHrendererTailLimit),p=UHrendererCurrentKeys?.flatMap",
