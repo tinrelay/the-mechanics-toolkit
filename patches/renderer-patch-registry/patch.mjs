@@ -21,6 +21,7 @@ const taskAttentionPolicyMarkers = [
   'const MTKattentionRelativePath=".codex/task-attention-policy.json"'
 ];
 const safeStartReadinessMarker = "--tmtk-safe-start-marker=";
+const terminalToggleMarker = 'requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`';
 let state = inspectState();
 if (command === "apply" && state === "needs-apply") {
   applyRegistry();
@@ -71,7 +72,7 @@ function activePackages() {
     file: appInitial,
     call: `MTKpatchRegistry?.register("taskAttentionPolicy",{version:1});`
   });
-  addIf(packages, appSource.includes('requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`'), {
+  addIf(packages, assetFiles().some(file => fs.readFileSync(file, "utf8").includes(terminalToggleMarker)), {
     name: "terminalToggle",
     file: appInitial,
     call: `MTKpatchRegistry?.register("terminalToggle",{version:1});`
@@ -125,7 +126,7 @@ function activePackages() {
       file,
       anchor: "var MTKdelegatedBubbleStyle=",
       call: source.includes("function MTKshortTaskTitle(")
-        ? `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:2,resolveTaskLabel(e){try{return MTKshortTaskTitle(e?.title)}catch{return null}}});`
+        ? `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:3,resolveTaskLabel(e){try{return MTKsender(e?.title,e?.projectName??MTKprojectFromCwd(e?.cwd,e?.workspaceKind))}catch{return null}}});`
         : `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:1});`
     });
     addIf(packages, source.includes("function MTKrenderWaitThreads(") && source.includes("data-mtk-wait-thread-roster"), {

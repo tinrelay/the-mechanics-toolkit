@@ -17,23 +17,29 @@ proof of the supervisor's Terminal rescue path.
 
 ## Current accepted receipt
 
-The current accepted macOS ARM64 target is Codex Desktop `26.915.31945` / build `9922` with the
-19-patch fleet. A pristine ASAR with SHA-256
-`1f7939c1c781887c167043c4d1d307af3400d324685cfc315dfe2f80e634f483` produced the accepted
-ASAR `baed57b803d911e6870d566ba4b0c2890ce16e0a2b14ab8f5de9ffc340353822`. The integrated
-`codex-cli 0.155.0-alpha.9.2` executable has SHA-256
-`eaf312b0da253a9dbb989e420f2fdfd862a729a1fad2c972d48fb31c45ecbf1d` and was built from
-upstream commit `4607249e430dac1c961df4dc615beae88e33cec8` with the current standalone-output
-compaction patch.
+The current accepted macOS ARM64 target is Codex Desktop `26.917.62051` / build `10789` with an
+18-patch fleet; vendor-owned turn pagination makes the TMTK renderer-turn-window patch unnecessary
+in this selection. The accepted installed ASAR is
+`391800e4d7703f58b79310aceb128462f54acff35cbc79284f2a02a02d979e36`. The integrated
+`codex-cli 0.155.0-alpha.16.3` executable is
+`c7db82d0b0eb00ff5efc7275210a2e06b2b7281682c89a77b79bb087f77debf4`, built from
+upstream commit `ffa06df2317e3e65fc74da977a5884710c5382d5` with the exact source-patch
+catalog entry for this build. The completed staged application passed the complete selected fleet,
+post-repack probes, ASAR integrity, code signature, native-payload preservation, and byte-identical
+second application.
 
-Supervisor incident `2026-09-19T02-27-11-364Z-6991949b-2354-4264-8194-c37cfeccbd7f`
-replaced the canonical app, observed the invoking CLI exit, displayed the preparation notification,
-returned to the exact originating task, and reached renderer readiness without supervisor or
-rollback-payload residue. Live acceptance covered Computer Use self-target inspection, sidebar
-disclosure and archive protection, observability, one ordinary task exchange, and one TinRelay
-self-loop across remount. The operator also observed the configured terminal toggle working. The
-greater-than-200-turn and live compaction fixtures remain explicit omissions; see the
-[extraction ledger](../docs/extraction-ledger.md) for the evidence boundary.
+The final supervised incident `2026-09-23T13-13-19-338Z-04ae4615-801a-432d-9fcc-a2def5198cc7`
+observed the invoking CLI exit, installed the exact candidate, and returned to a usable task with
+no active supervisor or rollback payload. Live checks covered task rendering, terminal toggle,
+sidebar collapse, palette and menu, outgoing task names, linked wait-roster names, and a TinRelay
+self-loop. The greater-than-200-turn and live compaction fixtures remain explicit omissions.
+
+The first build-`10789` candidate exposed a supervisor limitation: the primary renderer emitted
+`renderer.ready` even though a patched component threw and Codex displayed its Oops screen. That
+incident was marked `ready`, so closing the app afterward did not trigger rescue. The component
+error was corrected in the accepted candidate; the early-readiness criterion itself remains open.
+Do not cite the older blank/Oops capability receipt as proof that this build recovers from a living
+Oops screen. See the [extraction ledger](../docs/extraction-ledger.md) for this boundary.
 
 This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
 matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It
@@ -270,7 +276,7 @@ marked `not selected`, never passed.
 | Native app-tools peer authorization | From the signed candidate, use native task tools to send, read, and wait on another local task; retain the accepted results. | Real packaged-peer calls succeed. Static authorization probes must still reject unrelated, unsigned, wrong-identity, and non-immediate processes. |
 | Codex observability | Run `tmtk-observe list`, capture a short CPU profile and timeline trace from the active renderer while interacting with a real task, then run one read-only CDP command. | Target metadata is current, both output files open in Chrome DevTools, the interaction appears in the captures, and every capture detaches without leaving profiling active. |
 | Renderer patch registry | Inspect the packed registry bootstrap and run its composition probe after all selected publishers/consumers. | Exactly one registry exists, known optional capabilities are callable, and cross-task/wait/Tinrelay surfaces above compose without requiring one another. |
-| Safe-start readiness | Complete the healthy case in section 3 and cite the current supervisor capability receipt. Re-run section 2 only when one of its named inputs changed. | This exact patchset writes readiness through LaunchServices, opens no rescue, and does not ask for Terminal Computer Use or network privacy access. The separate current capability receipt proves blank-renderer and living-Oops recovery. |
+| Safe-start readiness | Complete the healthy case in section 3. Re-run section 2 only when its boundary is repaired and deliberately qualified. | This exact patchset writes readiness through LaunchServices without prompting for Terminal Computer Use or network privacy access. On build `10789`, readiness can precede a usable task and living-Oops recovery is not qualified. |
 | Computer Use self-target restoration | Record the exact `ComputerUseAllowForbiddenTargets` preference value, bind Computer Use to Codex, and make one harmless read-only accessibility observation. | The stock Computer Use path observes Codex without modifying the signed service. The agent records this as restoration of previously available functionality and verifies no unrelated permission or safety policy was bypassed. |
 | Renderer turn window | Run its bounded-turn probe against the packed candidate, then switch into a long-lived real task that previously stalled. | The mounted UI projection keeps only the newest 200 complete turns, transport pagination and transcript export remain intact, and task switching no longer stalls. |
 

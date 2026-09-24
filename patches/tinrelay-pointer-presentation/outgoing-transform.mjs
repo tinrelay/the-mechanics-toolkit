@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
+import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild9647, incomingBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -688,7 +689,7 @@ function mainHelperOwner(source) {
 }
 
 function resolveHostBus(source) {
-  const profile = [incomingBuild9922, incomingBuild9771]
+  const profile = [incomingBuild10789, incomingBuild9922, incomingBuild9771]
     .find(candidate => source.includes(candidate.moduleAfter));
   if (profile != null) {
     const imported = uniqueMatch(
@@ -722,7 +723,7 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  for (const profile of [incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
     if (source.includes(`function ${profile.message}(`) &&
         source.includes(`function ${profile.delegation}(`) &&
         source.includes(profile.moduleAfter)) {

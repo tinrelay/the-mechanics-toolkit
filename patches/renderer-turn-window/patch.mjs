@@ -58,14 +58,22 @@ function inspectState(app, local) {
 
 function isStockPaginatedRenderer(source) {
   return (source.includes("gLo=Iy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ||
-    source.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{")) &&
+    source.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{") ||
+    source.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{")) &&
     source.includes("initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}") &&
     source.includes("loadOlderConversationHistoryPage") &&
     source.includes("thread/turns/list");
 }
 
 function inspectStockPaginatedRenderer(source) {
-  const selectorProfile = source.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{")
+  const selectorProfile = source.includes("Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{")
+    ? [
+      "Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
+      "f=n(bR,s),p=f?.flatMap",
+      "_=n(bR,g),v=o!=null&&h==null?_?.flatMap",
+      "turnEntityKeys:f?.map(({entityKey:e})=>e)"
+    ]
+    : source.includes("cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{")
     ? [
       "cRo=zy(Q,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n})=>{",
       "d=n(NI,o),f=d?.flatMap",
@@ -85,7 +93,9 @@ function inspectStockPaginatedRenderer(source) {
     "thread/turns/list"
   ];
   for (const contract of contracts) {
-    if (count(source, contract) !== 1 && contract !== "thread/turns/list") {
+    if (new Set(["thread/turns/list", "loadOlderConversationHistoryPage"]).has(contract)
+      ? count(source, contract) < 1
+      : count(source, contract) !== 1) {
       throw new Error(`Upstream changed: stock paginated-renderer contract ${contract}`);
     }
   }

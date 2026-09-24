@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
+import { build10789 } from "./profiles/build10789.mjs";
 import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -48,21 +49,25 @@ function inspectState(value) {
   ];
   const linuxMarkerSets = linuxProfiles.map(appliedMarkers);
   const build9922Markers = appliedMarkers(build9922);
+  const build10789Markers = appliedMarkers(build10789);
   const genericPresent = genericMarkers.map(marker => value.includes(marker));
   const linuxPresent = linuxMarkerSets.map(markers => markers.map(marker => value.includes(marker)));
   const build9922Present = build9922Markers.map(marker => value.includes(marker));
+  const build10789Present = build10789Markers.map(marker => value.includes(marker));
   if (genericPresent.every(Boolean)) return "applied";
   if (linuxPresent.some(markers => markers.every(Boolean))) return "applied";
   if (build9922Present.every(Boolean)) return "applied";
+  if (build10789Present.every(Boolean)) return "applied";
   if (genericPresent.some(Boolean) || linuxPresent.some(markers => markers.some(Boolean)) ||
-      build9922Present.some(Boolean)) {
+      build9922Present.some(Boolean) || build10789Present.some(Boolean)) {
     throw new Error("Unrecognized build-9647 sidebar collapse patch: partial markers");
   }
   const genericPristine = current9647Contracts().every(contract => value.includes(contract));
   const linuxPristine = linuxProfiles.filter(profile =>
     contracts(profile).every(contract => value.includes(contract)));
   const build9922Pristine = contracts(build9922).every(contract => value.includes(contract));
-  const profileCount = Number(genericPristine) + linuxPristine.length + Number(build9922Pristine);
+  const build10789Pristine = contracts(build10789).every(contract => value.includes(contract));
+  const profileCount = Number(genericPristine) + linuxPristine.length + Number(build9922Pristine) + Number(build10789Pristine);
   if (profileCount !== 1) {
     throw new Error(`Upstream changed: found ${profileCount} sidebar ownership profiles`);
   }
@@ -74,6 +79,7 @@ function patchSource(value) {
   const linux = linuxProfiles.find(profile => contracts(profile).every(contract => value.includes(contract)));
   if (linux != null) return patchProfile(value, linux);
   if (contracts(build9922).every(contract => value.includes(contract))) return patchProfile(value, build9922);
+  if (contracts(build10789).every(contract => value.includes(contract))) return patchProfile(value, build10789);
   throw new Error("Upstream changed: missing qualified sidebar ownership contract");
 }
 
@@ -148,9 +154,11 @@ function uniqueOwnershipAsset() {
       return current9647Contracts().every(contract => value.includes(contract)) ||
         linuxProfiles.some(profile => contracts(profile).every(contract => value.includes(contract))) ||
         contracts(build9922).every(contract => value.includes(contract)) ||
+        contracts(build10789).every(contract => value.includes(contract)) ||
         value.includes("function MTKuseSidebarActionCollapse9647()") ||
         linuxProfiles.some(profile => value.includes(`function MTKuseSidebarActionCollapse${profile.suffix}()`)) ||
-        value.includes(`function MTKuseSidebarActionCollapse${build9922.suffix}()`);
+        value.includes(`function MTKuseSidebarActionCollapse${build9922.suffix}()`) ||
+        value.includes(`function MTKuseSidebarActionCollapse${build10789.suffix}()`);
     });
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} sidebar ownership assets`);
   return path.join(assets, matches[0]);

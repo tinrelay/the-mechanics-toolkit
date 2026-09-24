@@ -9,6 +9,8 @@
 A successful cross-task send should not disappear from the sending conversation. Without a local
 receipt, a human has to remember where the message went, reconstruct its first line, or open the
 other task to confirm which route was used.
+The recipient uses the shared task label: a named role shows its name, while an ordinary task
+with project context shows `project/task title`.
 
 This patch keeps the send activity visible as a compact left-aligned receipt: direction arrow,
 current send state, recipient, and the first meaningful line. Hovering opens the complete message

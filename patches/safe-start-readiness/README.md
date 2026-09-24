@@ -2,9 +2,11 @@
 
 This patch gives the toolkit's restart supervisor one narrow fact: the primary Codex application
 routes reached their committed renderer mount. It reuses Codex's stock trusted-renderer `ready`
-event and makes the main process call Codex's existing per-launch marker writer. The stock event is
-owned by the healthy `AppRoutes` mount, so an application-level error boundary does not count as a
-successful start.
+event and makes the main process call Codex's existing per-launch marker writer only when that
+event comes from the primary window. Hidden secondary renderers can also mount `AppRoutes`; their
+`ready` events must not accept a launch whose primary window reached an error boundary.
+Readiness does not prove that every later task turn renders; those generated owners need their own
+post-repack probes.
 
 The marker path comes from the launch-only `CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH` environment
 variable. The toolkit creates a fresh private path for every attempt, so an old marker cannot make

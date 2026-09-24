@@ -23,16 +23,16 @@ It does not add or hard-code a key combination. The user's configured keymap rem
 
 ## Owned seam
 
-The transform recognizes one complete `app-initial` ownership profile:
+The transform recognizes the current split ownership profile:
 
-1. the existing `toggleTerminal` command descriptor;
-2. the existing configurable hotkey dispatcher;
+1. the `toggleTerminal` descriptor in the renderer's shared catalog, main-process catalog, and worker;
+2. the configurable hotkey dispatcher in `app-initial`;
 3. the editable-focus permission decision; and
 4. the stock terminal toggle action.
 
 It makes two changes:
 
-- gives `toggleTerminal` application-wide shortcut scope;
+- gives every active copy of `toggleTerminal` application-wide shortcut scope;
 - permits that command while an editable surface owns focus.
 
 The terminal action itself is not replaced. If any required owner is missing, duplicated, split, or

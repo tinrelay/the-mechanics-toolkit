@@ -96,7 +96,7 @@ for (const patchReadme of filesBelow("patches", file => path.basename(file) === 
   assert.doesNotMatch(markdown, /\b26\.\d{3}\.\d+\b/u, `${patchReadme} defers versions to the ledger`);
 }
 
-const catalogPatches = sourcePatchDefinitions.map(definition => definition.patch).sort();
+const catalogPatches = [...new Set(sourcePatchDefinitions.map(definition => definition.patch))].sort();
 const storedPatches = filesBelow("source-patches", file => file.endsWith(".patch"));
 assert.deepEqual(storedPatches, catalogPatches, "source-patches retains only cataloged current diffs");
 

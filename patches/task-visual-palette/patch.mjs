@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./profiles/build9647.mjs";
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
+import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
 import { linuxBuild9647, linuxBuild9771 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -171,6 +172,14 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
+  if (build10789.archive.applied.every(contract => source.includes(contract))) {
+    if (inspectBuild10789ArchiveRuntime(source) !== "applied") {
+      throw new Error("Unrecognized build-10789 archive runtime reload");
+    }
+    return "applied";
+  }
+  if (build10789.archive.pristine.every(contract => source.includes(contract))) return "needs-apply";
+
   if (build9922.archive.applied.every(contract => source.includes(contract))) {
       if (inspectBuild9922ArchiveRuntime(source, build9922RuntimeOwner(source)) !== "applied") {
       throw new Error("Unrecognized build-9922 archive runtime reload");
@@ -221,6 +230,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
+    build10789.app,
     build9922.app,
     linuxBuild9771.app,
     linuxBuild9647.app,
@@ -257,6 +267,7 @@ function bottomFadeProfile(_appSource, primarySource) {
 }
 function localProfile(source) {
   const profiles = [
+    build10789.local,
     build9922.local,
     linuxBuild9771.local,
     linuxBuild9647.local,
@@ -591,6 +602,14 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
+  if (build10789.archive.pristine.every(contract => source.includes(contract))) {
+    for (const replacement of build10789.archive.replacements) {
+      source = replaceOnce(source, ...replacement);
+    }
+    source = applyBuild10789ArchiveRuntime(source);
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (build9922.archive.pristine.every(contract => source.includes(contract))) {
     for (const replacement of build9922.archive.replacements) {
       source = replaceOnce(source, ...replacement);
@@ -666,8 +685,9 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  if (source.includes(build9922.delegation.owner)) {
-    for (const replacement of build9922.delegation.replacements) {
+  const profile = [build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  if (profile != null) {
+    for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);
     }
     fs.writeFileSync(file, source);

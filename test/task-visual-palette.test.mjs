@@ -11,10 +11,15 @@ const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
 const localPage = uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
 const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/);
 const source = readAsset(appInitial);
+if (source.includes("function pWs(e){let MTKsidebarArchiveEpoch=")) {
+  assert.equal(count(source, "function MTKuseSidebarArchivePolicy("), 1,
+    "build-10789 mounted archive rows have their subscription hook");
+}
 const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
 const rootProfiles = [
   {start: "function PYs(){", owner: "let e=(0,LYs.c)(12),"},
+  {start: "function Bzc(){", owner: "let e=(0,Uzc.c)(12),"},
   {start: "function xyl(){", owner: "let e=(0,wyl.c)(12),"},
   {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"}
 ].map(profile => {

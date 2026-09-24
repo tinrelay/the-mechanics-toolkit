@@ -12,10 +12,11 @@ and preserves click-through to it. That forces a human to infer identity from pr
 link—precisely when several agents may be coordinating at once.
 
 This patch resolves the source task through Codex's own renderer store and replaces the generic
-label with the name before a title's ` — ` separator, or with the complete task title when no named
-role separator exists. If authoritative title metadata is missing it keeps the stock generic label.
-It never parses message prose as identity. The retained label helper can also render
-`Project/Task title` when an older renderer profile supplies project metadata. The sender name has
+label with the name before a title's ` — ` separator. An ordinary task uses
+`project/task title` when its project context is available (for example,
+`ganglion/ticket-inbox`); otherwise it keeps the complete task title. If authoritative title
+metadata is missing it keeps the stock generic label. It never parses message prose as identity.
+The same formatter is published to outgoing receipts and wait rosters. The sender name has
 its own semantic marker so the visual palette can color only the identity while the surrounding
 native attribution text keeps its stock metadata color.
 

@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.915.31945`, build `9922` | Complete 19-patch fleet; static proof, supervised adoption, renderer readiness, and focused live behavior. |
+| macOS ARM64 application | `26.917.62051`, build `10789` | Complete 18-patch fleet; static proof, corrected supervised adoption, and focused live behavior. |
 | Windows 11 ARM64 MSIX | `26.915.31945`, build `9922` | 16-patch fleet; signed reconstruction, supervised adoption, renderer readiness, registry, and a visible patched surface. |
 | Ubuntu DEB | `26.915.31029`, build `9771` | `arm64` and `amd64` package support; ARM64 authenticated reconstruction, install, application opening, and renderer readiness. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -117,7 +117,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.9.2` / Desktop `26.915.31945` build `9922` | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex `rust-v0.155.0-alpha.16.3` / Desktop `26.917.62051` build `10789` | Preserves the current standalone external instruction when that same turn triggers compaction. |
 
 ## Documentation map
 

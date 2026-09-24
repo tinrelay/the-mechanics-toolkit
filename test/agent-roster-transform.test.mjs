@@ -45,6 +45,14 @@ try {
     'let n=ep(e,"local")'
   ], "generic build 9922");
 
+  verifyProfile(target, build10789Fixture(), [
+    "function MTKuseAgentRoster(){let e=jr(X);",
+    "return Wzc.useEffect(",
+    "let a=i(_Zr);",
+    "e.get(Md)==null&&await e.when(({get:e})=>e(Md)!=null)",
+    'let n=jd(e,"local")'
+  ], "macOS build 10789");
+
   process.stdout.write("agent roster current-build transform probe passed\n");
 
   function verifyProfile(target, fixture, expected, label) {
@@ -104,6 +112,20 @@ function build9922Fixture() {
     "a.get=o,a.query=Ggt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
     "function ep(e,t){let n=e.get(tp);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
     "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),value=0;return e}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build10789Fixture() {
+  return [
+    "const X=Symbol(`scope`),_Zr=ls(X,({get:e})=>e),Md=Go(X,()=>null);",
+    "const jr=e=>e;",
+    "function store(){let a={},i={current:null};function o(){}function s(){}function c(){}function l(){}",
+    "a.get=o,a.query=Ggt(a),a.set=l,a.watch=s,a.when=c,i.current=a;return i.current}",
+    "function jd(e,t){let n=e.get(Md);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+    "function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),value=0;return e}",
+    "function owner(){let {groups:d,isWorkspaceRootOptionsLoading:f}=r(_Zr);return d}",
+    "var Uzc,Wzc;function Gzc(){}Wzc={useEffect(){}};",
     "export const fixture=true;"
   ].join("");
 }

@@ -15,7 +15,8 @@ try {
   for (const profile of [
     {owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce"},
     {owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie"},
-    {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"}
+    {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"},
+    {owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise"}
   ]) {
     const extracted = path.join(scratch, profile.owner);
     const build = path.join(extracted, ".vite/build");

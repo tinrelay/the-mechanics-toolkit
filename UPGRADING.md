@@ -1,6 +1,6 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK is source-only and currently reports package version `0.2.1`. Exact TMTK revisions and exact
+TMTK is source-only and currently reports package version `0.2.2`. Exact TMTK revisions and exact
 Codex Desktop versions and builds still define compatibility. This file tells an operator what must
 change when adopting the current toolkit; Git history preserves the upgrade instructions for older
 ports.
@@ -9,6 +9,27 @@ Never install from a moving or dirty toolkit checkout. Preserve local work, use 
 published revision, and stage from a pristine official Codex package rather than an already patched
 installation. The [current build matrix](docs/extraction-ledger.md#current-build-matrix) is the
 authority for supported packages and selected fleets.
+
+## 0.2.2
+
+This update advances macOS ARM64 to Codex Desktop `26.917.62051` / build `10789`. The current
+18-patch fleet includes a same-version `codex-cli 0.155.0-alpha.16.3` build with the standalone
+external-output compaction repair. The vendor now owns turn pagination, so this fleet does not
+select TMTK's renderer-turn-window patch. Windows build `9922`, Ubuntu build `9771`, and Fedora
+build `9647` remain separate current platform targets; do not apply the macOS generated-owner
+profile to their packages.
+
+Use the official pristine macOS application, the exact `0.2.2` toolkit source and its private
+configuration, and the separately verified same-version Codex binary to stage one candidate.
+Adopt it through `tmtk-restart` only with operator confirmation. Static staging does not prove
+that a task renders: the first build-`10789` candidate emitted renderer readiness while showing
+Codex's Oops screen. The corrected candidate subsequently opened real tasks and passed the
+focused live checks. The supervisor's early-readiness gap remains an explicit limitation; do not
+interpret its `ready` receipt alone as a usable-task guarantee.
+
+No task database migration is required. After acceptance, remove superseded loose applications,
+extracted trees, and transient rollback payloads; keep at most one pristine vendor artifact and
+one current candidate.
 
 ## 0.2.1
 

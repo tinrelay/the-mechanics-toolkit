@@ -58,11 +58,19 @@ const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
     linuxProfiles.some(profile => profile.titleOwner != null && source.includes(profile.titleOwner) &&
       source.includes(profile.titleHelper));
 });
+const directSummaryOwner = fs.readdirSync(assets).some(name => {
+  if (!/^app-initial-.*\.js$/.test(name)) return false;
+  const source = fs.readFileSync(path.join(assets, name), "utf8");
+  return source.includes("kF=ns(X,") &&
+    source.includes("vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,");
+});
 assert.equal(
   helper.includes("MTKoutboundTitleAtom"),
   dedicatedTitleOwner,
   "current receipts use the stock live-title selector rather than metadata that omits active titles"
 );
+assert.equal(helper.includes("MTKoutboundThreadSummaryAtom"), directSummaryOwner,
+  "current receipts use the stock direct summary when a task is absent from the sidebar");
 
 const jsxName = unique(
   helper,
@@ -86,10 +94,13 @@ const jsx = {
 };
 const taskAtom = Symbol("task-atom");
 const titleAtom = Symbol("title-atom");
+const summaryAtom = Symbol("thread-summary-atom");
 const store = {
   get(atom, key) {
     if (atom === titleAtom && key?.threadId === "bridge-keeper") return "Bridge Keeper — Coordination";
-    if (dedicatedTitleOwner && atom === taskAtom) return null;
+    if (atom === summaryAtom && key?.conversationId === "bridge-keeper") return {title: "Bridge Keeper — Coordination"};
+    if (atom === summaryAtom && key?.conversationId === "ordinary-task") return {title: "Build the docs portal", cwd: "/Users/mike/LocalProjects/ganglion"};
+    if ((dedicatedTitleOwner || directSummaryOwner) && atom === taskAtom) return null;
     if (key === "local:bridge-keeper") return {kind: "local", conversation: {title: "Bridge Keeper — Coordination"}};
     return null;
   }
@@ -111,6 +122,7 @@ const names = [
   genericRenderName
 ];
 if (dedicatedTitleOwner) names.splice(names.indexOf("MTKoutboundHover"), 0, "MTKoutboundTitleAtom");
+if (directSummaryOwner) names.splice(names.indexOf("MTKoutboundHover"), 0, "MTKoutboundThreadSummaryAtom");
 const values = [
   jsx,
   () => store,
@@ -128,12 +140,18 @@ const values = [
   () => ({type: "stock-fallback"})
 ];
 if (dedicatedTitleOwner) values.splice(names.indexOf("MTKoutboundTitleAtom"), 0, titleAtom);
+if (directSummaryOwner) values.splice(names.indexOf("MTKoutboundThreadSummaryAtom"), 0, summaryAtom);
 const api = Function(...names, `${helper};return {MTKoutboundArguments,MTKoutboundLabel,MTKoutboundPreview,MTKoutboundTaskColor,MTKoutboundContrast,MTKoutboundLabelColor,MTKOutboundMessageReceipt,MTKrenderOutboundMessage}`)(...values);
 
 assert.equal(api.MTKoutboundArguments({threadId: "bridge-keeper", prompt: "hello"})?.threadId, "bridge-keeper");
 assert.equal(api.MTKoutboundArguments({threadId: "bridge-keeper"}), null, "prompt is required");
 assert.equal(api.MTKoutboundLabel("Bridge Keeper — Coordination"), "Bridge Keeper");
 assert.equal(api.MTKoutboundLabel("Ordinary task"), "Ordinary task");
+globalThis.__MTK_PATCH_REGISTRY__ = {apiVersion: 1, packages: {crossTaskAttribution: {
+  version: 3, resolveTaskLabel({title, cwd}) { return title.includes(" — ") ? title.split(" — ")[0] : cwd ? `${cwd.split("/").at(-1)}/${title}` : title; }
+}}};
+assert.equal(api.MTKoutboundLabel("ticket-inbox", "/Users/mike/LocalProjects/ganglion"), "ganglion/ticket-inbox");
+assert.equal(api.MTKoutboundLabel("Ganglion runner and senses", "/Users/mike/LocalProjects/ganglion"), "ganglion/Ganglion runner and senses");
 assert.equal(api.MTKoutboundPreview("\n First line \nsecond"), "First line");
 assert.equal(api.MTKoutboundPreview("x".repeat(200)).length, 180);
 
@@ -149,6 +167,10 @@ globalThis.__MTK_PATCH_REGISTRY__.packages.taskVisualPalette.resolveTaskColor = 
   assert.equal(taskId, "bridge-keeper");
   assert.equal(title, "Bridge Keeper — Coordination");
   return "#6b8e72";
+};
+globalThis.__MTK_PATCH_REGISTRY__.packages.crossTaskAttribution = {
+  version: 3,
+  resolveTaskLabel({title, cwd}) { return title.includes(" — ") ? title.split(" — ")[0] : cwd ? `${cwd.split("/").at(-1)}/${title}` : title; }
 };
 assert.equal(api.MTKoutboundTaskColor("bridge-keeper", "Bridge Keeper — Coordination"), "#6B8E72");
 for (const raw of ["#6B8E72", "#39FF14", "#C6A13D"]) {
@@ -188,6 +210,13 @@ const [arrow, status, recipient, separator, preview] = summary.props.children;
 assert.equal(arrow.props.children, "↗", "outbound direction is explicit");
 assert.equal(status.props.children, "Sent to");
 assert.equal(recipient.props.children, "Bridge Keeper");
+if (directSummaryOwner) {
+  const ordinary = api.MTKOutboundMessageReceipt({item: {
+    arguments: {threadId: "ordinary-task", prompt}, completed: true, success: true
+  }});
+  assert.equal(ordinary.props.children.props.children[2].props.children, "ganglion/Build the docs portal",
+    "ordinary task title comes from the direct thread summary when sidebar metadata is absent");
+}
 assert.match(recipient.props.style.color, /^light-dark\(#[0-9A-F]{6},#[0-9A-F]{6}\)$/,
   "recipient name opportunistically uses a contrast-checked theme pair");
 assert.equal(separator.props.children, "·");

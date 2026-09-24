@@ -71,6 +71,26 @@ function currentProfile(value) {
     }
     return candidate.profile;
   }
+  const build10789Seam = "function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),";
+  if (value.includes(build10789Seam)) {
+    const contracts = [
+      build10789Seam,
+      "function jd(e,t){let n=e.get(Md);if(n==null)throw Error(`AppServerManager RPC is not connected`);return n.forHost(t)}",
+      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(_Zr)",
+      "var Uzc,Wzc;function Gzc()"
+    ];
+    if (!contracts.every(contract => count(value, contract) === 1)) {
+      throw new Error("Upstream changed: build-10789 agent roster owner is not unique");
+    }
+    return {
+      seam: build10789Seam,
+      scope: "jr(X)",
+      react: "Wzc",
+      projectsAtom: "_Zr",
+      readyAtom: "Md",
+      client: "jd"
+    };
+  }
   const build9922Seam = "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),";
   if (value.includes(build9922Seam)) {
     const contracts = [

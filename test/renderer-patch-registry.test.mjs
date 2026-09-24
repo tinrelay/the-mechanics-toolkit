@@ -93,7 +93,9 @@ for (const call of appCalls.filter(call => call.name !== "taskVisualPalette")) {
 }
 for (const call of lazyCalls) {
   if (call.name === "crossTaskAttribution") {
-    Function("globalThis", "MTKshortTaskTitle", call.source)(firstRealm, title => title?.split(" — ")[0] ?? null);
+    Function("globalThis", "MTKsender", "MTKprojectFromCwd", call.source)(firstRealm,
+      (title, project) => title?.includes(" — ") ? title.split(" — ")[0] : project ? `${project}/${title}` : title,
+      cwd => cwd?.split("/").at(-1) ?? null);
   } else {
     Function("globalThis", call.source)(firstRealm);
   }
@@ -107,8 +109,9 @@ if (registry.packages.outgoingMessageReceipt != null) {
   assert.equal(registry.packages.outgoingMessageReceipt.messageRendering, "recipient-user-message");
 }
 if (registry.packages.crossTaskAttribution != null) {
-  assert.equal(registry.packages.crossTaskAttribution.version, 2);
+  assert.equal(registry.packages.crossTaskAttribution.version, 3);
   assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title: "Bridge Keeper — Coordination"}), "Bridge Keeper");
+  assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"}), "ganglion/ticket-inbox");
 }
 if (registry.packages.codexObservability != null) {
   assert.equal(registry.packages.codexObservability.version, 1);

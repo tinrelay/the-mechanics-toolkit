@@ -50,6 +50,25 @@ const build9922Component = {
     "t[45]=I,t[46]=K,t[47]=W,t[48]=Ke,t[153]=MTKbubbleStyleOverride,t[49]=J"
   ]
 };
+const build10789Component = {
+  delegation: "_v", delegationCache: "vv", delegationJsx: "yv",
+  wrapper: "cv", wrapperCache: "lv", wrapperJsx: "uv",
+  bubble: "yt", wrapperBubble: "jf", bubbleCache: "xt", collapsedLines: "dv",
+  bubbleCacheSize: 153,
+  externalBubble: true,
+  bubbleOwner: [
+    "turnId:D,cwd:O,hostId:k}=e,",
+    "turnId:D,cwd:O,hostId:k,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+  ],
+  bubbleDependency: [
+    "t[47]!==ze||t[48]!==Xe){",
+    "t[47]!==ze||t[48]!==Xe||t[153]!==MTKbubbleStyleOverride){"
+  ],
+  bubbleStorage: [
+    "t[47]=ze,t[48]=Xe,t[49]=q",
+    "t[47]=ze,t[48]=Xe,t[153]=MTKbubbleStyleOverride,t[49]=q"
+  ]
+};
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
 let state = inspectState(owner);
@@ -114,13 +133,14 @@ function inspectState(owner) {
   const markers = [
     "var MTKdelegatedBubbleStyle=",
     "function MTKsender(",
-    "const MTKcrossTaskStoreHook=",
-    "MTKcrossTaskStoreScope=",
+    ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook"],
+    ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope"],
     "MTKstore.get(MTKtitleAtom,{hostId:",
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
   ];
-  const present = markers.map(marker => completeSource.includes(marker));
+  const present = markers.map(marker =>
+    Array.isArray(marker) ? marker.some(value => completeSource.includes(value)) : completeSource.includes(marker));
   if (present.every(Boolean)) {
     if (count(source, "function MTKsender(") !== 1 || count(source, "messageBubbleStyle:MTKdelegatedBubbleStyle") !== 1) {
       throw new Error("Unrecognized attribution patch: helper or style handoff is ambiguous");
@@ -142,7 +162,7 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [build9922Component, linuxBuild9771.component, build9647Component].find(candidate =>
+  const profile = [build10789Component, build9922Component, linuxBuild9771.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
     (candidate.wrapperBubble == null || owner.bubbleLocal === candidate.wrapperBubble) &&
@@ -187,7 +207,7 @@ function patchAttribution(source, ownerFile, details) {
   const labelEnd = ",t[1]=p):p=t[1];";
   const metadata =
     `let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope),MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??\`local\`,threadId:r}),` +
-    `MTKresolvedSender=MTKsender(MTKtitle,null);${attributionLabel(profile.delegationJsx)}`;
+    `MTKresolvedSender=MTKsender(MTKtitle,MTKprojectFromCwd(o));${attributionLabel(profile.delegationJsx)}`;
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "delegation metadata insertion");
   delegation = replaceOnce(
     delegation,
@@ -233,8 +253,8 @@ function patchAttribution(source, ownerFile, details) {
       ["t[42]=fe,t[43]=se,t[44]=ve,t[45]=be", "t[42]=fe,t[43]=se,t[44]=ve,t[127]=MTKbubbleStyleOverride,t[45]=be"]);
   bubble = replaceOnce(bubble, ...bubbleStorage, "bubble style storage");
 
-  const helper = currentHelper() +
-    `const MTKcrossTaskStoreHook=${imports.storeHook},MTKcrossTaskStoreScope=${imports.storeScope};`;
+  const helper = currentHelper() + (imports.sharedImport == null ?
+    `const MTKcrossTaskStoreHook=${imports.storeHook},MTKcrossTaskStoreScope=${imports.storeScope};` : "");
 
   let bubbleSource = null;
   if (details.bubbleFile == null) source = replaceOnce(source, details.bubble.text, bubble, "bubble component");
@@ -242,6 +262,9 @@ function patchAttribution(source, ownerFile, details) {
   source = replaceOnce(source, details.wrapper.text, wrapper, "delegation wrapper component");
   source = replaceOnce(source, details.delegation.text, helper + delegation, "delegation component");
   source = replaceOnce(source, imports.before, imports.after, "attribution imports");
+  if (imports.sharedImport != null) {
+    source = replaceOnce(source, imports.sharedImport.before, imports.sharedImport.after, "attribution shared-store import");
+  }
   return {source, bubbleSource};
 }
 
@@ -253,6 +276,7 @@ function currentHelper() {
   return "var MTKdelegatedBubbleStyle={backgroundColor:`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`};" +
     "function MTKshortTaskTitle(e){if(typeof e!==`string`)return null;let t=e.trim();if(t.length===0)return null;" +
     "let n=t.indexOf(` — `);return n>0?t.slice(0,n).trim():t}" +
+    "function MTKprojectFromCwd(e,t){if(t===`projectless`||typeof e!==`string`)return null;let n=e.replace(/[\\\\/]+$/u,``).split(/[\\\\/]/u).pop();return n&&n!==`.`?n:null}" +
     "function MTKsender(e,t){let n=MTKshortTaskTitle(e);if(n==null)return null;return n!==e.trim()?n:" +
     "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:n}";
 }
@@ -264,6 +288,26 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  if (appInitial.includes("yBs=ns(X,(e,{get:t})=>") &&
+      appInitial.includes("_Bs({...n,localTitle:r})") &&
+      appInitial.includes("function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),")) {
+    const sharedImport = uniqueMatch(ownerSource,
+      /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
+      "app-shared import");
+    if (!appInitial.includes("LX as jr") || !appInitial.includes("ZI as X")) {
+      throw new Error("Upstream changed: build-10789 store binding is missing");
+    }
+    return {
+      before: initialImport[0],
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "yBs")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      storeHook: "MTKcrossTaskStoreHook",
+      storeScope: "MTKcrossTaskStoreScope",
+      sharedImport: {
+        before: sharedImport[0],
+        after: `import{${sharedImport.groups.specifiers},LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
+      }
+    };
+  }
   const linuxSelector = linuxBuild9771.titleSelector;
   if (appInitial.includes(linuxSelector.atomOwner) &&
       appInitial.includes(linuxSelector.helperOwner) &&

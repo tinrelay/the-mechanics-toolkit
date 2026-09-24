@@ -69,6 +69,14 @@ try {
   assert.deepEqual(fs.readFileSync(owner), build9922Once, "build-9922 second application is byte-identical");
   process.stdout.write("model identity guard build-9922 transform probe passed\n");
 
+  fs.writeFileSync(owner, build10789OwnerFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const build10789Once = fs.readFileSync(owner);
+  assert.match(build10789Once.toString(), /MTKuseModelIdentityGuard\(r,Se,Ze\)/);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(owner), build10789Once);
+
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
   }
@@ -114,5 +122,14 @@ function build9922OwnerFixture() {
     'const selector={"data-codex-intelligence-trigger":true};',
     'function C3(e){let t=(0,kXe.c)(242),r=e.conversationId,Te=e.model,ie={reasoningEffort:e.reasoningEffort},Ye=[];',
     'let $e=$A(ie.reasoningEffort,Ye),et=true;return{t,r,Te,ie,$e,et}}'
+  ].join("");
+}
+
+function build10789OwnerFixture() {
+  return [
+    'const b3={useEffect:e=>e()},HM=e=>e;',
+    'const selector={"data-codex-intelligence-trigger":true};',
+    'function y3(e){let t=(0,iat.c)(242),r=e.conversationId,Se=e.model,K={reasoningEffort:e.reasoningEffort},qe=[];',
+    'let Ze=HM(K.reasoningEffort,qe),Qe=true;return{t,r,Se,K,Ze,Qe}}'
   ].join("");
 }

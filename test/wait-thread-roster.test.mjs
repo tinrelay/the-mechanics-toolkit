@@ -50,6 +50,8 @@ const dispatched = [];
 const tasks = new Map([
   ["local:elias", {kind: "local", conversation: {title: "Elias — MapWire Deployment Steward"}}],
   ["local:mechanic", {kind: "local", conversation: {title: "The Mechanic — Engine Rooms and Escape Hatches"}}],
+  ["local:ticket-inbox", {kind: "local", conversation: {title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"}}],
+  ["local:ganglion-runner", {kind: "local", conversation: {title: "Ganglion runner and senses", cwd: "/Users/mike/LocalProjects/ganglion"}}],
   ["remote:rowan", {kind: "remote", task: {title: "Rowan — Systems Wayfinder"}}]
 ]);
 const jsx = {
@@ -58,6 +60,8 @@ const jsx = {
 };
 const taskAtom = {};
 const titleAtom = {};
+const summaryAtom = {};
+const directSummaryOwner = source.includes("MTKwaitSummaryAtom");
 const liveTitles = new Map([
   ["local:elias", "Elias — MapWire Deployment Steward"],
   ["local:mechanic", "The Mechanic — Engine Rooms and Escape Hatches"],
@@ -66,12 +70,20 @@ const liveTitles = new Map([
 const deps = {
   MTKwaitStoreHook: () => ({get(atom, key) {
     if (atom === titleAtom) return liveTitles.get(`${key.hostId}:${key.threadId}`) ?? null;
+    if (atom === summaryAtom && directSummaryOwner && key.conversationId === "ticket-inbox") {
+      return {title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"};
+    }
+    if (atom === summaryAtom && directSummaryOwner && key.conversationId === "ganglion-runner") {
+      return {title: "Ganglion runner and senses", cwd: "/Users/mike/LocalProjects/ganglion"};
+    }
+    if (directSummaryOwner && atom === taskAtom && ["local:ticket-inbox", "local:ganglion-runner"].includes(key)) return null;
     if (dedicatedTitleOwner && atom === taskAtom) return null;
     return tasks.get(key) ?? null;
   }}),
   MTKwaitStoreScope: {},
   MTKwaitTaskAtom: taskAtom,
   MTKwaitTitleAtom: titleAtom,
+  MTKwaitSummaryAtom: summaryAtom,
   MTKwaitLocalThreadKey: id => `local:${id}`,
   MTKwaitRemoteThreadKey: id => `remote:${id}`,
   [profile.jsx]: jsx,
@@ -91,8 +103,8 @@ const realm = {
     apiVersion: 1,
     packages: {
       crossTaskAttribution: {
-        version: 2,
-        resolveTaskLabel({title}) { return title.split(" — ")[0]; }
+        version: 3,
+        resolveTaskLabel({title, cwd}) { return title.includes(" — ") ? title.split(" — ")[0] : cwd ? `${cwd.split("/").at(-1)}/${title}` : title; }
       },
       taskVisualPalette: {
         version: 1,
@@ -111,6 +123,14 @@ assert.equal(api.MTKwaitTargets({targets: []}), null);
 assert.equal(api.MTKwaitTargets({targets: Array.from({length: 9}, (_, index) => ({threadId: String(index)}))}), null);
 assert.equal(api.MTKwaitTargets({targets: [{threadId: "one", hostId: 2}]}), null);
 assert.equal(api.MTKwaitTaskLabel("The Mechanic — Engine Rooms"), "The Mechanic", "shared label capability is used");
+assert.equal(api.MTKwaitResolvedTarget({threadId: "ticket-inbox", hostId: "local"},
+  directSummaryOwner ? null : tasks.get("local:ticket-inbox"),
+  directSummaryOwner ? {title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"} : undefined).label,
+  "ganglion/ticket-inbox");
+assert.equal(api.MTKwaitResolvedTarget({threadId: "ganglion-runner", hostId: "local"},
+  directSummaryOwner ? null : tasks.get("local:ganglion-runner"),
+  directSummaryOwner ? {title: "Ganglion runner and senses", cwd: "/Users/mike/LocalProjects/ganglion"} : undefined).label,
+  "ganglion/Ganglion runner and senses");
 assert.equal(api.MTKwaitTaskColor("elias", "Elias — Deployment"), "#AABBCC");
 for (const raw of ["#AABBCC", "#39FF14", "#C6A13D"]) {
   assert.ok(api.MTKwaitContrast(api.MTKwaitLabelColor(raw, false), "#FFFFFF") >= 4.5,
@@ -155,6 +175,8 @@ const buttons = rosterNodes.filter(node => node?.type === "button");
 assert.deepEqual(buttons.map(button => button.props.children), ["Elias", "The Mechanic", "Rowan"]);
 assert.ok(buttons.every(button => button.props.className.includes("cursor-pointer")),
   "known task links advertise pointer interaction");
+assert.ok(buttons.every(button => button.props.className.includes("align-baseline")),
+  "linked names share the surrounding sentence's text baseline");
 assert.equal(rosterNodes.filter(node => node?.type === "span" && node.props.children === "Task 01234567…").length, 1,
   "unknown target is visible but not linked");
 const duplicate = api.MTKWaitThreadRoster({item: {
@@ -181,7 +203,7 @@ assert.equal(fallbackApi.MTKwaitTaskLabel("documentation-research"), "documentat
 assert.equal(fallbackApi.MTKwaitTaskColor("one", "One"), null);
 const hostileApi = Function("deps", "globalThis", `with(deps){${helper};return {MTKwaitTaskLabel,MTKwaitTaskColor}}`)(deps, {
   __MTK_PATCH_REGISTRY__: {apiVersion: 1, packages: {
-    crossTaskAttribution: {version: 2, resolveTaskLabel() { throw new Error("no"); }},
+    crossTaskAttribution: {version: 3, resolveTaskLabel() { throw new Error("no"); }},
     taskVisualPalette: {version: 1, resolveTaskColor() { return "red"; }}
   }}
 });

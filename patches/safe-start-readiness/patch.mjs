@@ -90,14 +90,20 @@ function safeStartProfile(value) {
     {
       marker: "ece",
       before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
-      applied: `case\`ready\`:{${action};this.windowManager.markWebContentsReady(e),`,
+      applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
       rendererReady: "Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})"
     },
     {
       marker: "xse",
       before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
-      applied: `case\`ready\`:{${action};this.windowManager.markWebContentsReady(e),`,
+      applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
       rendererReady: "qn.dispatchMessage(`ready`,{persistedStateResponsePriority:V9?`critical`:void 0})"
+    },
+    {
+      marker: "Woe",
+      before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
     }
   ].filter(profile => {
     if (profile.marker !== marker) return false;

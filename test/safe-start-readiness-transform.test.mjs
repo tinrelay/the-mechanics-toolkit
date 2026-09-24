@@ -73,7 +73,7 @@ try {
   fs.writeFileSync(currentMain, "var ece=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
     "globalThis.__handler=null;function ace({markerPath:e=process.env[ece]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
     "class Owner{async handleMessage(e,t){switch(t.type){case`ready`:{this.windowManager.markWebContentsReady(e),globalThis.__ready=true;break}case`other`:break}}}" +
-    "let owner=new Owner;owner.windowManager={markWebContentsReady(){}};await owner.handleMessage(null,{type:`ready`});" +
+    "let owner=new Owner;owner.windowManager={markWebContentsReady(){},getRendererWindowLogFields(){return{rendererWindowAppearance:`primary`}}};await owner.handleMessage(null,{type:`ready`});" +
     "process.stdout.write(globalThis.__marker??``)");
   fs.writeFileSync(currentRenderer,
     "const Dr={dispatchMessage(){}};function qTl(){Dr.dispatchMessage(`ready`,{persistedStateResponsePriority:B9?`critical`:void 0})}");
@@ -88,6 +88,34 @@ try {
   assert.equal(currentReady.stdout, "/tmp/renderer.ready");
   assert.equal(run("apply", currentExtracted).state, "applied");
   assert.deepEqual(fs.readFileSync(currentMain), currentOnce);
+
+  const frontierExtracted = path.join(scratch, "frontier-extracted");
+  const frontierBuild = path.join(frontierExtracted, ".vite/build");
+  const frontierAssets = path.join(frontierExtracted, "webview/assets");
+  fs.mkdirSync(frontierBuild, {recursive: true});
+  fs.mkdirSync(frontierAssets, {recursive: true});
+  const frontierMain = path.join(frontierBuild, "main-frontier.js");
+  fs.writeFileSync(frontierMain,
+    "var Woe=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
+    "function Yoe({markerPath:e=process.env[Woe]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
+    "class Owner{async handleMessage(e,t){switch(t.type){case`ready`:{this.windowManager.markWebContentsReady(e),globalThis.__ready=true;break}case`other`:break}}}" +
+    "let owner=new Owner;owner.windowManager={markWebContentsReady(){},getRendererWindowLogFields(e){return{rendererWindowAppearance:e.appearance}}};" +
+    "await owner.handleMessage({appearance:process.argv[2]},{type:`ready`});process.stdout.write(globalThis.__marker??``)");
+  fs.writeFileSync(path.join(frontierAssets, "app-initial-frontier.js"),
+    "const Jn={dispatchMessage(){}};function routes(){Jn.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})}");
+  assert.equal(run("check", frontierExtracted).state, "needs-apply");
+  assert.equal(run("apply", frontierExtracted).state, "applied");
+  const frontierOnce = fs.readFileSync(frontierMain);
+  for (const [appearance, expected] of [["globalDictation", ""], ["primary", "/tmp/renderer.ready"]]) {
+    const result = spawnSync(process.execPath, [frontierMain, appearance], {
+      encoding: "utf8",
+      env: {...process.env, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: "/tmp/renderer.ready"}
+    });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.equal(result.stdout, expected, `${appearance} readiness marker`);
+  }
+  assert.equal(run("apply", frontierExtracted).state, "applied");
+  assert.deepEqual(fs.readFileSync(frontierMain), frontierOnce);
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

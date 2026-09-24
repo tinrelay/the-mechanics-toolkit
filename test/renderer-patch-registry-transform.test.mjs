@@ -18,9 +18,12 @@ try {
   fs.mkdirSync(assets, { recursive: true });
   fs.mkdirSync(build, { recursive: true });
   const appTarget = path.join(assets, "app-initial-fixture.js");
+  const sharedTarget = path.join(assets, "app-shared-fixture.js");
   const lazyTarget = path.join(assets, "conversation-blocks-fixture.js");
   const mainTarget = path.join(build, "main-fixture.js");
   fs.writeFileSync(appTarget, appFixture());
+  fs.writeFileSync(sharedTarget,
+    "const terminal={descriptionIntlId:`codex.commandDescription.toggleTerminal`,requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`};export const fixture=true;");
   fs.writeFileSync(lazyTarget, lazyFixture());
   fs.writeFileSync(mainTarget, mainFixture());
 
@@ -91,7 +94,6 @@ function appFixture() {
     "function MTKreasoningShouldStayOpen(){}",
     'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1";',
     "const MTKattentionRosterBridge=1;",
-    "const terminal={descriptionIntlId:`codex.commandDescription.toggleTerminal`,requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey:`panels`};",
     "export const fixture=true;"
   ].join("");
 }

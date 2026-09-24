@@ -73,6 +73,21 @@ try {
   }
   process.stdout.write("reasoning retention build-9922 transform probe passed\n");
 
+  fs.writeFileSync(turn, build10789TurnFixture());
+  fs.writeFileSync(thread, build10789ThreadFixture());
+  fs.writeFileSync(activity, build10789CollapseFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const build10789Once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"), /return de\(\)\.useSyncExternalStore\(/,
+    "build-10789 turn hook uses the stock React provider, not the non-React Al binding");
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(c\).*preventAutoCollapse:Ue\|\|zn\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&fA\(x,\{conversationId:e,turnSearchKey:n\},!0\)/);
+  assert.equal(run("apply").state, "applied");
+  for (const [index, file] of [roster, turn, thread, activity].entries()) {
+    assert.deepEqual(fs.readFileSync(file), build10789Once[index]);
+  }
+
   function run(action) {
     const result = spawnSync(process.execPath, [toolkit, "patch", "reasoning-retention", action, extracted], {encoding: "utf8"});
     assert.equal(result.status, 0, result.stderr || result.stdout);
@@ -180,5 +195,31 @@ function build9922CollapseFixture() {
     'function NT({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
     'function toggle(){let ne=false,M={current:null},d=null,A=()=>{};return {onToggle:e=>{let t=!ne;if(M.current=e,d==null){A(t);return}d(t)}}}',
     'export{NT,toggle};'
+  ].join("");
+}
+
+function build10789TurnFixture() {
+  return [
+    'const Al={},de=()=>({useSyncExternalStore(){return false}}),Ao=de(),o=()=>null;',
+    'function rl(e){let t=(0,kl.c)(189),{conversationId:c}=e,Ve="turn";',
+    'let He=Ve,Ue=o(Pt,He),zn=false;return {preventAutoCollapse:Ue||zn}}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function build10789ThreadFixture() {
+  return [
+    'const Vj={useEffect(){},useSyncExternalStore(){return false}},J=()=>({get(){return[]}}),Gn={},fA=()=>{},Rj=()=>false,Xu={};',
+    'function Lj({conversationId:e,isBackgroundSubagentsEnabled:l,usesUnifiedTimeline:b}){let x=J(Gn),fe="turn",he=[],qe={current:"turn"};',
+    '(0,Vj.useEffect)(()=>{let t=x.get(Xu,{conversationId:e,isBackgroundSubagentsEnabled:l}).visibleTurnEntries,n=qe.current,r=t.find(e=>e.turnId===n);n!=null&&n!==fe&&!Rj(r)&&fA(x,{conversationId:e,turnSearchKey:n},!0),qe.current=fe},[e,l,fe,x,he]);return b}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function build10789CollapseFixture() {
+  return [
+    'function Gw({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
+    'function toggle(){let ie=false,N={current:null},f=null,j=()=>{};return {onToggle:e=>{let t=!ie;if(N.current=e,f==null){j(t);return}f(t)}}}',
+    'export{Gw,toggle};'
   ].join("");
 }

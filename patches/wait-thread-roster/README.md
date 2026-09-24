@@ -12,8 +12,10 @@ then `Waited for …` when complete.
 
 When a target task is present in Codex's renderer store, its title becomes a link to that task. A
 title such as `The Mechanic — Engine Rooms and Escape Hatches` is shortened to `The Mechanic`.
-Unknown or unhydrated targets—including anything not represented in Codex's renderer task
-store—remain explicit `Task 0123abcd…` fallbacks rather than receiving invented names or links.
+Ordinary tasks use the shared `project/task title` label when project context is available.
+The current macOS build can also use Codex's direct thread summary when a task is absent from
+the sidebar store. Targets with no authoritative title remain explicit `Task 0123abcd…`
+fallbacks rather than receiving invented names or links.
 While a wait is active, Codex's stock shimmer is limited to the words `Waiting for`; it does not
 repaint the linked names and wash out their palette colors.
 Palette-derived labels choose separate light- and dark-theme colors and enforce readable contrast

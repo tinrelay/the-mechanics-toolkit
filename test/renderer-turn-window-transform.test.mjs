@@ -46,6 +46,14 @@ try {
   assert.equal(stockProbe.status, 0, stockProbe.stderr || stockProbe.stdout);
   assert.equal(JSON.parse(stockProbe.stdout).ownership, "upstream-paginated-renderer");
 
+  fs.writeFileSync(app, upstream10789Fixture());
+  fs.writeFileSync(local, localFixture("Qjs"));
+  const frontierBefore = [fs.readFileSync(app), fs.readFileSync(local)];
+  assert.equal(run("check").state, "upstream-owned");
+  assert.equal(run("apply").state, "upstream-owned");
+  assert.deepEqual(fs.readFileSync(app), frontierBefore[0]);
+  assert.deepEqual(fs.readFileSync(local), frontierBefore[1]);
+
   fs.writeFileSync(app, upstreamAppFixture().replace("thread/turns/list", "thread/turns/missing"));
   fs.writeFileSync(local, localFixture("gLo"));
   const partial = spawnSync(process.execPath,
@@ -91,6 +99,19 @@ function upstreamAppFixture() {
     "let a=null,o={hostId:n(zI,e),threadId:e},d=n(II,o),f=d?.flatMap(x=>x),m=null,",
     "h=n(II,a==null?null:{hostId:n(zI,a),threadId:a}),g=a!=null&&m==null?h?.flatMap(x=>x):null;",
     "return {visibleTurnEntries:f,historyTimeline:g,turnEntityKeys:d?.map(({entityKey:e})=>e)}});",
+    "function loadOlderConversationHistoryPage(){}",
+    "const request={initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}},",
+    "endpoint='thread/turns/list';"
+  ].join("");
+}
+
+function upstream10789Fixture() {
+  return [
+    "const X=Symbol('scope'),bR={},FE={};function ns(e,t){return t}",
+    "const Qjs=ns(X,({conversationId:e,isBackgroundSubagentsEnabled:t},{get:n,scope:r})=>{",
+    "let o=null,s={hostId:n(FE,e),threadId:e},f=n(bR,s),p=f?.flatMap(x=>x),h=null,",
+    "g=o==null?null:{hostId:n(FE,o),threadId:o},_=n(bR,g),v=o!=null&&h==null?_?.flatMap(x=>x):null;",
+    "return {visibleTurnEntries:p,historyTimeline:v,turnEntityKeys:f?.map(({entityKey:e})=>e)}});",
     "function loadOlderConversationHistoryPage(){}",
     "const request={initialTurnsPage:{limit:5,itemsView:`full`,sortDirection:`desc`}},",
     "endpoint='thread/turns/list';"

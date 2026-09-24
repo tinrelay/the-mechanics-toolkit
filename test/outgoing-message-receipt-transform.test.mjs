@@ -62,6 +62,14 @@ try {
     path.join(build9922Pristine, "webview/assets/conversation-turn-fixture.js"),
     build9922TurnFixture()
   );
+  const build10789Pristine = path.join(scratch, "build-10789-pristine");
+  fs.cpSync(extracted, build10789Pristine, {recursive: true});
+  fs.writeFileSync(path.join(build10789Pristine, "webview/assets/app-initial-fixture.js"),
+    build10789InitialFixture());
+  fs.writeFileSync(path.join(build10789Pristine, "webview/assets/app-control-fixture.js"),
+    build10789OwnerFixture());
+  fs.writeFileSync(path.join(build10789Pristine, "webview/assets/app-shared-70a4f71efb70.js"),
+    "const LX=()=>{},ZI=Symbol(`scope`),EX=0;export{LX,ZI,EX};");
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -119,6 +127,7 @@ try {
   assertLinuxAppliedInspection(linuxPristine);
   assertLinux9647AppliedInspection(linux9647Pristine);
   assertBuild9922AppliedInspection(build9922Pristine);
+  assertBuild10789TitleInspection(build10789Pristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
   assert.equal(registry.status, 0, registry.stderr || registry.stdout);
@@ -207,6 +216,17 @@ function assertLinux9647AppliedInspection(pristineRoot) {
     "main Linux build-9647 second application is byte-identical");
 }
 
+function assertBuild10789TitleInspection(pristineRoot) {
+  assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  const owner = fs.readFileSync(path.join(pristineRoot, "webview/assets/app-control-fixture.js"), "utf8");
+  assert.match(owner, /summary10789 as MTKoutboundThreadSummaryAtom/,
+    "build 10789 reads the stock thread summary when the sidebar task is absent");
+  const behavior = spawnSync(process.execPath, [behavioralProbe, pristineRoot], {encoding: "utf8"});
+  assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+}
+
 function assertBuild9922AppliedInspection(pristineRoot) {
   assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
   assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
@@ -253,6 +273,25 @@ function initialFixture() {
     "const preview=(0,J.jsx)(Hover,{align:`center`,closeOnTriggerBlur:!1,delayDuration:Delay,children:0,interactive:!0,skipDelayKey:`diff-preview`,tooltipContent:0,variant:`unstyled`});",
     "export{x as x,xf as kmn,$ as Bpn,LQ as BR,JF as task,cT as local,lT as remote,Hover as hover,U as bus};"
   ].join("");
+}
+
+function build10789InitialFixture() {
+  return initialFixture()
+    .replace("const x=0,", 'import{LX as jr,ZI as X,EX as extra}from"./app-shared-70a4f71efb70.js";const x=0,')
+    .replace("function xyl(){}", [
+      "function xyl(){}function Bzc(){}function Ww(e){if(e==null)return null;return e}",
+      "const ns=(...e)=>e,eo=(...e)=>e,kF=ns(X,()=>null);",
+      "const fE=Symbol(),vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,()=>{});",
+      "function Hw(e){return `local:${e}`}function Uw(e){return `remote:${e}`}"
+    ].join(""))
+    .replace("export{", "export{kF as task10789,vE as summary10789,Hw as local10789,Uw as remote10789,");
+}
+
+function build10789OwnerFixture() {
+  return ownerFixture().replace(
+    'import{x as P}from"./app-initial-fixture.js";',
+    'import{x as P}from"./app-initial-fixture.js";import{LX as hook,ZI as scope}from"./app-shared-70a4f71efb70.js";'
+  );
 }
 
 function linux9647InitialFixture() {

@@ -29,7 +29,7 @@ touch the ASAR are outside this renderer-local inventory.
 
 The callable capabilities currently published are
 `taskVisualPalette.resolveTaskColor({taskId,title})` and
-`crossTaskAttribution.resolveTaskLabel({title})`. Consumers must version-check them and preserve
+`crossTaskAttribution.resolveTaskLabel({title, projectName, cwd, workspaceKind})`. Consumers must version-check them and preserve
 their own neutral behavior when an optional collaborator or capability is missing. Other
 descriptors deliberately publish presence and version only; they are not accidental package
 receipts.

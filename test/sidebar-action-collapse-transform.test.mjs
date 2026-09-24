@@ -59,6 +59,16 @@ try {
   assert.equal(runToolkit("apply", scratch).state, "applied");
   assert.deepEqual(fs.readFileSync(target), build9922Once, "build-9922 second application is byte-identical");
   process.stdout.write("sidebar action collapse build-9922 transform probe passed\n");
+
+  fs.writeFileSync(target, build10789FixtureSource());
+  assert.equal(runToolkit("check", scratch).state, "needs-apply");
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  const build10789Once = fs.readFileSync(target);
+  assert.match(build10789Once.toString(), /MTKsidebarCollapsedDestinations10789\(MTKsidebarActionsCollapsed,je,B2\.projects\)/);
+  assert.match(build10789Once.toString(), /t\[177\]=MTKsidebarActionsCollapsed/);
+  assert.equal(runToolkit("apply", scratch).state, "applied");
+  assert.deepEqual(fs.readFileSync(target), build10789Once);
+  process.stdout.write("sidebar action collapse build-10789 transform probe passed\n");
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });
 }
@@ -114,6 +124,17 @@ function build9922FixtureSource() {
     '(0,Z5.jsxs)(Z5.Fragment,{children:[(0,Z5.jsx)(Q5s,{}),(0,Z5.jsx)(g7s,{showCustomizeSidebarAction:Re,children:(0,Z5.jsx)(pfc,{})}),(!A||j)&&Te===`header_icon`?(0,Z5.jsx)(fhc,{sidebarMode:he}):null]});',
     '(0,Z5.jsx)(Xmc,{showCustomizeSidebarAction:Re,sidebarMode:he,showSearchNavItem:!1});',
     "t[108]!==g||t[109]!==b||t[110]!==j||t[111]!==A||t[112]!==Te||t[113]!==de||t[114]!==null||t[115]!==ze||t[116]!==!1||t[117]!==Re||t[118]!==R||t[119]!==he?(Xe=1,t[108]=g,t[109]=b,t[110]=j,t[111]=A,t[112]=Te,t[113]=de,t[114]=null,t[115]=ze,t[116]=!1,t[117]=Re,t[118]=R,t[119]=he,t[120]=Xe):Xe=t[120];return Xe}",
+    "const labels=[{defaultMessage:`New chat`},{defaultMessage:`Pull requests`},{defaultMessage:`Sites`},{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}];"
+  ].join("");
+}
+
+function build10789FixtureSource() {
+  return [
+    "function t9s(e){let t=(0,i9s.c)(177),Ye=0,{desktopNavItemsEnabled:n,sidebarTriggerState:r,contextualNavigation:i}=e,placeholder=0;",
+    "let je=[];t[58];let Me=je.length>0;",
+    '(0,f5.jsxs)(f5.Fragment,{children:[(0,f5.jsx)(Obs,{}),(0,f5.jsx)(B4,{showCustomizeSidebarAction:Le,children:(0,f5.jsx)(vPs,{})}),(!k||A)&&we===`header_icon`?(0,f5.jsx)(vLs,{sidebarMode:me}):null]});',
+    '(0,f5.jsx)(rLs,{showCustomizeSidebarAction:Le,sidebarMode:me,showSearchNavItem:!1});',
+    "t[108]!==g||t[109]!==b||t[110]!==A||t[111]!==k||t[112]!==we||t[113]!==ue||t[114]!==null||t[115]!==Re||t[116]!==!1||t[117]!==Le||t[118]!==L||t[119]!==me?(Ye=1,t[108]=g,t[109]=b,t[110]=A,t[111]=k,t[112]=we,t[113]=ue,t[114]=null,t[115]=Re,t[116]=!1,t[117]=Le,t[118]=L,t[119]=me,t[120]=Ye):Ye=t[120];return Ye}",
     "const labels=[{defaultMessage:`New chat`},{defaultMessage:`Pull requests`},{defaultMessage:`Sites`},{defaultMessage:`Scheduled`},{defaultMessage:`Plugins`},{defaultMessage:`Projects`}];"
   ].join("");
 }

@@ -11,9 +11,10 @@ const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/wait-thread-roster.test.mjs");
 runFixture("linux-9771", initialFixture(), /Bpn as MTKwaitStoreScope/);
 runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
+runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
-function runFixture(label, initialSource, expectedScope) {
+function runFixture(label, initialSource, expectedScope, splitStore = false) {
   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), `mechanics-toolkit-wait-roster-${label}-`));
   try {
   const extracted = path.join(scratch, "extracted");
@@ -22,7 +23,9 @@ function runFixture(label, initialSource, expectedScope) {
   const initialTarget = path.join(assets, "app-initial-fixture.js");
   const ownerTarget = path.join(assets, "agent-activity-item-fixture.js");
   fs.writeFileSync(initialTarget, initialSource);
-  fs.writeFileSync(ownerTarget, ownerFixture());
+  if (splitStore) fs.writeFileSync(path.join(assets, "app-shared-fixture.js"),
+    "const LX=e=>e,ZI=Symbol(`scope`);export{LX,ZI};");
+  fs.writeFileSync(ownerTarget, ownerFixture(splitStore));
 
   assert.equal(runToolkit("check").state, "needs-apply");
   const applied = runToolkit("apply");
@@ -39,6 +42,7 @@ function runFixture(label, initialSource, expectedScope) {
 
   for (const partial of [
     once.toString().replace("cursor-pointer rounded-sm", "rounded-sm"),
+    once.toString().replace("rounded-sm align-baseline", "rounded-sm"),
     once.toString().replace("function MTKwaitLabelColor(", "function MTKwaitLabelColorMissing(")
   ]) {
     fs.writeFileSync(ownerTarget, partial);
@@ -84,9 +88,20 @@ function linux9647InitialFixture() {
   ].join("");
 }
 
-function ownerFixture() {
+function build10789InitialFixture() {
+  return [
+    'import{LX as jr,ZI as X}from"./app-shared-fixture.js";',
+    "const x=0;function Hw(e){return `local:${e}`}function Uw(e){return `remote:${e}`}",
+    "const ns=(...e)=>e,OF=ns(X,0);function Bzc(){}",
+    "const eo=(...e)=>e,fE=0,vE=eo(X,({hostId:e,conversationId:t},{get:n})=>n(fE,e)?.getThreadSummary(t)??null,0);",
+    "export{x as x,OF as task,Hw as local,Uw as remote,vE as summary};"
+  ].join("");
+}
+
+function ownerFixture(splitStore = false) {
   return [
     'import{x as P}from"./app-initial-fixture.js";',
+    ...(splitStore ? ['import{LX as hook,ZI as scope}from"./app-shared-fixture.js";'] : []),
     "const L=0,Send=0,X={jsx(){},jsxs(){}},C=`container`,j=`spinner`,ye=`summary`;",
     "const F=(...e)=>e.filter(Boolean).join(` `),J=()=>`tool-icon`,ee=e=>`normalized:${e}`;",
     "const _={dispatchHostMessage(){}},Oe=()=>!1,m=e=>`/new/${e}`,te=e=>`/local/${e}`;",
