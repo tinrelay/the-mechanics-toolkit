@@ -40,6 +40,9 @@ See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), 
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
 same-version Codex CLI source patch, integrated into the current macOS package but not the Windows
 or Linux 16-patch fleets.
+The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
+rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was not used in
+the already-accepted macOS binary and does not change the desktop JavaScript fleet.
 
 ## Extraction rule
 

@@ -55,6 +55,10 @@ bundles `codex-cli 0.155.0-alpha.16.3`; its qualified upstream commit is
 The source-patch command verifies each selected commit and every target file's exact qualified
 before or after hash; the shared textual diff alone is not an applicability claim.
 
+For a stable-Rust build of the `10954` source, also apply the separate
+[ChatGPT query-depth source patch](../chatgpt-query-depth/). It addresses a crate-level compiler
+limit observed on another ARM64 macOS host without changing this repair's three source files.
+
 ```sh
 node bin/toolkit.mjs source-patch standalone-output-compaction-10954 check /path/to/codex
 node bin/toolkit.mjs source-patch standalone-output-compaction-10954 apply /path/to/codex
@@ -65,12 +69,13 @@ old diff.
 
 ## Build and verify
 
-From the patched checkout:
+Run the focused tests from the patched Codex checkout, then build from the TMTK checkout:
 
 ```sh
-cd codex-rs
+cd /path/to/codex/codex-rs
 just test -p codex-core compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
 just test -p codex-core compact::tests::insert_initial_context_before_standalone_function_output
+cd /path/to/the-mechanics-toolkit
 bin/tmtk-build-codex /path/to/codex
 ```
 

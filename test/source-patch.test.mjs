@@ -4,8 +4,11 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
+import {fileURLToPath} from "node:url";
+import {sourcePatchDefinition} from "../src/source-patch-catalog.mjs";
 import {applySourcePatch, sourcePatchState} from "../src/source-patch.mjs";
 
+const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-source-patch-"));
 try {
   const checkout = path.join(scratch, "codex");
@@ -46,6 +49,29 @@ try {
     () => applySourcePatch({definition, checkoutRoot: checkout, repositoryRoot: scratch}),
     /do not match either the qualified before or after state/
   );
+
+  const queryCheckout = path.join(scratch, "query-depth");
+  const queryFile = "codex-rs/chatgpt/src/lib.rs";
+  const stockCrate = "pub mod apply_command;\nmod chatgpt_client;\npub mod connectors;\npub mod get_task;\n";
+  fs.mkdirSync(path.dirname(path.join(queryCheckout, queryFile)), {recursive: true});
+  run(queryCheckout, ["init", "-q"]);
+  run(queryCheckout, ["config", "user.email", "test@example.invalid"]);
+  run(queryCheckout, ["config", "user.name", "TMTK Test"]);
+  fs.writeFileSync(path.join(queryCheckout, queryFile), stockCrate);
+  run(queryCheckout, ["add", queryFile]);
+  run(queryCheckout, ["commit", "-qm", "stock crate"]);
+  const queryDefinition = {
+    ...sourcePatchDefinition("chatgpt-query-depth-10954"),
+    commit: run(queryCheckout, ["rev-parse", "HEAD"]).stdout.trim()
+  };
+  assert.equal(sourcePatchState({definition: queryDefinition, checkoutRoot: queryCheckout,
+    repositoryRoot: repository}).state, "needs-apply");
+  assert.equal(applySourcePatch({definition: queryDefinition, checkoutRoot: queryCheckout,
+    repositoryRoot: repository}).state, "applied");
+  assert.equal(fs.readFileSync(path.join(queryCheckout, queryFile), "utf8"),
+    `#![recursion_limit = "256"]\n\n${stockCrate}`);
+  assert.equal(applySourcePatch({definition: queryDefinition, checkoutRoot: queryCheckout,
+    repositoryRoot: repository}).state, "applied");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});
 }

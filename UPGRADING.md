@@ -1,10 +1,22 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.3` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.4` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds the old port instructions.
+
+## 0.2.4
+
+The build-`10954` Codex CLI source procedure now includes an exact
+[ChatGPT query-depth patch](source-patches/chatgpt-query-depth/) alongside standalone-output
+compaction. On one ARM64 macOS host, Rust `1.95.0` refused the unmodified `codex-chatgpt` crate
+with a query-depth error; the new patch adds the compiler-requested stable crate attribute. Apply
+both source patches to the exact qualified Codex commit before building, without
+`RUSTC_BOOTSTRAP` or unstable `RUSTFLAGS`. The accepted `0.2.3` desktop binaries remain unchanged;
+this release does not install, restart, or migrate Codex. A newly built CLI must still pass
+same-version staging and the ordinary app acceptance gates. Its SHA-256 need not equal another
+host's build receipt.
 
 ## 0.2.3
 
@@ -30,7 +42,7 @@ version, or weaken a failed check.
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.3` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.4` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

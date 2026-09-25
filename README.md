@@ -126,6 +126,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
 | [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.155.0-alpha.16.4` / Desktop `26.917.71314` build `10954` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Same exact CLI source revision | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. |
 
 ## Documentation map
 

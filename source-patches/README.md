@@ -15,9 +15,15 @@ corresponding package integration during staging.
 
 ```sh
 node bin/toolkit.mjs source-patch list
-node bin/toolkit.mjs source-patch standalone-output-compaction check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-10954 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-10954 apply /path/to/codex
+node bin/toolkit.mjs source-patch chatgpt-query-depth-10954 check /path/to/codex
+node bin/toolkit.mjs source-patch chatgpt-query-depth-10954 apply /path/to/codex
 ```
+
+The build-`10954` source procedure includes the separate
+[ChatGPT query-depth patch](chatgpt-query-depth/) for a stable-Rust build without unstable
+compiler flags. It is a build-enablement change, not a desktop patch or a second compaction repair.
 
 The root [source patch board](../README.md#codex-app-server-and-core-source-patches) is the current
 whole-kit view.

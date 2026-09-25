@@ -64,6 +64,20 @@ const definitions = [
         after: "9184b4844fe3025a6ba3f03f9779e07d1307a28af2022c4e458ea68de35d9068"
       }
     }
+  },
+  {
+    name: "chatgpt-query-depth-10954",
+    patch: "source-patches/chatgpt-query-depth/codex-0.155.0-alpha.16.4.patch",
+    upstream: "https://github.com/openai/codex",
+    tag: "rust-v0.155.0-alpha.16.4",
+    commit: "3853cf0c49daadcacaacceb2cbb732f512eaacdb",
+    desktop: {version: "26.917.71314", build: "10954"},
+    files: {
+      "codex-rs/chatgpt/src/lib.rs": {
+        before: "49af859977cfabc54a894c927c86067d3532f98751ad18af0f4dfb2a3c25e955",
+        after: "2c189062123edeb250f58a0ce17e79517189e88bebb349c9ebaba5c123a0f529"
+      }
+    }
   }
 ];
 
