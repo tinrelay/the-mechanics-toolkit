@@ -24,6 +24,26 @@ try {
   fs.writeFileSync(thread, linux9771ThreadFixture());
   fs.writeFileSync(activity, linux9771CollapseFixture());
 
+  fs.writeFileSync(turn, build11645TurnFixture());
+  fs.writeFileSync(thread, build11645ThreadFixture());
+  fs.writeFileSync(activity, build11645CollapseFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const build11645Once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(d\).*preventAutoCollapse:qe\|\|In\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&tA\(k,\{conversationId:t,turnSearchKey:n\},!0\)/);
+  const build11645Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build11645Probe.status, 0, build11645Probe.stderr || build11645Probe.stdout);
+  assert.equal(run("apply").state, "applied");
+  for (const [index, file] of [roster, turn, thread, activity].entries()) {
+    assert.deepEqual(fs.readFileSync(file), build11645Once[index]);
+  }
+  process.stdout.write("reasoning retention build-11645 transform probe passed\n");
+
+  fs.writeFileSync(turn, linux9771TurnFixture());
+  fs.writeFileSync(thread, linux9771ThreadFixture());
+  fs.writeFileSync(activity, linux9771CollapseFixture());
+
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
   const once = [roster, turn, thread, activity].map(file => fs.readFileSync(file));
@@ -117,6 +137,32 @@ try {
 
 function rosterFixture() {
   return 'globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});export const fixture=true;';
+}
+
+function build11645TurnFixture() {
+  return [
+    'const Gc={useSyncExternalStore(){return false}},K=()=>false,Bn={},Ge=null;',
+    'function gc(e){let t=(0,Uc.c)(188),{conversationId:d}=e;let Ke=Ge,qe=K(Bn,Ke),In=false;',
+    'return {preventAutoCollapse:qe||In}}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function build11645ThreadFixture() {
+  return [
+    'const cM={useSyncExternalStore(){return false},useEffect(){}},zr=()=>({}),Er={},tA=()=>{},tM=()=>false,Df={};',
+    'function eM({ref:e,conversationId:t,usesUnifiedTimeline:D}){let k=zr(Er),h=false,Te=null,Oe=[],it={current:null};',
+    '(0,cM.useEffect)(()=>{let e=k.get(Df,{conversationId:t,isBackgroundSubagentsEnabled:h}).visibleTurnEntries,n=it.current,r=e.find(e=>e.turnId===n);n!=null&&n!==Te&&!tM(r)&&tA(k,{conversationId:t,turnSearchKey:n},!0),it.current=Te},[t,h,Te,k,Oe]);return D}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function build11645CollapseFixture() {
+  return [
+    'function EE({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:r=!1,preventAutoCollapse:i,persistedCollapsed:a}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!r&&(a??!i)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
+    'const button={onToggle:e=>{let t=!ue;F.current+=1,N.current=e,M(!t),d==null?A(t):d(t)}};',
+    'export const fixture=true;'
+  ].join("");
 }
 
 function linux9771TurnFixture() {

@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.917.71314`, build `10954` | Complete 18-patch fleet; static proof, supervised adoption, usable task, and focused live behavior. |
+| macOS ARM64 application | `26.924.22138`, build `11645` | Complete 17-patch fleet; signed stage, supervised adoption, usable task, and TinRelay self-loop. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -102,7 +102,6 @@ evidence, configuration, and non-goals.
 | [Reasoning retention](patches/reasoning-retention/) | Keeps completed reasoning open for opted-in exact task IDs while preserving manual collapse. |
 | [Model identity guard](patches/model-identity-guard/) | Blocks input when a pinned task silently changes model or reasoning effort. |
 | [Task attention policy](patches/task-attention-policy/) | Mutes selected ordinary completion notifications without hiding failures or output. |
-| [Sidebar action collapse](patches/sidebar-action-collapse/) | Collapses global sidebar actions while leaving projects and tasks visible. |
 | [Terminal toggle](patches/terminal-toggle/) | Makes the configured terminal shortcut work from both the composer and focused terminal. |
 | [TinRelay presentation](patches/tinrelay-pointer-presentation/) | Renders verified incoming and accepted outgoing TinRelay correspondence in the conversation. |
 | [macOS menu title](patches/macos-menu-title/) | Restores `Codex` as the leading macOS application-menu label. |
@@ -125,7 +124,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.155.0-alpha.16.4` / Desktop `26.917.71314` build `10954` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.158.0-alpha.2.1` / Desktop `26.924.22138` build `11645` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Same exact CLI source revision | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. |
 
 ## Documentation map

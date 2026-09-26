@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { build9922 } from "../patches/reasoning-retention/profiles/build9922.mjs";
 import { build10789 } from "../patches/reasoning-retention/profiles/build10789.mjs";
+import { build11645 } from "../patches/reasoning-retention/profiles/build11645.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
@@ -80,7 +81,8 @@ assert.equal(
     thread.source.includes(linuxBuild9771.thread.appliedCollapse) ||
     thread.source.includes(linuxBuild10954.thread.appliedCollapse) ||
     thread.source.includes(build9922.thread.appliedCollapse) ||
-    thread.source.includes(build10789.thread.appliedCollapse),
+    thread.source.includes(build10789.thread.appliedCollapse) ||
+    thread.source.includes(build11645.thread.appliedCollapse),
   true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
@@ -89,7 +91,8 @@ assert.ok(
     thread.source.includes(linuxBuild9771.thread.appliedDependencies) ||
     thread.source.includes(linuxBuild10954.thread.appliedDependencies) ||
     thread.source.includes(build9922.thread.appliedDependencies) ||
-    thread.source.includes(build10789.thread.appliedDependencies),
+    thread.source.includes(build10789.thread.appliedDependencies) ||
+    thread.source.includes(build11645.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
@@ -105,7 +108,8 @@ assert.equal(
     turn.source.includes(linuxBuild9771.turn.appliedOwner) ||
     turn.source.includes(linuxBuild10954.turn.appliedOwner) ||
     turn.source.includes(build9922.turn.appliedOwner) ||
-    turn.source.includes(build10789.turn.appliedOwner),
+    turn.source.includes(build10789.turn.appliedOwner) ||
+    turn.source.includes(build11645.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

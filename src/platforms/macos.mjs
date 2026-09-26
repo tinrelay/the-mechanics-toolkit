@@ -17,9 +17,14 @@ export function resolveApplication(argument) {
 }
 
 export function applicationLayout(app) {
+  const legacyCli = path.join(app, "Contents/Resources/codex");
+  const currentCli = path.join(app, "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex");
+  if (fs.existsSync(legacyCli) && fs.existsSync(currentCli)) {
+    throw new Error("Codex application contains ambiguous bundled CLI layouts");
+  }
   return {
     executable: path.join(app, "Contents/MacOS/ChatGPT"),
-    cli: path.join(app, "Contents/Resources/codex")
+    cli: fs.existsSync(currentCli) ? currentCli : legacyCli
   };
 }
 

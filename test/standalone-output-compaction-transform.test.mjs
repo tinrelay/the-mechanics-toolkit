@@ -31,6 +31,21 @@ try {
   assert.equal(fs.existsSync(bundledProbe), false,
     "temporary macOS version probe is removed before the check returns");
   assert.equal(run("apply", app, config).state, "applied");
+
+  const currentApp = path.join(scratch, "CurrentChatGPT.app");
+  const currentWrapper = path.join(currentApp, "Contents/Resources/codex-cli/bin/codex");
+  const currentBinary = path.join(currentApp, "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex");
+  fs.mkdirSync(path.dirname(currentWrapper), {recursive: true});
+  fs.mkdirSync(path.dirname(currentBinary), {recursive: true});
+  writeFakeCodex(currentWrapper, "wrapper", "codex-cli 0.155.0-alpha.9.2");
+  writeFakeCodex(currentBinary, "stock-current", "codex-cli 0.155.0-alpha.9.2", bundledProbeLog);
+  assert.equal(run("check", currentApp, config).target,
+    "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex");
+  assert.equal(fs.readFileSync(bundledProbeLog, "utf8").trim().split("\n").at(-1), currentBinary,
+    "the signed nested macOS CLI keeps its bundle context for version inspection");
+  assert.equal(run("apply", currentApp, config).state, "applied");
+  assert.equal(fs.readFileSync(currentBinary, "utf8"), fs.readFileSync(replacement, "utf8"));
+  assert.equal(run("apply", currentApp, config).state, "applied");
   assert.equal(fs.readFileSync(bundled, "utf8"), fs.readFileSync(replacement, "utf8"));
   assert.equal(run("apply", app, config).state, "applied");
 

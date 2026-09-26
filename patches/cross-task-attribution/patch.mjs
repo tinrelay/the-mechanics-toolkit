@@ -69,6 +69,17 @@ const build10789Component = {
     "t[47]=ze,t[48]=Xe,t[153]=MTKbubbleStyleOverride,t[49]=q"
   ]
 };
+const build11645Component = {
+  delegation: "_y", delegationCache: "vy", delegationJsx: "yy",
+  wrapper: "iy", wrapperCache: "ay", wrapperJsx: "oy",
+  bubble: "Ot", wrapperBubble: "Bf", bubbleCache: "At", collapsedLines: "sy",
+  bubbleCacheSize: 160, bubbleDirect: true, externalBubble: true,
+  bubbleOwner: [
+    "turnId:E,cwd:D,hostId:we}=e,",
+    "turnId:E,cwd:D,hostId:we,messageBubbleStyle:MTKbubbleStyleOverride}=e,"
+  ],
+  labelVar: "m", iconVar: "p", clickVar: "h", resultVar: "g"
+};
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
 let state = inspectState(owner);
@@ -133,8 +144,8 @@ function inspectState(owner) {
   const markers = [
     "var MTKdelegatedBubbleStyle=",
     "function MTKsender(",
-    ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook", "PX as MTKcrossTaskStoreHook"],
-    ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope", "XI as MTKcrossTaskStoreScope"],
+    ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook", "PX as MTKcrossTaskStoreHook", "cUt as MTKcrossTaskStoreHook"],
+    ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope", "XI as MTKcrossTaskStoreScope", "tSt as MTKcrossTaskStoreScope"],
     "MTKstore.get(MTKtitleAtom,{hostId:",
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
@@ -162,7 +173,7 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  const profile = [linuxBuild10954.component, build10789Component, build9922Component,
+  const profile = [build11645Component, linuxBuild10954.component, build10789Component, build9922Component,
     linuxBuild9771.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
     (candidate.externalBubble ? externalBubbleSource?.includes(`function ${candidate.bubble}(`) : source.includes(`function ${candidate.bubble}(`)) &&
@@ -176,7 +187,7 @@ function inspectPristine(source, externalBubbleSource = null) {
   const completeSource = source + (profile.externalBubble ? bubbleSource : "");
   for (const contract of [
     `function ${profile.delegation}(e){let t=(0,${profile.delegationCache}.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,`,
-    `h=(0,${profile.delegationJsx}.jsx)(${profile.wrapper},{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m})`,
+    `${profile.resultVar ?? "h"}=(0,${profile.delegationJsx}.jsx)(${profile.wrapper},{conversationId:n,label:${profile.labelVar ?? "p"},message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:${profile.clickVar ?? "m"}})`,
     `function ${profile.wrapper}(e){let t=(0,${profile.wrapperCache}.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,`,
     `m=f?(0,${profile.wrapperJsx}.jsx)(${profile.wrapperBubble ?? profile.bubble},{message:i,sentAtMs:a,collapsedLineCount:${profile.collapsedLines},compactActions:u,cwd:o,hostId:s,threadId:r}):null`,
     `function ${profile.bubble}(e){let ${profile.bubbleCacheVar ?? "t"}=(0,${profile.bubbleCache}.c)(${profile.bubbleCacheSize ?? 127}),`,
@@ -205,21 +216,24 @@ function patchAttribution(source, ownerFile, details) {
   const profile = details.profile;
 
   delegation = replaceOnce(delegation, `function ${profile.delegation}(e){let t=(0,${profile.delegationCache}.c)(13),`, `function ${profile.delegation}(e){let t=(0,${profile.delegationCache}.c)(14),`, "delegation cache size");
-  const labelEnd = ",t[1]=p):p=t[1];";
+  const labelVar = profile.labelVar ?? "p";
+  const clickVar = profile.clickVar ?? "m";
+  const resultVar = profile.resultVar ?? "h";
+  const labelEnd = `,t[1]=${labelVar}):${labelVar}=t[1];`;
   const metadata =
     `let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope),MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??\`local\`,threadId:r}),` +
-    `MTKresolvedSender=MTKsender(MTKtitle,MTKprojectFromCwd(o));${attributionLabel(profile.delegationJsx)}`;
+    `MTKresolvedSender=MTKsender(MTKtitle,MTKprojectFromCwd(o));${attributionLabel(profile.delegationJsx, labelVar, profile.iconVar ?? "f")}`;
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "delegation metadata insertion");
   delegation = replaceOnce(
     delegation,
-    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(",
-    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m||t[13]!==p?(",
+    `t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==${clickVar}?(`,
+    `t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==${clickVar}||t[13]!==${labelVar}?(`,
     "delegation label dependency"
   );
   delegation = replaceOnce(
     delegation,
-    "onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h)",
-    "onLabelClick:m,messageBubbleStyle:MTKdelegatedBubbleStyle}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h)",
+    `onLabelClick:${clickVar}}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=${clickVar},t[12]=${resultVar})`,
+    `onLabelClick:${clickVar},messageBubbleStyle:MTKdelegatedBubbleStyle}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=${clickVar},t[13]=${labelVar},t[12]=${resultVar})`,
     "delegated bubble style handoff"
   );
 
@@ -236,7 +250,9 @@ function patchAttribution(source, ownerFile, details) {
 
   const bubbleCacheSize = profile.bubbleCacheSize ?? 127;
   const bubbleCacheVar = profile.bubbleCacheVar ?? "t";
-  bubble = replaceOnce(bubble, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize}),`, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize + 1}),`, "bubble cache size");
+  if (!profile.bubbleDirect) {
+    bubble = replaceOnce(bubble, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize}),`, `function ${profile.bubble}(e){let ${bubbleCacheVar}=(0,${profile.bubbleCache}.c)(${bubbleCacheSize + 1}),`, "bubble cache size");
+  }
   const bubbleOwner = profile.bubbleOwner ?? (bubble.includes("cwd:D,hostId:O}=e,") ?
     ["cwd:D,hostId:O}=e,", "cwd:D,hostId:O,messageBubbleStyle:MTKbubbleStyleOverride}=e,"] :
     ["cwd:E,hostId:D}=e,", "cwd:E,hostId:D,messageBubbleStyle:MTKbubbleStyleOverride}=e,"]);
@@ -246,14 +262,14 @@ function patchAttribution(source, ownerFile, details) {
     bubble.includes("t[42]!==de||t[43]!==oe||t[44]!==_e){") ?
       ["t[42]!==de||t[43]!==oe||t[44]!==_e){", "t[42]!==de||t[43]!==oe||t[44]!==_e||t[127]!==MTKbubbleStyleOverride){"] :
       ["t[42]!==fe||t[43]!==se||t[44]!==ve){", "t[42]!==fe||t[43]!==se||t[44]!==ve||t[127]!==MTKbubbleStyleOverride){"]);
-  bubble = replaceOnce(bubble, ...bubbleDependency, "bubble style cache dependency");
+  if (!profile.bubbleDirect) bubble = replaceOnce(bubble, ...bubbleDependency, "bubble style cache dependency");
   bubble = replaceOnce(bubble, '"data-user-message-bubble":!0,className:', '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride,className:', "bubble semantic accent");
   const bubbleStorage = profile.bubbleStorage ?? (bubble.includes("t[42]=de,t[43]=ae,t[44]=_e,t[45]=ve") ?
     ["t[42]=de,t[43]=ae,t[44]=_e,t[45]=ve", "t[42]=de,t[43]=ae,t[44]=_e,t[127]=MTKbubbleStyleOverride,t[45]=ve"] :
     bubble.includes("t[42]=de,t[43]=oe,t[44]=_e,t[45]=ve") ?
       ["t[42]=de,t[43]=oe,t[44]=_e,t[45]=ve", "t[42]=de,t[43]=oe,t[44]=_e,t[127]=MTKbubbleStyleOverride,t[45]=ve"] :
       ["t[42]=fe,t[43]=se,t[44]=ve,t[45]=be", "t[42]=fe,t[43]=se,t[44]=ve,t[127]=MTKbubbleStyleOverride,t[45]=be"]);
-  bubble = replaceOnce(bubble, ...bubbleStorage, "bubble style storage");
+  if (!profile.bubbleDirect) bubble = replaceOnce(bubble, ...bubbleStorage, "bubble style storage");
 
   const helper = currentHelper() + (imports.sharedImport == null ?
     `const MTKcrossTaskStoreHook=${imports.storeHook},MTKcrossTaskStoreScope=${imports.storeScope};` : "");
@@ -270,8 +286,8 @@ function patchAttribution(source, ownerFile, details) {
   return {source, bubbleSource};
 }
 
-function attributionLabel(jsx) {
-  return `MTKresolvedSender!=null&&(p=(0,${jsx}.jsxs)(${jsx}.Fragment,{children:[f,\`Sent by \`,(0,${jsx}.jsx)(\`span\`,{${attributionNameMarker},children:MTKresolvedSender})]}));`;
+function attributionLabel(jsx, labelVar = "p", iconVar = "f") {
+  return `MTKresolvedSender!=null&&(${labelVar}=(0,${jsx}.jsxs)(${jsx}.Fragment,{children:[${iconVar},\`Sent by \`,(0,${jsx}.jsx)(\`span\`,{${attributionNameMarker},children:MTKresolvedSender})]}));`;
 }
 
 function currentHelper() {
@@ -290,6 +306,27 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  if (appInitial.includes("l2i=to(Q,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("s2i({...n,localTitle:r})") &&
+      (appInitial.includes("function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),") ||
+        appInitial.includes("function _0a(){MTKuseAgentRoster();let e=(0,b0a.c)(12),t=Jl(Q),"))) {
+    const sharedImport = uniqueMatch(ownerSource,
+      /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
+      "app-shared import");
+    if (!appInitial.includes("cUt as Jl") || !appInitial.includes("tSt as Q")) {
+      throw new Error("Upstream changed: build-11645 store binding is missing");
+    }
+    return {
+      before: initialImport[0],
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "l2i")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      storeHook: "MTKcrossTaskStoreHook",
+      storeScope: "MTKcrossTaskStoreScope",
+      sharedImport: {
+        before: sharedImport[0],
+        after: `import{${sharedImport.groups.specifiers},cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
+      }
+    };
+  }
   if (appInitial.includes("yBs=ns(X,(e,{get:t})=>") &&
       appInitial.includes("_Bs({...n,localTitle:r})") &&
       appInitial.includes("function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),")) {

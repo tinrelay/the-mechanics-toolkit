@@ -6,6 +6,7 @@ import path from "node:path";
 import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
+import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -20,6 +21,7 @@ verifyProfile(build9922, build9922InitialFixture(), primaryFixture(), "build 992
 verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linux build 9771");
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
+verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -114,6 +116,21 @@ function linux10954InitialFixture() {
     "function CVs(e){let t=(0,TVs.c)(155),n=e.conversationId,tt=`local`,Xe={},Zt={},mt=!1,Gt=!1;",
     "let Mt=zr(yBs,{hostId:tt??`local`,threadId:n})??Xe?.title??null,Nt=1;",
     "let Qt=Zt,$t;return{hasUnreadTurn:!Gt&&mt===!0}}"
+  ].join("");
+}
+
+function build11645InitialFixture() {
+  return [
+    "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
+    "const Q=Symbol(`scope`),x0a={useEffect(){}},j2i={useSyncExternalStore(){return!1}};function Jl(e){return e}",
+    "function Vo(e,t,n){let r=Np(`signal`,e,t);return r}const yk=Vo(Q,0);",
+    "function zd(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function _0a(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,b0a.c)(12),t=Jl(Q),n=0;return t}",
+    "function VJa(e,t){s.info(`[desktop-notifications] service starting`);let a=CA(r),o=g(t.conversationId,r),c={};return c}",
+    "var gln;function _ln(){gln=Oa(Q,({get:e})=>{let t=e(gk),i=t===`work`,o=[];let s=t===`work`?nve({cloudThreadsAllowed:i,localThreadsAllowed:vu(e(hh)),threadKeys:o}):o;return r+s})}",
+    "function O2i(e){let t=(0,A2i.c)(160),n=e.conversationId,Ze={formatMessage(){return `New chat`}},Ft=`Tamsin`,R=null,Jt=!1,pe=!1,_t=!1,Re=!1,gt=null,vt=0,Ct=null,Be=!1,Nt=!1,Yt=`idle`;",
+    "let Xt=k2i({title:Ft,titleOverride:R})??Ze.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Zt=Nt?`loading`:Yt,Qt=Jt?!1:(pe??_t===!0)||Re&&(gt==null&&(vt??0)>0||Ct!=null||Be),$t=Jt||Re||gt!=null?0:vt??0;",
+    "return{hasUnreadTurn:!Jt&&_t===!0}}"
   ].join("");
 }
 

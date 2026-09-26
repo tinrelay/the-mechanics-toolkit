@@ -132,6 +132,38 @@ try {
   const linuxOnce = fs.readFileSync(linuxMain);
   assert.equal(run("apply", linuxExtracted).state, "applied");
   assert.deepEqual(fs.readFileSync(linuxMain), linuxOnce);
+
+  const build11645 = path.join(scratch, "build-11645");
+  fs.mkdirSync(path.join(build11645, ".vite/build"), {recursive: true});
+  fs.mkdirSync(path.join(build11645, "webview/assets"), {recursive: true});
+  const build11645Main = path.join(build11645, ".vite/build/main-build11645.js");
+  fs.writeFileSync(build11645Main,
+    "var yse=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
+    "function wse({markerPath:e=process.env[yse]?.trim(),writeMarker:t=e=>{globalThis.__marker=e}}={}){if(!e)return!1;return t(e),!0}" +
+    "class Owner{async handleMessage(e,t){switch(t.type){case`ready`:{t.initializationOnly||(this.windowManager.markWebContentsReady(e),this.avatarOverlayManager.handleRendererReady(e.id));break}}}};" +
+    "let owner=new Owner;owner.windowManager={markWebContentsReady(){},getRendererWindowLogFields(e){return{rendererWindowAppearance:e.appearance}}};" +
+    "owner.avatarOverlayManager={handleRendererReady(){}};" +
+    "await owner.handleMessage({id:1,appearance:process.argv[2]},{type:`ready`,initializationOnly:process.argv[3]===`initialization`});" +
+    "process.stdout.write(globalThis.__marker??``)");
+  fs.writeFileSync(path.join(build11645, "webview/assets/app-initial-build11645.js"),
+    "const aa={dispatchMessage(){}};function routes(){aa.dispatchMessage(`ready`,{persistedStateResponsePriority:reo?`critical`:void 0})}");
+  assert.equal(run("check", build11645).state, "needs-apply");
+  assert.equal(run("apply", build11645).state, "applied");
+  const build11645Once = fs.readFileSync(build11645Main);
+  for (const [appearance, initialization, expected] of [
+    ["primary", "ready", "/tmp/renderer.ready"],
+    ["globalDictation", "ready", ""],
+    ["primary", "initialization", ""]
+  ]) {
+    const result = spawnSync(process.execPath, [build11645Main, appearance, initialization], {
+      encoding: "utf8",
+      env: {...process.env, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: "/tmp/renderer.ready"}
+    });
+    assert.equal(result.status, 0, result.stderr || result.stdout);
+    assert.equal(result.stdout, expected, `${appearance}/${initialization} readiness marker`);
+  }
+  assert.equal(run("apply", build11645).state, "applied");
+  assert.deepEqual(fs.readFileSync(build11645Main), build11645Once);
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

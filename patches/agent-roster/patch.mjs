@@ -62,6 +62,26 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
+  const build11645Seam = "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),";
+  if (value.includes(build11645Seam)) {
+    const contracts = [
+      build11645Seam,
+      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(dM)",
+      "e.get(Tu)"
+    ];
+    if (count(value, contracts[0]) !== 1 || count(value, contracts[1]) !== 1 ||
+        count(value, contracts[2]) < 1) {
+      throw new Error("Upstream changed: build-11645 agent roster owner is not unique");
+    }
+    return {
+      seam: build11645Seam,
+      scope: "Jl(Q)",
+      react: "x0a",
+      projectsAtom: "dM",
+      readyAtom: "Tu",
+      client: "((e,t)=>e.get(Tu).forHost(t))"
+    };
+  }
   for (const candidate of [linuxBuild10954, linuxBuild9771, linuxBuild9647]) {
     if (!value.includes(candidate.selector)) continue;
     for (const contract of [candidate.selector, ...candidate.required]) {

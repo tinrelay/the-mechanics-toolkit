@@ -47,11 +47,6 @@ const definitions = [
     config: true
   },
   {
-    name: "sidebar-action-collapse",
-    script: "patches/sidebar-action-collapse/patch.mjs",
-    probe: "test/sidebar-action-collapse.test.mjs"
-  },
-  {
     name: "task-attention-policy",
     script: "patches/task-attention-policy/patch.mjs",
     probe: "test/task-attention-policy.test.mjs",

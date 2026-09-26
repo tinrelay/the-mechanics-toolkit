@@ -39,7 +39,6 @@ try {
     "reasoningRetention",
     "runtimeJsonReload",
     "safeStartReadiness",
-    "sidebarActionCollapse",
     "taskAttentionPolicy",
     "taskVisualPalette",
     "terminalToggle",
@@ -66,7 +65,7 @@ try {
   fs.mkdirSync(bareAssets, { recursive: true });
   fs.mkdirSync(bareBuild, { recursive: true });
   fs.writeFileSync(path.join(bareAssets, "app-initial-fixture.js"),
-    "function MTKsidebarActionDisclosure9647(){}function MTKattentionIgnoredThread9647(){}export const fixture=true;");
+    "function MTKattentionIgnoredThread9647(){}export const fixture=true;");
   fs.writeFileSync(path.join(bareBuild, "main-fixture.js"),
     "function readiness(s){const N=()=>true,P=()=>{};if(!N(s))return;s.type===`ready`&&P();}export const fixture=true;");
   const bareApply = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", bare], { encoding: "utf8" });
@@ -92,7 +91,6 @@ function appFixture() {
     "function MTKusePaletteBootstrap(){}",
     "function MTKinstallRuntimeJsonReload(){}",
     "function MTKreasoningShouldStayOpen(){}",
-    'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1";',
     "const MTKattentionRosterBridge=1;",
     "export const fixture=true;"
   ].join("");

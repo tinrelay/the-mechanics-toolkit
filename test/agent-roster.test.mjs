@@ -13,7 +13,7 @@ const end = source.indexOf("function MTKuseAgentRoster()", start);
 assert.ok(start >= 0 && end > start, "agent roster helper boundary");
 const helper = source.slice(start, end);
 const loaderBindings = helper.match(
-  /try\{e\.get\((?<ready>[$A-Z_a-z][$\w]*)\)==null&&await e\.when\(\(\{get:e\}\)=>e\((?:[$A-Z_a-z][$\w]*)\)!=null\);let n=(?<client>[$A-Z_a-z][$\w]*)\(e,"local"\)/
+  /try\{e\.get\((?<ready>[$A-Z_a-z][$\w]*)\)==null&&await e\.when\(\(\{get:e\}\)=>e\((?:[$A-Z_a-z][$\w]*)\)!=null\);let n=(?:(?<client>[$A-Z_a-z][$\w]*)|\(\(e,t\)=>e\.get\((?<manager>[$A-Z_a-z][$\w]*)\)\.forHost\(t\)\))\(e,"local"\)/
 );
 assert.ok(loaderBindings?.groups, "agent roster loader bindings");
 
@@ -35,11 +35,12 @@ const client = {
     throw new Error(`unexpected request ${type}`);
   }
 };
-const state = { get: () => true, when: async () => {} };
+const state = { get: () => ({forHost: () => client}), when: async () => {} };
 const realm = {};
 const quietConsole = { error() {} };
 const api = Function(
-  "globalThis", "atob", "TextDecoder", "console", loaderBindings.groups.ready, loaderBindings.groups.client,
+  "globalThis", "atob", "TextDecoder", "console", loaderBindings.groups.ready,
+  loaderBindings.groups.client ?? "MTKunusedClient",
   `${helper};return {parse:MTKparseAgentRoster,load:MTKloadAgentRoster,install:MTKinstallAgentRoster,reload:MTKreloadAgentRoster,service:globalThis.__MTK_AGENT_ROSTER__}`
 )(
   realm,

@@ -310,6 +310,16 @@ try {
     executable: path.join(app, "Contents/MacOS/ChatGPT"),
     cli: path.join(app, "Contents/Resources/codex")
   });
+  const currentApp = path.join(scratch, "Applications/CurrentChatGPT.app");
+  fs.mkdirSync(path.join(currentApp, "Contents/Resources/codex-cli/bin"), {recursive: true});
+  fs.writeFileSync(path.join(currentApp, "Contents/Resources/codex-cli/bin/codex"), "");
+  const currentCli = path.join(currentApp, "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex");
+  fs.mkdirSync(path.dirname(currentCli), {recursive: true});
+  fs.writeFileSync(currentCli, "");
+  assert.deepEqual(applicationLayout(currentApp, "darwin"), {
+    executable: path.join(currentApp, "Contents/MacOS/ChatGPT"),
+    cli: currentCli
+  });
   assert.equal(defaultTerminal("darwin"), "Terminal");
   const launchCalls = [];
   const launchChild = {

@@ -3,7 +3,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { inspectAppBundle } from "./app-bundle.mjs";
-import { asarHeaderSha256 } from "./asar-integrity.mjs";
+import { asarHeaderSha256, patchEmbeddedAsarIntegrity } from "./asar-integrity.mjs";
 import {
   applyPatchFleet,
   equalRecords,
@@ -105,7 +105,15 @@ export function stageMacosApp({sourceApp, destinationApp, configPath, repository
       if (!equalRecords(sourceNativeSnapshot, repackedNativeSnapshot)) {
         throw new Error(`ASAR repack did not preserve the source native-module tree: ${recordDifferences(sourceNativeSnapshot, repackedNativeSnapshot)}`);
       }
-      writeAsarIntegrity(destination, asarHeaderSha256(copied.archive.path));
+      const newHeaderHash = asarHeaderSha256(copied.archive.path);
+      writeAsarIntegrity(destination, newHeaderHash);
+      const framework = path.join(destination, "Contents/Frameworks/Codex Framework.framework");
+      const frameworkBinary = path.join(framework, "Versions/Current/Codex Framework");
+      if (fs.existsSync(frameworkBinary) && patchEmbeddedAsarIntegrity(
+        frameworkBinary, sourceBefore.asarIntegrity.expectedHash, newHeaderHash
+      )) {
+        run("/usr/bin/codesign", ["--force", "--deep", "--sign", signingIdentity, framework]);
+      }
     }
     run("/usr/bin/codesign", ["--force", "--sign", signingIdentity, destination]);
 

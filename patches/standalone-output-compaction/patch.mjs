@@ -22,7 +22,7 @@ const replacements = replacementBinaries(config, layout.kind);
 const versions = layout.binaries.map((binary, index) => ({
   bundled: version(binary.path, {
     linuxBinary: binary.linux,
-    copyBeforeExecute: layout.kind === "macos"
+    copyBeforeExecute: layout.kind === "macos" && !binary.relative.includes("/CodexCLI.app/")
   }),
   replacement: version(replacements[index], {linuxBinary: binary.linux})
 }));
@@ -66,23 +66,34 @@ else result.targets = layout.binaries.map(binary => binary.relative);
 process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 
 function applicationLayout(root) {
-  const macRelative = "Contents/Resources/codex";
-  const mac = path.join(root, macRelative);
+  const legacyMacRelative = "Contents/Resources/codex";
+  const currentWrapperRelative = "Contents/Resources/codex-cli/bin/codex";
+  const currentMacRelative = "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex";
+  const legacyMac = path.join(root, legacyMacRelative);
+  const currentWrapper = path.join(root, currentWrapperRelative);
+  const currentMac = path.join(root, currentMacRelative);
   const manifest = path.join(root, "AppxManifest.xml");
   const windowsDefinitions = [
     {name: "native", relative: "app/resources/codex.exe", linux: false},
     {name: "wsl", relative: "app/resources/codex", linux: true}
   ];
-  const macPresent = fs.existsSync(mac);
+  const macPresent = fs.existsSync(legacyMac) || fs.existsSync(currentWrapper) || fs.existsSync(currentMac);
   const windowsPresent = fs.existsSync(manifest) || windowsDefinitions.some(definition =>
     fs.existsSync(path.join(root, definition.relative))
   );
   if (macPresent && windowsPresent) throw new Error("Application contains ambiguous Codex layouts");
   if (macPresent) {
-    requireExecutable(mac, "bundled Codex binary");
+    if (fs.existsSync(legacyMac) && (fs.existsSync(currentWrapper) || fs.existsSync(currentMac))) {
+      throw new Error("Application contains ambiguous macOS Codex layouts");
+    }
+    const current = !fs.existsSync(legacyMac);
+    if (current) requireExecutable(currentWrapper, "bundled Codex wrapper");
+    const relative = current ? currentMacRelative : legacyMacRelative;
+    const binary = current ? currentMac : legacyMac;
+    requireExecutable(binary, "bundled Codex binary");
     return {
       kind: "macos",
-      binaries: [{name: "native", relative: macRelative, path: mac, linux: false}]
+      binaries: [{name: "native", relative, path: binary, linux: false}]
     };
   }
   if (!windowsPresent) throw new Error("Application has no recognized bundled Codex layout");

@@ -14,8 +14,6 @@ const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
 const mainProcess = uniqueMainAsset(/^main-.*\.js$/);
-const sidebarActionCollapseMarker =
-  'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"';
 const taskAttentionPolicyMarkers = [
   "const MTKattentionRosterBridge=1",
   'const MTKattentionRelativePath=".codex/task-attention-policy.json"'
@@ -62,11 +60,6 @@ function activePackages() {
     file: appInitial,
     call: `MTKpatchRegistry?.register("reasoningRetention",{version:1,policy:"exact-task-opt-in"});`
   });
-  addIf(packages, appSource.includes(sidebarActionCollapseMarker), {
-    name: "sidebarActionCollapse",
-    file: appInitial,
-    call: `MTKpatchRegistry?.register("sidebarActionCollapse",{version:1});`
-  });
   addIf(packages, taskAttentionPolicyMarkers.some(marker => appSource.includes(marker)), {
     name: "taskAttentionPolicy",
     file: appInitial,
@@ -107,12 +100,6 @@ function activePackages() {
       file,
       anchor: "function MTKreasoningRosterValue(",
       call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("reasoningRetention",{version:1,policy:"exact-task-opt-in"});`
-    });
-    addIf(packages, source.includes(sidebarActionCollapseMarker), {
-      name: "sidebarActionCollapse",
-      file,
-      anchor: sidebarActionCollapseMarker,
-      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("sidebarActionCollapse",{version:1});`
     });
     addIf(packages, source.includes("function MTKinstallModelIdentityGuard(") &&
       source.includes("data-mtk-model-guard-mismatch"), {

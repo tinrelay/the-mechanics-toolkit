@@ -4,6 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
+import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -36,8 +37,11 @@ for (const catalog of catalogs) {
     "each existing configurable terminal command copy is app-scoped"
   );
 }
+const build11645 = source.includes(build11645Contracts[3]);
 assert.equal(
-  count(source, "c=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;"),
+  count(source, build11645
+    ? "l=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"
+    : "c=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;"),
   1,
   "the terminal command is allowed while the composer or xterm editable owns focus"
 );
@@ -46,9 +50,9 @@ const build9647Linux = source.includes(linuxBuild9647Contracts[2]);
 const build9922 = source.includes(build9922Contracts[3]);
 const build10789 = source.includes(build10789Contracts[3]);
 const build10954Linux = source.includes(linuxBuild10954Contracts[3]);
-assert.ok(build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
+assert.ok(build11645 || build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
   "the qualified terminal owner is present");
-const contracts = build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
+const contracts = build11645 ? build11645Contracts : build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
   build9922 ? build9922Contracts : build9771Linux ? linuxBuild9771Contracts : linuxBuild9647Contracts;
 assert.equal(
   count(source, contracts[1]),
@@ -56,11 +60,16 @@ assert.equal(
   "the configured accelerators feed the existing hotkey dispatcher"
 );
 assert.equal(
-  count(source, "allowWithinEditable:c,enabled:a,onKeyDown:l"),
+  count(source, build11645 ? "allowWithinEditable:i,enabled:a,onKeyDown:o" : "allowWithinEditable:c,enabled:a,onKeyDown:l"),
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build10954Linux) {
+if (build11645) {
+  assert.equal(count(source, build11645Contracts[3]), 1,
+    "the build-11645 command keeps the stock terminal action owner");
+  assert.equal(count(source, build11645Contracts[4]), 1,
+    "the build-11645 command remains routed through the stock terminal toggle action");
+} else if (build10954Linux) {
   assert.equal(count(source, linuxBuild10954Contracts[3]), 1,
     "the Linux build-10954 command keeps the stock terminal action owner");
   assert.equal(count(source, linuxBuild10954Contracts[4]), 1,

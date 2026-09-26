@@ -55,12 +55,29 @@ try {
   const partial = spawnSync(process.execPath, [patch, "check", scratch], {encoding: "utf8"});
   assert.notEqual(partial.status, 0, "partial helper state fails closed");
   assert.match(partial.stderr, /partial|changed/i);
+
+  const current = path.join(scratch, "build-11645");
+  const currentMain = path.join(current, ".vite/build/main-current.js");
+  fs.mkdirSync(path.dirname(currentMain), {recursive: true});
+  fs.writeFileSync(currentMain,
+    "const a={Lt:e=>e},p={app:{whenReady:async()=>{}},webContents:{}},i={er:class{add(){}}};" +
+    "var DZ=a.Lt(`electron-message-handler`);" +
+    "async function boot(){let B=new i.er;B.add(()=>{});let V=Date.now();" +
+    "await p.app.whenReady(),I(`main app.whenReady resolved`,V),z&&after()}" +
+    "function I(){}const z=false;function after(){}"
+  );
+  assert.equal(run("check", current).state, "needs-apply");
+  assert.equal(run("apply", current).state, "applied");
+  assert.equal(count(fs.readFileSync(currentMain, "utf8"), "B.add(await MTKobserveStart(p.webContents))"), 1);
+  const currentOnce = fs.readFileSync(currentMain);
+  assert.equal(run("apply", current).state, "applied");
+  assert.deepEqual(fs.readFileSync(currentMain), currentOnce);
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});
 }
 
-function run(command) {
-  const result = spawnSync(process.execPath, [patch, command, scratch], {encoding: "utf8"});
+function run(command, extracted = scratch) {
+  const result = spawnSync(process.execPath, [patch, command, extracted], {encoding: "utf8"});
   assert.equal(result.status, 0, result.stderr || result.stdout);
   return JSON.parse(result.stdout);
 }

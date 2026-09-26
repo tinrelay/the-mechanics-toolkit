@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
+import { build11645Contracts } from "./profiles/build11645.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -23,12 +24,9 @@ const commandAfter = commandBefore.replace(
   "requiredAccess:`codexLocal`,commandMenuGroupKey",
   "requiredAccess:`codexLocal`,shortcutScope:`app`,commandMenuGroupKey"
 );
-const editableBefore =
-  "c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;";
-const editableAfter =
-  "c=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;";
 const commandTargets = commandOwners();
 let source = fs.readFileSync(target, "utf8");
+const {editableBefore, editableAfter} = editableSeam(source);
 let commandSources = commandTargets.map(file => fs.readFileSync(file, "utf8"));
 let state = inspectState(source, commandSources);
 
@@ -78,6 +76,7 @@ function inspectState(value, commands) {
 }
 
 function verifyOwnedBehavior(value) {
+  if (build11645Contracts.every(contract => count(value, contract) === 1)) return;
   if (commandTargets.length === 3 &&
       build10789Contracts.every(contract => count(value, contract) === 1)) return;
   if (build9922Contracts.every(contract => count(value, contract) === 1)) return;
@@ -85,6 +84,17 @@ function verifyOwnedBehavior(value) {
   if (linuxBuild10954Contracts.every(contract => count(value, contract) === 1)) return;
   if (linuxBuild9647Contracts.every(contract => count(value, contract) === 1)) return;
   throw new Error("Upstream changed: missing qualified terminal toggle contract");
+}
+
+function editableSeam(value) {
+  const variants = [
+    ["c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;",
+      "c=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;"],
+    ["l=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;",
+      "l=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"]
+  ].filter(([before, after]) => count(value, before) + count(value, after) === 1);
+  if (variants.length !== 1) throw new Error("Upstream changed: editable terminal shortcut owner is not unique");
+  return {editableBefore: variants[0][0], editableAfter: variants[0][1]};
 }
 
 function commandOwners() {

@@ -5,8 +5,11 @@ import { spawnSync } from "node:child_process";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
+import { incomingBuild11645 } from "./profiles/build11645.mjs";
 
 const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.34) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
+
+const OUTGOING_ALIGNMENT_CSS = '[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>[class~="group/user-message"]{align-items:flex-start}';
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -144,7 +147,7 @@ function inspectAppliedRenderer(source) {
     '.mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}',
     'color:#F1F3F5',
     'mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}',
-    'mtk-tinrelay-signal>.group{align-items:flex-start}',
+    '[class~=\\"group/user-message\\"]{align-items:flex-start}',
     'function MTKtinrelayScrollSnapshot()',
     'Math.max(0,-e.scrollTop)<=Math.max(1,e.clientHeight)',
     'setTimeout(()=>{let t=e.element',
@@ -250,6 +253,11 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
+  if (value.includes(`function ${incomingBuild11645.delegation}(`) &&
+      value.includes(`function ${incomingBuild11645.message}(`) &&
+      (value.includes(incomingBuild11645.moduleBefore) || value.includes(incomingBuild11645.moduleAfter))) {
+    return incomingBuild11645;
+  }
   if (value.includes(`function ${incomingBuild10789.delegation}(`) &&
       value.includes(`function ${incomingBuild10789.message}(`) &&
       (value.includes(incomingBuild10789.moduleBefore) || value.includes(incomingBuild10789.moduleAfter))) {
@@ -274,6 +282,14 @@ function patchRenderer(value) {
   const hostBus = resolveHostBus(value);
   const profile = incomingRendererProfile(value);
   let patched = replaceOnce(value, profile.moduleBefore, profile.moduleAfter, "delegated message module owner");
+  if (profile.hostBus?.newImport) {
+    const imported = uniqueMatch(patched,
+      new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
+      "Tinrelay app-shared import");
+    patched = replaceOnce(patched, imported[0],
+      `import{${imported.groups.specifiers},${profile.hostBus.exported} as ${hostBus}}from"${imported.groups.relative}";`,
+      "Tinrelay host-bus import");
+  }
 
   const messageStart = patched.indexOf(`function ${profile.message}(`);
   const message = functionAt(patched, messageStart);
@@ -314,8 +330,8 @@ function patchRenderer(value) {
   const delegation = functionAt(patched, delegationStart);
   const delegationAfter = replaceOnce(
     delegation.text,
-    `(${profile.message},{conversationId:n,label:p,message:i,`,
-    `(${profile.message},{conversationId:n,label:p,message:i,messageNode:MTKtinrelayPointerNode(i,a),`,
+    `(${profile.message},{conversationId:n,label:${profile.labelVar ?? "p"},message:i,`,
+    `(${profile.message},{conversationId:n,label:${profile.labelVar ?? "p"},message:i,messageNode:MTKtinrelayPointerNode(i,a),`,
     "Tinrelay pointer presentation"
   );
   patched = patched.slice(0, delegation.start) + delegationAfter + patched.slice(delegation.end);
@@ -338,7 +354,7 @@ function scrollHelpers() {
 }
 
 function presentationHelpers(hostBus, jsx = "Tb", messageComponent = "Eg") {
-  return `const MTKtinrelayHostBus=${hostBus};function MTKtinrelayEnsureStyle(){if(document.getElementById("mtk-tinrelay-signal-style"))return;let e=document.createElement("style");e.id="mtk-tinrelay-signal-style",e.textContent=${JSON.stringify(VISUAL_CSS)},document.head.appendChild(e)}function MTKtinrelayMessageView({body:e,outgoing:t,screenReaderStatus:n,sentAtMs:r}){MTKtinrelayEnsureStyle();return(0,${jsx}.jsxs)("div",{"data-mtk-tinrelay-pointer":!0,"data-mtk-tinrelay-outgoing":t||void 0,className:"mtk-tinrelay-signal w-full",children:[n==null?null:(0,${jsx}.jsx)("span",{"aria-label":n,className:"sr-only",children:n}),(0,${jsx}.jsx)(${messageComponent},{message:e,sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"})]})}function MTKtinrelayIncomingView(e,t,n){return(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",e]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:t,outgoing:!1,sentAtMs:n})]})}function MTKtinrelayDeliveryView({delivery:e,sentAtMs:t}){let n=MTKtinrelayAddress(e.author_label,e.sender_ship)+" → "+MTKtinrelayAddress(e.attention_label,e.local_ship);return MTKtinrelayIncomingView(n,e.body,t)}function MTKtinrelayPointerView({pointerText:e,sentAtMs:t}){let n=MTKtinrelayPointerFromMessage(e),[r,i]=MTKtinrelayReact.useState({status:"loading"}),a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1),d=MTKtinrelayReact.useRef(null);MTKtinrelayReact.useEffect(()=>{let s=MTKtinrelayHostBus.subscribe("mtk-tinrelay-pointer-result",e=>{if(e?.requestId!==a.current)return;a.current=null;if(e.ok!==!0||e.transmission==null){i({status:"error",error:typeof e.error==="string"?e.error:"Tinrelay inspection failed."});return}let t=e.transmission;t.localId===n.local_id&&t.localShip===n.local_ship&&t.senderShip===n.sender_ship&&t.attentionLabel===n.attention_label&&(t.authorLabel===null||typeof t.authorLabel==="string"&&t.authorLabel.length>0)&&typeof t.body==="string"?(i({status:"ready",transmission:t}),MTKtinrelayScheduleScroll(d.current)):i({status:"error",error:"Tinrelay inspection did not match this pointer."})});if(!o.current){o.current=!0,d.current=MTKtinrelayScrollSnapshot();let c=crypto.randomUUID();a.current=c,MTKtinrelayHostBus.dispatchMessage("mtk-tinrelay-pointer-inspect",{requestId:c,pointerText:e})}return s},[n.local_id,n.local_ship,n.sender_ship,n.attention_label]);let u=r.status==="ready"?MTKtinrelayAddress(r.transmission.authorLabel,r.transmission.senderShip)+" → "+MTKtinrelayAddress(r.transmission.attentionLabel,r.transmission.localShip):"Tinrelay transmission from "+MTKtinrelayAddress(null,n.sender_ship),c=r.status==="ready"?r.transmission.body:r.status==="error"?r.error:"Inspecting…",l=r.status==="error"?"Tinrelay inspection failed":null;return l==null?MTKtinrelayIncomingView(u,c,t):(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",u]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:c,outgoing:!1,screenReaderStatus:l,sentAtMs:t})]})}`;
+  return `const MTKtinrelayHostBus=${hostBus};function MTKtinrelayEnsureStyle(){if(document.getElementById("mtk-tinrelay-signal-style"))return;let e=document.createElement("style");e.id="mtk-tinrelay-signal-style",e.textContent=${JSON.stringify(VISUAL_CSS + OUTGOING_ALIGNMENT_CSS)},document.head.appendChild(e)}function MTKtinrelayMessageView({body:e,outgoing:t,screenReaderStatus:n,sentAtMs:r}){MTKtinrelayEnsureStyle();return(0,${jsx}.jsxs)("div",{"data-mtk-tinrelay-pointer":!0,"data-mtk-tinrelay-outgoing":t||void 0,className:"mtk-tinrelay-signal w-full",children:[n==null?null:(0,${jsx}.jsx)("span",{"aria-label":n,className:"sr-only",children:n}),(0,${jsx}.jsx)(${messageComponent},{message:e,sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"})]})}function MTKtinrelayIncomingView(e,t,n){return(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",e]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:t,outgoing:!1,sentAtMs:n})]})}function MTKtinrelayDeliveryView({delivery:e,sentAtMs:t}){let n=MTKtinrelayAddress(e.author_label,e.sender_ship)+" → "+MTKtinrelayAddress(e.attention_label,e.local_ship);return MTKtinrelayIncomingView(n,e.body,t)}function MTKtinrelayPointerView({pointerText:e,sentAtMs:t}){let n=MTKtinrelayPointerFromMessage(e),[r,i]=MTKtinrelayReact.useState({status:"loading"}),a=MTKtinrelayReact.useRef(null),o=MTKtinrelayReact.useRef(!1),d=MTKtinrelayReact.useRef(null);MTKtinrelayReact.useEffect(()=>{let s=MTKtinrelayHostBus.subscribe("mtk-tinrelay-pointer-result",e=>{if(e?.requestId!==a.current)return;a.current=null;if(e.ok!==!0||e.transmission==null){i({status:"error",error:typeof e.error==="string"?e.error:"Tinrelay inspection failed."});return}let t=e.transmission;t.localId===n.local_id&&t.localShip===n.local_ship&&t.senderShip===n.sender_ship&&t.attentionLabel===n.attention_label&&(t.authorLabel===null||typeof t.authorLabel==="string"&&t.authorLabel.length>0)&&typeof t.body==="string"?(i({status:"ready",transmission:t}),MTKtinrelayScheduleScroll(d.current)):i({status:"error",error:"Tinrelay inspection did not match this pointer."})});if(!o.current){o.current=!0,d.current=MTKtinrelayScrollSnapshot();let c=crypto.randomUUID();a.current=c,MTKtinrelayHostBus.dispatchMessage("mtk-tinrelay-pointer-inspect",{requestId:c,pointerText:e})}return s},[n.local_id,n.local_ship,n.sender_ship,n.attention_label]);let u=r.status==="ready"?MTKtinrelayAddress(r.transmission.authorLabel,r.transmission.senderShip)+" → "+MTKtinrelayAddress(r.transmission.attentionLabel,r.transmission.localShip):"Tinrelay transmission from "+MTKtinrelayAddress(null,n.sender_ship),c=r.status==="ready"?r.transmission.body:r.status==="error"?r.error:"Inspecting…",l=r.status==="error"?"Tinrelay inspection failed":null;return l==null?MTKtinrelayIncomingView(u,c,t):(0,${jsx}.jsxs)("div",{className:"flex w-full flex-col items-end justify-end gap-1",children:[(0,${jsx}.jsxs)("div",{className:"text-size-chat-sm flex items-center gap-1 px-1 py-0.5 text-codex-description",children:["📡 ",u]}),(0,${jsx}.jsx)(MTKtinrelayMessageView,{body:c,outgoing:!1,screenReaderStatus:l,sentAtMs:t})]})}`;
 }
 
 
@@ -372,7 +388,7 @@ function mainProcessProfile(source) {
   ).groups.child;
   const helper = uniqueMatch(
     source,
-    /var (?<helper>[$A-Z_a-z][$\w]*)=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/g,
+    /var (?<helper>[$A-Z_a-z][$\w]*)=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/g,
     "Tinrelay main helper owner"
   );
   return {childProcess: child, helperOwner: helper[0]};
@@ -405,6 +421,19 @@ function resolveHostBus(source) {
       new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
       "profile host-bus import"
     );
+    if (profile.hostBus.newImport) {
+      const shared = fs.readFileSync(path.resolve(path.dirname(renderer), imported.groups.relative), "utf8");
+      if (!shared.includes("ie=L.getInstance()") ||
+          !shared.includes(`ie as ${profile.hostBus.exported}`)) {
+        throw new Error("Upstream changed: Tinrelay host-bus singleton is missing");
+      }
+      const binding = `${profile.hostBus.exported} as MTKtinrelayBus`;
+      if (imported.groups.specifiers.includes(binding)) return "MTKtinrelayBus";
+      if (source.includes("function MTKtinrelayPointerFromMessage(")) {
+        throw new Error("Tinrelay host-bus import is missing from applied renderer");
+      }
+      return "MTKtinrelayBus";
+    }
     return uniqueMatch(
       imported.groups.specifiers,
       new RegExp(`(?:^|,)${escapeRegExp(profile.hostBus.exported)} as (?<local>[$A-Z_a-z][$\\w]*)(?=,|$)`, "g"),

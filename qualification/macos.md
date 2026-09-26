@@ -15,54 +15,30 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current accepted build 10954
+## Current accepted build 11645
 
-On 2026-09-24, the offered Codex Desktop `26.917.71314` / build `10954` was staged without
-touching the installed build `10789`. The official ARM64 Sparkle ZIP has SHA-256
-`e3f436f729295bdb72b9acc9115bbf767a1fda7d081f2f83de84f70b93fdca9c`; its signed pristine
-ASAR has SHA-256 `03108a728bdb1616958ab89587c5495cab0cf4cd1bbe109bdfb186df0a113804`.
-The staged and subsequently installed app has ASAR SHA-256
-`b0b248cf12f160bc738b6c130fc166c9bac589d59eb1261278d4bd09e023908a` and a valid local
-signature and ASAR seal. Its `codex-cli 0.155.0-alpha.16.4` has SHA-256
-`d94ac2a41c48409471bd7c5c2de8e09fd96223f6a77241f6531080d66787e4fc`.
+On 2026-09-26, macOS ARM64 Codex Desktop `26.924.22138` / build `11645` was staged from the
+official signed Sparkle ZIP (SHA-256
+`7cf9569b116a32af61a6ab4e9979466774b6dc8e9dbcf70264596a1ae2dfd57d`; pristine ASAR
+`d0ba973179d2f717affd39e012b64a095464a54a51c6bccb7bc6b3d2a1cfba80`). The selected
+17-patch fleet passed post-repack probes, signature and ASAR seal verification, native-payload
+preservation, and byte-identical second application. The accepted installed and staged ASAR is
+`072f9a2f00f67eac07cd2cab3ad3d467361dd9303b64d8d7c86512bb640fd6cf`.
 
-The 18-patch fleet passed full static staging, post-repack probes, native payload preservation,
-and byte-identical second application; `npm run check` and `npm test` passed. The current
-standalone-output repair applied to upstream tag `rust-v0.155.0-alpha.16.4` at commit
-`3853cf0c49daadcacaacceb2cbb732f512eaacdb`. Its three target source files were byte-identical
-to the tested build-`10789` originals and passed exact before/after hash verification; focused
-Rust tests were not repeated for this revision. A genuine supervised restart installed build
-`10954` at `/Applications/ChatGPT.app`; the installed ASAR hash, signature, and seal verify. The
-original task resumed with a usable UI. An outgoing self-task message and a TinRelay self-loop
-both reached that task. The previous build-`10789` focused live behavior remains earlier evidence,
-not a claim that every feature was retested on `10954`. The early-ready Oops limitation remains.
-Only the official ZIP and one staged candidate app remain as campaign bulk artifacts.
+The replacement `codex-cli 0.158.0-alpha.2.1` was built from upstream commit
+`0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807` with both exact build-`11645` source patches
+applied. Installed CLI SHA-256 is
+`38851572efd9df27a23c188a679aa7c1fefb31e1720bde9c8533870d8f94f54d`. A genuine
+supervised restart installed the candidate at `/Applications/ChatGPT.app`; incident
+`2026-09-26T21-38-12-366Z-84dc2c5a-5f36-42ba-8824-bcc1a8d83f99` reached `ready` at
+`2026-09-26T21:38:54.621Z`. The original task resumed with usable UI and the TinRelay self-loop
+`50bb1dbe-06fa-4305-b907-8448edaa008b` rendered incoming. Earlier focused feature results
+are not a claim that every behavior was retested on this build.
 
-## Previous build 10789 receipt
-
-The previously accepted macOS ARM64 target was Codex Desktop `26.917.62051` / build `10789` with an
-18-patch fleet; vendor-owned turn pagination makes the TMTK renderer-turn-window patch unnecessary
-in this selection. The accepted installed ASAR is
-`391800e4d7703f58b79310aceb128462f54acff35cbc79284f2a02a02d979e36`. The integrated
-`codex-cli 0.155.0-alpha.16.3` executable is
-`c7db82d0b0eb00ff5efc7275210a2e06b2b7281682c89a77b79bb087f77debf4`, built from
-upstream commit `ffa06df2317e3e65fc74da977a5884710c5382d5` with the exact source-patch
-catalog entry for this build. The completed staged application passed the complete selected fleet,
-post-repack probes, ASAR integrity, code signature, native-payload preservation, and byte-identical
-second application.
-
-The final supervised incident `2026-09-23T13-13-19-338Z-04ae4615-801a-432d-9fcc-a2def5198cc7`
-observed the invoking CLI exit, installed the exact candidate, and returned to a usable task with
-no active supervisor or rollback payload. Live checks covered task rendering, terminal toggle,
-sidebar collapse, palette and menu, outgoing task names, linked wait-roster names, and a TinRelay
-self-loop. The greater-than-200-turn and live compaction fixtures remain explicit omissions.
-
-The first build-`10789` candidate exposed a supervisor limitation: the primary renderer emitted
-`renderer.ready` even though a patched component threw and Codex displayed its Oops screen. That
-incident was marked `ready`, so closing the app afterward did not trigger rescue. The component
-error was corrected in the accepted candidate; the early-readiness criterion itself remains open.
-Do not cite the older blank/Oops capability receipt as proof that this build recovers from a living
-Oops screen. See the [extraction ledger](../docs/extraction-ledger.md) for this boundary.
+The separate Oops early-readiness limitation remains. A prior attempt to switch to pristine did
+replace and open the stock application but timed out as a supervisor gate because pristine Codex
+does not emit TMTK's readiness marker. Neither event qualifies a destructive rescue scenario.
+Only the official ZIP and one accepted candidate should remain as campaign bulk artifacts.
 
 This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
 matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It
@@ -290,7 +266,6 @@ marked `not selected`, never passed.
 | Model identity guard | Pin a disposable exact task, select the wrong model or effort, test session override, then restore the expected setting. | Ask whether `BAD MODEL` flashed, the composer named the expected setting and blocked input, Command-click overrode only the session, and restoration cleared it. |
 | macOS menu title | Inspect the leading application menu directly. | The agent records that it says `Codex`; no person confirmation is normally needed. |
 | Standalone-output compaction | Record exact upstream source commit and patch state; run focused Rust tests; verify the release executable hash, version, package copy, and source issue reproducer. Exercise a real delegated turn at a compaction boundary when the current qualification can safely induce one. | The current external instruction survives with external provenance and completed historical work does not become authoritative. Do not claim adjacent replay cases that were not tested. |
-| Sidebar action collapse | Locate the disclosure, capture its position, inspect its cursor, collapse and expand global actions, navigate Projects, and restart once with the collapsed choice. | The agent verifies that the control follows notifications, uses a hand cursor, preserves Projects, and remembers its state; no person confirmation is normally needed. |
 | Task attention policy | Temporarily mute one exact test task, complete it normally, restore the policy, and separately observe a failure or input-needed state. | Ask whether only the configured ordinary completion stayed quiet while output and exceptional states remained visible. |
 | Terminal toggle | Use the configured stock terminal shortcut from the chat composer and from the focused terminal editor. | The agent verifies that it opens from chat and closes from the terminal using the same shortcut; ask the person only if the agent cannot generate or observe the configured key event. |
 | Outgoing-message receipt | Send a real cross-task message, inspect recipient, link and body, restart, and paginate away and back. | The agent verifies correctness, ordering, links, restart reconstruction, and pagination survival. Ask only for subjective compactness if it remains uncertain. |

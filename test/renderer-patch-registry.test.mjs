@@ -58,8 +58,6 @@ const expectedNames = [
   ["outgoingMessageReceipt", source => source.includes("function MTKOutboundMessageReceipt(")],
   ["modelIdentityGuard", source => source.includes("function MTKinstallModelIdentityGuard(") &&
     source.includes("data-mtk-model-guard-mismatch")],
-  ["sidebarActionCollapse", source => source.includes(
-    'const MTK_SIDEBAR_ACTIONS_STORAGE_KEY="the-mechanics-toolkit:sidebar-global-actions-collapsed:v1"')],
   ["taskAttentionPolicy", source => source.includes("const MTKattentionRosterBridge=1") ||
     source.includes('const MTKattentionRelativePath=".codex/task-attention-policy.json"')],
   ["taskVisualPalette", source => source.includes("function MTKusePaletteBootstrap(")],

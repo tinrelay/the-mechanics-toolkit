@@ -16,7 +16,8 @@ try {
     {owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce"},
     {owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie"},
     {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"},
-    {owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise"}
+    {owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise"},
+    {owner: "_ce", authorizer: "pu", envConst: "uce", addonConst: "dce"}
   ]) {
     const extracted = path.join(scratch, profile.owner);
     const build = path.join(extracted, ".vite/build");

@@ -33,11 +33,12 @@ const names = [
 ];
 const helper = names.map(name => functionSource(source, name)).join("");
 const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
-  if (!/^app-primary-.*\.js$/.test(name)) return false;
+  if (!/^app-(?:primary|initial)-.*\.js$/.test(name)) return false;
   const value = fs.readFileSync(path.join(assets, name), "utf8");
   return [
     ["Q2t=Jf(o_,(e,{get:t})=>{", "X2t({...n,localTitle:r})"],
-    ["G2t=Ll(Hc,(e,{get:t})=>{", "U2t({...n,localTitle:r})"]
+    ["G2t=Ll(Hc,(e,{get:t})=>{", "U2t({...n,localTitle:r})"],
+    ["l2i=to(Q,(e,{get:t})=>{if(e==null)return null;", "s2i({...n,localTitle:r})"]
   ].some(markers => markers.every(marker => value.includes(marker)));
 });
 assert.equal(

@@ -20,6 +20,8 @@ try {
     build9922BubbleFixture(), build9922OwnerFixture());
   verifyProfile("build 10789", build10789InitialFixture(), build9922PrimaryFixture(),
     build10789BubbleFixture(), build10789OwnerFixture());
+  verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
+    build11645BubbleFixture(), build11645OwnerFixture());
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -101,6 +103,39 @@ function linux10954InitialFixture() {
     'function _Bs(e){return e.localTitle}var yBs;function bBs(){yBs=Ia(X,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return _Bs({...n,localTitle:r})})}',
     'function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),n=`sidebarElectron.recentChats`;return n}',
     'export{yBs as x7};'
+  ].join("");
+}
+
+function build11645InitialFixture() {
+  return [
+    'import{cUt as Jl,tSt as Q}from"./app-shared-fixture.js";',
+    'function s2i(e){return e.localTitle}var l2i;function u2i(){l2i=to(Q,(e,{get:t})=>{if(e==null)return null;let n={hasConversation:true,liveTitle:null},r=null;return s2i({...n,localTitle:r})})}',
+    'function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),n=`sidebarElectron.recentChats`;return n}',
+    'export{l2i as wS};'
+  ].join("");
+}
+
+function build11645OwnerFixture() {
+  return [
+    'import{z as P}from"./app-primary-fixture.js";',
+    'import{wS as T}from"./app-initial-fixture.js";',
+    'import{L1t as G}from"./app-shared-fixture.js";',
+    'import{t as Bf}from"./user-message-fixture.js";',
+    'const stock={defaultMessage:`Sent by {appName} from another task`};',
+    'function iy(e){let t=(0,ay.c)(16),{label:n,conversationId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c,onLabelClick:l}=e,u=c!==void 0&&c,d=i.trim(),f=d.length>0,p=n,m;',
+    't[5]!==u||t[6]!==r||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==f?(m=f?(0,oy.jsx)(Bf,{message:i,sentAtMs:a,collapsedLineCount:sy,compactActions:u,cwd:o,hostId:s,threadId:r}):null,t[5]=u,t[6]=r,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=f,t[12]=m):m=t[12];return m}',
+    'function _y(e){let t=(0,vy.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l,p,m,h,g,d=go()?`/hotkey-window/thread/${r}`:`/local/${r}`;',
+    't[1]!==p?(m=(0,yy.jsx)(Fmt,{id:`localConversation.codexDelegationUserMessage.app`}),t[1]=m):m=t[1];',
+    't[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==h?(g=(0,yy.jsx)(iy,{conversationId:n,label:m,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:h}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=h,t[12]=g):g=t[12];return g}',
+    'export const fixture=true;'
+  ].join("");
+}
+
+function build11645BubbleFixture() {
+  return [
+    'function Ot(e){let t=(0,At.c)(160),{message:n,turnId:E,cwd:D,hostId:we}=e,foo=0;',
+    'return(0,$.jsx)(`div`,{"data-user-message-bubble":!0,className:`max-w-full`})}',
+    'export{Ot as t};'
   ].join("");
 }
 

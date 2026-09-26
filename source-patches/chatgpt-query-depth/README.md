@@ -1,8 +1,8 @@
 # Codex ChatGPT query depth
 
-Build-only repair for Codex CLI `0.155.0-alpha.16.4` at commit
-`3853cf0c49daadcacaacceb2cbb732f512eaacdb`, bundled by macOS Desktop
-`26.917.71314` / build `10954`. On another ARM64 macOS build host, stable Rust `1.95.0`
+Build-only repair for Codex CLI `0.158.0-alpha.2.1` at commit
+`0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807`, bundled by macOS Desktop
+`26.924.22138` / build `11645`. Originally, on another ARM64 macOS build host, stable Rust `1.95.0`
 reported `queries overflow the depth limit` while laying out
 `connectors::list_connectors()` in `codex-chatgpt`. The compiler requested a crate-level
 `#![recursion_limit = "256"]` attribute. Another host built the same release without it, so the
@@ -15,9 +15,9 @@ The source-patch command requires the exact upstream commit and before/after fil
 closed on an altered crate root.
 
 ```sh
-node bin/toolkit.mjs source-patch chatgpt-query-depth-10954 check /path/to/codex
-node bin/toolkit.mjs source-patch chatgpt-query-depth-10954 apply /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-10954 apply /path/to/codex
+node bin/toolkit.mjs source-patch chatgpt-query-depth-11645 check /path/to/codex
+node bin/toolkit.mjs source-patch chatgpt-query-depth-11645 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-11645 apply /path/to/codex
 bin/tmtk-build-codex /path/to/codex
 ```
 

@@ -15,6 +15,7 @@ const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
 const runtimeFiles = Object.freeze([
   "agent-roster.json"
 ]);
+const mainOwnerPattern = /var [$\w]+=[$\w]+\.(?:i|Lt)\(`electron-message-handler`\)/g;
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();
@@ -99,7 +100,7 @@ function inspectPristineRenderer() {
 }
 
 function inspectPristineMain() {
-  const owner = mainSource.match(/var [$\w]+=[$\w]+\.i\(`electron-message-handler`\)/g) ?? [];
+  const owner = mainSource.match(mainOwnerPattern) ?? [];
   if (owner.length !== 1) {
     throw new Error("Upstream changed: runtime JSON main-process owner is not unique");
   }
@@ -145,15 +146,19 @@ function rendererProfile(value) {
   if (matches.length > 1) throw new Error("Upstream changed: runtime JSON renderer host-bus owner is not unique");
   const imports = [...value.matchAll(/import\{(?<bindings>[^}]+)\}from"\.\/app-shared-[0-9a-f]+\.js";/g)];
   if (imports.length !== 1) throw new Error("Upstream changed: runtime JSON renderer shared import is not unique");
+  const dispatchers = new Set([...value.matchAll(/(?<![$\w])(?<bus>[$A-Z_a-z][$\w]*)\.dispatchMessage\(/g)]
+    .map(match => match.groups.bus));
+  const subscribers = new Set([...value.matchAll(/(?<![$\w])(?<bus>[$A-Z_a-z][$\w]*)\.subscribe\(/g)]
+    .map(match => match.groups.bus));
   const buses = [...imports[0].groups.bindings.matchAll(/(?:^|,)[$A-Z_a-z][$\w]* as (?<bus>[$A-Z_a-z][$\w]*)(?=,|$)/g)]
     .map(match => match.groups.bus)
-    .filter(bus => count(value, `${bus}.dispatchMessage(`) >= 1 && count(value, `${bus}.subscribe(`) >= 1);
+    .filter(bus => dispatchers.has(bus) && subscribers.has(bus));
   if (buses.length !== 1) throw new Error("Upstream changed: runtime JSON imported host bus is not unique");
   return {kind: "imported-current", bus: buses[0]};
 }
 
 function patchMain(value) {
-  const owners = value.match(/var [$\w]+=[$\w]+\.i\(`electron-message-handler`\)/g) ?? [];
+  const owners = value.match(mainOwnerPattern) ?? [];
   if (owners.length !== 1) throw new Error("Upstream changed: main-process runtime JSON helper owner is not unique");
   let patched = replaceOnce(value, owners[0], mainHelper() + owners[0],
     "main-process runtime JSON helper owner");

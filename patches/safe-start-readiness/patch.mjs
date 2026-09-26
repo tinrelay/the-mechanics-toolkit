@@ -110,6 +110,12 @@ function safeStartProfile(value, rendererValue) {
       before: "case`ready`:{this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action};this.windowManager.markWebContentsReady(e),`,
       rendererReady: "ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})"
+    },
+    {
+      marker: "yse",
+      before: "case`ready`:{t.initializationOnly||(this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{t.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "aa.dispatchMessage(`ready`,{persistedStateResponsePriority:reo?`critical`:void 0})"
     }
   ].filter(profile => {
     if (profile.marker !== marker || !rendererValue.includes(profile.rendererReady)) return false;

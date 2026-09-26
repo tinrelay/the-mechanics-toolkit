@@ -338,7 +338,7 @@ for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "markdown", "ev
   assert.ok(!helper.includes(forbidden), `renderer omits ${forbidden}`);
 
 const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
-const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/);
+const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/);
 const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "outgoing main helpers are localized");
 assert.ok(mainSource.slice(mainStart, mainEnd).includes('process.platform==="win32"'),

@@ -14,9 +14,10 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-json-re
 try {
   exercise("local", rendererFixture());
   exercise("imported-9922", importedRendererFixture());
+  exercise("imported-prefix-collision", importedPrefixCollisionFixture(), "Lt");
   process.stdout.write("runtime JSON reload transform probe passed\n");
 
-  function exercise(name, rendererSource) {
+  function exercise(name, rendererSource, mainFactory = "i") {
     const extracted = path.join(scratch, name);
     const assets = path.join(extracted, "webview/assets");
     const mainDirectory = path.join(extracted, ".vite/build");
@@ -25,7 +26,7 @@ try {
     const renderer = path.join(assets, "app-initial-fixture.js");
     const main = path.join(mainDirectory, "main-fixture.js");
     fs.writeFileSync(renderer, rendererSource);
-    fs.writeFileSync(main, mainFixture());
+    fs.writeFileSync(main, mainFixture(mainFactory));
 
     assert.equal(runToolkit("check", extracted).state, "needs-apply");
 
@@ -74,9 +75,17 @@ function importedRendererFixture() {
   ].join("");
 }
 
-function mainFixture() {
+function importedPrefixCollisionFixture() {
   return [
-    "var i={i(){return()=>({})}};var pQ=i.i(`electron-message-handler`);",
+    'import{OTHER as a,RB as aa}from"./app-shared-deadbeef.js";',
+    "aa.dispatchMessage(`fixture`,{});aa.subscribe(`fixture`,()=>{});",
+    "export{aa as hostBus};"
+  ].join("");
+}
+
+function mainFixture(factory) {
+  return [
+    `var i={${factory}(){return()=>({})}};var pQ=i.${factory}(\`electron-message-handler\`);`,
     "class App{async handleMessage(e,t){switch(t.type){",
     "case`show-plan-summary`:break;case`update-diff-if-open`:break;case`electron-add-new-workspace-root-option`:break;",
     "}}}",

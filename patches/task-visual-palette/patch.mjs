@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./profiles/build9647.mjs";
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
+import { build11645 } from "./profiles/build11645.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -172,6 +173,19 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
+  if (build11645.archive.applied.every(contract => source.includes(contract))) {
+    if (!build11645.archive.runtimeApplied.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-11645 archive runtime reload");
+    }
+    return "applied";
+  }
+  if (build11645.archive.pristine.every(contract => source.includes(contract))) {
+    if (!build11645.archive.runtimePristine.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-11645 archive runtime owner");
+    }
+    return "needs-apply";
+  }
+
   if (linuxBuild10954.archive.applied.every(contract => source.includes(contract))) {
     if (!linuxBuild10954.archive.runtimeApplied.every(contract => source.includes(contract))) {
       throw new Error("Unrecognized Linux build-10954 archive runtime reload");
@@ -243,6 +257,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
+    build11645.app,
     build10789.app,
     build9922.app,
     linuxBuild10954.app,
@@ -268,6 +283,7 @@ function appProfile(source) {
 }
 function bottomFadeProfile(_appSource, primarySource) {
   const profiles = [
+    build11645.bottomFade,
     build9922.bottomFade,
     linuxBuild10954.bottomFade,
     linuxBuild9771.bottomFade,
@@ -282,6 +298,7 @@ function bottomFadeProfile(_appSource, primarySource) {
 }
 function localProfile(source) {
   const profiles = [
+    build11645.local,
     build10789.local,
     build9922.local,
     linuxBuild10954.local,
@@ -618,6 +635,16 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
+  if (build11645.archive.pristine.every(contract => source.includes(contract))) {
+    for (const replacement of [
+      ...build11645.archive.replacements,
+      ...build11645.archive.runtimeReplacements
+    ]) {
+      source = replaceOnce(source, ...replacement, "build-11645 archive owner");
+    }
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (linuxBuild10954.archive.pristine.every(contract => source.includes(contract))) {
     for (const [before, after] of [
       ...linuxBuild10954.archive.replacements,
@@ -711,7 +738,7 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  const profile = [build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  const profile = [build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
   if (profile != null) {
     for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);
@@ -763,6 +790,7 @@ function configuredWorkspaceRoot(required = true) {
     throw new Error("Toolkit config must be a JSON object");
   }
   const workspaceRoot = config.workspaceRoot;
+  if (!required && workspaceRoot === undefined) return null;
   if (typeof workspaceRoot !== "string" || !path.isAbsolute(workspaceRoot) || path.parse(workspaceRoot).root === path.resolve(workspaceRoot)) {
     throw new Error("Toolkit config workspaceRoot must be an absolute non-root path");
   }

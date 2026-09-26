@@ -78,6 +78,42 @@ const definitions = [
         after: "2c189062123edeb250f58a0ce17e79517189e88bebb349c9ebaba5c123a0f529"
       }
     }
+  },
+  {
+    name: "standalone-output-compaction-11645",
+    patch: "source-patches/standalone-output-compaction/codex-0.155.0-alpha.9.2.patch",
+    upstream: "https://github.com/openai/codex",
+    tag: "rust-v0.158.0-alpha.2.1",
+    commit: "0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807",
+    desktop: {version: "26.924.22138", build: "11645"},
+    files: {
+      "codex-rs/core/src/compact.rs": {
+        before: "726d80f12327e8b2a1a8a87cb2392001f314e7f6233aff09f7abf9b264348e08",
+        after: "0210d78e88edaf7e64519f5f389a376f1fa74787abb2a60e274da3545bbe291d"
+      },
+      "codex-rs/core/src/compact_remote_v2.rs": {
+        before: "6fc09ec7c3fb92a3e70a14d5592bfb1515200eb514bba38c8449d55359c344e2",
+        after: "440e3e7562ae186965390069383ebc562eb20754656b689944cf520b505072f7"
+      },
+      "codex-rs/core/src/compact_tests.rs": {
+        before: "05d74ca69874cb8b1b35dc3851bf7ed038d7012e2c8785c945ff35e66bb72b08",
+        after: "9184b4844fe3025a6ba3f03f9779e07d1307a28af2022c4e458ea68de35d9068"
+      }
+    }
+  },
+  {
+    name: "chatgpt-query-depth-11645",
+    patch: "source-patches/chatgpt-query-depth/codex-0.155.0-alpha.16.4.patch",
+    upstream: "https://github.com/openai/codex",
+    tag: "rust-v0.158.0-alpha.2.1",
+    commit: "0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807",
+    desktop: {version: "26.924.22138", build: "11645"},
+    files: {
+      "codex-rs/chatgpt/src/lib.rs": {
+        before: "49af859977cfabc54a894c927c86067d3532f98751ad18af0f4dfb2a3c25e955",
+        after: "2c189062123edeb250f58a0ce17e79517189e88bebb349c9ebaba5c123a0f529"
+      }
+    }
   }
 ];
 

@@ -8,10 +8,10 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current qualified Desktop build | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.917.71314` / `10954` | 18 patches | Signed stage, genuine supervised adoption, usable task, outgoing self-message, and TinRelay self-loop |
-| Windows MSIX | `26.917.71314` / `10954` | 16 patches | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
-| Ubuntu DEB | `26.917.71314` / `10954` | 16 patches | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
-| Fedora RPM | `26.911.61220` / `9647` | 16 patches | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
+| macOS ARM64 application | `26.924.22138` / `11645` | 17 selected | Signed stage, genuine supervised adoption, usable task, and TinRelay self-loop |
+| Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
+| Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
+| Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
 
 Windows tooling supports x64 and ARM64; DEB supports `amd64` and `arm64`; RPM supports `x86_64`
 and `aarch64`. The current package and live receipts above are ARM64/AArch64. An agent installing
@@ -29,20 +29,20 @@ select a generated-JavaScript profile.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact current profiles recognize and compose the selected fleets on macOS, Windows, and Ubuntu build `10954` and Fedora build `9647`. Shared feature implementations are not forked per OS. The verified vendor turn-pagination owner reports `upstream-owned` and is left unchanged. |
+| Generated JavaScript | Exact profiles recognize the current macOS build `11645` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. The verified vendor turn-pagination owner reports `upstream-owned` and is left unchanged. The retired sidebar collapse is no longer selected. |
 | Package integrity | macOS signature and ASAR seal; Windows signed MSIX reconstruction and re-extraction; Ubuntu authenticated DEB reconstruction; and Fedora authenticated RPM reconstruction passed on the packages named above. Second application was byte-identical. |
-| Live adoption | macOS and Windows build `10954` returned to usable tasks through genuine supervised replacement. Ubuntu build `10954` opened a usable task after direct installation because its previous installed app could not host a task-led restart. Fedora build `9647` retains its earlier supervisor and focused renderer qualification. |
-| Shared behavior | macOS is the build-`10954` semantic reference. The Windows port used the same shared transforms with exact Windows generated-owner recognition and did not rerun every feature. Ubuntu's different generated owners passed composed static probes and a build/open gate; it did not receive a full feature tour. |
+| Live adoption | macOS build `11645` and Windows build `10954` returned to usable tasks through genuine supervised replacement. Ubuntu build `10954` opened a usable task after direct installation because its previous installed app could not host a task-led restart. Fedora build `9647` retains its earlier supervisor and focused renderer qualification. |
+| Shared behavior | macOS build `11645` is the latest staged and launched semantic reference. Windows and Ubuntu retain their earlier exact package/open receipts, not a claim that their packages were restaged after sidebar retirement. Their differing generated owners use the same shared transforms; full feature tours were not repeated. |
 | Open limits | Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
 same-version Codex CLI source patch, integrated into the current macOS package but not the Windows
-or Linux 16-patch fleets.
+or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
-rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was not used in
-the already-accepted macOS binary and does not change the desktop JavaScript fleet.
+rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to
+the accepted build-`11645` source checkout and does not change the desktop JavaScript fleet.
 
 ## Extraction rule
 

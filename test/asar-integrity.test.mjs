@@ -4,7 +4,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import {asarHeaderSha256, readAsarFile} from "../src/asar-integrity.mjs";
+import {asarHeaderSha256, patchEmbeddedAsarIntegrity, readAsarFile} from "../src/asar-integrity.mjs";
 
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "asar-integrity-test-"));
 try {
@@ -34,6 +34,20 @@ try {
 
   fs.writeFileSync(path.join(scratch, "truncated.asar"), Buffer.alloc(12));
   assert.throws(() => asarHeaderSha256(path.join(scratch, "truncated.asar")), /Truncated ASAR header/);
+
+  const embedded = path.join(scratch, "framework-binary");
+  const oldHash = "a".repeat(64);
+  const newHash = "b".repeat(64);
+  const digest = hash => crypto.createHash("sha256")
+    .update("Resources/app.asar").update("SHA256").update(hash).digest();
+  const marker = Buffer.from("AGbevlPCksUGKNL8TSn7wGmJEuJsXb2A");
+  fs.writeFileSync(embedded, Buffer.concat([Buffer.from("before"), marker,
+    Buffer.from([1, 1]), digest(oldHash), Buffer.from("after")]));
+  assert.equal(patchEmbeddedAsarIntegrity(embedded, oldHash, newHash), true);
+  assert.deepEqual(fs.readFileSync(embedded).subarray(40, 72), digest(newHash));
+  assert.throws(() => patchEmbeddedAsarIntegrity(embedded, oldHash, newHash), /digest does not match/);
+  fs.writeFileSync(embedded, Buffer.from("older framework without digest slot"));
+  assert.equal(patchEmbeddedAsarIntegrity(embedded, oldHash, newHash), false);
   process.stdout.write("asar integrity probe passed\n");
 } finally {
   fs.rmSync(scratch, { recursive: true, force: true });

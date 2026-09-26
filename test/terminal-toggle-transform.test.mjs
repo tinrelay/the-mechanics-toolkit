@@ -7,6 +7,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
+import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -19,6 +20,8 @@ const behavioralProbe = path.join(repository, "test/terminal-toggle.test.mjs");
 runFixture("linux-9771", fixtureSource(linuxBuild9771Contracts));
 runFixture("linux-9647", fixtureSource(linuxBuild9647Contracts));
 runFixture("9922", fixtureSource(build9922Contracts));
+runFixture("11645", fixtureSource(build11645Contracts,
+  "l=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"));
 runSplitFixture("10789", build10789Contracts);
 runSplitFixture("linux-10954", linuxBuild10954Contracts);
 process.stdout.write("terminal toggle transform probe passed\n");
@@ -56,10 +59,10 @@ function runToolkit(action, root) {
   return JSON.parse(result.stdout);
 }
 
-function fixtureSource(contracts) {
+function fixtureSource(contracts, editable = "c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;") {
   return `/*
 {id:\`toggleTerminal\`,titleIntlId:\`codex.command.toggleTerminal\`,descriptionIntlId:\`codex.commandDescription.toggleTerminal\`,requiredAccess:\`codexLocal\`,commandMenuGroupKey:\`panels\`,commandMenu:!0,commandMenuFeature:\`codex\`,electron:{menuTitle:\`Open Terminal\`,menuTitleIntlId:\`codex.commandMenuTitle.toggleTerminal\`,
-c=n===\`clearAllUnreads\`&&(r===\`Shift+Escape\`||r===\`Shift+Esc\`),l;
+${editable}
 ${contracts.join("\n")}
 defaultKeybindings:[{key:"Control+\`"}]
 */

@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
+import { build11645 } from "./profiles/build11645.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -88,7 +89,7 @@ function inspectPristine(value) {
 function patchSource(value) {
   const profile = rendererProfile(value);
   const imports = resolveTaskImports(value);
-  const helper = buildHelper(profile, imports.titleImport != null, imports.summaryImport);
+  const helper = buildHelper(profile, imports.dedicatedTitle, imports.summaryImport);
   const waitEntry = `{namespace:${profile.namespace},render:MTKrenderWaitThreads,renderAgentActivityIcon:${profile.icon},tool:\`wait_threads\`}`;
   let patched = replaceOnce(value, profile.functionText, `${helper}${profile.functionText}`, "wait roster helper");
   patched = replaceOnce(patched, profile.sendEntry, `${waitEntry},${profile.sendEntry}`, "wait roster registry entry");
@@ -124,7 +125,6 @@ function MTKwaitTargets(e){if(e==null||typeof e!=="object"||Array.isArray(e)||!A
     helper = replaceOnce(
       helper,
       'function MTKwaitResolvedTarget(e,t){let n=t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null;return{color:MTKwaitTaskColor(e.threadId,n),known:t!=null,label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:n}}',
-      'function MTKwaitResolvedTarget(e,t,n){let r=n??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
       'function MTKwaitResolvedTarget(e,t,n){let r=n??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
       "wait title resolver"
     );
@@ -223,6 +223,7 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
+    taskImportProfile(build11645.taskImports),
     taskImportProfile(build10789.taskImports),
     taskImportProfile(build9922.taskImports),
     taskImportProfile(linuxBuild10954.taskImports),
@@ -233,7 +234,8 @@ function resolveTaskImports(ownerSource) {
     }
   ];
   const normalizedProfiles = profiles.map(profile => Array.isArray(profile) ? taskImportProfile(profile) : profile);
-  const match = normalizedProfiles.find(profile => appInitial.includes(profile.owner) &&
+  const match = normalizedProfiles.find(profile => (Array.isArray(profile.owner)
+    ? profile.owner.some(owner => appInitial.includes(owner)) : appInitial.includes(profile.owner)) &&
     appInitial.includes(profile.atom) &&
     (profile.platformMarker == null || appInitial.includes(profile.platformMarker)));
   if (match == null) throw new Error("Upstream changed: wait roster task metadata family is unknown");
@@ -247,6 +249,12 @@ function resolveTaskImports(ownerSource) {
     }
     additions.push(`${exportedAs(appInitial, match.summarySelector.internal)} as MTKwaitSummaryAtom`);
   }
+  if (match.initialTitle != null) {
+    if (!appInitial.includes(match.initialTitle.owner)) {
+      throw new Error("Upstream changed: current live-title selector owner is missing");
+    }
+    additions.push(`${exportedAs(appInitial, match.initialTitle.internal)} as MTKwaitTitleAtom`);
+  }
   let sharedImport = null;
   if (match.sharedStore != null) {
     if (!match.sharedStore.requiredBindings.every(binding => appInitial.includes(binding))) {
@@ -258,7 +266,10 @@ function resolveTaskImports(ownerSource) {
     sharedImport = {
       before: imported[0],
       after: `import{${imported.groups.specifiers},${match.sharedStore.hookExport} as ${aliases[0]},` +
-        `${match.sharedStore.scopeExport} as ${aliases[1]}}from"${imported.groups.relative}";`
+        `${match.sharedStore.scopeExport} as ${aliases[1]}` +
+        (match.sharedStore.localKeyExport == null ? "" :
+          `,${match.sharedStore.localKeyExport} as ${aliases[3]},${match.sharedStore.remoteKeyExport} as ${aliases[4]}`) +
+        `}from"${imported.groups.relative}";`
     };
   }
   let titleImport = null;
@@ -284,12 +295,13 @@ function resolveTaskImports(ownerSource) {
     after: `import{${importMatch.groups.specifiers},${additions.join(",")}}from"${importMatch.groups.relative}";`,
     sharedImport,
     titleImport,
-    summaryImport: match.summarySelector != null
+    summaryImport: match.summarySelector != null,
+    dedicatedTitle: match.titleSelector != null || match.initialTitle != null
   };
 }
 
 function requiresDedicatedTitleSelector(ownerSource) {
-  return resolveTaskImports(ownerSource).titleImport != null;
+  return resolveTaskImports(ownerSource).dedicatedTitle;
 }
 
 function taskImportProfile(profile) {

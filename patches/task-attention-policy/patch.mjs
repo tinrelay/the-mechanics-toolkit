@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
+import { build11645 } from "./profiles/build11645.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -12,7 +13,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: task-attention-policy.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-const profiles = [linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
+const profiles = [build11645, linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
 const assets = path.join(root, "webview/assets");
 const target = uniqueAsset(/^app-initial-.*\.js$/);
 const primaryTarget = uniqueAsset(/^app-primary-.*\.js$/);

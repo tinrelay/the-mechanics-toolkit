@@ -101,6 +101,8 @@ try {
   const currentVisualCss = JSON.parse(visualMatch.groups.css);
   assert.ok(currentVisualCss.includes("[data-user-message-bubble]"),
     "Tinrelay decorates Codex's stock user-message bubble");
+  assert.ok(currentVisualCss.includes('[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>[class~="group/user-message"]{align-items:flex-start}'),
+    "the outgoing stock message row aligns its bubble with the left-aligned route subtitle");
   assert.ok(!currentVisualCss.includes("padding-top:"),
     "Tinrelay does not maintain a second vertical-padding system");
 

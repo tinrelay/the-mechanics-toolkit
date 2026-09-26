@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
+import { incomingBuild11645 } from "./profiles/build11645.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -683,13 +684,13 @@ function mainHelperSlice(source) {
 function mainHelperOwner(source) {
   return uniqueMatch(
     source,
-    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/g,
+    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/g,
     "Tinrelay outgoing main helper owner"
   )[0];
 }
 
 function resolveHostBus(source) {
-  const profile = [incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
+  const profile = [incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
     .find(candidate => source.includes(candidate.moduleAfter));
   if (profile != null) {
     const imported = uniqueMatch(
@@ -697,6 +698,10 @@ function resolveHostBus(source) {
       new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
       "current host-bus import"
     );
+    if (profile === incomingBuild11645 &&
+        imported.groups.specifiers.includes(`${profile.hostBus.exported} as MTKtinrelayBus`)) {
+      return "MTKtinrelayBus";
+    }
     return uniqueMatch(
       imported.groups.specifiers,
       new RegExp(`(?:^|,)${escapeRegExp(profile.hostBus.exported)} as (?<local>${id})(?=,|$)`, "g"),
@@ -723,7 +728,7 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  for (const profile of [incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
     if (source.includes(`function ${profile.message}(`) &&
         source.includes(`function ${profile.delegation}(`) &&
         source.includes(profile.moduleAfter)) {

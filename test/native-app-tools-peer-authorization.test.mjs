@@ -13,6 +13,8 @@ const source = fs.readFileSync(path.join(build, matches[0]), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
 const profile = source.indexOf("async function $ce(", start) > start
   ? {owner: "$ce", authorizer: "kl", addon: "i"}
+  : source.indexOf("async function _ce(", start) > start
+  ? {owner: "_ce", authorizer: "pu", addon: "i"}
   : source.indexOf("async function Hse(", start) > start
   ? {owner: "Hse", authorizer: "Ql", addon: "i"}
   : source.indexOf("async function goe(", start) > start

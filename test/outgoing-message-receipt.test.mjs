@@ -320,12 +320,13 @@ assert.equal(presentationOwners.length, 1, "unique durable receipt presentation 
 const presentation = fs.readFileSync(path.join(assets, presentationOwners[0]), "utf8");
 const receiptPresentation = presentation.indexOf("MTKOutboundTurnReceipts,{conversationId:");
 assert.ok(receiptPresentation >= 0, "durable receipts are present in the source turn presentation");
-const turnRegistrar = presentation.includes('Zi(`mtk-outbound-turn-receipts`') ? "Zi" : "$";
-if (presentation.includes(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``)) {
+const registeredReceipt = presentation.match(/([A-Za-z_$][\w$]*)\(`mtk-outbound-turn-receipts`/);
+if (registeredReceipt) {
+  const turnRegistrar = registeredReceipt[1];
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length"]
+  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let Zi=Ki.length"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -415,7 +416,7 @@ const mainOwners = fs.readdirSync(mainDirectory).filter(name => {
 assert.equal(mainOwners.length, 1, "unique durable receipt cache owner");
 const main = fs.readFileSync(path.join(mainDirectory, mainOwners[0]), "utf8");
 const mainStart = main.indexOf('const MTKoutboundReceiptContract=');
-const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.i\(`electron-message-handler`\)/);
+const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/);
 assert.ok(mainOwner != null && mainOwner.index > 0, "localized durable receipt main helper");
 const mainHelper = main.slice(mainStart, mainStart + mainOwner.index);
 assert.ok(mainHelper.includes('process.platform==="win32"||(e.mode&63)===0'),

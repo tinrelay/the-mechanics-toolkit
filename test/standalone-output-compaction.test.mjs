@@ -18,6 +18,16 @@ process.stdout.write(`${JSON.stringify({
 function applicationLayout(root) {
   const mac = {relative: "Contents/Resources/codex", linux: false};
   mac.path = path.join(root, mac.relative);
+  const current = {relative: "Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex", linux: false};
+  current.path = path.join(root, current.relative);
+  if (fs.existsSync(mac.path) && fs.existsSync(current.path)) {
+    throw new Error("Ambiguous macOS Codex CLI layout");
+  }
+  if (fs.existsSync(current.path)) {
+    requireFile(current.path);
+    fs.accessSync(current.path, fs.constants.X_OK);
+    return [current];
+  }
   if (fs.existsSync(mac.path)) {
     requireFile(mac.path);
     fs.accessSync(mac.path, fs.constants.X_OK);
