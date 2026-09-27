@@ -14,7 +14,7 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-attribu
 try {
   verifyProfile("Linux build 10954", linux10954InitialFixture(), build9922PrimaryFixture(),
     linux10954BubbleFixture(), linux10954OwnerFixture());
-  verifyProfile("Linux build 9771", build9922InitialFixture(), linux9771PrimaryFixture(),
+  verifyProfile("Linux build 9771", linux9771InitialFixture(), linux9771PrimaryFixture(),
     linux9771BubbleFixture(), build9922OwnerFixture());
   verifyProfile("generic build 9922", build9922InitialFixture(), build9922PrimaryFixture(),
     build9922BubbleFixture(), build9922OwnerFixture());
@@ -36,6 +36,8 @@ try {
     fs.writeFileSync(primaryTarget, primaryFixture);
     fs.writeFileSync(ownerTarget, ownerSource);
     fs.writeFileSync(bubbleTarget, bubbleFixture);
+    fs.writeFileSync(path.join(assets, "app-shared-fixture.js"),
+      'function u8(e){return `local:${e}`}export{u8 as Tk};');
 
     assert.equal(runToolkit("check", extracted).state, "needs-apply");
     const applied = runToolkit("apply", extracted);
@@ -80,8 +82,18 @@ function build9922InitialFixture() {
     "function Vvl(){let e=(0,Wvl.c)(12),t=xf($),n=`sidebarElectron.recentChats`;return n}",
     "function cyc({hasConversation:e,liveTitle:t,localTitle:n,summaryTitle:r}){return e?n??r:null}",
     "var uyc;function dyc(){return(dyc=n((()=>{uyc=uf($,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null,summaryTitle:null},r=null;return cyc({...n,localTitle:r})})})))()}",
-    "export{xf as kmn,$ as Bpn,uyc as fm};"
+    "var JF;JF=uf($,(e,{get:t})=>{let n=e;return{kind:`local`,cwd:n.cwd}});function PT(e){return `local:${e}`}",
+    "export{xf as kmn,$ as Bpn,uyc as fm,JF as jF,PT as pT};"
   ].join("");
+}
+
+function linux9771InitialFixture() {
+  return build9922InitialFixture()
+    .replace("uyc=uf($,", "uyc=lf($,")
+    .replace("function Vvl(){let e=(0,Wvl.c)(12),", "function xyl(){let e=(0,wyl.c)(12),")
+    .replace("JF=uf($,", "JF=lf($,")
+    .replace("function PT(", "function cT(")
+    .replace("PT as pT", "cT as pT");
 }
 
 function build9922PrimaryFixture() {
@@ -93,7 +105,8 @@ function build10789InitialFixture() {
     'import{LX as jr,ZI as X}from"./app-shared-fixture.js";',
     'function _Bs(e){return e.localTitle}var yBs;function bBs(){yBs=ns(X,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return _Bs({...n,localTitle:r})})}',
     'function Bzc(){let e=(0,Uzc.c)(12),t=jr(X),n=Ao();return n}',
-    'export{yBs as x7};'
+    'var kF;kF=ns(X,(e,{get:t})=>({kind:`local`,cwd:e.cwd}));function Hw(e){return `local:${e}`}',
+    'export{yBs as x7,kF as k7,Hw as h7};'
   ].join("");
 }
 
@@ -102,7 +115,8 @@ function linux10954InitialFixture() {
     'import{PX as Qr,XI as X}from"./app-shared-fixture.js";',
     'function _Bs(e){return e.localTitle}var yBs;function bBs(){yBs=Ia(X,(e,{get:t})=>{let n={hasConversation:true,liveTitle:null},r=null;return _Bs({...n,localTitle:r})})}',
     'function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),n=`sidebarElectron.recentChats`;return n}',
-    'export{yBs as x7};'
+    'var pF;pF=Ia(X,(e,{get:t})=>({kind:`local`,cwd:e.cwd}));function Aw(e){return `local:${e}`}',
+    'export{yBs as x7,pF as p7,Aw as a7};'
   ].join("");
 }
 
@@ -111,7 +125,8 @@ function build11645InitialFixture() {
     'import{cUt as Jl,tSt as Q}from"./app-shared-fixture.js";',
     'function s2i(e){return e.localTitle}var l2i;function u2i(){l2i=to(Q,(e,{get:t})=>{if(e==null)return null;let n={hasConversation:true,liveTitle:null},r=null;return s2i({...n,localTitle:r})})}',
     'function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),n=`sidebarElectron.recentChats`;return n}',
-    'export{l2i as wS};'
+    'var zA;zA=to(Q,(e,{get:t})=>{let n=zd(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
+    'export{l2i as wS,zA as zS};'
   ].join("");
 }
 

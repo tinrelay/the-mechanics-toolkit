@@ -13,8 +13,9 @@ link—precisely when several agents may be coordinating at once.
 
 This patch resolves the source task through Codex's own renderer store and replaces the generic
 label with the name before a title's ` — ` separator. An ordinary task uses
-`project/task title` when its project context is available (for example,
-`ganglion/ticket-inbox`); otherwise it keeps the complete task title. If authoritative title
+`project/task title` when the **source task's** project context is available (for example,
+`ganglion/ticket-inbox`); it never borrows the receiving task's project. If the source project
+is unavailable, it keeps the task title without a prefix. If authoritative title
 metadata is missing it keeps the stock generic label. It never parses message prose as identity.
 The same formatter is published to outgoing receipts and wait rosters. The sender name has
 its own semantic marker so the visual palette can color only the identity while the surrounding
@@ -30,7 +31,7 @@ bubble. It does not tint the whole turn, dim text, or remove the source-task lin
 ## Owned seam
 
 The transform recognizes one delegated-message renderer owner, its wrapper, its user-message bubble,
-and the stock ESM exports for the renderer store, scope, and title atom. It imports those existing
+and the stock ESM exports for the renderer store, scope, title atom, and source-task lookup. It imports those existing
 owners into the lazy chunk and adjusts the exact memo-cache dependencies that consume the new label
 and style prop.
 
@@ -53,7 +54,7 @@ command installs, launches, or replaces a working application.
 
 `test/cross-task-attribution-transform.test.mjs` builds a synthetic pristine renderer graph with
 stock ESM ownership and exact current lazy-chunk seams. It proves the red/green transform, source
-name extraction, stock-store ownership, generic fallback color, preserved click-through,
+name and project extraction, stock-store ownership, generic fallback color, preserved click-through,
 bubble-only styling, untouched dependency owners, syntax validity, and byte-identical second
 application.
 

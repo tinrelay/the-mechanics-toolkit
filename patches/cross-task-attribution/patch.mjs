@@ -147,6 +147,8 @@ function inspectState(owner) {
     ["const MTKcrossTaskStoreHook=", "LX as MTKcrossTaskStoreHook", "PX as MTKcrossTaskStoreHook", "cUt as MTKcrossTaskStoreHook"],
     ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope", "XI as MTKcrossTaskStoreScope", "tSt as MTKcrossTaskStoreScope"],
     "MTKstore.get(MTKtitleAtom,{hostId:",
+    "MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r))",
+    "MTKsenderFromSource(MTKtitle,MTKsourceTask)",
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
   ];
@@ -222,7 +224,8 @@ function patchAttribution(source, ownerFile, details) {
   const labelEnd = `,t[1]=${labelVar}):${labelVar}=t[1];`;
   const metadata =
     `let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope),MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??\`local\`,threadId:r}),` +
-    `MTKresolvedSender=MTKsender(MTKtitle,MTKprojectFromCwd(o));${attributionLabel(profile.delegationJsx, labelVar, profile.iconVar ?? "f")}`;
+    `MTKsourceTask=s==null||s===\`local\`?MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r)):null,` +
+    `MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask);${attributionLabel(profile.delegationJsx, labelVar, profile.iconVar ?? "f")}`;
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "delegation metadata insertion");
   delegation = replaceOnce(
     delegation,
@@ -280,6 +283,10 @@ function patchAttribution(source, ownerFile, details) {
   source = replaceOnce(source, details.wrapper.text, wrapper, "delegation wrapper component");
   source = replaceOnce(source, details.delegation.text, helper + delegation, "delegation component");
   source = replaceOnce(source, imports.before, imports.after, "attribution imports");
+  if (imports.sourceTaskImport != null) {
+    source = replaceOnce(source, imports.sourceTaskImport.before, imports.sourceTaskImport.after,
+      "source task lookup import");
+  }
   if (imports.sharedImport != null) {
     source = replaceOnce(source, imports.sharedImport.before, imports.sharedImport.after, "attribution shared-store import");
   }
@@ -296,7 +303,9 @@ function currentHelper() {
     "let n=t.indexOf(` — `);return n>0?t.slice(0,n).trim():t}" +
     "function MTKprojectFromCwd(e,t){if(t===`projectless`||typeof e!==`string`)return null;let n=e.replace(/[\\\\/]+$/u,``).split(/[\\\\/]/u).pop();return n&&n!==`.`?n:null}" +
     "function MTKsender(e,t){let n=MTKshortTaskTitle(e);if(n==null)return null;return n!==e.trim()?n:" +
-    "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:n}";
+    "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:n}" +
+    "function MTKsenderFromSource(e,t){let n=t?.kind===`local`?(t.conversation?.cwd??t.cwd??t.summary?.cwd):null," +
+    "r=t?.conversation?.workspaceKind??t?.workspaceKind??t?.summary?.workspaceKind;return MTKsender(e,MTKprojectFromCwd(n,r))}";
 }
 
 function resolveImports(ownerSource, ownerFile) {
@@ -316,14 +325,18 @@ function resolveImports(ownerSource, ownerFile) {
     if (!appInitial.includes("cUt as Jl") || !appInitial.includes("tSt as Q")) {
       throw new Error("Upstream changed: build-11645 store binding is missing");
     }
+    if (!appInitial.includes("zA=to(Q,(e,{get:t})=>{let n=zd(e);switch(n?.kind){case`local`:") ||
+        !fs.readFileSync(ownedImport(ownerFile, sharedImport.groups.relative), "utf8").includes("u8 as Tk")) {
+      throw new Error("Upstream changed: build-11645 source task lookup is missing");
+    }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "l2i")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "l2i")} as MTKtitleAtom,${exportedAs(appInitial, "zA")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
       storeHook: "MTKcrossTaskStoreHook",
       storeScope: "MTKcrossTaskStoreScope",
       sharedImport: {
         before: sharedImport[0],
-        after: `import{${sharedImport.groups.specifiers},cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
+        after: `import{${sharedImport.groups.specifiers},cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope,Tk as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`
       }
     };
   }
@@ -336,9 +349,12 @@ function resolveImports(ownerSource, ownerFile) {
     if (!appInitial.includes("LX as jr") || !appInitial.includes("ZI as X")) {
       throw new Error("Upstream changed: build-10789 store binding is missing");
     }
+    if (!appInitial.includes("kF=ns(X,") || !appInitial.includes("function Hw(")) {
+      throw new Error("Upstream changed: build-10789 source task lookup is missing");
+    }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "yBs")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "yBs")} as MTKtitleAtom,${exportedAs(appInitial, "kF")} as MTKsourceTaskAtom,${exportedAs(appInitial, "Hw")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
       storeHook: "MTKcrossTaskStoreHook",
       storeScope: "MTKcrossTaskStoreScope",
       sharedImport: {
@@ -352,6 +368,10 @@ function resolveImports(ownerSource, ownerFile) {
     appInitial.includes(selector.helperOwner) &&
     appInitial.includes(selector.storeOwner));
   if (linuxSelector != null) {
+    if (!appInitial.includes(linuxSelector.taskOwner) ||
+        !appInitial.includes(`function ${linuxSelector.localThreadKey}(`)) {
+      throw new Error("Upstream changed: Linux source task lookup is missing");
+    }
     if (linuxSelector.sharedStoreExports != null) {
       const sharedImport = uniqueMatch(ownerSource,
         /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
@@ -363,7 +383,7 @@ function resolveImports(ownerSource, ownerFile) {
       }
       return {
         before: initialImport[0],
-        after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+        after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom,${exportedAs(appInitial, linuxSelector.taskAtom)} as MTKsourceTaskAtom,${exportedAs(appInitial, linuxSelector.localThreadKey)} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
         storeHook: "MTKcrossTaskStoreHook",
         storeScope: "MTKcrossTaskStoreScope",
         sharedImport: {
@@ -374,7 +394,7 @@ function resolveImports(ownerSource, ownerFile) {
     }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, linuxSelector.atom)} as MTKtitleAtom,${exportedAs(appInitial, linuxSelector.taskAtom)} as MTKsourceTaskAtom,${exportedAs(appInitial, linuxSelector.localThreadKey)} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
       storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxSelector.storeHook)),
       storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, linuxSelector.storeScope))
     };
@@ -382,9 +402,12 @@ function resolveImports(ownerSource, ownerFile) {
   if (appInitial.includes("uyc=uf($,(e,{get:t})=>") &&
       appInitial.includes("cyc({...n,localTitle:r})") &&
       appInitial.includes("function Vvl(){let e=(0,Wvl.c)(12),t=xf($),")) {
+    if (!appInitial.includes("JF=uf($,") || !appInitial.includes("function PT(")) {
+      throw new Error("Upstream changed: build-9922 source task lookup is missing");
+    }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uyc")} as MTKtitleAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uyc")} as MTKtitleAtom,${exportedAs(appInitial, "JF")} as MTKsourceTaskAtom,${exportedAs(appInitial, "PT")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
       storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "xf")),
       storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "$"))
     };
@@ -398,9 +421,16 @@ function resolveImports(ownerSource, ownerFile) {
       throw new Error("Upstream changed: current task-title selector owner is ambiguous");
     }
     const storeHookInternal = currentStoreHookInternal(appInitial);
+    if (!appInitial.includes("AH=Vp(Q,") || !appInitial.includes("function jj(")) {
+      throw new Error("Upstream changed: build-9647 source task lookup is missing");
+    }
     return {
       before: primaryImport[0],
       after: `import{${primaryImport.groups.specifiers},${exportedAs(appPrimary, titleSelector.groups.atom)} as MTKtitleAtom}from"${primaryImport.groups.relative}";`,
+      sourceTaskImport: {
+        before: initialImport[0],
+        after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "AH")} as MTKsourceTaskAtom,${exportedAs(appInitial, "jj")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`
+      },
       storeHook: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, storeHookInternal)),
       storeScope: importedLocal(initialImport.groups.specifiers, exportedAs(appInitial, "Q"))
     };

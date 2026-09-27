@@ -5,7 +5,8 @@ export const linuxBuild9771 = {
     helperOwner: "cyc({...n,localTitle:r})",
     storeHook: "xf",
     storeOwner: "function xyl(){let e=(0,wyl.c)(12),t=xf($),",
-    storeScope: "$"
+    storeScope: "$",
+    taskAtom: "JF", taskOwner: "JF=lf($,", localThreadKey: "cT"
   },
   component: {
     delegation: "oy", delegationCache: "sy", delegationJsx: "cy",
@@ -36,7 +37,8 @@ export const linuxBuild10954 = {
     storeHook: "Qr",
     storeOwner: "function Bzc(){let e=(0,Uzc.c)(12),t=Qr(X),",
     storeScope: "X",
-    sharedStoreExports: {hook: "PX", scope: "XI"}
+    sharedStoreExports: {hook: "PX", scope: "XI"},
+    taskAtom: "pF", taskOwner: "pF=Ia(X,", localThreadKey: "Aw"
   },
   component: {
     delegation: "_v", delegationCache: "vv", delegationJsx: "yv",

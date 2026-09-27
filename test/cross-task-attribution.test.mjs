@@ -38,7 +38,7 @@ const helperEnd = [bindingStart, componentBoundary.index,
   helperTail.indexOf("globalThis.__MTK_PATCH_REGISTRY__"),
   helperTail.indexOf("function MTKtinrelayShip(")].filter(index => index >= 0);
 const helper = helperTail.slice(0, Math.min(...helperEnd));
-const api = Function(`${helper};return {MTKsender,MTKshortTaskTitle,MTKprojectFromCwd,MTKdelegatedBubbleStyle}`)();
+const api = Function(`${helper};return {MTKsender,MTKsenderFromSource,MTKshortTaskTitle,MTKprojectFromCwd,MTKdelegatedBubbleStyle}`)();
 
 assert.equal(api.MTKshortTaskTitle("Bridge Keeper — Coordination"), "Bridge Keeper");
 assert.equal(api.MTKshortTaskTitle("documentation-research"), "documentation-research");
@@ -46,6 +46,11 @@ assert.equal(api.MTKsender("Bridge Keeper — Coordination", "Example Ship"), "B
 assert.equal(api.MTKsender("Index repair", "Archive Engine"), "Archive Engine/Index repair");
 assert.equal(api.MTKsender("ticket-inbox", api.MTKprojectFromCwd("/Users/mike/LocalProjects/ganglion")), "ganglion/ticket-inbox");
 assert.equal(api.MTKsender("Ganglion runner and senses", api.MTKprojectFromCwd("/Users/mike/LocalProjects/ganglion")), "ganglion/Ganglion runner and senses");
+assert.equal(api.MTKsenderFromSource("cc-search implementation agent", {
+  kind: "local", cwd: "/Users/mike/LocalProjects/quarkable-search"
+}), "quarkable-search/cc-search implementation agent", "incoming attribution uses the sender task project");
+assert.equal(api.MTKsenderFromSource("cc-search implementation agent", null),
+  "cc-search implementation agent", "missing sender project never borrows the receiving project");
 assert.equal(api.MTKprojectFromCwd("/Users/mike/LocalProjects/ganglion", "projectless"), null);
 assert.equal(api.MTKsender("Index repair", null), "Index repair", "plain task title survives without project metadata");
 assert.equal(api.MTKsender(null, "Archive Engine"), null, "missing task metadata retains generic attribution");
@@ -91,7 +96,10 @@ const metadata = uniqueMatch(
 ).groups;
 assert.equal(metadata.store, "MTKcrossTaskStoreHook", "component uses the collision-proof store binding");
 assert.equal(metadata.scope, "MTKcrossTaskStoreScope", "component uses the collision-proof scope binding");
-assert.ok(source.includes("MTKsender(MTKtitle,MTKprojectFromCwd(o))"), "incoming attribution uses shared project-qualified label");
+assert.ok(source.includes("MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r))"),
+  "incoming attribution looks up the source task by sourceThreadId");
+assert.ok(source.includes("MTKsenderFromSource(MTKtitle,MTKsourceTask)"),
+  "incoming attribution uses the source task's project-qualified label");
 const initialImport = uniqueMatch(
   source,
   /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g,
