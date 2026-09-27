@@ -10,7 +10,9 @@ A successful cross-task send should not disappear from the sending conversation.
 receipt, a human has to remember where the message went, reconstruct its first line, or open the
 other task to confirm which route was used.
 The recipient uses the shared task label: a named role shows its name, while an ordinary task
-with project context shows `project/task title`.
+with project context shows `project/task title`. A new recipient need not appear in the sender's
+sidebar: the current renderer subscribes to Codex's live task title and updates the receipt when
+that title becomes available. Until then it shows a short task ID without changing the route.
 
 This patch keeps the send activity visible as a compact left-aligned receipt: direction arrow,
 current send state, recipient, and the first meaningful line. Hovering opens the complete message

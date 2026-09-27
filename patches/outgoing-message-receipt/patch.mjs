@@ -68,6 +68,7 @@ process.stdout.write(`${JSON.stringify({
 
 function inspectState() {
   const send = sendProfile(source);
+  const taskImports = resolveTaskImports(source);
   const red = `{namespace:${send.namespace},render:${send.genericRender},renderAgentActivityIcon:${send.icon},tool:${send.sendTool}}`;
   const green = `{namespace:${send.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${send.icon},standaloneInConversation:!0,tool:${send.sendTool}}`;
   const ownerLifecycleBranch = `if(typeof i.ReceiptLifecycle==="function")return(0,${send.jsx}.jsx)(i.ReceiptLifecycle,{item:e,record:t});if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null`;
@@ -91,8 +92,9 @@ function inspectState() {
     "data-mtk-outgoing-message-receipt",
     ownerLifecycleBranch
   ];
-  if (requiresDedicatedTitleSelector(source)) ownerMarkers.push("MTKoutboundTitleAtom");
-  if (requiresDirectSummarySelector(source)) ownerMarkers.push(
+  if (taskImports.titleImport != null || taskImports.reactiveTitle) ownerMarkers.push("MTKoutboundTitleAtom");
+  if (taskImports.reactiveTitle) ownerMarkers.push("MTKoutboundUseTitle(MTKoutboundTitleAtom,");
+  if (taskImports.directSummary) ownerMarkers.push(
     "MTKoutboundThreadSummaryAtom",
     build11645.taskImports.summaryKeyMode === "thread-id" && source.includes(build11645.taskImports.appRoot)
       ? 't.get(MTKoutboundThreadSummaryAtom,n.threadId)?.title||('
@@ -188,7 +190,8 @@ function patchSource(value) {
   const imports = resolveTaskImports(value);
   const red = `{namespace:${send.namespace},render:${send.genericRender},renderAgentActivityIcon:${send.icon},tool:${send.sendTool}}`;
   const green = `{namespace:${send.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${send.icon},standaloneInConversation:!0,tool:${send.sendTool}}`;
-  const helper = buildHelper(send, imports.titleImport != null, imports.directSummary === true, imports.summaryKeyMode);
+  const helper = buildHelper(send, imports.titleImport != null || imports.reactiveTitle === true,
+    imports.directSummary === true, imports.summaryKeyMode, imports.reactiveTitle === true);
 
   let patched = replaceOnce(value, send.functionText, `${helper}${send.functionText}`, "outbound renderer helper");
   patched = replaceOnce(patched, red, green, "send-message registry entry");
@@ -196,6 +199,10 @@ function patchSource(value) {
   if (imports.sharedModule != null) {
     patched = addImportSpecifier(patched, imports.sharedModule, `${imports.sharedHookExport} as MTKoutboundStoreHook`, "task store hook import");
     patched = addImportSpecifier(patched, imports.sharedModule, `${imports.sharedScopeExport} as MTKoutboundStoreScope`, "task store scope import");
+    if (imports.sharedTitleHookExport != null) {
+      patched = addImportSpecifier(patched, imports.sharedModule,
+        `${imports.sharedTitleHookExport} as MTKoutboundUseTitle`, "stock reactive title hook import");
+    }
     if (imports.sharedLocalKeyExport != null) {
       patched = addImportSpecifier(patched, imports.sharedModule, `${imports.sharedLocalKeyExport} as MTKoutboundLocalThreadKey`, "local thread key import");
       patched = addImportSpecifier(patched, imports.sharedModule, `${imports.sharedRemoteKeyExport} as MTKoutboundRemoteThreadKey`, "remote thread key import");
@@ -215,11 +222,13 @@ function patchSource(value) {
   return patched;
 }
 
-function buildHelper(send, useDedicatedTitleSelector = false, useDirectSummarySelector = false, summaryKeyMode) {
+function buildHelper(send, useDedicatedTitleSelector = false, useDirectSummarySelector = false, summaryKeyMode,
+  reactiveTitle = false) {
   const summaryKey = summaryKeyMode === "thread-id"
     ? "n.threadId" : '{hostId:n.hostId??"local",conversationId:n.threadId}';
   const title = useDedicatedTitleSelector
-    ? 't.get(MTKoutboundTitleAtom,{hostId:n.hostId??"local",threadId:n.threadId})??('
+    ? reactiveTitle ? 'MTKoutboundLiveTitle??('
+      : 't.get(MTKoutboundTitleAtom,{hostId:n.hostId??"local",threadId:n.threadId})??('
     : useDirectSummarySelector
       ? `t.get(MTKoutboundThreadSummaryAtom,${summaryKey})?.title||(`
       : "";
@@ -230,7 +239,11 @@ function buildHelper(send, useDedicatedTitleSelector = false, useDirectSummarySe
   const helper = String.raw`
 function MTKoutboundArguments(e){return e!=null&&typeof e==="object"&&!Array.isArray(e)&&typeof e.threadId==="string"&&e.threadId.length>0&&typeof e.prompt==="string"&&(e.hostId===void 0||typeof e.hostId==="string")?e:null}function MTKoutboundLabel(e,t,n){if(typeof e!=="string"||e.trim().length===0)return null;let r=e.trim(),i=r.indexOf(" — "),a=i>0?r.slice(0,i).trim():r;try{let o=globalThis.__MTK_PATCH_REGISTRY__;if(o?.apiVersion!==1)return a;let s=o.packages?.crossTaskAttribution;if(s?.version!==3||typeof s.resolveTaskLabel!=="function")return a;let c=s.resolveTaskLabel({title:e,cwd:t,workspaceKind:n});return typeof c==="string"&&c.trim().length>0?c.trim():a}catch{return a}}function MTKoutboundPreview(e){let t=e.split(/\r?\n/).map(e=>e.trim()).find(e=>e.length>0)??"(empty message)";return t.length<=180?t:t.slice(0,179)+"…"}function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}function MTKoutboundNavigate(e){let t=${send.normalize}(e);${send.hostBridge}.dispatchHostMessage({type:"navigate-to-route",path:${send.routeFlag}()?${send.newRoute}(t):${send.oldRoute}(t)})}function MTKOutboundMessageReceipt({item:e}){let t=MTKoutboundStoreHook(MTKoutboundStoreScope),n=MTKoutboundArguments(e.arguments);if(n==null)return null;let r=n.hostId==null||n.hostId==="local"?MTKoutboundLocalThreadKey(n.threadId):MTKoutboundRemoteThreadKey(n.threadId),i=t.get(MTKoutboundTaskAtom,r),a=${title}i?.kind==="local"?(i.conversation?.title??i.catalogTitle??i.summary?.title):i?.kind==="remote"?i.task?.title:null${titleEnd},o=(i?.kind==="local"?(i.conversation?.cwd??i.cwd??i.summary?.cwd):void 0)${summaryCwd},s=MTKoutboundLabel(a,o,i?.conversation?.workspaceKind??i?.summary?.workspaceKind)??"Task "+n.threadId.slice(0,8)+"…",c=MTKoutboundTaskColor(n.threadId,a),l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=e.completed?e.success===!1?"Failed to send to":"Sent to":"Sending to",d=MTKoutboundPreview(n.prompt),f=e=>{e.preventDefault(),e.stopPropagation(),MTKoutboundNavigate(n.threadId)},p=(0,${send.jsx}.jsxs)("div",{"data-mtk-outgoing-message-receipt":!0,className:"self-start flex min-w-0 items-center gap-1.5 rounded-lg border border-border/70 bg-surface-secondary/40 px-3 py-2 text-size-chat text-text-tertiary",style:{maxWidth:"min(42rem,92%)"},children:[(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"↗"}),(0,${send.jsx}.jsx)("span",{className:"shrink-0",children:u}),(0,${send.jsx}.jsx)("button",{"aria-label":"Open "+(a??s),className:"min-w-0 shrink-0 rounded-sm font-medium text-text-secondary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",onClick:f,style:l,type:"button",children:s}),(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"·"}),(0,${send.jsx}.jsx)("span",{className:"min-w-0 flex-1 truncate text-text-tertiary/90",children:d})]});return(0,${send.jsx}.jsx)(MTKoutboundHover,{align:"start",closeOnTriggerBlur:!1,delayDuration:800,interactive:!0,side:"top",sideOffset:6,skipDelayKey:"outbound-message-preview",tooltipMaxWidth:"min(42rem, var(--radix-tooltip-content-available-width), calc(100vw - 16px))",variant:"rich",tooltipContent:(0,${send.jsx}.jsx)("div",{className:"min-w-0 text-start",style:{maxHeight:"min(420px, var(--radix-tooltip-content-available-height, 420px), calc(100vh - 16px))",overflowY:"auto",padding:"0.75rem",userSelect:"text"},children:(0,${send.jsx}.jsx)(MTKoutboundFormattedText,{cwd:o,externalLinkContextMenuConversationId:n.threadId,hostId:n.hostId??"local",text:n.prompt})}),children:p})}function MTKrenderOutboundMessage(e,t,n,r=!0,i){let a=MTKoutboundArguments(e.arguments);if(t==="row"&&a!=null){if(e.completed&&e.success===!0&&typeof e.callId==="string"&&e.callId.length>0&&i!=null&&typeof i.conversationId==="string"&&i.conversationId.length>0&&typeof i.turnId==="string"&&i.turnId.length>0&&typeof globalThis.__MTK_OUTBOUND_REMEMBER__==="function"){let t={callId:e.callId,contract:"outgoing-message-receipt-v1",prompt:a.prompt,recordedAtMs:Date.now(),sourceThreadId:i.conversationId,sourceTurnId:i.turnId,targetHostId:a.hostId??"local",targetThreadId:a.threadId};if(typeof i.ReceiptLifecycle==="function")return(0,${send.jsx}.jsx)(i.ReceiptLifecycle,{item:e,record:t});if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null}return(0,${send.jsx}.jsx)(MTKOutboundMessageReceipt,{item:e})}return ${send.genericRender}(e,t,n,r)}
 `;
-  const withActions = helper
+  const withTitle = reactiveTitle ? replaceOnce(helper,
+    'n=MTKoutboundArguments(e.arguments);if(n==null)return null;',
+    'n=MTKoutboundArguments(e.arguments),MTKoutboundLiveTitle=MTKoutboundUseTitle(MTKoutboundTitleAtom,n==null?null:{hostId:n.hostId??"local",threadId:n.threadId});if(n==null)return null;',
+    "reactive recipient title") : helper;
+  const withActions = withTitle
     .replace(
       "function MTKOutboundMessageReceipt({item:e})",
       "function MTKOutboundMessageReceipt({item:e,Actions:MTKactions})"
@@ -948,11 +961,16 @@ function resolveTaskImports(ownerSource) {
     const sharedFile = path.resolve(path.dirname(target), current11645.sharedModule);
     if (!sharedFile.startsWith(path.resolve(root) + path.sep)) throw new Error("Shared task import escaped extraction root");
     const shared = fs.readFileSync(sharedFile, "utf8");
-    for (const owner of ["function u8(e){return", "function pFr(e){return", "u8 as Tk", "pFr as Ek"]) {
+    for (const owner of ["function u8(e){return", "function pFr(e){return", "u8 as Tk", "pFr as Ek",
+      "gk as dUt"]) {
       if (!shared.includes(owner)) throw new Error("Upstream changed: build-11645 thread key owner is missing");
     }
+    if (!appInitial.includes("l2i=to(Q,(e,{get:t})=>{if(e==null)return null;")) {
+      throw new Error("Upstream changed: build-11645 live title owner is missing");
+    }
     const additions = [
-      `${exportedAs(appInitial, current11645.taskAtom)} as MTKoutboundTaskAtom`
+      `${exportedAs(appInitial, current11645.taskAtom)} as MTKoutboundTaskAtom`,
+      `${exportedAs(appInitial, "l2i")} as MTKoutboundTitleAtom`
     ];
     return {
       before: importMatch[0],
@@ -962,7 +980,8 @@ function resolveTaskImports(ownerSource) {
       sharedScopeExport: current11645.sharedScopeExport,
       sharedLocalKeyExport: current11645.sharedLocalKeyExport,
       sharedRemoteKeyExport: current11645.sharedRemoteKeyExport,
-      directSummary: false
+      sharedTitleHookExport: "dUt",
+      reactiveTitle: true
     };
   }
   const currentDesktop = [build10789.taskImports, build10954.taskImports, windowsBuild10954.taskImports, linuxBuild10954.taskImports].filter(profile =>
@@ -1129,24 +1148,6 @@ function resolveTaskImports(ownerSource) {
     storeHook: "MTKoutboundStoreHook",
     storeScope: "MTKoutboundStoreScope"
   };
-}
-
-function requiresDedicatedTitleSelector(ownerSource) {
-  const importMatch = uniqueMatch(
-    ownerSource,
-    /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g,
-    "app-initial import"
-  );
-  const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
-  if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
-  const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  const linux9647 = linuxBuild9647.taskImports;
-  return appInitial.includes(linux9647.appRoot) && appInitial.includes(linux9647.taskOwner) &&
-    appInitial.includes("function tm(e){let t=(0,pNt.useContext)(qp),");
-}
-
-function requiresDirectSummarySelector(ownerSource) {
-  return resolveTaskImports(ownerSource).directSummary === true;
 }
 
 function resolvePresentationOwners(ownerSource) {

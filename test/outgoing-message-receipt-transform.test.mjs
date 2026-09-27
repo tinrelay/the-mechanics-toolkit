@@ -90,6 +90,15 @@ try {
     path.join(windows10954Pristine, "webview/assets/app-shared-7b9edc1bfb7f.js"),
     path.join(windows10954Pristine, "webview/assets/app-shared-dc8f183e4945.js")
   );
+  const build11645Pristine = path.join(scratch, "build-11645-pristine");
+  fs.cpSync(build10789Pristine, build11645Pristine, {recursive: true});
+  fs.writeFileSync(path.join(build11645Pristine, "webview/assets/app-initial-fixture.js"),
+    build11645InitialFixture());
+  replaceInFixture(path.join(build11645Pristine, "webview/assets/app-control-fixture.js"),
+    "app-shared-70a4f71efb70.js", "app-shared-36eae88777f2.js", "build 11645 shared owner");
+  fs.rmSync(path.join(build11645Pristine, "webview/assets/app-shared-70a4f71efb70.js"));
+  fs.writeFileSync(path.join(build11645Pristine, "webview/assets/app-shared-36eae88777f2.js"),
+    "function u8(e){return e}function pFr(e){return e}const gk=()=>{},u8Key=0,pFrKey=0;export{gk as dUt,u8 as Tk,pFr as Ek,gk as cUt,u8Key as tSt};");
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -150,6 +159,7 @@ try {
   assertBuild10789TitleInspection(build10789Pristine);
   assertBuild10789TitleInspection(build10954Pristine);
   assertBuild10789TitleInspection(windows10954Pristine);
+  assertBuild11645TitleInspection(build11645Pristine);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
   assert.equal(registry.status, 0, registry.stderr || registry.stdout);
@@ -249,6 +259,20 @@ function assertBuild10789TitleInspection(pristineRoot) {
   assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
 }
 
+function assertBuild11645TitleInspection(pristineRoot) {
+  assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  const ownerFile = path.join(pristineRoot, "webview/assets/app-control-fixture.js");
+  const owner = fs.readFileSync(ownerFile, "utf8");
+  assert.match(owner, /title11645 as MTKoutboundTitleAtom/);
+  assert.match(owner, /dUt as MTKoutboundUseTitle/);
+  const behavior = spawnSync(process.execPath, [behavioralProbe, pristineRoot], {encoding: "utf8"});
+  assert.equal(behavior.status, 0, behavior.stderr || behavior.stdout);
+  assert.equal(runToolkit(pristineRoot, "check").state, "applied");
+  assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
+  assert.equal(fs.readFileSync(ownerFile, "utf8"), owner, "current title wiring reapplies byte-identically");
+}
+
 function assertBuild9922AppliedInspection(pristineRoot) {
   assert.equal(runToolkit(pristineRoot, "check").state, "needs-apply");
   assert.equal(runToolkit(pristineRoot, "apply").state, "applied");
@@ -307,6 +331,20 @@ function build10789InitialFixture() {
       "function Hw(e){return `local:${e}`}function Uw(e){return `remote:${e}`}"
     ].join(""))
     .replace("export{", "export{kF as task10789,vE as summary10789,Hw as local10789,Uw as remote10789,");
+}
+
+function build11645InitialFixture() {
+  return build10789InitialFixture()
+    .replace("app-shared-70a4f71efb70.js", "app-shared-36eae88777f2.js")
+    .replace("kF=ns(X,()=>null)", "kF=null")
+    .replace("function xyl(){}", [
+      "function xyl(){}function _0a(){}",
+      "const Q=Symbol(),to=(...e)=>e,Li=Symbol(),zd=e=>e;",
+      "const zA=to(Q,(e,{get:t})=>{let n=zd(e);return n}),",
+      "FA=to(Q,(e,{get:t})=>{let n=t(Li)?null:null;return n}),",
+      "l2i=to(Q,(e,{get:t})=>{if(e==null)return null;return t(e)});"
+    ].join(""))
+    .replace("export{", "export{zA as task11645,l2i as title11645,");
 }
 
 function build10789OwnerFixture() {
