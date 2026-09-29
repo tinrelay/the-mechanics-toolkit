@@ -15,7 +15,6 @@
     "tinrelay-pointer-presentation",
     "native-app-tools-peer-authorization",
     "codex-observability",
-    "renderer-turn-window",
     "renderer-patch-registry",
     "safe-start-readiness"
   ],

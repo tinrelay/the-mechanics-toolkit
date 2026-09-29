@@ -24,6 +24,8 @@ official signed Sparkle ZIP (SHA-256
 17-patch fleet passed post-repack probes, signature and ASAR seal verification, native-payload
 preservation, and byte-identical second application. The accepted installed and staged ASAR is
 `072f9a2f00f67eac07cd2cab3ad3d467361dd9303b64d8d7c86512bb640fd6cf`.
+`renderer-turn-window` is not selected for this build; its generated-owner contract has not been
+qualified against build `11645`.
 
 The replacement `codex-cli 0.158.0-alpha.2.1` was built from upstream commit
 `0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807` with both exact build-`11645` source patches

@@ -63,6 +63,7 @@ export function stageMacosApp({sourceApp, destinationApp, configPath, repository
     if (!equalRecords(sourceNativeSnapshot, treeSnapshot(`${copied.archive.path}.unpacked`))) {
       throw new Error("Staged copy does not preserve the source native-module tree");
     }
+    run("/usr/bin/codesign", ["--remove-signature", destination]);
 
     const extracted = path.join(scratch, "extracted");
     run(asar, ["extract", copied.archive.path, extracted]);

@@ -37,8 +37,9 @@ is not a second live application. See [preparing a patched macOS Codex update](m
 
 ## Static proof
 
-The source is inspected before copying and again before success returns. Inside the new candidate,
-the command:
+The source is inspected before copying and again before success returns. On macOS the copied
+candidate's vendor signature is removed before the first bundle mutation; the source keeps its
+signature. Inside the new candidate, the command:
 
 1. requires each selected transform to report `needs-apply`;
 2. applies every selected transform and requires `applied`;

@@ -1,10 +1,18 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.5` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.6` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.6
+
+For macOS build `11645`, use the corrected 17-patch example: `renderer-turn-window` is not selected
+or qualified on that build. Remove it from any existing private selection before staging. Staging
+now removes the vendor signature from only the copied candidate before changing its plist or ASAR,
+then signs and verifies the finished candidate. The pristine source remains untouched. This fixes
+non-live staging on a second Mac; it does not claim a new live adoption there.
 
 ## 0.2.5
 
@@ -30,7 +38,7 @@ x86-family lab receipt is an evidence boundary, not a code restriction.
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.5` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.6` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.
