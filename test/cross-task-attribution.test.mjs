@@ -17,6 +17,8 @@ const owners = fs.readdirSync(assets).filter(name => {
 assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
+const nativeAligned = source.includes("function Lx(e){") &&
+  source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor');
 const externalBubbleImport = source.match(
   /import\{[^}]*\bt as [$A-Z_a-z][$\w]*[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
 );
@@ -31,7 +33,8 @@ assert.ok(helperStart >= 0 && componentBoundary, "attribution helper seam");
 const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
   source.includes("PX as MTKcrossTaskStoreHook,XI as MTKcrossTaskStoreScope") ||
-  source.includes("cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope");
+  source.includes("cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope") ||
+  source.includes("A5t as MTKcrossTaskStoreHook,dJt as MTKcrossTaskStoreScope");
 assert.ok((bindingStart >= 0 && bindingStart < componentBoundary.index) || sharedStoreImported,
   "stock store bindings are captured outside the component");
 const helperEnd = [bindingStart, componentBoundary.index,
@@ -54,6 +57,13 @@ assert.equal(api.MTKsenderFromSource("cc-search implementation agent", null),
 assert.equal(api.MTKprojectFromCwd("/Users/mike/LocalProjects/ganglion", "projectless"), null);
 assert.equal(api.MTKsender("Index repair", null), "Index repair", "plain task title survives without project metadata");
 assert.equal(api.MTKsender(null, "Archive Engine"), null, "missing task metadata retains generic attribution");
+globalThis.__MTK_DOT_POLICY__={nameForThread(id,title){return id==="example-dot-thread"?title:null}};
+assert.equal(api.MTKsender("Example Dot","Receiving Project","example-dot-thread"),"Example Dot",
+  "an identified dot uses its native name rather than the viewing project");
+assert.equal(api.MTKsenderFromSource("Example Dot",{kind:"local",cwd:"/projects/receiving"},"example-dot-thread"),"Example Dot");
+assert.equal(api.MTKsender("Example Dot","Receiving Project","ordinary-thread"),"Receiving Project/Example Dot",
+  "a matching title alone does not turn a task into a dot");
+delete globalThis.__MTK_DOT_POLICY__;
 assert.ok(api.MTKdelegatedBubbleStyle.backgroundColor.includes("interactive-bg-accent-muted-context"),
   "unmapped delegation keeps the existing semantic accent fallback");
 
@@ -85,9 +95,13 @@ if (titleInternal === linuxBuild10954.titleSelector.atom &&
 } else if (titleInternal === "l2i" && titleOwner.includes("l2i=to(Q,")) {
   assert.ok(titleOwner.includes("s2i({...n,localTitle:r})"),
     "build-11645 title atom retains its stock selector owner");
+} else if (titleInternal === "H_o" && titleOwner.includes("H_o=dl(Z,")) {
+  assert.ok(titleOwner.includes("B_o({...r,localTitle:i})"),
+    "build-12246 title atom retains its stock selector owner");
 } else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
-  titleOwner.includes("localTitle:r"), "title selector retains its stock task metadata");
+  (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i")),
+"title selector retains its stock task metadata");
 
 const metadata = uniqueMatch(
   source,
@@ -98,7 +112,7 @@ assert.equal(metadata.store, "MTKcrossTaskStoreHook", "component uses the collis
 assert.equal(metadata.scope, "MTKcrossTaskStoreScope", "component uses the collision-proof scope binding");
 assert.ok(source.includes("MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r))"),
   "incoming attribution looks up the source task by sourceThreadId");
-assert.ok(source.includes("MTKsenderFromSource(MTKtitle,MTKsourceTask)"),
+assert.ok(source.includes("MTKsenderFromSource(MTKtitle,MTKsourceTask,r)"),
   "incoming attribution uses the source task's project-qualified label");
 const initialImport = uniqueMatch(
   source,
@@ -109,7 +123,8 @@ const appInitial = fs.readFileSync(path.resolve(path.dirname(ownerPath), initial
 if (sharedStoreImported) {
   assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
     appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)") ||
-    appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)"),
+    appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)") ||
+    appInitial.includes("A5t as Pe") && appInitial.includes("dJt as Z") && appInitial.includes("t=Pe(Z)"),
   "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
@@ -123,10 +138,22 @@ if (sharedStoreImported) {
 for (const contract of [
   "MTKstore.get(MTKtitleAtom,{hostId:",
   "defaultMessage:`Sent by {appName} from another task`",
-  '"data-mtk-palette-attribution-name":!0',
-  "messageBubbleStyle:MTKdelegatedBubbleStyle",
-  '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
+  '"data-mtk-palette-attribution-name":!0'
 ]) assert.equal(count(completeSource, contract), 1, `attribution contract: ${contract}`);
+if (nativeAligned) {
+  assert.equal(count(source, 'alignment:`start`,accentColor:MTKdelegatedAccentColor'), 1,
+    "delegated message uses native left alignment and accent");
+  assert.ok(source.includes("function bv(e){let t=(0,xv.c)(") &&
+    source.includes("g=f===`start`?`items-start`:`items-end`"),
+  "native wrapper aligns both label and bubble");
+  assert.ok(source.includes("_g,{alignment:f,accentColor:i,message:o"),
+    "native user-message bubble receives alignment and accent");
+} else {
+  for (const contract of ["messageBubbleStyle:MTKdelegatedBubbleStyle",
+    '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride']) {
+    assert.equal(count(completeSource, contract), 1, `attribution contract: ${contract}`);
+  }
+}
 assert.ok(!source.includes("MTKselectorStateInit") && !source.includes("MTKstoreStateInit") &&
   !source.includes("MTKtaskStateInit") && !source.includes("MTKprojectStateInit") &&
   !source.includes("zm(MTKtaskAtom"), "attribution imports no private selector hook or injected initializer");

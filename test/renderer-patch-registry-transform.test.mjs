@@ -33,6 +33,7 @@ try {
   assert.deepEqual(applied.packages, [
     "codexObservability",
     "crossTaskAttribution",
+    "dotLifecycleProtection",
     "modelIdentityGuard",
     "nativeAppToolsPeerAuthorization",
     "outgoingMessageReceipt",
@@ -73,6 +74,24 @@ try {
   assert.deepEqual(JSON.parse(bareApply.stdout).packages, [], "registry does not require a behavior patch");
   const bareProbe = spawnSync(process.execPath, [behavioralProbe, bare], { encoding: "utf8" });
   assert.equal(bareProbe.status, 0, bareProbe.stderr || bareProbe.stdout);
+  const native = path.join(scratch, "native-delegation");
+  fs.mkdirSync(path.join(native, "webview/assets"), {recursive: true});
+  fs.mkdirSync(path.join(native, ".vite/build"), {recursive: true});
+  fs.writeFileSync(path.join(native, "webview/assets/sites-end-resource-fixture.js"), [
+    "function MTKshortTaskTitle(e){return e?.split(` — `)[0]??null}",
+    "function MTKprojectFromCwd(e){return e?.split(`/`).pop()??null}",
+    "function MTKsender(e,t){return e??t}",
+    "var MTKdelegatedBubbleStyle={};",
+    'const delegated={alignment:`start`,accentColor:MTKdelegatedAccentColor};',
+    "export const fixture=true;"
+  ].join(""));
+  fs.writeFileSync(path.join(native, "webview/assets/app-initial-fixture.js"), "export const fixture=true;");
+  fs.writeFileSync(path.join(native, ".vite/build/main-fixture.js"), "export const fixture=true;");
+  const nativeApply = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", native], {encoding: "utf8"});
+  assert.equal(nativeApply.status, 0, nativeApply.stderr || nativeApply.stdout);
+  assert.deepEqual(JSON.parse(nativeApply.stdout).packages, ["crossTaskAttribution"]);
+  const nativeProbe = spawnSync(process.execPath, [behavioralProbe, native], {encoding: "utf8"});
+  assert.equal(nativeProbe.status, 0, nativeProbe.stderr || nativeProbe.stdout);
   process.stdout.write("renderer patch registry transform probe passed\n");
 
   function runToolkit(action) {
@@ -89,6 +108,7 @@ function appFixture() {
     "let MTKsidebarPalette={rules:[]};",
     "function MTKmatchPalette(e,t,n){return e?.rules.find(e=>e.pattern?.test?.(t)||e.pattern?.test?.(n))??null}",
     "function MTKusePaletteBootstrap(){}",
+    "const MTKdotLifecyclePolicy=1;",
     "function MTKinstallRuntimeJsonReload(){}",
     "function MTKreasoningShouldStayOpen(){}",
     "const MTKattentionRosterBridge=1;",

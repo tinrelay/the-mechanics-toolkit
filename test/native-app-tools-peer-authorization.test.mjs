@@ -25,7 +25,12 @@ const profile = source.indexOf("async function $ce(", start) > start
   ? {owner: "mie", authorizer: "Tf", addon: "i"}
   : source.includes("async function Cae(")
   ? {owner: "Cae", authorizer: "gd", addon: "i"}
-  : {owner: "zie", authorizer: "nd", addon: "i"};
+  : source.includes("async function oae(")
+  ? {owner: "oae", authorizer: "xp", addon: "i", authParam: "a"}
+  : source.includes("async function zie(")
+  ? {owner: "zie", authorizer: "nd", addon: "i"}
+  : null;
+assert.ok(profile, "known native app-tools owner");
 const end = source.indexOf(`async function ${profile.owner}(`, start);
 assert.ok(start >= 0 && end > start, "localized native app-tools peer helper");
 const helperSource = source.slice(start, end);
@@ -52,7 +57,7 @@ for (const result of [
   assert.deepEqual(authorize(result), result, "every non-exact peer rejection remains rejected");
 }
 assert.equal(
-  count(source, "socketPeerAuthorizer:r=MTKnativeAppToolsPeerAuthorizer()"),
+  count(source, `socketPeerAuthorizer:${profile.authParam ?? "r"}=MTKnativeAppToolsPeerAuthorizer()`),
   1,
   "only the native app-tools pipe uses the mixed-signature fallback"
 );

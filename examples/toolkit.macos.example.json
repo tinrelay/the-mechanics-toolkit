@@ -3,6 +3,7 @@
     "cross-task-attribution",
     "runtime-json-reload",
     "agent-roster",
+    "dot-lifecycle-protection",
     "task-visual-palette",
     "reasoning-retention",
     "model-identity-guard",

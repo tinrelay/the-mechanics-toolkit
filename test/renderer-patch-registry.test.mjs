@@ -51,6 +51,7 @@ const names = [...appCalls, ...lazyCalls].map(call => call.name).sort();
 const allSources = files.map(file => fs.readFileSync(file, "utf8"));
 const expectedNames = [
   ["agentRoster", source => source.includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze(")],
+  ["dotLifecycleProtection", source => source.includes("const MTKdotLifecyclePolicy=1;")],
   ["crossTaskAttribution", source => source.includes("function MTKsender(")],
   ["runtimeJsonReload", source => source.includes("function MTKinstallRuntimeJsonReload(")],
   ["reasoningRetention", source => source.includes("function MTKreasoningShouldStayOpen(") ||
@@ -92,7 +93,7 @@ for (const call of appCalls.filter(call => call.name !== "taskVisualPalette")) {
 for (const call of lazyCalls) {
   if (call.name === "crossTaskAttribution") {
     Function("globalThis", "MTKsender", "MTKprojectFromCwd", call.source)(firstRealm,
-      (title, project) => title?.includes(" — ") ? title.split(" — ")[0] : project ? `${project}/${title}` : title,
+      (title, project, taskId) => taskId==="example-dot-thread" ? title : title?.includes(" — ") ? title.split(" — ")[0] : project ? `${project}/${title}` : title,
       cwd => cwd?.split("/").at(-1) ?? null);
   } else {
     Function("globalThis", call.source)(firstRealm);
@@ -110,6 +111,8 @@ if (registry.packages.crossTaskAttribution != null) {
   assert.equal(registry.packages.crossTaskAttribution.version, 3);
   assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title: "Bridge Keeper — Coordination"}), "Bridge Keeper");
   assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"}), "ganglion/ticket-inbox");
+  assert.equal(registry.packages.crossTaskAttribution.resolveTaskLabel({title:"Example Dot",projectName:"Receiving Project",taskId:"example-dot-thread"}),"Example Dot",
+    "shared registry capability forwards exact identity to the label owner");
 }
 if (registry.packages.codexObservability != null) {
   assert.equal(registry.packages.codexObservability.version, 1);

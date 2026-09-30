@@ -140,6 +140,23 @@ function findOwner() {
 
 function inspectState(owner) {
   const source = owner.source;
+  if (source.includes("function MTKsender(") && source.includes("function Lx(e){") &&
+      source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor')) {
+    const nativeMarkers = [
+      "function MTKsenderFromSource(",
+      "MTKsenderFromSource(MTKtitle,MTKsourceTask,r)",
+      attributionNameMarker,
+      'alignment:`start`,accentColor:MTKdelegatedAccentColor',
+      "t[13]!==p",
+      "onLabelClick:m,alignment:`start`,accentColor:MTKdelegatedAccentColor",
+      "function bv(e){",
+      "g=f===`start`?`items-start`:`items-end`"
+    ];
+    if (!nativeMarkers.every(marker => source.includes(marker))) {
+      throw new Error("Unrecognized build-12246 attribution patch: partial native alignment markers");
+    }
+    return "applied";
+  }
   const completeSource = source + (owner.bubbleSource ?? "");
   const markers = [
     "var MTKdelegatedBubbleStyle=",
@@ -148,7 +165,7 @@ function inspectState(owner) {
     ["MTKcrossTaskStoreScope=", "ZI as MTKcrossTaskStoreScope", "XI as MTKcrossTaskStoreScope", "tSt as MTKcrossTaskStoreScope"],
     "MTKstore.get(MTKtitleAtom,{hostId:",
     "MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r))",
-    "MTKsenderFromSource(MTKtitle,MTKsourceTask)",
+    "MTKsenderFromSource(MTKtitle,MTKsourceTask,r)",
     "messageBubbleStyle:MTKdelegatedBubbleStyle",
     '"data-user-message-bubble":!0,style:MTKbubbleStyleOverride'
   ];
@@ -175,6 +192,20 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
+  if (delegation.text.startsWith("function Lx(e){let t=(0,Rx.c)(13),")) {
+    const wrapper = functionAt(source, source.indexOf("function bv(e){"));
+    for (const contract of [
+      "function bv(e){let t=(0,xv.c)(21),",
+      "alignment:r,accentColor:i,conversationId:a",
+      "g=f===`start`?`items-start`:`items-end`",
+      "_g,{alignment:f,accentColor:i,message:o"
+    ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
+    if (!delegation.text.includes("onLabelClick:m})") ||
+        !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
+      throw new Error("Upstream changed: build-12246 delegation label cache");
+    }
+    return {delegation, wrapper, profile: {nativeAlignment: true}};
+  }
   const profile = [build11645Component, linuxBuild10954.component, build10789Component, build9922Component,
     linuxBuild9771.component, build9647Component].find(candidate =>
     delegation.text.startsWith(`function ${candidate.delegation}(`) &&
@@ -212,6 +243,7 @@ function inspectPristine(source, externalBubbleSource = null) {
 
 function patchAttribution(source, ownerFile, details) {
   const imports = resolveImports(source, ownerFile);
+  if (details.profile.nativeAlignment) return patchNativeAttribution(source, imports, details);
   let delegation = details.delegation.text;
   let wrapper = details.wrapper.text;
   let bubble = details.bubble.text;
@@ -225,7 +257,7 @@ function patchAttribution(source, ownerFile, details) {
   const metadata =
     `let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope),MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??\`local\`,threadId:r}),` +
     `MTKsourceTask=s==null||s===\`local\`?MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r)):null,` +
-    `MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask);${attributionLabel(profile.delegationJsx, labelVar, profile.iconVar ?? "f")}`;
+    `MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask,r);${attributionLabel(profile.delegationJsx, labelVar, profile.iconVar ?? "f")}`;
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "delegation metadata insertion");
   delegation = replaceOnce(
     delegation,
@@ -293,6 +325,31 @@ function patchAttribution(source, ownerFile, details) {
   return {source, bubbleSource};
 }
 
+function patchNativeAttribution(source, imports, details) {
+  let delegation = details.delegation.text;
+  delegation = replaceOnce(delegation, "function Lx(e){let t=(0,Rx.c)(13),", "function Lx(e){let t=(0,Rx.c)(14),", "native delegation cache size");
+  const labelEnd = ",t[1]=p):p=t[1];";
+  const metadata = "let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope)," +
+    "MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??`local`,threadId:r})," +
+    "MTKsourceTask=s==null||s===`local`?MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r)):null," +
+    "MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask,r);" +
+    attributionLabel("zx", "p", "f");
+  delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "native delegation sender label");
+  delegation = replaceOnce(delegation,
+    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(",
+    "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m||t[13]!==p?(",
+    "native delegation label dependency");
+  delegation = replaceOnce(delegation,
+    "onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h)",
+    "onLabelClick:m,alignment:`start`,accentColor:MTKdelegatedAccentColor}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h)",
+    "native delegation alignment handoff");
+  const helper = currentHelper() + "const MTKdelegatedAccentColor=`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`;";
+  source = replaceOnce(source, details.delegation.text, helper + delegation, "native delegation owner");
+  source = replaceOnce(source, imports.before, imports.after, "native attribution imports");
+  source = replaceOnce(source, imports.sharedImport.before, imports.sharedImport.after, "native attribution store import");
+  return {source, bubbleSource: null};
+}
+
 function attributionLabel(jsx, labelVar = "p", iconVar = "f") {
   return `MTKresolvedSender!=null&&(${labelVar}=(0,${jsx}.jsxs)(${jsx}.Fragment,{children:[${iconVar},\`Sent by \`,(0,${jsx}.jsx)(\`span\`,{${attributionNameMarker},children:MTKresolvedSender})]}));`;
 }
@@ -302,10 +359,10 @@ function currentHelper() {
     "function MTKshortTaskTitle(e){if(typeof e!==`string`)return null;let t=e.trim();if(t.length===0)return null;" +
     "let n=t.indexOf(` — `);return n>0?t.slice(0,n).trim():t}" +
     "function MTKprojectFromCwd(e,t){if(t===`projectless`||typeof e!==`string`)return null;let n=e.replace(/[\\\\/]+$/u,``).split(/[\\\\/]/u).pop();return n&&n!==`.`?n:null}" +
-    "function MTKsender(e,t){let n=MTKshortTaskTitle(e);if(n==null)return null;return n!==e.trim()?n:" +
+    "function MTKsender(e,t,i){let a=globalThis.__MTK_DOT_POLICY__?.nameForThread(i,e);if(a!=null)return a;let n=MTKshortTaskTitle(e);if(n==null)return null;return n!==e.trim()?n:" +
     "typeof t===`string`&&t.trim().length>0?`${t.trim()}/${n}`:n}" +
-    "function MTKsenderFromSource(e,t){let n=t?.kind===`local`?(t.conversation?.cwd??t.cwd??t.summary?.cwd):null," +
-    "r=t?.conversation?.workspaceKind??t?.workspaceKind??t?.summary?.workspaceKind;return MTKsender(e,MTKprojectFromCwd(n,r))}";
+    "function MTKsenderFromSource(e,t,i){let n=t?.kind===`local`?(t.conversation?.cwd??t.cwd??t.summary?.cwd):null," +
+    "r=t?.conversation?.workspaceKind??t?.workspaceKind??t?.summary?.workspaceKind;return MTKsender(e,MTKprojectFromCwd(n,r),i)}";
 }
 
 function resolveImports(ownerSource, ownerFile) {
@@ -315,6 +372,24 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  if (appInitial.includes("H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("mj=dl(Z,(e,{get:t})=>{let n=ls(e);switch(n?.kind){case`local`:") &&
+      appInitial.includes("function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),")) {
+    const sharedImport = uniqueMatch(ownerSource,
+      /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
+      "app-shared import");
+    for (const binding of ["A5t as Pe", "dJt as Z", "OI as Yo"]) {
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-12246 store binding ${binding}`);
+    }
+    return {
+      before: initialImport[0],
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "H_o")} as MTKtitleAtom,${exportedAs(appInitial, "mj")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
+      sharedImport: {
+        before: sharedImport[0],
+        after: `import{${sharedImport.groups.specifiers},A5t as MTKcrossTaskStoreHook,dJt as MTKcrossTaskStoreScope,OI as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`
+      }
+    };
+  }
   if (appInitial.includes("l2i=to(Q,(e,{get:t})=>{if(e==null)return null;") &&
       appInitial.includes("s2i({...n,localTitle:r})") &&
       (appInitial.includes("function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),") ||

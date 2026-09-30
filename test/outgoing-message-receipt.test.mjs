@@ -62,7 +62,8 @@ const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
 const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
-  return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{");
+  return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
+    source.includes("mj=dl(Z,") && source.includes("H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;");
 });
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
@@ -164,6 +165,9 @@ globalThis.__MTK_PATCH_REGISTRY__ = {apiVersion: 1, packages: {crossTaskAttribut
 }}};
 assert.equal(api.MTKoutboundLabel("ticket-inbox", "/Users/mike/LocalProjects/ganglion"), "ganglion/ticket-inbox");
 assert.equal(api.MTKoutboundLabel("Ganglion runner and senses", "/Users/mike/LocalProjects/ganglion"), "ganglion/Ganglion runner and senses");
+globalThis.__MTK_PATCH_REGISTRY__.packages.crossTaskAttribution.resolveTaskLabel=({title,taskId})=>taskId==="example-dot-thread"?title:"wrong identity";
+assert.equal(api.MTKoutboundLabel("Example Dot","/projects/viewer",null,"example-dot-thread"),"Example Dot",
+  "outgoing name resolution receives the exact recipient identity");
 assert.equal(api.MTKoutboundPreview("\n First line \nsecond"), "First line");
 assert.equal(api.MTKoutboundPreview("x".repeat(200)).length, 180);
 
@@ -345,7 +349,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let Zi=Ki.length"]
+  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let Zi=Ki.length"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,

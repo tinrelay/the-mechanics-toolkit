@@ -5,6 +5,7 @@ import path from "node:path";
 import { build9922 } from "../patches/reasoning-retention/profiles/build9922.mjs";
 import { build10789 } from "../patches/reasoning-retention/profiles/build10789.mjs";
 import { build11645 } from "../patches/reasoning-retention/profiles/build11645.mjs";
+import { build12246 } from "../patches/reasoning-retention/profiles/build12246.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
@@ -13,7 +14,8 @@ const assets = path.join(extracted, "webview/assets");
 
 const turn = uniqueSource(source => source.includes("function MTKuseReasoningRetention("), "reasoning turn owner");
 const thread = uniqueSource(source => source.includes("function MTKuseReasoningThreadRetention("), "reasoning thread owner");
-const activity = uniqueSource(source => source.includes("isCollapsed:!r&&(a??!i)"), "stock collapse owner");
+const activity = uniqueSource(source => source.includes("isCollapsed:!r&&(a??!i)") ||
+  source.includes("isCollapsed:!i&&(o??!a)"), "stock collapse owner");
 const rosterPolicy = turn.source.includes("function MTKreasoningRosterValue(");
 assert.equal(rosterPolicy, true, "build-9771 reasoning retention uses the shared agent roster");
 const policyOwner = turn;
@@ -82,7 +84,8 @@ assert.equal(
     thread.source.includes(linuxBuild10954.thread.appliedCollapse) ||
     thread.source.includes(build9922.thread.appliedCollapse) ||
     thread.source.includes(build10789.thread.appliedCollapse) ||
-    thread.source.includes(build11645.thread.appliedCollapse),
+    thread.source.includes(build11645.thread.appliedCollapse) ||
+    thread.source.includes(build12246.thread.appliedCollapse),
   true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
@@ -92,11 +95,13 @@ assert.ok(
     thread.source.includes(linuxBuild10954.thread.appliedDependencies) ||
     thread.source.includes(build9922.thread.appliedDependencies) ||
     thread.source.includes(build10789.thread.appliedDependencies) ||
-    thread.source.includes(build11645.thread.appliedDependencies),
+    thread.source.includes(build11645.thread.appliedDependencies) ||
+    thread.source.includes(build12246.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
-const collapseText = functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf("isCollapsed:!r&&(a??!i)")));
+const collapseMarker = activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
+const collapseText = functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf(collapseMarker)));
 const collapse = Function(`${collapseText};return ${functionName(collapseText)}`)();
 const base = {hasFinalAssistantStarted: true, isTurnCancelled: false, hasRenderableAgentItems: true};
 assert.deepEqual(collapse({...base, preventAutoCollapse: true}), {shouldAllowCollapse: true, isCollapsed: false});
@@ -109,7 +114,8 @@ assert.equal(
     turn.source.includes(linuxBuild10954.turn.appliedOwner) ||
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner) ||
-    turn.source.includes(build11645.turn.appliedOwner),
+    turn.source.includes(build11645.turn.appliedOwner) ||
+    turn.source.includes(build12246.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

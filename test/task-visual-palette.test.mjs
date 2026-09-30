@@ -9,7 +9,7 @@ const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
 const localPage = uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
-const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/);
+const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const source = readAsset(appInitial);
 if (source.includes("function pWs(e){let MTKsidebarArchiveEpoch=")) {
   assert.equal(count(source, "function MTKuseSidebarArchivePolicy("), 1,
@@ -22,7 +22,8 @@ const rootProfiles = [
   {start: "function Bzc(){", owner: "let e=(0,Uzc.c)(12),"},
   {start: "function xyl(){", owner: "let e=(0,wyl.c)(12),"},
   {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"},
-  {start: "function _0a(){", owner: "let e=(0,b0a.c)(12),"}
+  {start: "function _0a(){", owner: "let e=(0,b0a.c)(12),"},
+  {start: "function u6s(){", owner: "let e=(0,p6s.c)(12),"}
 ].map(profile => {
   const index = source.indexOf(profile.start, helperStart);
   const ownerIndex = index < 0 ? -1 : source.indexOf(profile.owner, index + profile.start.length);
@@ -77,7 +78,11 @@ async function testRosterConsumer(helperSource, appSource) {
   });
   const snapshot = Object.freeze({
     sources: Object.freeze([{ownerRoot: "/office", data: Object.freeze({calibration: {sidebar: 20}})}]),
-    entries: Object.freeze([titleRule, exactAgent])
+    entries: Object.freeze([titleRule, exactAgent, {
+      key:"example-dot",kind:"agent",taskId:"22222222-2222-4222-8222-222222222222",
+      ownerRoot:"/office",pattern:/^Example Dot$/,
+      data:{name:"Example Dot",orbitId:"opaque-example-dot",protectDeletion:true,protectReboot:true}
+    }])
   });
   const diagnostics = [];
   const realm = {
@@ -92,6 +97,8 @@ async function testRosterConsumer(helperSource, appSource) {
   const loaded = await api.load();
   assert.ok(loaded, "roster visual entries load");
   assert.equal(loaded.rules.length, 2);
+  assert.equal(api.match(loaded,"Example Dot","22222222-2222-4222-8222-222222222222"),null,
+    "dot continuity flags do not opt into TMTK native appearance overrides");
   assert.equal(api.match(loaded, "Tamsin — Portfolio Secretary", exactId).color, "#55AA77",
     "exact task identity wins over an earlier matching title rule");
   assert.equal(api.match(loaded, "Tamsin — Temporary", "unrelated").color, "#CC0000",
@@ -116,6 +123,12 @@ async function testRosterConsumer(helperSource, appSource) {
     "MTKapplyPaletteSurfaces",
     "MTKclearPaletteSurfaces"
   ]) assert.ok(appSource.includes(contract), `roster palette surface contract: ${contract}`);
+  for (const [theme, color] of [["dark", "--mtk-room-dark"], ["light", "--mtk-room-light"]]) {
+    assert.ok(appSource.includes(`[data-mtk-palette-bottom-fade].bg-surface{background-color:var(${color})!important}`),
+      `${theme} room color covers the solid bottom surface`);
+    assert.ok(appSource.includes(`[data-mtk-palette-bottom-fade]{--tw-gradient-from:var(${color})!important;--tw-gradient-via:var(${color})!important}`),
+      `${theme} room color covers the gradient without flattening its transparent edge`);
+  }
 }
 
 function readAsset(name) {

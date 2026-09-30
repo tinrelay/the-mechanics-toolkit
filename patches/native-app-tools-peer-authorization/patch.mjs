@@ -84,8 +84,8 @@ function helperFor(authorizer) {
 }
 
 function ownerFor(profile, defaultAuthorizer) {
-  return `async function ${profile.owner}({callTool:e,listTools:t,pipePath:n,` +
-    `socketPeerAuthorizer:r=${defaultAuthorizer}})`;
+  const prefix = profile.ownerPrefix ?? "callTool:e,listTools:t,pipePath:n,socketPeerAuthorizer:r=";
+  return `async function ${profile.owner}({${prefix}${defaultAuthorizer}})`;
 }
 
 function ownershipProfile(value) {
@@ -97,7 +97,11 @@ function ownershipProfile(value) {
     { owner: "Cae", authorizer: "gd", envConst: "gae", addonConst: "_ae", addon: "i" },
     { owner: "goe", authorizer: "Gu", envConst: "loe", addonConst: "uoe", addon: "i" },
     { owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise", addon: "i" },
-    { owner: "_ce", authorizer: "pu", envConst: "uce", addonConst: "dce", addon: "i" }
+    { owner: "_ce", authorizer: "pu", envConst: "uce", addonConst: "dce", addon: "i" },
+    {
+      owner: "oae", authorizer: "xp", envConst: "Zie", addonConst: "Qie", addon: "i",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,pipePath:i,socketPeerAuthorizer:a="
+    }
   ];
   const pristine = profiles.filter(profile =>
     value.includes(`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&

@@ -38,7 +38,8 @@ const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
   return [
     ["Q2t=Jf(o_,(e,{get:t})=>{", "X2t({...n,localTitle:r})"],
     ["G2t=Ll(Hc,(e,{get:t})=>{", "U2t({...n,localTitle:r})"],
-    ["l2i=to(Q,(e,{get:t})=>{if(e==null)return null;", "s2i({...n,localTitle:r})"]
+    ["l2i=to(Q,(e,{get:t})=>{if(e==null)return null;", "s2i({...n,localTitle:r})"],
+    ["H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;", "B_o({...r,localTitle:i})"]
   ].some(markers => markers.every(marker => value.includes(marker)));
 });
 assert.equal(
@@ -124,6 +125,11 @@ assert.equal(api.MTKwaitTargets({targets: []}), null);
 assert.equal(api.MTKwaitTargets({targets: Array.from({length: 9}, (_, index) => ({threadId: String(index)}))}), null);
 assert.equal(api.MTKwaitTargets({targets: [{threadId: "one", hostId: 2}]}), null);
 assert.equal(api.MTKwaitTaskLabel("The Mechanic — Engine Rooms"), "The Mechanic", "shared label capability is used");
+const resolveLabel=realm.__MTK_PATCH_REGISTRY__.packages.crossTaskAttribution.resolveTaskLabel;
+realm.__MTK_PATCH_REGISTRY__.packages.crossTaskAttribution.resolveTaskLabel=({title,taskId})=>taskId==="example-dot-thread"?title:"wrong identity";
+assert.equal(api.MTKwaitTaskLabel("Example Dot","/projects/viewer",null,"example-dot-thread"),"Example Dot",
+  "wait name resolution receives the exact target identity");
+realm.__MTK_PATCH_REGISTRY__.packages.crossTaskAttribution.resolveTaskLabel=resolveLabel;
 assert.equal(api.MTKwaitResolvedTarget({threadId: "ticket-inbox", hostId: "local"},
   directSummaryOwner ? null : tasks.get("local:ticket-inbox"),
   directSummaryOwner ? {title: "ticket-inbox", cwd: "/Users/mike/LocalProjects/ganglion"} : undefined).label,

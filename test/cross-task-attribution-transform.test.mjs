@@ -22,6 +22,7 @@ try {
     build10789BubbleFixture(), build10789OwnerFixture());
   verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
     build11645BubbleFixture(), build11645OwnerFixture());
+  verifyNative12246();
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -56,6 +57,40 @@ try {
     assert.deepEqual(fs.readFileSync(bubbleTarget), bubbleOnce, `${label} bubble is byte-identical`);
     assert.deepEqual(fs.readFileSync(initialTarget), Buffer.from(initialFixture), `${label} store owner stays untouched`);
     assert.deepEqual(fs.readFileSync(primaryTarget), Buffer.from(primaryFixture), `${label} title owner stays untouched`);
+  }
+
+  function verifyNative12246() {
+    const extracted = path.join(scratch, "build-12246");
+    const assets = path.join(extracted, "webview/assets");
+    fs.mkdirSync(assets, {recursive: true});
+    const ownerTarget = path.join(assets, "sites-end-resource-fixture.js");
+    const initialTarget = path.join(assets, "app-initial-fixture.js");
+    fs.writeFileSync(initialTarget, [
+      'import{A5t as Pe,dJt as Z,OI as Yo}from"./app-shared-fixture.js";',
+      'function B_o(e){return e.localTitle}var H_o;H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return B_o({...r,localTitle:i})});',
+      'function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),n=`sidebarElectron.recentChats`;return n}',
+      'var mj;mj=dl(Z,(e,{get:t})=>{let n=ls(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
+      'export{H_o as QW,mj as nhn};'
+    ].join(""));
+    fs.writeFileSync(path.join(assets, "app-primary-fixture.js"), 'export const noop=true;');
+    fs.writeFileSync(path.join(assets, "app-shared-fixture.js"), 'export const noop=true;');
+    fs.writeFileSync(ownerTarget, [
+      'import{noop as P}from"./app-primary-fixture.js";',
+      'import{QW as T}from"./app-initial-fixture.js";',
+      'import{noop as G}from"./app-shared-fixture.js";',
+      'function bv(e){let t=(0,xv.c)(21),{label:n,alignment:r,accentColor:i,conversationId:a,message:o,sentAtMs:s,cwd:c,hostId:l,compactActions:u,onLabelClick:d}=e,f=r===void 0?`end`:r,g=f===`start`?`items-start`:`items-end`;return(0,Sv.jsx)(_g,{alignment:f,accentColor:i,message:o})}',
+      'function Lx(e){let t=(0,Rx.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l=c!==void 0&&c,u=Er(),d=Oe()?`/hotkey-window/thread/${r}`:`/local/${r}`,f=null;',
+      'let p;t[1]===Symbol.for(`react.memo_cache_sentinel`)?(p=(0,zx.jsx)(G,{id:`localConversation.codexDelegationUserMessage.app`,defaultMessage:`Sent by {appName} from another task`}),t[1]=p):p=t[1];',
+      'let m=()=>u(d),h;return t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(h=(0,zx.jsx)(bv,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h):h=t[12],h}',
+      'export const fixture=true;'
+    ].join(""));
+    assert.equal(runToolkit("check", extracted).state, "needs-apply");
+    assert.equal(runToolkit("apply", extracted).state, "applied");
+    const once = fs.readFileSync(ownerTarget);
+    const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
+    assert.equal(probe.status, 0, probe.stderr || probe.stdout);
+    assert.equal(runToolkit("apply", extracted).state, "applied");
+    assert.deepEqual(fs.readFileSync(ownerTarget), once);
   }
 
   function runToolkit(action, extracted) {

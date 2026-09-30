@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.924.22138`, build `11645` | Complete 17-patch fleet; signed stage, supervised adoption, usable task, and TinRelay self-loop. |
+| macOS ARM64 application | `26.928.20755`, build `12246` | Complete 18-patch fleet; signed stage, supervised adoption, usable task, and active opt-in dot guards. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -94,6 +94,7 @@ evidence, configuration, and non-goals.
 | Patch | Effect |
 | --- | --- |
 | [Agent roster](patches/agent-roster/) | Supplies exact runtime task identity and per-agent settings from project-owned roster files. |
+| [Dot lifecycle protection](patches/dot-lifecycle-protection/) | Guards opted-in cloud dots against accidental deletion/reboot, without changing their native appearance. |
 | [Runtime JSON reload](patches/runtime-json-reload/) | Applies valid roster changes after save without restarting Codex. |
 | [Task visual palette](patches/task-visual-palette/) | Gives configured tasks stable colors, identity chips, selected-row accents, and optional sigils. |
 | [Cross-task attribution](patches/cross-task-attribution/) | Names the real sending task on delegated messages. |
@@ -124,8 +125,8 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.158.0-alpha.2.1` / Desktop `26.924.22138` build `11645` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
-| [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Same exact CLI source revision | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.159.0` / Desktop `26.928.20755` build `12246` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The build-`12246` CLI built without it. |
 
 ## Documentation map
 

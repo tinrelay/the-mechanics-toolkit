@@ -7,6 +7,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
+import {build12246} from "../patches/task-attention-policy/profiles/build12246.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -22,6 +23,7 @@ verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linu
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
+verifyProfile(build12246, build12246InitialFixture(), "export const fixture=true;", "macOS build 12246");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -131,6 +133,21 @@ function build11645InitialFixture() {
     "function O2i(e){let t=(0,A2i.c)(160),n=e.conversationId,Ze={formatMessage(){return `New chat`}},Ft=`Tamsin`,R=null,Jt=!1,pe=!1,_t=!1,Re=!1,gt=null,vt=0,Ct=null,Be=!1,Nt=!1,Yt=`idle`;",
     "let Xt=k2i({title:Ft,titleOverride:R})??Ze.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Zt=Nt?`loading`:Yt,Qt=Jt?!1:(pe??_t===!0)||Re&&(gt==null&&(vt??0)>0||Ct!=null||Be),$t=Jt||Re||gt!=null?0:vt??0;",
     "return{hasUnreadTurn:!Jt&&_t===!0}}"
+  ].join("");
+}
+
+function build12246InitialFixture() {
+  return [
+    "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
+    "const Z=Symbol(`scope`),m6s={useEffect(){}},Ovo={useSyncExternalStore(){return!1}};function Pe(e){return e}",
+    "function Kp(e,t,n){let r=Np(`signal`,e,t);return r}const HOn=Kp(Z,0);",
+    "function ls(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function u6s(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,p6s.c)(12),t=Pe(Z),n=0;return t}",
+    "function YQs(e,t){Bg.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){Bg.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
+    "var CQs;function wQs(){CQs=ld(Z,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?Aae({cloudThreadsAllowed:i,localThreadsAllowed:Ii(e(ap)),threadKeys:o}):o;return r+s})}",
+    "function Tvo(e){let t=(0,Dvo.c)(172),n=e.conversationId,$e={formatMessage(){return `New chat`}},It=`Tamsin`,z=null,Yt=!1,me=!1,vt=!1,ze=!1,_t=null,yt=0,wt=null,Ve=!1,Pt=!1,Xt=`idle`;",
+    "let Zt=Evo({title:It,titleOverride:z})??$e.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Qt=Pt?`loading`:Xt,$t=Yt?!1:(me??vt===!0)||ze&&(_t==null&&(yt??0)>0||wt!=null||Ve),en=Yt||ze||_t!=null?0:yt??0;",
+    "return{hasUnreadTurn:!Yt&&vt===!0}}"
   ].join("");
 }
 

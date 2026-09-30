@@ -55,7 +55,7 @@ const requiredExamples = [
 ];
 for (const example of requiredExamples) readJson(example);
 const macosPatches = readJson("examples/toolkit.macos.example.json").enabledPatches;
-assert.equal(macosPatches.length, 17, "macOS example selects the qualified fleet");
+assert.equal(macosPatches.length, 18, "macOS example selects the current fleet including dot lifecycle protection");
 assert.ok(!macosPatches.includes("renderer-turn-window"), "macOS example excludes the unqualified renderer turn window");
 
 const obsoleteRootPaths = [

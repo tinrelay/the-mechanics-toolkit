@@ -11,7 +11,7 @@ if (!process.argv[2]) throw new Error("usage: tinrelay-presentation-outgoing.tes
 
 const assets = path.join(root, "webview/assets");
 const renderer = unique(fs.readdirSync(assets).filter(name =>
-  /^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/.test(name)
+  /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
 const activity = unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-.*\.js$/.test(name))
   .map(name => path.join(assets, name)), "activity classifier");

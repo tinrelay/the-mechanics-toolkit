@@ -15,7 +15,38 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current accepted build 11645
+## Current accepted build 12246
+
+On 2026-09-29, the official macOS ARM64 full ZIP for Desktop `26.928.20755` / build `12246`
+(SHA-256 `ac129ebf2e908696dce449e33592edc16b90b173f454227148dd10df9d8ec100`) supplied an
+untouched signed source app (pristine ASAR
+`2301fba40bd8fa237ccdb1369363e1deefaf27953da2d767d428225d5e9eedee`). Sparkle had
+downloaded a delta but could not apply it to the modified installation; the full official archive
+was acquired once for this port.
+
+The accepted 18-patch candidate ASAR is
+`efdaf4128e30c1c4653c15913d93c8efc00a59da3345357e5cb359bf9f97cc77`. The complete fleet
+passed post-repack probes, signature and ASAR seal verification, native-payload preservation, and
+byte-identical second application. The replacement `codex-cli 0.159.0` was built with stable Rust
+`1.95.0`, LTO off, from upstream commit `687a119f0fcaace47e1f1abcc77cec6c813fd6da` plus the
+exact `standalone-output-compaction-12246` source patch; binary SHA-256 is
+`69462798b743cd19d64335108640436edc25938df195792919b28988bccca080`. The older
+query-depth patch was not needed. `renderer-turn-window` remains unselected.
+
+On 2026-09-30, genuine supervised replacement observed the invoking CLI exit, installed the exact
+candidate, and reached renderer readiness at `07:02:46.226Z`, about 18 seconds after launch.
+The original task resumed and the operator accepted the result. Earlier build-12246 operator
+checks covered turn rendering, terminal shortcut, attribution/waits, TinRelay correspondence,
+and the room-colored bottom fade after their causal corrections.
+
+The added dot lifecycle guards passed composed packed refusal/reload probes without invoking
+real deletion or reboot. Live read-only inspection confirmed `dotLifecycleProtection` v1 and
+both opted-in protection predicates. Native dot appearance and model/reasoning behavior remain
+unchanged. This is desktop-path protection, not a service-side or other-client guarantee.
+Transaction rollback bulk was removed after readiness; compact evidence remains. No destructive
+supervisor recovery fixture or live compaction stress gate was repeated for this adoption.
+
+## Prior build 11645 evidence
 
 On 2026-09-26, macOS ARM64 Codex Desktop `26.924.22138` / build `11645` was staged from the
 official signed Sparkle ZIP (SHA-256

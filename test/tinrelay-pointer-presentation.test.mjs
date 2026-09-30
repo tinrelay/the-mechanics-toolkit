@@ -8,7 +8,7 @@ if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test
 
 const assets = path.join(root, "webview/assets");
 const renderer = unique(fs.readdirSync(assets).filter(name =>
-  /^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/.test(name)
+  /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
 const build = path.join(root, ".vite/build");
 const main = unique(fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name))

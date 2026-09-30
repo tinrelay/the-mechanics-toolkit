@@ -16,6 +16,12 @@ const definitions = [
     requires: ["runtime-json-reload"]
   },
   {
+    name: "dot-lifecycle-protection",
+    script: "patches/dot-lifecycle-protection/patch.mjs",
+    probe: "test/dot-lifecycle-protection.test.mjs",
+    requires: ["agent-roster"]
+  },
+  {
     name: "task-visual-palette",
     script: "patches/task-visual-palette/patch.mjs",
     probe: "test/task-visual-palette.test.mjs",

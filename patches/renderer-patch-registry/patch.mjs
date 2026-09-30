@@ -40,6 +40,11 @@ function activePackages() {
   const appSource = fs.readFileSync(appInitial, "utf8");
   const mainSource = fs.readFileSync(mainProcess, "utf8");
   const packages = [];
+  addIf(packages, appSource.includes("const MTKdotLifecyclePolicy=1;"), {
+    name: "dotLifecycleProtection",
+    file: appInitial,
+    call: `MTKpatchRegistry?.register("dotLifecycleProtection",{version:1,policy:"exact-cloud-dot-opt-in"});`
+  });
   addIf(packages, appSource.includes("function MTKusePaletteBootstrap("), {
     name: "taskVisualPalette",
     file: appInitial,
@@ -108,12 +113,14 @@ function activePackages() {
       anchor: 'const MTKmodelGuardStyleId=',
       call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("modelIdentityGuard",{version:1,policy:"exact-task-model-and-effort-pin",mismatch:"red-selector-and-locked-composer"});`
     });
-    addIf(packages, source.includes("function MTKsender(") && source.includes("messageBubbleStyle:MTKdelegatedBubbleStyle"), {
+    addIf(packages, source.includes("function MTKsender(") &&
+      (source.includes("messageBubbleStyle:MTKdelegatedBubbleStyle") ||
+        source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor')), {
       name: "crossTaskAttribution",
       file,
       anchor: "var MTKdelegatedBubbleStyle=",
       call: source.includes("function MTKshortTaskTitle(")
-        ? `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:3,resolveTaskLabel(e){try{return MTKsender(e?.title,e?.projectName??MTKprojectFromCwd(e?.cwd,e?.workspaceKind))}catch{return null}}});`
+        ? `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:3,resolveTaskLabel(e){try{return MTKsender(e?.title,e?.projectName??MTKprojectFromCwd(e?.cwd,e?.workspaceKind),e?.taskId)}catch{return null}}});`
         : `globalThis.__MTK_PATCH_REGISTRY__?.register?.("crossTaskAttribution",{version:1});`
     });
     addIf(packages, source.includes("function MTKrenderWaitThreads(") && source.includes("data-mtk-wait-thread-roster"), {

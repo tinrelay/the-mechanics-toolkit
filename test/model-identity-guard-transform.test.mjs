@@ -96,6 +96,15 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
+  fs.writeFileSync(owner, build12246OwnerFixture());
+  assert.equal(run("check").state, "needs-apply");
+  assert.equal(run("apply").state, "applied");
+  const build12246Once = fs.readFileSync(owner);
+  assert.match(build12246Once.toString(), /MTKuseModelIdentityGuard\(r,le,st\)/);
+  assert.match(build12246Once.toString(), /return RW\.useEffect\(/);
+  assert.equal(run("apply").state, "applied");
+  assert.deepEqual(fs.readFileSync(owner), build12246Once);
+
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
   }
@@ -168,5 +177,14 @@ function build11645OwnerFixture() {
     'const selector={"data-codex-intelligence-trigger":true};',
     'function L8(e){let t=(0,VWt.c)(253),r=e.conversationId,ke=e.model,ce=e.locked,re={reasoningEffort:e.reasoningEffort},rt=[];',
     'let st=ce?.lockedReasoningEffort??mj(re.reasoningEffort,rt),ct=true;return{t,r,ke,re,st,ct}}'
+  ].join("");
+}
+
+function build12246OwnerFixture() {
+  return [
+    'const RW={useEffect:e=>e()},bF=e=>e;',
+    'const selector={"data-codex-intelligence-trigger":true};',
+    'function LW(e){let t=(0,A2e.c)(254),r=e.conversationId,le=e.model,se=e.locked,ne={reasoningEffort:e.reasoningEffort},rt=[];',
+    'let st=se?.lockedReasoningEffort??bF(ne.reasoningEffort,rt),ct=true;return{t,r,le,ne,st,ct}}'
   ].join("");
 }

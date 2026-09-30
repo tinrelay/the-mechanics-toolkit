@@ -69,6 +69,14 @@ try {
     'let n=((e,t)=>e.get(Tu).forHost(t))(e,"local")'
   ], "macOS build 11645");
 
+  verifyProfile(target, build12246Fixture(), [
+    "function MTKuseAgentRoster(){let e=Pe(Z);",
+    "return m6s.useEffect(",
+    "let a=i(r2n);",
+    "e.get(Uu)==null&&await e.when(({get:e})=>e(Uu)!=null)",
+    'let n=((e,t)=>e.get(Uu).forHost(t))(e,"local")'
+  ], "macOS build 12246");
+
   process.stdout.write("agent roster current-build transform probe passed\n");
 
   function verifyProfile(target, fixture, expected, label) {
@@ -164,6 +172,17 @@ function build11645Fixture() {
     "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),value=0;return e}",
     "function owner(){let {groups:d,isWorkspaceRootOptionsLoading:f}=r(dM);return d}",
     "function uno(e){return e.get(Tu).collectAppStateSnapshot(`local`,`test`)}",
+    "export const fixture=true;"
+  ].join("");
+}
+
+function build12246Fixture() {
+  return [
+    "const Z=Symbol(`scope`),r2n=ls(Z,({get:e})=>e),Uu=Go(Z,()=>null);",
+    "const Pe=e=>e,m6s={useEffect(){}};",
+    "function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),value=0;return e}",
+    "function owner(){let {groups:d,isWorkspaceRootOptionsLoading:f}=r(r2n);return d}",
+    "function uno(e){return e.get(Uu).collectAppStateSnapshot(`local`,`test`)}",
     "export const fixture=true;"
   ].join("");
 }

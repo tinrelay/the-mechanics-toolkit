@@ -180,6 +180,10 @@ Configuration-backed patches use these values:
 - `agent-roster` discovers `.codex/agent-roster.json` below every currently registered local
   project root at runtime; no project path or roster contents are staging inputs;
 - reasoning retention consumes exact task opt-ins from the roster;
+- [dot lifecycle protection](../patches/dot-lifecycle-protection/) consumes an agent's opaque
+  `orbitId`, conversation `taskId`, and independent `protectDeletion` / `protectReboot` flags. It does
+  not require a color, model pin, or reasoning policy. Its exact desktop owner is currently macOS
+  build `12246`; omit this optional patch on other builds until their owners are recognized;
 - the model identity guard consumes exact task model-and-effort pins from the roster;
 - `tinrelay.client` identifies the local executable used for legacy pointer inspection. A pointer's
   supplied local ship is accepted only when that inspection returns the same recipient ship and

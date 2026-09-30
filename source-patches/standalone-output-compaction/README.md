@@ -44,19 +44,21 @@ results discardable.
 
 ## Qualified source
 
-[The source diff](codex-0.155.0-alpha.9.2.patch) is qualified for the current macOS Desktop
-`26.924.22138` / build `11645`, which bundles `codex-cli 0.158.0-alpha.2.1` at upstream commit
-`0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807`. The catalog also retains exact entries for
-earlier supported builds. The source-patch command verifies the selected commit and every target
-file's exact before or after hash; the shared textual diff alone is not an applicability claim.
+[The current source diff](codex-0.159.0.patch) is qualified for the staged macOS Desktop
+`26.928.20755` / build `12246`, which bundles `codex-cli 0.159.0` at upstream commit
+`687a119f0fcaace47e1f1abcc77cec6c813fd6da`. Its focused compaction tests passed red on
+pristine source and green after the patch; the stable-Rust release build succeeded. The catalog
+also retains exact entries for earlier supported builds. The source-patch command verifies the
+selected commit and every target file's exact before or after hash; the shared textual diff alone
+is not an applicability claim.
 
-For a stable-Rust build of the `11645` source, also apply the separate
-[ChatGPT query-depth source patch](../chatgpt-query-depth/). It addresses a crate-level compiler
-limit observed on another ARM64 macOS host without changing this repair's three source files.
+Build `12246` did not need the separate
+[ChatGPT query-depth source patch](../chatgpt-query-depth/); that exact patch remains for the
+earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-11645 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-11645 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-12246 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-12246 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

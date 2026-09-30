@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
+import { build12246 } from "./profiles/build12246.mjs";
 import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
@@ -130,7 +131,7 @@ function inspectState() {
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
-  const currentBuild = [build11645, build10789, build9922].find(build =>
+  const currentBuild = [build12246, build11645, build10789, build9922].find(build =>
     conversationSource.includes(build.dynamic.before) || conversationSource.includes(build.dynamic.after));
   const current = currentBuild?.dynamic ?? build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
@@ -155,7 +156,7 @@ function inspectState() {
   const conversationApplied = conversationMarkers.every(marker => combinedConversationSource.includes(marker)) &&
     sourceTurnApplied;
   const mainApplied = mainMarkers.every(marker => mainSource.includes(marker));
-  const successProjectionApplied = successProjectionProfile(projectionSource).state === "applied";
+  const successProjectionApplied = ["applied", "upstream-owned"].includes(successProjectionProfile(projectionSource).state);
   const conversationCacheStart = conversationSource.indexOf("const MTKoutboundReceiptContract=");
   const conversationCacheEnd = conversationSource.indexOf(conversationHelperBoundary(conversationSource), conversationCacheStart);
   const conversationCache = conversationCacheStart >= 0 && conversationCacheEnd > conversationCacheStart
@@ -237,7 +238,7 @@ function buildHelper(send, useDedicatedTitleSelector = false, useDirectSummarySe
     ? `??t.get(MTKoutboundThreadSummaryAtom,${summaryKey})?.cwd`
     : "";
   const helper = String.raw`
-function MTKoutboundArguments(e){return e!=null&&typeof e==="object"&&!Array.isArray(e)&&typeof e.threadId==="string"&&e.threadId.length>0&&typeof e.prompt==="string"&&(e.hostId===void 0||typeof e.hostId==="string")?e:null}function MTKoutboundLabel(e,t,n){if(typeof e!=="string"||e.trim().length===0)return null;let r=e.trim(),i=r.indexOf(" — "),a=i>0?r.slice(0,i).trim():r;try{let o=globalThis.__MTK_PATCH_REGISTRY__;if(o?.apiVersion!==1)return a;let s=o.packages?.crossTaskAttribution;if(s?.version!==3||typeof s.resolveTaskLabel!=="function")return a;let c=s.resolveTaskLabel({title:e,cwd:t,workspaceKind:n});return typeof c==="string"&&c.trim().length>0?c.trim():a}catch{return a}}function MTKoutboundPreview(e){let t=e.split(/\r?\n/).map(e=>e.trim()).find(e=>e.length>0)??"(empty message)";return t.length<=180?t:t.slice(0,179)+"…"}function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}function MTKoutboundNavigate(e){let t=${send.normalize}(e);${send.hostBridge}.dispatchHostMessage({type:"navigate-to-route",path:${send.routeFlag}()?${send.newRoute}(t):${send.oldRoute}(t)})}function MTKOutboundMessageReceipt({item:e}){let t=MTKoutboundStoreHook(MTKoutboundStoreScope),n=MTKoutboundArguments(e.arguments);if(n==null)return null;let r=n.hostId==null||n.hostId==="local"?MTKoutboundLocalThreadKey(n.threadId):MTKoutboundRemoteThreadKey(n.threadId),i=t.get(MTKoutboundTaskAtom,r),a=${title}i?.kind==="local"?(i.conversation?.title??i.catalogTitle??i.summary?.title):i?.kind==="remote"?i.task?.title:null${titleEnd},o=(i?.kind==="local"?(i.conversation?.cwd??i.cwd??i.summary?.cwd):void 0)${summaryCwd},s=MTKoutboundLabel(a,o,i?.conversation?.workspaceKind??i?.summary?.workspaceKind)??"Task "+n.threadId.slice(0,8)+"…",c=MTKoutboundTaskColor(n.threadId,a),l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=e.completed?e.success===!1?"Failed to send to":"Sent to":"Sending to",d=MTKoutboundPreview(n.prompt),f=e=>{e.preventDefault(),e.stopPropagation(),MTKoutboundNavigate(n.threadId)},p=(0,${send.jsx}.jsxs)("div",{"data-mtk-outgoing-message-receipt":!0,className:"self-start flex min-w-0 items-center gap-1.5 rounded-lg border border-border/70 bg-surface-secondary/40 px-3 py-2 text-size-chat text-text-tertiary",style:{maxWidth:"min(42rem,92%)"},children:[(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"↗"}),(0,${send.jsx}.jsx)("span",{className:"shrink-0",children:u}),(0,${send.jsx}.jsx)("button",{"aria-label":"Open "+(a??s),className:"min-w-0 shrink-0 rounded-sm font-medium text-text-secondary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",onClick:f,style:l,type:"button",children:s}),(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"·"}),(0,${send.jsx}.jsx)("span",{className:"min-w-0 flex-1 truncate text-text-tertiary/90",children:d})]});return(0,${send.jsx}.jsx)(MTKoutboundHover,{align:"start",closeOnTriggerBlur:!1,delayDuration:800,interactive:!0,side:"top",sideOffset:6,skipDelayKey:"outbound-message-preview",tooltipMaxWidth:"min(42rem, var(--radix-tooltip-content-available-width), calc(100vw - 16px))",variant:"rich",tooltipContent:(0,${send.jsx}.jsx)("div",{className:"min-w-0 text-start",style:{maxHeight:"min(420px, var(--radix-tooltip-content-available-height, 420px), calc(100vh - 16px))",overflowY:"auto",padding:"0.75rem",userSelect:"text"},children:(0,${send.jsx}.jsx)(MTKoutboundFormattedText,{cwd:o,externalLinkContextMenuConversationId:n.threadId,hostId:n.hostId??"local",text:n.prompt})}),children:p})}function MTKrenderOutboundMessage(e,t,n,r=!0,i){let a=MTKoutboundArguments(e.arguments);if(t==="row"&&a!=null){if(e.completed&&e.success===!0&&typeof e.callId==="string"&&e.callId.length>0&&i!=null&&typeof i.conversationId==="string"&&i.conversationId.length>0&&typeof i.turnId==="string"&&i.turnId.length>0&&typeof globalThis.__MTK_OUTBOUND_REMEMBER__==="function"){let t={callId:e.callId,contract:"outgoing-message-receipt-v1",prompt:a.prompt,recordedAtMs:Date.now(),sourceThreadId:i.conversationId,sourceTurnId:i.turnId,targetHostId:a.hostId??"local",targetThreadId:a.threadId};if(typeof i.ReceiptLifecycle==="function")return(0,${send.jsx}.jsx)(i.ReceiptLifecycle,{item:e,record:t});if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null}return(0,${send.jsx}.jsx)(MTKOutboundMessageReceipt,{item:e})}return ${send.genericRender}(e,t,n,r)}
+function MTKoutboundArguments(e){return e!=null&&typeof e==="object"&&!Array.isArray(e)&&typeof e.threadId==="string"&&e.threadId.length>0&&typeof e.prompt==="string"&&(e.hostId===void 0||typeof e.hostId==="string")?e:null}function MTKoutboundLabel(e,t,n,d){let r=typeof e==="string"?e.trim():"",i=r.indexOf(" — "),a=r.length===0?null:i>0?r.slice(0,i).trim():r;try{let o=globalThis.__MTK_PATCH_REGISTRY__;if(o?.apiVersion!==1)return a;let s=o.packages?.crossTaskAttribution;if(s?.version!==3||typeof s.resolveTaskLabel!=="function")return a;let c=s.resolveTaskLabel({title:e,cwd:t,workspaceKind:n,taskId:d});return typeof c==="string"&&c.trim().length>0?c.trim():a}catch{return a}}function MTKoutboundPreview(e){let t=e.split(/\r?\n/).map(e=>e.trim()).find(e=>e.length>0)??"(empty message)";return t.length<=180?t:t.slice(0,179)+"…"}function MTKoutboundTaskColor(e,t){try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return null;let r=n.packages?.taskVisualPalette;if(r?.version!==1||typeof r.resolveTaskColor!=="function")return null;let i=r.resolveTaskColor({taskId:e,title:t});return typeof i==="string"&&/^#[0-9A-Fa-f]{6}$/.test(i)?i.toUpperCase():null}catch{return null}}function MTKoutboundNavigate(e){let t=${send.normalize}(e);${send.hostBridge}.dispatchHostMessage({type:"navigate-to-route",path:${send.routeFlag}()?${send.newRoute}(t):${send.oldRoute}(t)})}function MTKOutboundMessageReceipt({item:e}){let t=MTKoutboundStoreHook(MTKoutboundStoreScope),n=MTKoutboundArguments(e.arguments);if(n==null)return null;let r=n.hostId==null||n.hostId==="local"?MTKoutboundLocalThreadKey(n.threadId):MTKoutboundRemoteThreadKey(n.threadId),i=t.get(MTKoutboundTaskAtom,r),a=${title}i?.kind==="local"?(i.conversation?.title??i.catalogTitle??i.summary?.title):i?.kind==="remote"?i.task?.title:null${titleEnd},o=(i?.kind==="local"?(i.conversation?.cwd??i.cwd??i.summary?.cwd):void 0)${summaryCwd},s=MTKoutboundLabel(a,o,i?.conversation?.workspaceKind??i?.summary?.workspaceKind,n.threadId)??"Task "+n.threadId.slice(0,8)+"…",c=MTKoutboundTaskColor(n.threadId,a),l=c==null?void 0:{color:"color-mix(in srgb, "+c+" 68%, var(--color-text) 32%)"},u=e.completed?e.success===!1?"Failed to send to":"Sent to":"Sending to",d=MTKoutboundPreview(n.prompt),f=e=>{e.preventDefault(),e.stopPropagation(),MTKoutboundNavigate(n.threadId)},p=(0,${send.jsx}.jsxs)("div",{"data-mtk-outgoing-message-receipt":!0,className:"self-start flex min-w-0 items-center gap-1.5 rounded-lg border border-border/70 bg-surface-secondary/40 px-3 py-2 text-size-chat text-text-tertiary",style:{maxWidth:"min(42rem,92%)"},children:[(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"↗"}),(0,${send.jsx}.jsx)("span",{className:"shrink-0",children:u}),(0,${send.jsx}.jsx)("button",{"aria-label":"Open "+(a??s),className:"min-w-0 shrink-0 rounded-sm font-medium text-text-secondary hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",onClick:f,style:l,type:"button",children:s}),(0,${send.jsx}.jsx)("span",{"aria-hidden":!0,className:"shrink-0",children:"·"}),(0,${send.jsx}.jsx)("span",{className:"min-w-0 flex-1 truncate text-text-tertiary/90",children:d})]});return(0,${send.jsx}.jsx)(MTKoutboundHover,{align:"start",closeOnTriggerBlur:!1,delayDuration:800,interactive:!0,side:"top",sideOffset:6,skipDelayKey:"outbound-message-preview",tooltipMaxWidth:"min(42rem, var(--radix-tooltip-content-available-width), calc(100vw - 16px))",variant:"rich",tooltipContent:(0,${send.jsx}.jsx)("div",{className:"min-w-0 text-start",style:{maxHeight:"min(420px, var(--radix-tooltip-content-available-height, 420px), calc(100vh - 16px))",overflowY:"auto",padding:"0.75rem",userSelect:"text"},children:(0,${send.jsx}.jsx)(MTKoutboundFormattedText,{cwd:o,externalLinkContextMenuConversationId:n.threadId,hostId:n.hostId??"local",text:n.prompt})}),children:p})}function MTKrenderOutboundMessage(e,t,n,r=!0,i){let a=MTKoutboundArguments(e.arguments);if(t==="row"&&a!=null){if(e.completed&&e.success===!0&&typeof e.callId==="string"&&e.callId.length>0&&i!=null&&typeof i.conversationId==="string"&&i.conversationId.length>0&&typeof i.turnId==="string"&&i.turnId.length>0&&typeof globalThis.__MTK_OUTBOUND_REMEMBER__==="function"){let t={callId:e.callId,contract:"outgoing-message-receipt-v1",prompt:a.prompt,recordedAtMs:Date.now(),sourceThreadId:i.conversationId,sourceTurnId:i.turnId,targetHostId:a.hostId??"local",targetThreadId:a.threadId};if(typeof i.ReceiptLifecycle==="function")return(0,${send.jsx}.jsx)(i.ReceiptLifecycle,{item:e,record:t});if(globalThis.__MTK_OUTBOUND_REMEMBER__(t)===!0)return null}return(0,${send.jsx}.jsx)(MTKOutboundMessageReceipt,{item:e})}return ${send.genericRender}(e,t,n,r)}
 `;
   const withTitle = reactiveTitle ? replaceOnce(helper,
     'n=MTKoutboundArguments(e.arguments);if(n==null)return null;',
@@ -300,6 +301,10 @@ function patchConversation(value, turnValue) {
     patched = addImportSpecifier(patched, `./${path.basename(build11645.taskImports.sharedModule)}`,
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
+  if (value.includes(build12246.dynamic.before)) {
+    patched = addImportSpecifier(patched, "./app-shared-5d8e744d1fa1.js",
+      "fun as MTKoutboundHostBus", "build-12246 host bus import");
+  }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
   patched = replaceOnce(
     patched,
@@ -354,7 +359,7 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  for (const [label, build] of [["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
+  for (const [label, build] of [["12246", build12246], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
   const current9922 = build.dynamic;
   if (value.includes(current9922.before) && value.includes(current9922.call) &&
       value.includes(current9922.parentBefore)) {
@@ -550,6 +555,7 @@ function nativeActionsProfile(value) {
 }
 
 function conversationHelperBoundary(value) {
+  if (value.includes("function aS(")) return "function aS(";
   if (value.includes("function zy(")) return "function zy(";
   if (value.includes("function Lv(")) return "function Lv(";
   if (value.includes("function Ey(")) return "function Ey(";
@@ -573,6 +579,12 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
+    if (value.includes(build12246.dynamic.before) &&
+        currentShared[0].groups.relative === "./app-shared-5d8e744d1fa1.js" &&
+        exportedAs(source, "Cf") === "fun" && source.includes("Cf=Sf.getInstance()") &&
+        source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
+      return "MTKoutboundHostBus";
+    }
     if (value.includes(build11645.dynamic.before) &&
         currentShared[0].groups.relative === build11645.taskImports.sharedModule &&
         exportedAs(source, "ie") === build11645.hostBus.exported &&
@@ -846,6 +858,8 @@ function sendProfile(value) {
     ? {jsx: "Z", normalize: "r", hostBridge: "ae", routeFlag: "Ee", newRoute: "A", oldRoute: "p"}
     : header.genericRender === "Y" && owner.text.includes("let e=v(s);l.dispatchHostMessage({type:`navigate-to-route`,path:f()?xe(e):h(e)})")
     ? {jsx: "X", normalize: "v", hostBridge: "l", routeFlag: "f", newRoute: "xe", oldRoute: "h"}
+    : header.genericRender === "U" && owner.text.includes("let e=he(s);Fe.dispatchHostMessage({type:`navigate-to-route`,path:d()?Le(e):De(e)})")
+    ? {jsx: "W", normalize: "he", hostBridge: "Fe", routeFlag: "d", newRoute: "Le", oldRoute: "De"}
     : uniqueMatch(
       owner.text,
       new RegExp(`${id}=\\(0,(?<jsx>${id})\\.jsxs\\)[\\s\\S]*?let e=(?<normalize>${id})\\(${id}\\);(?<hostBridge>${id})\\.dispatchHostMessage\\(\\{type:\`navigate-to-route\`,path:(?<routeFlag>${id})\\(\\)\\?(?<newRoute>${id})\\(e\\):(?<oldRoute>${id})\\(e\\)\\}\\)`, "g"),
@@ -920,6 +934,13 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
+  const build12246Contracts = [
+    "de=le!=null&&se.isCollapsed?le.persistentUnits:[]",
+    "Ae=fe.length===0?null:(0,FO.jsx)(KD,{...i,units:fe})",
+    "let je=Ae,Me;",
+    "children:[ke,Pe,Fe,Ie,je,ze]"
+  ];
+  if (build12246Contracts.every(contract => value.includes(contract))) return owner;
   if (build11645.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -954,6 +975,26 @@ function resolveTaskImports(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
+  if ([
+    "function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),",
+    "function u6s(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,p6s.c)(12),t=Pe(Z),",
+    "function u6s(){MTKuseAttentionBootstrap12246();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,p6s.c)(12),t=Pe(Z),"
+  ].some(owner => appInitial.includes(owner)) &&
+      appInitial.includes("mj=dl(Z,(e,{get:t})=>{let n=ls(e);") &&
+      appInitial.includes("H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;") &&
+      ["A5t as Pe", "dJt as Z", "OI as Yo", "kI as Kf", "N5t as To"].every(binding => appInitial.includes(binding))) {
+    return {
+      before: importMatch[0],
+      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "mj")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "H_o")} as MTKoutboundTitleAtom}from"${importMatch.groups.relative}";`,
+      sharedModule: "./app-shared-5d8e744d1fa1.js",
+      sharedHookExport: "A5t",
+      sharedScopeExport: "dJt",
+      sharedTitleHookExport: "N5t",
+      sharedLocalKeyExport: "OI",
+      sharedRemoteKeyExport: "kI",
+      reactiveTitle: true
+    };
+  }
   const current11645 = build11645.taskImports;
   if (appInitial.includes(current11645.appRoot) && appInitial.includes(current11645.taskOwner) &&
       appInitial.includes(current11645.threadSummaryOwner) && appInitial.includes(current11645.threadKeyOwner) &&
@@ -1310,12 +1351,16 @@ function uniqueProjectionOwner() {
 
 function patchSuccessProjection(value) {
   const profile = successProjectionProfile(value);
-  return profile.state === "applied"
+  return profile.state === "applied" || profile.state === "upstream-owned"
     ? value
     : replaceOnce(value, profile.before, profile.after, "send-message success projection");
 }
 
 function successProjectionProfile(value, {required = true} = {}) {
+  const native = [...value.matchAll(/let ([A-Za-z_$][\w$]*)=\{type:`dynamic-tool-call`,callId:([A-Za-z_$][\w$]*)\.id,namespace:\2\.namespace,tool:\2\.tool,arguments:\2\.arguments,success:\2\.status!==`failed`&&\2\.success,completed:/g)];
+  if (native.length === 1 && value.includes(`${native[0][1]}.contentItems=`)) {
+    return {state: "upstream-owned"};
+  }
   const matches = [...value.matchAll(new RegExp(
     `\\((?<raw>${id})\\.tool===\`create_thread\`\\|\\|\\k<raw>\\.tool===\`handoff_thread\`\\)&&` +
       `\\((?<item>${id})\\.contentItems=(?<content>${id}),\\k<item>\\.success=\\k<raw>\\.success\\)`,
@@ -1344,6 +1389,7 @@ function uniqueConversationOwner() {
       (value.includes("function zC(") && value.includes("let e=Hf(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function Ow(") && value.includes("let e=Cp(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+      (value.includes("function aS(e){") && value.includes("let e=Zh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
     return split && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
@@ -1357,8 +1403,8 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Z(e){let t=(0,")) &&
-      (value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") ||
+    return (value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,pl.c)(229),") || value.includes("function Z(e){let t=(0,")) &&
+      (value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let qa=za.length,Ya={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });

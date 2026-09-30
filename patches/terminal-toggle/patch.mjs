@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
 import { build11645Contracts } from "./profiles/build11645.mjs";
+import { build12246Contracts } from "./profiles/build12246.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -76,6 +77,7 @@ function inspectState(value, commands) {
 }
 
 function verifyOwnedBehavior(value) {
+  if (build12246Contracts.every(contract => count(value, contract) === 1)) return;
   if (build11645Contracts.every(contract => count(value, contract) === 1)) return;
   if (commandTargets.length === 3 &&
       build10789Contracts.every(contract => count(value, contract) === 1)) return;
@@ -91,7 +93,9 @@ function editableSeam(value) {
     ["c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;",
       "c=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;"],
     ["l=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;",
-      "l=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"]
+      "l=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"],
+    ["f=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;",
+      "f=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"]
   ].filter(([before, after]) => count(value, before) + count(value, after) === 1);
   if (variants.length !== 1) throw new Error("Upstream changed: editable terminal shortcut owner is not unique");
   return {editableBefore: variants[0][0], editableAfter: variants[0][1]};

@@ -6,6 +6,7 @@ import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linu
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
+import { build12246 } from "./profiles/build12246.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -115,17 +116,17 @@ function MTKwaitTargets(e){if(e==null||typeof e!=="object"||Array.isArray(e)||!A
 `;
   helper = replaceOnce(helper,
     'function MTKwaitTaskLabel(e){let t=MTKwaitFallbackLabel(e);if(t==null)return null;try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return t;let r=n.packages?.crossTaskAttribution;if(r?.version!==2||typeof r.resolveTaskLabel!=="function")return t;let i=r.resolveTaskLabel({title:e});return typeof i==="string"&&i.trim().length>0?i.trim():t}catch{return t}}',
-    'function MTKwaitTaskLabel(e,o,s){let t=MTKwaitFallbackLabel(e);if(t==null)return null;try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return t;let r=n.packages?.crossTaskAttribution;if(r?.version!==3||typeof r.resolveTaskLabel!=="function")return t;let i=r.resolveTaskLabel({title:e,cwd:o,workspaceKind:s});return typeof i==="string"&&i.trim().length>0?i.trim():t}catch{return t}}',
+    'function MTKwaitTaskLabel(e,o,s,d){let t=MTKwaitFallbackLabel(e);try{let n=globalThis.__MTK_PATCH_REGISTRY__;if(n?.apiVersion!==1)return t;let r=n.packages?.crossTaskAttribution;if(r?.version!==3||typeof r.resolveTaskLabel!=="function")return t;let i=r.resolveTaskLabel({title:e,cwd:o,workspaceKind:s,taskId:d});return typeof i==="string"&&i.trim().length>0?i.trim():t}catch{return t}}',
     "shared wait label capability");
   helper = replaceOnce(helper,
     'label:MTKwaitTaskLabel(n)??"Task "+e.threadId.slice(0,8)+"…"',
-    'label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…"',
+    'label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind,e.threadId)??"Task "+e.threadId.slice(0,8)+"…"',
     "wait task project metadata");
   if (useDedicatedTitleSelector) {
     helper = replaceOnce(
       helper,
-      'function MTKwaitResolvedTarget(e,t){let n=t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null;return{color:MTKwaitTaskColor(e.threadId,n),known:t!=null,label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:n}}',
-      'function MTKwaitResolvedTarget(e,t,n){let r=n??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
+      'function MTKwaitResolvedTarget(e,t){let n=t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null;return{color:MTKwaitTaskColor(e.threadId,n),known:t!=null,label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind,e.threadId)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:n}}',
+      'function MTKwaitResolvedTarget(e,t,n){let r=n??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind,e.threadId)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
       "wait title resolver"
     );
     helper = replaceOnce(
@@ -137,8 +138,8 @@ function MTKwaitTargets(e){if(e==null||typeof e!=="object"||Array.isArray(e)||!A
   }
   if (useDirectSummarySelector) {
     helper = replaceOnce(helper,
-      'function MTKwaitResolvedTarget(e,t){let n=t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null;return{color:MTKwaitTaskColor(e.threadId,n),known:t!=null,label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:n}}',
-      'function MTKwaitResolvedTarget(e,t,n){let r=n?.title??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null),o=n?.cwd??(t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r,o,t?.conversation?.workspaceKind??t?.summary?.workspaceKind)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
+      'function MTKwaitResolvedTarget(e,t){let n=t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null;return{color:MTKwaitTaskColor(e.threadId,n),known:t!=null,label:MTKwaitTaskLabel(n,t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0,t?.conversation?.workspaceKind??t?.summary?.workspaceKind,e.threadId)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:n}}',
+      'function MTKwaitResolvedTarget(e,t,n){let r=n?.title??(t?.kind==="local"?(t.conversation?.title??t.catalogTitle??t.summary?.title):t?.kind==="remote"?t.task?.title:null),o=n?.cwd??(t?.kind==="local"?(t.conversation?.cwd??t.cwd??t.summary?.cwd):void 0);return{color:MTKwaitTaskColor(e.threadId,r),known:t!=null||n!=null,label:MTKwaitTaskLabel(r,o,t?.conversation?.workspaceKind??t?.summary?.workspaceKind,e.threadId)??"Task "+e.threadId.slice(0,8)+"…",target:e,title:r}}',
       "wait direct thread summary");
     helper = replaceOnce(helper,
       "return MTKwaitResolvedTarget(e,r.get(MTKwaitTaskAtom,t))",
@@ -223,6 +224,7 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
+    taskImportProfile(build12246.taskImports),
     taskImportProfile(build11645.taskImports),
     taskImportProfile(build10789.taskImports),
     taskImportProfile(build9922.taskImports),

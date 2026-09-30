@@ -6,6 +6,7 @@ import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./prof
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
+import { incomingBuild12246 } from "./profiles/build12246.mjs";
 
 const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.34) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
 
@@ -19,7 +20,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const assets = path.join(root, "webview/assets");
-const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/);
+const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
@@ -86,6 +87,24 @@ function inspectPristineRenderer(source) {
   const profile = incomingRendererProfile(source);
   const message = functionAt(source, source.indexOf(`function ${profile.message}(`));
   const delegation = functionAt(source, source.indexOf(`function ${profile.delegation}(`));
+  if (profile === incomingBuild12246) {
+    const paletteProps = "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e";
+    const composedPalette = message.text.includes(paletteProps);
+    const props = composedPalette ? paletteProps : "compactActions:u,onLabelClick:d}=e";
+    const cache = composedPalette ? "function bv(e){let t=(0,xv.c)(23)," : "function bv(e){let t=(0,xv.c)(21),";
+    for (const contract of [cache, "collapsedLineCount:Cv", props, "threadId:a", "t[15]!==h?(y=h?"]) {
+      if (!message.text.includes(contract)) throw new Error(`Upstream changed: build-12246 delegated bubble ${contract}`);
+    }
+    if (composedPalette && !message.text.includes("t[21]!==MTKsourceTitle||t[22]!==MTKsourceId?")) {
+      throw new Error("Upstream changed: build-12246 palette cache owner is missing");
+    }
+    for (const contract of ["sourceThreadId:r", "message:i", "(0,zx.jsx)(bv,"]) {
+      if (!delegation.text.includes(contract)) throw new Error(`Upstream changed: build-12246 delegation ${contract}`);
+    }
+    if (!source.includes(profile.moduleBefore)) throw new Error("Upstream changed: build-12246 delegated module");
+    resolveHostBus(source);
+    return;
+  }
   if (!message.text.includes(`collapsedLineCount:${profile.collapsedLines}`) || !message.text.includes("threadId:r") ||
       !delegation.text.includes("sourceThreadId:r") || !delegation.text.includes("message:i") ||
       count(delegation.text, `(0,${profile.delegationJsx}.jsx)(${profile.message},`) !== 1) {
@@ -188,6 +207,19 @@ function inspectAppliedRendererBase(source) {
   const profile = incomingRendererProfile(source);
   const message = functionAt(source, source.indexOf(`function ${profile.message}(`));
   const delegation = functionAt(source, source.indexOf(`function ${profile.delegation}(`));
+  if (profile === incomingBuild12246) {
+    const composedPalette = message.text.includes("paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId");
+    const cache = composedPalette ? [23, 24] : [21, 22];
+    for (const contract of ["messageNode:MTKmessageNode}=e", "MTKmessageNode??(h?", "MTKmessageNode?null:d?",
+      `t[${cache[0]}]=MTKmessageNode`, `t[${cache[1]}]=MTKmessageNode`]) {
+      if (!message.text.includes(contract)) throw new Error(`Tinrelay build-12246 postcondition missing: ${contract}`);
+    }
+    if (!delegation.text.includes("messageNode:MTKtinrelayPointerNode(i,a)")) {
+      throw new Error("Tinrelay build-12246 pointer presentation is missing");
+    }
+    resolveHostBus(source);
+    return;
+  }
   for (const contract of ["messageNode:MTKmessageNode", "MTKmessageNode??(f?"]) {
     if (!message.text.includes(contract) && !delegation.text.includes(contract)) {
       throw new Error(`Tinrelay renderer postcondition missing: ${contract}`);
@@ -253,6 +285,11 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
+  if (value.includes(`function ${incomingBuild12246.delegation}(`) &&
+      value.includes(`function ${incomingBuild12246.message}(`) &&
+      (value.includes(incomingBuild12246.moduleBefore) || value.includes(incomingBuild12246.moduleAfter))) {
+    return incomingBuild12246;
+  }
   if (value.includes(`function ${incomingBuild11645.delegation}(`) &&
       value.includes(`function ${incomingBuild11645.message}(`) &&
       (value.includes(incomingBuild11645.moduleBefore) || value.includes(incomingBuild11645.moduleAfter))) {
@@ -290,6 +327,7 @@ function patchRenderer(value) {
       `import{${imported.groups.specifiers},${profile.hostBus.exported} as ${hostBus}}from"${imported.groups.relative}";`,
       "Tinrelay host-bus import");
   }
+  if (profile === incomingBuild12246) return patch12246Renderer(patched, hostBus, profile);
 
   const messageStart = patched.indexOf(`function ${profile.message}(`);
   const message = functionAt(patched, messageStart);
@@ -337,6 +375,37 @@ function patchRenderer(value) {
   patched = patched.slice(0, delegation.start) + delegationAfter + patched.slice(delegation.end);
   patched = patched.slice(0, delegation.start) + rendererHelpers(hostBus, profile) + patched.slice(delegation.start);
   patched = patchTinrelayLabelOwner(patched, profile);
+  return patched;
+}
+
+function patch12246Renderer(value, hostBus, profile) {
+  let patched = value;
+  const start = patched.indexOf("function bv(e){");
+  const message = functionAt(patched, start);
+  const composedPalette = message.text.includes("compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,");
+  const cache = composedPalette ? [23, 24] : [21, 22];
+  let after = replaceOnce(message.text, `function bv(e){let t=(0,xv.c)(${cache[0]}),`,
+    `function bv(e){let t=(0,xv.c)(${cache[0] + 2}),`, "build-12246 delegated cache size");
+  after = replaceOnce(after, composedPalette
+    ? "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,"
+    : "compactActions:u,onLabelClick:d}=e,",
+    composedPalette
+      ? "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId,messageNode:MTKmessageNode}=e,"
+      : "compactActions:u,onLabelClick:d,messageNode:MTKmessageNode}=e,", "build-12246 delegated message node");
+  after = replaceOnce(after, "t[15]!==h?(y=h?(0,Sv.jsx)(_g,",
+    `t[15]!==h||t[${cache[0]}]!==MTKmessageNode?(y=MTKmessageNode??(h?(0,Sv.jsx)(_g,`, "build-12246 bubble cache dependency");
+  after = replaceOnce(after, "):null,t[7]=i,t[8]=f,t[9]=p,t[10]=a,t[11]=c,t[12]=l,t[13]=o,t[14]=s,t[15]=h,t[16]=y):y=t[16]",
+    `):null),t[7]=i,t[8]=f,t[9]=p,t[10]=a,t[11]=c,t[12]=l,t[13]=o,t[14]=s,t[15]=h,t[${cache[0]}]=MTKmessageNode,t[16]=y):y=t[16]`, "build-12246 bubble cache storage");
+  after = replaceOnce(after, "t[4]!==n||t[5]!==d?(v=d?",
+    `t[4]!==n||t[5]!==d||t[${cache[1]}]!==MTKmessageNode?(v=MTKmessageNode?null:d?`, "build-12246 label cache dependency");
+  after = replaceOnce(after, "t[4]=n,t[5]=d,t[6]=v):v=t[6]",
+    `t[4]=n,t[5]=d,t[${cache[1]}]=MTKmessageNode,t[6]=v):v=t[6]`, "build-12246 label cache storage");
+  patched = patched.slice(0, message.start) + after + patched.slice(message.end);
+  const delegation = functionAt(patched, patched.indexOf("function Lx(e){"));
+  const delegated = replaceOnce(delegation.text, "(bv,{conversationId:n,label:p,message:i,",
+    "(bv,{conversationId:n,label:p,message:i,messageNode:MTKtinrelayPointerNode(i,a),",
+    "build-12246 pointer presentation");
+  patched = patched.slice(0, delegation.start) + rendererHelpers(hostBus, profile) + delegated + patched.slice(delegation.end);
   return patched;
 }
 
@@ -423,8 +492,8 @@ function resolveHostBus(source) {
     );
     if (profile.hostBus.newImport) {
       const shared = fs.readFileSync(path.resolve(path.dirname(renderer), imported.groups.relative), "utf8");
-      if (!shared.includes("ie=L.getInstance()") ||
-          !shared.includes(`ie as ${profile.hostBus.exported}`)) {
+      if (!shared.includes(`${profile.hostBus.internal ?? "ie"}=${profile.hostBus.constructor ?? "L"}.getInstance()`) ||
+          !shared.includes(`${profile.hostBus.internal ?? "ie"} as ${profile.hostBus.exported}`)) {
         throw new Error("Upstream changed: Tinrelay host-bus singleton is missing");
       }
       const binding = `${profile.hostBus.exported} as MTKtinrelayBus`;

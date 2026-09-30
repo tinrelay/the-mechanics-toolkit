@@ -62,6 +62,26 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
+  const build12246Seam = "function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),";
+  if (value.includes(build12246Seam)) {
+    const contracts = [
+      build12246Seam,
+      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(r2n)",
+      "e.get(Uu)"
+    ];
+    if (count(value, contracts[0]) !== 1 || count(value, contracts[1]) !== 1 ||
+        count(value, contracts[2]) < 1) {
+      throw new Error("Upstream changed: build-12246 agent roster owner is not unique");
+    }
+    return {
+      seam: build12246Seam,
+      scope: "Pe(Z)",
+      react: "m6s",
+      projectsAtom: "r2n",
+      readyAtom: "Uu",
+      client: "((e,t)=>e.get(Uu).forHost(t))"
+    };
+  }
   const build11645Seam = "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),";
   if (value.includes(build11645Seam)) {
     const contracts = [

@@ -6,6 +6,7 @@ import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
+import { build12246 } from "./profiles/build12246.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -22,7 +23,7 @@ const localPage = uniqueFile(
   /^local-conversation-page-.*\.js$/,
   source => source.includes("relative h-full min-h-0")
 );
-const delegation = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks)-.*\.js$/);
+const delegation = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const observerGateHelper = String.raw`const MTKpaletteSurfaceSelector="[data-app-action-sidebar-thread-row],[data-mtk-palette-room-host],[data-mtk-palette-source-id]";function MTKpaletteMutationRelevant(e){for(let t of e){if(t.type==="attributes")return!0;for(let e of[...t.addedNodes,...t.removedNodes])if((e.nodeType===1||e.nodeType===11)&&(e.nodeType===1&&e.matches(MTKpaletteSurfaceSelector)||e.querySelector?.(MTKpaletteSurfaceSelector)))return!0}return!1}`;
 const universalSelectionOutlineCss = "[data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-selected=true],[data-app-action-sidebar-thread-row][data-app-action-sidebar-thread-active=true]{box-shadow:inset 0 0 0 1px var(--color-token-text-tertiary)!important}";
 const previousThemeDerive = 'function MTKderive(e,t,n){let r=n?1:.72,i=n?"#101114":"#FAFAFA",a=n?"#282A30":"#E7E9ED",o=n?"#14161A":"#ECEEF1",s=n?"#F2F3F5":"#18191C"';
@@ -35,7 +36,8 @@ const canonicalArchiveClassifier = 'function MTKsidebarArchiveTaskId(e){if(typeo
 let state = inspectState();
 if (command === "apply" && state === "needs-apply") {
   const attributionSource = fs.readFileSync(delegation, "utf8");
-  if (!attributionSource.includes("function MTKsender(") || !attributionSource.includes("messageBubbleStyle:MTKdelegatedBubbleStyle")) {
+  if (!attributionSource.includes("function MTKsender(") ||
+      !["messageBubbleStyle:MTKdelegatedBubbleStyle", "accentColor:MTKdelegatedAccentColor"].some(contract => attributionSource.includes(contract))) {
     throw new Error("Palette apply requires the cross-task attribution mitigation first");
   }
   patchAppInitial(appInitial, configuredWorkspaceRoot(false));
@@ -101,7 +103,8 @@ function inspectState() {
       appSource.includes("box-shadow:inset 0 0 0 1px var(--mtk-accent-dark)") &&
       (appSource.includes('"data-mtk-palette-bottom-fade":!0') || appPrimarySource.includes('"data-mtk-palette-bottom-fade":!0')),
     localSource.includes('"data-mtk-palette-room-host":!0') && localSource.includes('"data-mtk-palette-thread-id"'),
-    delegationSource.includes('"data-mtk-palette-source-title"') && delegationSource.includes('"data-mtk-palette-source-id"') && delegationSource.includes("messageBubbleStyle:MTKdelegatedBubbleStyle")
+    delegationSource.includes('"data-mtk-palette-source-title"') && delegationSource.includes('"data-mtk-palette-source-id"') &&
+      ["messageBubbleStyle:MTKdelegatedBubbleStyle", "accentColor:MTKdelegatedAccentColor"].some(contract => delegationSource.includes(contract))
   ];
   if (applied.every(Boolean)) {
     if (!appSource.includes(currentThemeDerive)) {
@@ -172,6 +175,19 @@ function inspectArchiveIdentity(source) {
 
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
+
+  if (build12246.archive.applied.every(contract => source.includes(contract))) {
+    if (!build12246.archive.runtimeApplied.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-12246 archive runtime reload");
+    }
+    return "applied";
+  }
+  if (build12246.archive.pristine.every(contract => source.includes(contract))) {
+    if (!build12246.archive.runtimePristine.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-12246 archive runtime owner");
+    }
+    return "needs-apply";
+  }
 
   if (build11645.archive.applied.every(contract => source.includes(contract))) {
     if (!build11645.archive.runtimeApplied.every(contract => source.includes(contract))) {
@@ -257,6 +273,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
+    build12246.app,
     build11645.app,
     build10789.app,
     build9922.app,
@@ -281,8 +298,9 @@ function appProfile(source) {
   );
   return matches.length === 1 ? matches[0] : null;
 }
-function bottomFadeProfile(_appSource, primarySource) {
+function bottomFadeProfile(appSource, primarySource) {
   const profiles = [
+    build12246.bottomFade,
     build11645.bottomFade,
     build9922.bottomFade,
     linuxBuild10954.bottomFade,
@@ -293,11 +311,12 @@ function bottomFadeProfile(_appSource, primarySource) {
     after: `(0,${jsx}.jsx)(\`div\`,{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:\`pointer-events-none absolute inset-x-0 bottom-0 z-0 h-full bg-gradient-to-t from-surface via-surface extension:from-surface-secondary extension:via-surface-secondary\`})`
     }))
   ];
-  const matches = profiles.filter(profile => primarySource.includes(profile.before));
+  const matches = profiles.filter(profile => (profile.file === "app-initial" ? appSource : primarySource).includes(profile.before));
   return matches.length === 1 ? matches[0] : null;
 }
 function localProfile(source) {
   const profiles = [
+    build12246.local,
     build11645.local,
     build10789.local,
     build9922.local,
@@ -364,6 +383,7 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
     universalSelectionOutlineCss +
     '[data-mtk-palette-row=true][data-app-action-sidebar-thread-selected=true],[data-mtk-palette-row=true][data-app-action-sidebar-thread-active=true]{box-shadow:inset 0 0 0 1px var(--mtk-accent-dark)!important}' +
     '[data-mtk-palette-room=true] ::selection{background-color:var(--mtk-selection-dark)}' +
+    '[data-mtk-palette-room=true] [data-mtk-palette-bottom-fade].bg-surface{background-color:var(--mtk-room-dark)!important}' +
     '[data-mtk-palette-room=true] [data-mtk-palette-bottom-fade]{--tw-gradient-from:var(--mtk-room-dark)!important;--tw-gradient-via:var(--mtk-room-dark)!important}' +
     '[data-mtk-palette-room=true][data-mtk-palette-mark=true]::before{content:"";position:absolute;z-index:-1;left:50%;top:48%;width:min(62vw,760px);height:min(62vw,760px);transform:translate(-50%,-50%);pointer-events:none;background-color:var(--mtk-mark-dark);opacity:var(--mtk-watermark-dark-opacity);-webkit-mask-image:var(--mtk-mark-image);mask-image:var(--mtk-mark-image);-webkit-mask-position:center;mask-position:center;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:contain;mask-size:contain;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}' +
     '[data-mtk-palette-delegation=true] [data-mtk-palette-attribution-name]{color:var(--mtk-label-dark)!important}' +
@@ -371,6 +391,7 @@ const MTKpaletteRelativePath=".codex/task-visual-palette.json",MTKpaletteDefault
     '[data-mtk-palette-delegation=true] [data-user-message-bubble]::selection,[data-mtk-palette-delegation=true] [data-user-message-bubble] *::selection{background-color:var(--mtk-selection-dark)}' +
     'html.electron-light [data-mtk-palette-row=true][data-app-action-sidebar-thread-selected=true],html.electron-light [data-mtk-palette-row=true][data-app-action-sidebar-thread-active=true]{box-shadow:inset 0 0 0 1px var(--mtk-accent-light)!important}' +
     'html.electron-light [data-mtk-palette-room=true] ::selection{background-color:var(--mtk-selection-light)}' +
+    'html.electron-light [data-mtk-palette-room=true] [data-mtk-palette-bottom-fade].bg-surface{background-color:var(--mtk-room-light)!important}' +
     'html.electron-light [data-mtk-palette-room=true] [data-mtk-palette-bottom-fade]{--tw-gradient-from:var(--mtk-room-light)!important;--tw-gradient-via:var(--mtk-room-light)!important}' +
     'html.electron-light [data-mtk-palette-room=true][data-mtk-palette-mark=true]::before{background-color:var(--mtk-mark-light);opacity:var(--mtk-watermark-light-opacity);filter:drop-shadow(0 1px 1px rgba(255,255,255,.5))}' +
     'html.electron-light [data-mtk-palette-delegation=true] [data-mtk-palette-attribution-name]{color:var(--mtk-label-light)!important}' +
@@ -635,6 +656,16 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
+  if (build12246.archive.pristine.every(contract => source.includes(contract))) {
+    for (const replacement of [
+      ...build12246.archive.replacements,
+      ...build12246.archive.runtimeReplacements
+    ]) {
+      source = replaceOnce(source, ...replacement, "build-12246 archive owner");
+    }
+    fs.writeFileSync(file, source);
+    return;
+  }
   if (build11645.archive.pristine.every(contract => source.includes(contract))) {
     for (const replacement of [
       ...build11645.archive.replacements,
@@ -738,7 +769,7 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  const profile = [build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  const profile = [build12246.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
   if (profile != null) {
     for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);
