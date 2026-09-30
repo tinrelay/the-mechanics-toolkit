@@ -23,6 +23,8 @@ native attribution text keeps its stock metadata color.
 
 The patch also applies Codex's existing muted semantic accent only to the delegated user-message
 bubble. It does not tint the whole turn, dim text, or remove the source-task link.
+Incoming task messages and their sender labels remain right-aligned. On build 12246, the native
+`end` alignment retains Codex's constrained bubble width; the native `start` mode is full-width.
 
 ![A delegated Codex message labeled Sent by The Mechanic above its source-colored bubble](cross-task-attribution.png)
 

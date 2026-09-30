@@ -274,6 +274,16 @@ const rendererHelpersEnd = rendererSource.indexOf("function ", outgoingViewStart
 assert.ok(outgoingViewStart > rendererStart && rendererHelpersEnd > outgoingViewStart,
   "localized Tinrelay presentation helpers");
 const rendererHelpers = rendererSource.slice(rendererStart, rendererHelpersEnd);
+const messageComponent = uniqueMatch(rendererHelpers,
+  /\.jsx\)\((?<component>[$A-Z_a-z][$\w]*),\{message:e,(?:alignment:"end",)?sentAtMs:r,/g,
+  "stock radio message component").groups.component;
+const radioViews = Function("document", pointerNodeJsx, messageComponent,
+  `${rendererHelpers.slice(rendererHelpers.indexOf("function MTKtinrelayEnsureStyle("), rendererHelpers.indexOf("function MTKtinrelayDeliveryView("))};return {message:MTKtinrelayMessageView,incoming:MTKtinrelayIncomingView}`
+)({getElementById: () => ({})}, {jsx:(type,props)=>({type,props}),jsxs:(type,props)=>({type,props})}, "stock-bubble");
+const incomingRadio = radioViews.incoming("Sender → Receiver", "Incoming radio message", 123);
+assert.ok(incomingRadio.props.className.includes("items-end"), "incoming radio sender label is right-aligned");
+const radioBubble = radioViews.message(incomingRadio.props.children[1].props).props.children[1];
+assert.equal(radioBubble.props.alignment, "end", "incoming radio explicitly uses the native narrow right-aligned bubble");
 const outgoingHostBus = unique([...new Set([...rendererHelpers.matchAll(
   /(?<bus>[$A-Z_a-z][$\w]*)\.subscribe\("mtk-tinrelay-outgoing-result"/g
 )].map(match => match.groups.bus))], "outgoing renderer host bus");
@@ -322,7 +332,7 @@ assert.equal(queuedScroll, null, "reading more than one viewport up is never dis
 for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "MTKoutboundFormattedText", "window.open"])
   assert.ok(!rendererHelpers.includes(forbidden), `renderer omits ${forbidden}`);
 assert.match(rendererHelpers,
-  /\(0,[A-Za-z_$][\w$]*\.jsx\)\([A-Za-z_$][\w$]*,\{message:e,sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"\}\)/,
+  /\(0,[A-Za-z_$][\w$]*\.jsx\)\([A-Za-z_$][\w$]*,\{message:e,alignment:"end",sentAtMs:r,collapsedLineCount:6,compactActions:!1,cwd:null,hostId:"local"\}\)/,
   "incoming and outgoing bodies reuse Codex's stock user-message hover actions");
 assert.ok(!rendererHelpers.includes('maxWidth:"min(38rem,86%)"'),
   "Tinrelay does not maintain a competing message-width rule");

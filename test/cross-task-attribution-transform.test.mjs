@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { build12246 as palette12246 } from "../patches/task-visual-palette/profiles/build12246.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -87,6 +88,25 @@ try {
     assert.equal(runToolkit("check", extracted).state, "needs-apply");
     assert.equal(runToolkit("apply", extracted).state, "applied");
     const once = fs.readFileSync(ownerTarget);
+    let composed = once.toString();
+    for (const [before, after] of palette12246.delegation.replacements.slice(0, 2)) {
+      assert.ok(composed.includes(before), "palette composes with the current attribution owner");
+      composed = composed.replace(before, after);
+    }
+    assert.ok(composed.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor,paletteSourceTitle:MTKtitle,paletteSourceId:r'),
+      "palette provenance preserves incoming right alignment");
+    const jsx = {jsx: (type, props) => ({type, props}), jsxs: (type, props) => ({type, props})};
+    const cache = {c: size => Array(size).fill(Symbol.for("react.memo_cache_sentinel"))};
+    const render = Function("xv", "Sv", "_g", "Rx", "zx", "G", "Er", "Oe",
+      "MTKcrossTaskStoreHook", "MTKcrossTaskStoreScope", "MTKtitleAtom", "MTKsourceTaskAtom", "MTKsourceLocalKey",
+      `${once.toString().replace(/import\{[^}]+\}from"[^"]+";/g, "").replace("export const fixture=true;", "")};return {delegation:Lx,wrapper:bv}`
+    )(cache, jsx, "stock-bubble", cache, jsx, "stock-label", () => () => {}, () => false,
+      () => ({get: atom => atom === "title" ? "Example Sender — Role" : null}), {}, "title", "source", id => id);
+    const delegation = render.delegation({conversationId:"receiver",sourceThreadId:"sender",message:"Incoming message",sentAtMs:123});
+    assert.equal(delegation.props.alignment, "end", "incoming task messages select native right alignment");
+    assert.equal(delegation.props.label.props.children[2].props.children, "Example Sender", "sender attribution survives alignment");
+    const bubble = render.wrapper(delegation.props);
+    assert.equal(bubble.props.alignment, "end", "the bubble receives the same alignment as its sender label");
     const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
     assert.equal(probe.status, 0, probe.stderr || probe.stdout);
     assert.equal(runToolkit("apply", extracted).state, "applied");

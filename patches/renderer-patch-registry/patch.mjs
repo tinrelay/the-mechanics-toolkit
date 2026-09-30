@@ -115,7 +115,7 @@ function activePackages() {
     });
     addIf(packages, source.includes("function MTKsender(") &&
       (source.includes("messageBubbleStyle:MTKdelegatedBubbleStyle") ||
-        source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor')), {
+        source.includes('const MTKdelegatedAccentColor=')), {
       name: "crossTaskAttribution",
       file,
       anchor: "var MTKdelegatedBubbleStyle=",

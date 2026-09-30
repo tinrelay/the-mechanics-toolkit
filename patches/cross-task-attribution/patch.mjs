@@ -141,14 +141,14 @@ function findOwner() {
 function inspectState(owner) {
   const source = owner.source;
   if (source.includes("function MTKsender(") && source.includes("function Lx(e){") &&
-      source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor')) {
+      source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor')) {
     const nativeMarkers = [
       "function MTKsenderFromSource(",
       "MTKsenderFromSource(MTKtitle,MTKsourceTask,r)",
       attributionNameMarker,
-      'alignment:`start`,accentColor:MTKdelegatedAccentColor',
+      'alignment:`end`,accentColor:MTKdelegatedAccentColor',
       "t[13]!==p",
-      "onLabelClick:m,alignment:`start`,accentColor:MTKdelegatedAccentColor",
+      "onLabelClick:m,alignment:`end`,accentColor:MTKdelegatedAccentColor",
       "function bv(e){",
       "g=f===`start`?`items-start`:`items-end`"
     ];
@@ -341,7 +341,7 @@ function patchNativeAttribution(source, imports, details) {
     "native delegation label dependency");
   delegation = replaceOnce(delegation,
     "onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h)",
-    "onLabelClick:m,alignment:`start`,accentColor:MTKdelegatedAccentColor}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h)",
+    "onLabelClick:m,alignment:`end`,accentColor:MTKdelegatedAccentColor}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[13]=p,t[12]=h)",
     "native delegation alignment handoff");
   const helper = currentHelper() + "const MTKdelegatedAccentColor=`var(--color-token-interactive-bg-accent-muted-context,rgba(51,156,255,.1))`;";
   source = replaceOnce(source, details.delegation.text, helper + delegation, "native delegation owner");

@@ -82,7 +82,7 @@ try {
     "function MTKprojectFromCwd(e){return e?.split(`/`).pop()??null}",
     "function MTKsender(e,t){return e??t}",
     "var MTKdelegatedBubbleStyle={};",
-    'const delegated={alignment:`start`,accentColor:MTKdelegatedAccentColor};',
+    'const MTKdelegatedAccentColor=`accent`;const delegated={alignment:`end`,accentColor:MTKdelegatedAccentColor};',
     "export const fixture=true;"
   ].join(""));
   fs.writeFileSync(path.join(native, "webview/assets/app-initial-fixture.js"), "export const fixture=true;");

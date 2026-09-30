@@ -18,7 +18,7 @@ assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
 const nativeAligned = source.includes("function Lx(e){") &&
-  source.includes('alignment:`start`,accentColor:MTKdelegatedAccentColor');
+  source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor');
 const externalBubbleImport = source.match(
   /import\{[^}]*\bt as [$A-Z_a-z][$\w]*[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
 );
@@ -141,8 +141,8 @@ for (const contract of [
   '"data-mtk-palette-attribution-name":!0'
 ]) assert.equal(count(completeSource, contract), 1, `attribution contract: ${contract}`);
 if (nativeAligned) {
-  assert.equal(count(source, 'alignment:`start`,accentColor:MTKdelegatedAccentColor'), 1,
-    "delegated message uses native left alignment and accent");
+  assert.equal(count(source, 'alignment:`end`,accentColor:MTKdelegatedAccentColor'), 1,
+    "delegated message uses native right alignment, constrained width, and accent");
   assert.ok(source.includes("function bv(e){let t=(0,xv.c)(") &&
     source.includes("g=f===`start`?`items-start`:`items-end`"),
   "native wrapper aligns both label and bubble");
