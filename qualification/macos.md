@@ -15,7 +15,31 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current accepted build 12246
+## Prepared frontier build 12404
+
+On 2026-09-30, official macOS ARM64 Desktop `26.928.21956` / build `12404` was staged from
+the Sparkle-signature-verified full ZIP, SHA-256
+`b0f1a43e7ea59b698cadd95031faf57aa51c627269bc0a5752f5b8e1d8df73ce`.
+Pristine ASAR is `3bda98f2265ad23677dfe0163d1cc7855beade6bef11d27f830f6663d7658406`;
+candidate ASAR is `d401779db6e76f634595933e52da1c7cef7c96915353e67fafbcd4416c8abffd`.
+The complete 18-patch fleet passed composed probes after signed repack, ASAR-seal verification,
+native-module preservation, executable terminal-helper checks, and byte-identical second apply.
+The pristine source was unchanged. The candidate has not been launched or installed.
+
+The replacement CLI reports `0.159.2`, built with stable Rust `1.95.0` and LTO off from exact
+upstream commit `ff6aec96948b70d94983af2641a6b67c94faeff5` plus
+`standalone-output-compaction-12404`. CLI SHA-256 is
+`62076a6490c98e6f8cb25d3cf499297335445705adad169d176c4fd4d95cf57f`.
+The three source targets have identical pristine bytes to the prior qualified revision, so the
+existing repair applies exactly. No query-depth source patch is needed.
+Both focused compaction tests passed on this source revision; the other 2,665 library tests were
+outside the explicit filter. `just fmt`, the repository check/test suites, and diff checks passed.
+Production DEB/RPM staging fixtures were not run on the macOS host.
+
+Live task rendering, adoption, and policy predicates on this candidate remain pending the
+operator-authorized restart. Earlier semantic evidence below is not a new launch claim.
+
+## Last accepted build 12246
 
 On 2026-09-29, the official macOS ARM64 full ZIP for Desktop `26.928.20755` / build `12246`
 (SHA-256 `ac129ebf2e908696dce449e33592edc16b90b173f454227148dd10df9d8ec100`) supplied an

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
-import { build12246Contracts } from "../patches/terminal-toggle/profiles/build12246.mjs";
+import { build12404Contracts } from "../patches/terminal-toggle/profiles/build12404.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -23,7 +23,7 @@ runFixture("linux-9647", fixtureSource(linuxBuild9647Contracts));
 runFixture("9922", fixtureSource(build9922Contracts));
 runFixture("11645", fixtureSource(build11645Contracts,
   "l=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"));
-runFixture("12246", fixtureSource(build12246Contracts,
+runFixture("12404", fixtureSource(build12404Contracts,
   "f=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"));
 runSplitFixture("10789", build10789Contracts);
 runSplitFixture("linux-10954", linuxBuild10954Contracts);

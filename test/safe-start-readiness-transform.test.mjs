@@ -165,11 +165,11 @@ try {
   assert.equal(run("apply", build11645).state, "applied");
   assert.deepEqual(fs.readFileSync(build11645Main), build11645Once);
 
-  const build12246 = path.join(scratch, "build-12246");
-  fs.mkdirSync(path.join(build12246, ".vite/build"), {recursive: true});
-  fs.mkdirSync(path.join(build12246, "webview/assets"), {recursive: true});
-  const build12246Main = path.join(build12246, ".vite/build/main-build12246.js");
-  fs.writeFileSync(build12246Main,
+  const build12404 = path.join(scratch, "build-12404");
+  fs.mkdirSync(path.join(build12404, ".vite/build"), {recursive: true});
+  fs.mkdirSync(path.join(build12404, "webview/assets"), {recursive: true});
+  const build12404Main = path.join(build12404, ".vite/build/main-build12404.js");
+  fs.writeFileSync(build12404Main,
     "var sie=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`,l={n:`background`};" +
     "function Kf({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${l.n}`)," +
     "markerPath:t=process.env[sie]?.trim(),writeMarker:n=(e,t)=>{globalThis.__marker=e}}={}){" +
@@ -182,26 +182,26 @@ try {
     "await owner.handleMessage({id:1,appearance:process.argv[2]},{type:`ready`," +
     "initializationOnly:process.argv[3]===`initialization`});" +
     "process.stdout.write(globalThis.__marker??``)");
-  fs.writeFileSync(path.join(build12246, "webview/assets/app-initial-build12246.js"),
-    "const Id={dispatchMessage(){}};function routes(){Id.dispatchMessage(`ready`," +
-    "{persistedStateResponsePriority:Ylc?`critical`:void 0})}");
-  assert.equal(run("check", build12246).state, "needs-apply");
-  assert.equal(run("apply", build12246).state, "applied");
-  const build12246Once = fs.readFileSync(build12246Main);
+  fs.writeFileSync(path.join(build12404, "webview/assets/app-initial-build12404.js"),
+    "const Nd={dispatchMessage(){}};function routes(){Nd.dispatchMessage(`ready`," +
+    "{persistedStateResponsePriority:pfc?`critical`:void 0})}");
+  assert.equal(run("check", build12404).state, "needs-apply");
+  assert.equal(run("apply", build12404).state, "applied");
+  const build12404Once = fs.readFileSync(build12404Main);
   for (const [appearance, initialization, expected] of [
     ["primary", "ready", "/tmp/renderer.ready"],
     ["globalDictation", "ready", ""],
     ["primary", "initialization", ""]
   ]) {
-    const result = spawnSync(process.execPath, [build12246Main, appearance, initialization], {
+    const result = spawnSync(process.execPath, [build12404Main, appearance, initialization], {
       encoding: "utf8",
       env: {...process.env, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: "/tmp/renderer.ready"}
     });
     assert.equal(result.status, 0, result.stderr || result.stdout);
     assert.equal(result.stdout, expected, `${appearance}/${initialization} readiness marker`);
   }
-  assert.equal(run("apply", build12246).state, "applied");
-  assert.deepEqual(fs.readFileSync(build12246Main), build12246Once);
+  assert.equal(run("apply", build12404).state, "applied");
+  assert.deepEqual(fs.readFileSync(build12404Main), build12404Once);
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

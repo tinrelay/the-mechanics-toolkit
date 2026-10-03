@@ -6,9 +6,9 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 ## Current build matrix
 
-| Platform package | Current qualified Desktop build | Fleet | Highest proved gate |
+| Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.928.20755` / `12246` | 18 selected | Signed stage, genuine supervised adoption, usable task, and active opt-in dot policy |
+| macOS ARM64 application | `26.928.21956` / `12404` | 18 selected | Complete signed stage; live adoption pending. Running accepted build remains 12246 |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,14 +27,14 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-`dot-lifecycle-protection` is a new opt-in addition for the exact macOS build-`12246` owners.
+`dot-lifecycle-protection` is a new opt-in addition for the exact macOS build-`12404` owners.
 Its deletion/reboot refusal and runtime-policy probes passed in the signed 18-patch fleet.
-Supervised adoption returned to a usable task; live policy predicates and registry presence were
-checked read-only. No real dot was deleted or rebooted during qualification.
+Earlier build `12246` has supervised task-return and live policy/registry evidence; the current
+candidate has not been launched. No real dot was deleted or rebooted during qualification.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact profiles recognize macOS build `12246` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window is not selected on macOS build `12246`; the retired sidebar collapse is not selected. |
+| Generated JavaScript | Exact profiles recognize macOS build `12404` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window is not selected on macOS build `12404`; the retired sidebar collapse is not selected. |
 | Package integrity | macOS signature and ASAR seal; Windows signed MSIX reconstruction and re-extraction; Ubuntu authenticated DEB reconstruction; and Fedora authenticated RPM reconstruction passed on the packages named above. Second application was byte-identical. |
 | Live adoption | macOS build `12246` and Windows build `10954` returned to usable tasks through genuine supervised replacement. Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
 | Shared behavior | macOS build `12246` is the latest launched semantic reference, with current renderer fixes and opted-in dot guards. Windows and Ubuntu retain their earlier exact package/open receipts. Their differing generated owners use the same shared transforms; full feature tours were not repeated. |
@@ -43,11 +43,11 @@ checked read-only. No real dot was deleted or rebooted during qualification.
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch, integrated into the accepted macOS build-`12246` candidate but
+same-version Codex CLI source patch, integrated into the staged macOS build-`12404` candidate but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to
-the accepted build-`11645` source checkout and was not needed for the build-`12246` CLI. It does
+the accepted build-`11645` source checkout and was not needed for the build-`12404` CLI. It does
 not change the desktop JavaScript fleet.
 
 ## Extraction rule

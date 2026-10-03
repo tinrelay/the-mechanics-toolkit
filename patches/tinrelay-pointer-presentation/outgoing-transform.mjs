@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
-import { incomingBuild12246 } from "./profiles/build12246.mjs";
+import { incomingBuild12404 } from "./profiles/build12404.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -324,7 +324,7 @@ function patchRenderer(value, turnValue) {
 }
 
 function persistentClassifier(source) {
-  const current = [...source.matchAll(/function SO\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`assistant-message`&&Fi\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&qh\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&CO\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
+  const current = [...source.matchAll(/function SO\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`assistant-message`&&zi\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&qh\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&CO\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
   if (current.length === 1) return current[0];
   return uniqueMatch(
     source,
@@ -693,7 +693,7 @@ function mainHelperOwner(source) {
 }
 
 function resolveHostBus(source) {
-  const profile = [incomingBuild12246, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
+  const profile = [incomingBuild12404, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
     .find(candidate => source.includes(candidate.moduleAfter));
   if (profile != null) {
     const imported = uniqueMatch(
@@ -701,7 +701,7 @@ function resolveHostBus(source) {
       new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
       "current host-bus import"
     );
-    if ((profile === incomingBuild11645 || profile === incomingBuild12246) &&
+    if ((profile === incomingBuild11645 || profile === incomingBuild12404) &&
         imported.groups.specifiers.includes(`${profile.hostBus.exported} as MTKtinrelayBus`)) {
       return "MTKtinrelayBus";
     }
@@ -731,7 +731,7 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  for (const profile of [incomingBuild12246, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild12404, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
     if (source.includes(`function ${profile.message}(`) &&
         source.includes(`function ${profile.delegation}(`) &&
         source.includes(profile.moduleAfter)) {

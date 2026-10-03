@@ -125,7 +125,7 @@ function safeStartProfile(value, rendererValue) {
       marker: "sie",
       before: "case`ready`:{t.initializationOnly||(this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{t.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
-      rendererReady: "Id.dispatchMessage(`ready`,{persistedStateResponsePriority:Ylc?`critical`:void 0})"
+      rendererReady: "Nd.dispatchMessage(`ready`,{persistedStateResponsePriority:pfc?`critical`:void 0})"
     }
   ].filter(profile => {
     if (profile.marker !== marker || !rendererValue.includes(profile.rendererReady)) return false;

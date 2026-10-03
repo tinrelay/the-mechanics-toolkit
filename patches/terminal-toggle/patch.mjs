@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
 import { build11645Contracts } from "./profiles/build11645.mjs";
-import { build12246Contracts } from "./profiles/build12246.mjs";
+import { build12404Contracts } from "./profiles/build12404.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -77,7 +77,7 @@ function inspectState(value, commands) {
 }
 
 function verifyOwnedBehavior(value) {
-  if (build12246Contracts.every(contract => count(value, contract) === 1)) return;
+  if (build12404Contracts.every(contract => count(value, contract) === 1)) return;
   if (build11645Contracts.every(contract => count(value, contract) === 1)) return;
   if (commandTargets.length === 3 &&
       build10789Contracts.every(contract => count(value, contract) === 1)) return;

@@ -62,24 +62,24 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  const build12246Seam = "function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),";
-  if (value.includes(build12246Seam)) {
+  const build12404Seam = "function O5s(){let e=(0,j5s.c)(12),t=Fe(Z),";
+  if (value.includes(build12404Seam)) {
     const contracts = [
-      build12246Seam,
-      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(r2n)",
-      "e.get(Uu)"
+      build12404Seam,
+      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(jAn)",
+      "e.get(Wu)"
     ];
     if (count(value, contracts[0]) !== 1 || count(value, contracts[1]) !== 1 ||
         count(value, contracts[2]) < 1) {
-      throw new Error("Upstream changed: build-12246 agent roster owner is not unique");
+      throw new Error("Upstream changed: build-12404 agent roster owner is not unique");
     }
     return {
-      seam: build12246Seam,
-      scope: "Pe(Z)",
-      react: "m6s",
-      projectsAtom: "r2n",
-      readyAtom: "Uu",
-      client: "((e,t)=>e.get(Uu).forHost(t))"
+      seam: build12404Seam,
+      scope: "Fe(Z)",
+      react: "M5s",
+      projectsAtom: "jAn",
+      readyAtom: "Wu",
+      client: "((e,t)=>e.get(Wu).forHost(t))"
     };
   }
   const build11645Seam = "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),";

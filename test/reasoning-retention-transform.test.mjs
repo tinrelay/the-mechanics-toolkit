@@ -40,30 +40,30 @@ try {
   }
   process.stdout.write("reasoning retention build-11645 transform probe passed\n");
 
-  fs.writeFileSync(turn, build12246TurnFixture());
-  fs.writeFileSync(thread, build12246ThreadFixture());
-  fs.writeFileSync(activity, build12246CollapseFixture());
+  fs.writeFileSync(turn, build12404TurnFixture());
+  fs.writeFileSync(thread, build12404ThreadFixture());
+  fs.writeFileSync(activity, build12404CollapseFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build12246Once = [turn, thread, activity].map(file => fs.readFileSync(file));
+  const build12404Once = [turn, thread, activity].map(file => fs.readFileSync(file));
   assert.match(fs.readFileSync(turn, "utf8"), /return hl\.useSyncExternalStore\(/,
-    "build-12246 turn hook uses the stock React owner, not the ml module binding");
-  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(d\).*preventAutoCollapse:Yt&&q\|\|ct\|\|mr\|\|MTKreasoningRetained/);
-  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Xk\(C,\{conversationId:t,turnSearchKey:n\},!0\)/);
-  const build12246Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build12246Probe.status, 0, build12246Probe.stderr || build12246Probe.stdout);
+    "build-12404 turn hook uses the stock React owner, not the ml module binding");
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(d\).*preventAutoCollapse:Yt&&J\|\|ct\|\|fr\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Qk\(C,\{conversationId:t,turnSearchKey:n\},!0\)/);
+  const build12404Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build12404Probe.status, 0, build12404Probe.stderr || build12404Probe.stdout);
   fs.writeFileSync(turn, fs.readFileSync(turn, "utf8").replace(
     "return hl.useSyncExternalStore(", "return ml.useSyncExternalStore("));
   const badOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badOwner.status, 0, "the previous wrong React binding is rejected before staging");
-  assert.match(badOwner.stderr, /wrong build-12246 React owner/);
-  fs.writeFileSync(turn, build12246Once[0]);
+  assert.match(badOwner.stderr, /wrong build-12404 React owner/);
+  fs.writeFileSync(turn, build12404Once[0]);
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [turn, thread, activity].entries()) {
-    assert.deepEqual(fs.readFileSync(file), build12246Once[index]);
+    assert.deepEqual(fs.readFileSync(file), build12404Once[index]);
   }
-  process.stdout.write("reasoning retention build-12246 transform probe passed\n");
+  process.stdout.write("reasoning retention build-12404 transform probe passed\n");
 
   fs.writeFileSync(turn, linux9771TurnFixture());
   fs.writeFileSync(thread, linux9771ThreadFixture());
@@ -190,28 +190,28 @@ function build11645CollapseFixture() {
   ].join("");
 }
 
-function build12246TurnFixture() {
+function build12404TurnFixture() {
   return [
     'const ml={},Zc=()=>false;let hl=dn();',
-    'function Lc(e){let t=(0,pl.c)(229),{conversationId:d}=e,Qn=[];',
-    'let[rr,ir]=(0,hl.useState)(()=>new Set(Qn.map(Zc)));let mr=Qn.some(Zc),hr;return {preventAutoCollapse:Yt&&q||ct||mr}}',
+    'function Lc(e){let t=(0,pl.c)(229),{conversationId:d}=e,Zn=[];',
+    'let[rr,ir]=(0,hl.useState)(()=>new Set(Zn.map(Zc)));let fr=Zn.some(Zc),pr;return {preventAutoCollapse:Yt&&J||ct||fr}}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build12246ThreadFixture() {
+function build12404ThreadFixture() {
   return [
-    'const uj={useEffect(){},useSyncExternalStore(){return false}},p=()=>({}),_o={},Xk=()=>{},nj=()=>false,rp={};',
-    'function ej({ref:e,conversationId:t,isBackgroundSubagentsEnabled:f,usesUnifiedTimeline:S}){let C=p(_o),De=null,Ae=[],bt={current:null};',
-    '(0,uj.useEffect)(()=>{let e=C.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:f}).visibleTurnEntries,n=bt.current,r=e.find(e=>e.turnId===n);n!=null&&n!==De&&!nj(r)&&Xk(C,{conversationId:t,turnSearchKey:n},!0),bt.current=De},[t,f,De,C,Ae]);return S}',
+    'const fj={useEffect(){},useSyncExternalStore(){return false}},h=()=>({}),wo={},Qk=()=>{},ij=()=>false,rp={};',
+    'function nj({ref:e,conversationId:t,isBackgroundSubagentsEnabled:f,usesUnifiedTimeline:S}){let C=h(wo),De=null,je=[],yt={current:null};',
+    '(0,fj.useEffect)(()=>{let e=C.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:f}).visibleTurnEntries,n=yt.current,r=e.find(e=>e.turnId===n);n!=null&&n!==De&&!ij(r)&&Qk(C,{conversationId:t,turnSearchKey:n},!0),yt.current=De},[t,f,De,C,je]);return S}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build12246CollapseFixture() {
+function build12404CollapseFixture() {
   return [
     'function kO({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:i=!1,preventAutoCollapse:a,persistedCollapsed:o}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!i&&(o??!a)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
-    'const button={onToggle:e=>{let t=!xe;H.current+=1,L.current=e,I(t),ee(!t),f==null?N(t):f(t)}};',
+    'const button={onToggle:e=>{let t=!xe;ne.current+=1,L.current=e,I(t),ee(!t),f==null?N(t):f(t)}};',
     'export const fixture=true;'
   ].join("");
 }

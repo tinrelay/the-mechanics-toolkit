@@ -153,7 +153,7 @@ function inspectState(owner) {
       "g=f===`start`?`items-start`:`items-end`"
     ];
     if (!nativeMarkers.every(marker => source.includes(marker))) {
-      throw new Error("Unrecognized build-12246 attribution patch: partial native alignment markers");
+      throw new Error("Unrecognized build-12404 attribution patch: partial native alignment markers");
     }
     return "applied";
   }
@@ -202,7 +202,7 @@ function inspectPristine(source, externalBubbleSource = null) {
     ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
     if (!delegation.text.includes("onLabelClick:m})") ||
         !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
-      throw new Error("Upstream changed: build-12246 delegation label cache");
+      throw new Error("Upstream changed: build-12404 delegation label cache");
     }
     return {delegation, wrapper, profile: {nativeAlignment: true}};
   }
@@ -372,18 +372,18 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appInitial.includes("H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("mj=dl(Z,(e,{get:t})=>{let n=ls(e);switch(n?.kind){case`local`:") &&
-      appInitial.includes("function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),")) {
+  if (appInitial.includes("Hbo=fl(Z,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("KO=fl(Z,(e,{get:t})=>{let n=cs(e);switch(n?.kind){case`local`:") &&
+      appInitial.includes("function O5s(){let e=(0,j5s.c)(12),t=Fe(Z),")) {
     const sharedImport = uniqueMatch(ownerSource,
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
       "app-shared import");
-    for (const binding of ["A5t as Pe", "dJt as Z", "OI as Yo"]) {
-      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-12246 store binding ${binding}`);
+    for (const binding of ["A5t as Fe", "dJt as Z", "OI as Jo"]) {
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-12404 store binding ${binding}`);
     }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "H_o")} as MTKtitleAtom,${exportedAs(appInitial, "mj")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "Hbo")} as MTKtitleAtom,${exportedAs(appInitial, "KO")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
       sharedImport: {
         before: sharedImport[0],
         after: `import{${sharedImport.groups.specifiers},A5t as MTKcrossTaskStoreHook,dJt as MTKcrossTaskStoreScope,OI as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`

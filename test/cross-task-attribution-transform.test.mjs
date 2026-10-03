@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { build12246 as palette12246 } from "../patches/task-visual-palette/profiles/build12246.mjs";
+import { build12404 as palette12404 } from "../patches/task-visual-palette/profiles/build12404.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -23,7 +23,7 @@ try {
     build10789BubbleFixture(), build10789OwnerFixture());
   verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
     build11645BubbleFixture(), build11645OwnerFixture());
-  verifyNative12246();
+  verifyNative12404();
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -60,18 +60,18 @@ try {
     assert.deepEqual(fs.readFileSync(primaryTarget), Buffer.from(primaryFixture), `${label} title owner stays untouched`);
   }
 
-  function verifyNative12246() {
-    const extracted = path.join(scratch, "build-12246");
+  function verifyNative12404() {
+    const extracted = path.join(scratch, "build-12404");
     const assets = path.join(extracted, "webview/assets");
     fs.mkdirSync(assets, {recursive: true});
     const ownerTarget = path.join(assets, "sites-end-resource-fixture.js");
     const initialTarget = path.join(assets, "app-initial-fixture.js");
     fs.writeFileSync(initialTarget, [
-      'import{A5t as Pe,dJt as Z,OI as Yo}from"./app-shared-fixture.js";',
-      'function B_o(e){return e.localTitle}var H_o;H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return B_o({...r,localTitle:i})});',
-      'function u6s(){let e=(0,p6s.c)(12),t=Pe(Z),n=`sidebarElectron.recentChats`;return n}',
-      'var mj;mj=dl(Z,(e,{get:t})=>{let n=ls(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
-      'export{H_o as QW,mj as nhn};'
+      'import{A5t as Fe,dJt as Z,OI as Jo}from"./app-shared-fixture.js";',
+      'function Bbo(e){return e.localTitle}var Hbo;Hbo=fl(Z,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return Bbo({...r,localTitle:i})});',
+      'function O5s(){let e=(0,j5s.c)(12),t=Fe(Z),n=`sidebarElectron.recentChats`;return n}',
+      'var KO;KO=fl(Z,(e,{get:t})=>{let n=cs(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
+      'export{Hbo as QW,KO as nhn};'
     ].join(""));
     fs.writeFileSync(path.join(assets, "app-primary-fixture.js"), 'export const noop=true;');
     fs.writeFileSync(path.join(assets, "app-shared-fixture.js"), 'export const noop=true;');
@@ -89,7 +89,7 @@ try {
     assert.equal(runToolkit("apply", extracted).state, "applied");
     const once = fs.readFileSync(ownerTarget);
     let composed = once.toString();
-    for (const [before, after] of palette12246.delegation.replacements.slice(0, 2)) {
+    for (const [before, after] of palette12404.delegation.replacements.slice(0, 2)) {
       assert.ok(composed.includes(before), "palette composes with the current attribution owner");
       composed = composed.replace(before, after);
     }

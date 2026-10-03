@@ -63,7 +63,7 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("mj=dl(Z,") && source.includes("H_o=dl(Z,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("KO=fl(Z,") && source.includes("Hbo=fl(Z,(e,{get:t})=>{if(e==null)return null;");
 });
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;

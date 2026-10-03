@@ -16,6 +16,17 @@ const toolkit = path.join(repository, "bin/toolkit.mjs");
 const behavioralProbe = path.join(repository, "test/outgoing-message-receipt.test.mjs");
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoing-receipt-test-"));
 
+// The current native renderer navigates before constructing its JSX node.
+{
+  const transform = fs.readFileSync(path.join(repository, "patches/outgoing-message-receipt/patch.mjs"), "utf8");
+  const between = (a, b) => transform.slice(transform.indexOf(a), transform.indexOf(b, transform.indexOf(a)));
+  const select = Function("id", `${between("function uniqueMatch(", "function replaceOnce(")};${between("function containingFunction(", "function exportedAs(")};${between("function sendProfile(", "function importedToolConstant(")};return sendProfile`)("[$A-Z_a-z][$\\w]*");
+  const source = 'function U(e,t,n,r=!0){let c;if(e.tool===`send_message_to_thread`)c=()=>{let e=pe(s);Pe.dispatchHostMessage({type:`navigate-to-route`,path:d()?Ie(e):Te(e)})};let f=(0,W.jsxs)(F,{});return f}function status(e){switch(e.tool){case SEND:return e.completed?`threadsSendMessageCompleted`:`threadsSendMessageActive`}}const registry={namespace:NS,render:U,renderAgentActivityIcon:ICON,tool:SEND};';
+  const profile = select(source);
+  assert.deepEqual([profile.normalize, profile.hostBridge, profile.routeFlag, profile.newRoute, profile.oldRoute], ["pe", "Pe", "d", "Ie", "Te"]);
+  assert.equal(profile.jsx, "W", "receipt uses the native activity JSX owner");
+}
+
 try {
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");

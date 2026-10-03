@@ -328,3 +328,21 @@ function mainFixture() {
     "export const fixture=true;"
   ].join("");
 }
+
+// Preserve the current stock assistant-message predicate when adding accepted sends.
+{
+  const transform = fs.readFileSync(outgoingTransform, "utf8");
+  const classifier = sourceBetween(transform, "function persistentClassifier(", "function findExecComponentCall(");
+  const uniqueMatch = sourceBetween(transform, "function uniqueMatch(", "function containingFunction(");
+  const select = Function(`${uniqueMatch};${classifier};return persistentClassifier`)();
+  const stock = 'function SO({unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r}){if(e.kind!==`standalone`)return!1;let i=e.item.item;return i.type===`assistant-message`&&zi(i)||i.type===`dynamic-tool-call`&&qh(i)||t&&r&&i.type===`mcp-tool-call`&&CO({item:i,mcpServerStatuses:n})?!0:i.type===`user-message`&&(i.steeringStatus!=null||i.hookFeedback===!0)}';
+  const matched = select(stock)[0];
+  assert.equal(matched, stock);
+  const patched = matched.replace('i.type===`dynamic-tool-call`', 'i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||i.type===`dynamic-tool-call`');
+  assert.equal(select(patched)[0], patched, "canonical classifier remains inspectable");
+  const classify = Function("zi", "qh", "CO", "MTKtinrelayOutgoingAcceptance", `${patched};return SO`)(() => true, () => true, () => true, item => item.accepted ? {} : null);
+  const unit = item => ({unit: {kind: "standalone", item: {item}}});
+  assert.equal(classify(unit({type: "assistant-message"})), true);
+  assert.equal(classify(unit({type: "exec", accepted: true})), true);
+  assert.equal(classify(unit({type: "exec", accepted: false})), false);
+}

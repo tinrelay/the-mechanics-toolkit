@@ -96,14 +96,14 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build12246OwnerFixture());
+  fs.writeFileSync(owner, build12404OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build12246Once = fs.readFileSync(owner);
-  assert.match(build12246Once.toString(), /MTKuseModelIdentityGuard\(r,le,st\)/);
-  assert.match(build12246Once.toString(), /return RW\.useEffect\(/);
+  const build12404Once = fs.readFileSync(owner);
+  assert.match(build12404Once.toString(), /MTKuseModelIdentityGuard\(r,le,st\)/);
+  assert.match(build12404Once.toString(), /return RW\.useEffect\(/);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build12246Once);
+  assert.deepEqual(fs.readFileSync(owner), build12404Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -180,7 +180,7 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build12246OwnerFixture() {
+function build12404OwnerFixture() {
   return [
     'const RW={useEffect:e=>e()},bF=e=>e;',
     'const selector={"data-codex-intelligence-trigger":true};',

@@ -95,9 +95,9 @@ if (titleInternal === linuxBuild10954.titleSelector.atom &&
 } else if (titleInternal === "l2i" && titleOwner.includes("l2i=to(Q,")) {
   assert.ok(titleOwner.includes("s2i({...n,localTitle:r})"),
     "build-11645 title atom retains its stock selector owner");
-} else if (titleInternal === "H_o" && titleOwner.includes("H_o=dl(Z,")) {
-  assert.ok(titleOwner.includes("B_o({...r,localTitle:i})"),
-    "build-12246 title atom retains its stock selector owner");
+} else if (titleInternal === "Hbo" && titleOwner.includes("Hbo=fl(Z,")) {
+  assert.ok(titleOwner.includes("Bbo({...r,localTitle:i})"),
+    "build-12404 title atom retains its stock selector owner");
 } else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
   (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i")),
@@ -124,7 +124,7 @@ if (sharedStoreImported) {
   assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
     appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)") ||
     appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)") ||
-    appInitial.includes("A5t as Pe") && appInitial.includes("dJt as Z") && appInitial.includes("t=Pe(Z)"),
+    appInitial.includes("A5t as Fe") && appInitial.includes("dJt as Z") && appInitial.includes("t=Fe(Z)"),
   "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));

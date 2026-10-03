@@ -44,21 +44,22 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.159.0.patch) is qualified for the staged macOS Desktop
-`26.928.20755` / build `12246`, which bundles `codex-cli 0.159.0` at upstream commit
-`687a119f0fcaace47e1f1abcc77cec6c813fd6da`. Its focused compaction tests passed red on
-pristine source and green after the patch; the stable-Rust release build succeeded. The catalog
+[The current source diff](codex-0.159.2.patch) is qualified for the staged macOS Desktop
+`26.928.21956` / build `12404`, which bundles `codex-cli 0.159.2` at upstream commit
+`ff6aec96948b70d94983af2641a6b67c94faeff5`. The three pristine source files are byte-identical to the preceding qualified revision;
+the same exact repair applies. Both focused tests and the stable-Rust release build passed on this
+source revision. The catalog
 also retains exact entries for earlier supported builds. The source-patch command verifies the
 selected commit and every target file's exact before or after hash; the shared textual diff alone
 is not an applicability claim.
 
-Build `12246` did not need the separate
+Build `12404` did not need the separate
 [ChatGPT query-depth source patch](../chatgpt-query-depth/); that exact patch remains for the
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-12246 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-12246 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-12404 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-12404 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the
@@ -70,13 +71,14 @@ Run the focused tests from the patched Codex checkout, then build from the TMTK 
 
 ```sh
 cd /path/to/codex/codex-rs
-just test -p codex-core compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
-just test -p codex-core compact::tests::insert_initial_context_before_standalone_function_output
+CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
+CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact::tests::insert_initial_context_before_standalone_function_output
 cd /path/to/the-mechanics-toolkit
 bin/tmtk-build-codex /path/to/codex
 ```
 
-The TMTK wrapper builds the ordinary release binary with
+The focused release tests and build use the same LTO setting so they can reuse compiled
+dependencies. The TMTK wrapper builds the ordinary release binary with
 `CARGO_PROFILE_RELEASE_LTO=off` by default. Codex enables ThinLTO in its release profile, but the
 frontier build is qualification input rather than a performance release and does not justify the
 extra link time. Set `CARGO_PROFILE_RELEASE_LTO=thin` explicitly when production-identical LTO is

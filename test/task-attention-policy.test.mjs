@@ -5,7 +5,7 @@ import path from "node:path";
 import { build9922 } from "../patches/task-attention-policy/profiles/build9922.mjs";
 import { build10789 } from "../patches/task-attention-policy/profiles/build10789.mjs";
 import { build11645 } from "../patches/task-attention-policy/profiles/build11645.mjs";
-import { build12246 } from "../patches/task-attention-policy/profiles/build12246.mjs";
+import { build12404 } from "../patches/task-attention-policy/profiles/build12404.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -30,7 +30,7 @@ function testRosterAttention(appSource, appPrimarySource) {
   const linuxProfile = [linuxBuild10954, linuxBuild9771, linuxBuild9647].find(profile =>
     appSource.includes(`function MTKuseAttentionBootstrap${profile.suffix}(`)
   );
-  const macProfile = [build12246, build11645, build10789, build9922].find(candidate =>
+  const macProfile = [build12404, build11645, build10789, build9922].find(candidate =>
     appSource.includes(`function MTKuseAttentionBootstrap${candidate.suffix}(`)
   );
   const profile = macProfile ?? linuxProfile;
@@ -62,7 +62,7 @@ function testRosterAttention(appSource, appPrimarySource) {
     return entries.get(key);
   };
   const api = Function(
-    "globalThis", "Nj", "IT", "dT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl", "Tyl", "Ww", "Mw", "Qr", "X", "Wzc", "zd", "Jl", "x0a", "ls", "Pe", "Z", "m6s",
+    "globalThis", "Nj", "IT", "dT", "Y", "nm", "tm", "xf", "Q", "$", "RYs", "Gvl", "Tyl", "Ww", "Mw", "Qr", "X", "Wzc", "zd", "Jl", "x0a", "cs", "Fe", "Z", "M5s",
     `${helper};return {ignored:MTKattentionIgnored,thread:MTKattentionIgnoredThread}`
   )(
     {__MTK_AGENT_ROSTER__: roster},
