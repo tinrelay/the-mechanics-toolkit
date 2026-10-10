@@ -25,6 +25,19 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoin
   const profile = select(source);
   assert.deepEqual([profile.normalize, profile.hostBridge, profile.routeFlag, profile.newRoute, profile.oldRoute], ["pe", "Pe", "d", "Ie", "Te"]);
   assert.equal(profile.jsx, "W", "receipt uses the native activity JSX owner");
+  const current = source.replace("let e=pe(s);Pe.dispatchHostMessage({type:`navigate-to-route`,path:d()?Ie(e):Te(e)})",
+    "let e=r(c);Ze.dispatchHostMessage({type:`navigate-to-route`,path:Oe()?ce(e):u(e)})");
+  const currentProfile = select(current);
+  assert.deepEqual([currentProfile.normalize, currentProfile.hostBridge, currentProfile.routeFlag,
+    currentProfile.newRoute, currentProfile.oldRoute], ["r", "Ze", "Oe", "ce", "u"]);
+  const frontier = source.replaceAll("render:U", "render:W").replace("function U(", "function W(")
+    .replace("let e=pe(s);Pe.dispatchHostMessage({type:`navigate-to-route`,path:d()?Ie(e):Te(e)})",
+      "let e=He(s);te.dispatchHostMessage({type:`navigate-to-route`,path:Je()?We(e):Se(e)})")
+    .replace("let f=(0,W.jsxs)(F,{});return f", "let d=(0,G.jsxs)(P,{});return d");
+  const frontierProfile = select(frontier);
+  assert.deepEqual([frontierProfile.jsx, frontierProfile.normalize, frontierProfile.hostBridge,
+    frontierProfile.routeFlag, frontierProfile.newRoute, frontierProfile.oldRoute],
+  ["G", "He", "te", "Je", "We", "Se"], "build-20052 receipts preserve the stock task navigation owner");
 }
 
 try {

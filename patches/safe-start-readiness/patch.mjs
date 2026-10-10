@@ -40,7 +40,9 @@ function inspectState(mainValue, rendererValue) {
 
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
-  const contractFamilies = [
+  const contractFamilies = profile.splitBootstrap ? [
+    ["bootstrap writer import", ['g=require("./bootstrap-Du6FqCuH.js")']]
+  ] : [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
     ["development relaunch writer", [`function ${profile.writer}(`]]
   ];
@@ -68,6 +70,26 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
+  if (value.includes('g=require("./bootstrap-Du6FqCuH.js")')) {
+    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-Du6FqCuH.js"), "utf8");
+    for (const contract of [
+      "kO=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
+      "function FO({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[kO]?.trim(),writeMarker:r=",
+      "exports.C=FO"
+    ]) {
+      if (count(bootstrap, contract) !== 1) {
+        throw new Error(`Upstream changed: safe-start bootstrap writer is not unique: ${contract}`);
+      }
+    }
+    const marker = "`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`", writer = "g.C";
+    const action = readinessAction(marker, writer);
+    return {
+      marker, writer, splitBootstrap: true,
+      before: "case`ready`:{t.initializationOnly||(this.windowManager.markWebContentsReady(e),",
+      applied: `case\`ready\`:{t.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
+      rendererReady: "Ho.dispatchMessage(`ready`,{persistedStateResponsePriority:kkc?`critical`:void 0})"
+    };
+  }
   const markers = [...value.matchAll(/\b([A-Za-z_$][\w$]*)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/g)]
     .map(match => match[1]);
   if (markers.length !== 1) {
@@ -77,10 +99,10 @@ function safeStartProfile(value, rendererValue) {
   const match = [...value.matchAll(new RegExp(
     `function (?<writer>[$A-Z_a-z][$\\w]*)\\(\\{markerPath:e=process\\.env\\[${marker}\\]\\?\\.trim\\(\\),writeMarker:t=`, "g"
   ))];
-  if (marker === "sie" && value.includes(
-    "function Kf({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${l.n}`)," +
-    "markerPath:t=process.env[sie]?.trim(),writeMarker:n="
-  )) match.push({groups: {writer: "Kf"}});
+  if (marker === "fae" && value.includes(
+    "function Bd({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${l.n}`)," +
+    "markerPath:t=process.env[fae]?.trim(),writeMarker:n="
+  )) match.push({groups: {writer: "Bd"}});
   if (match.length !== 1) throw new Error("Upstream changed: safe-start relaunch writer is not unique");
   const writer = match[0].groups.writer;
   const action = readinessAction(marker, writer);
@@ -122,10 +144,10 @@ function safeStartProfile(value, rendererValue) {
       rendererReady: "aa.dispatchMessage(`ready`,{persistedStateResponsePriority:reo?`critical`:void 0})"
     },
     {
-      marker: "sie",
+      marker: "fae",
       before: "case`ready`:{t.initializationOnly||(this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{t.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
-      rendererReady: "Nd.dispatchMessage(`ready`,{persistedStateResponsePriority:pfc?`critical`:void 0})"
+      rendererReady: "mh.dispatchMessage(`ready`,{persistedStateResponsePriority:fgc?`critical`:void 0})"
     }
   ].filter(profile => {
     if (profile.marker !== marker || !rendererValue.includes(profile.rendererReady)) return false;

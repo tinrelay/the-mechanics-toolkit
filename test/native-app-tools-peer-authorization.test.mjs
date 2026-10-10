@@ -11,27 +11,22 @@ const matches = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name))
 assert.equal(matches.length, 1, "unique main-process asset");
 const source = fs.readFileSync(path.join(build, matches[0]), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
-const profile = source.indexOf("async function $ce(", start) > start
-  ? {owner: "$ce", authorizer: "kl", addon: "i"}
-  : source.indexOf("async function _ce(", start) > start
-  ? {owner: "_ce", authorizer: "pu", addon: "i"}
-  : source.indexOf("async function Hse(", start) > start
-  ? {owner: "Hse", authorizer: "Ql", addon: "i"}
-  : source.indexOf("async function goe(", start) > start
-  ? {owner: "goe", authorizer: "Gu", addon: "i"}
-  : source.includes("async function Tse(")
-  ? {owner: "Tse", authorizer: "Dl", addon: "i"}
-  : source.includes("async function mie(")
-  ? {owner: "mie", authorizer: "Tf", addon: "i"}
-  : source.includes("async function Cae(")
-  ? {owner: "Cae", authorizer: "gd", addon: "i"}
-  : source.includes("async function oae(")
-  ? {owner: "oae", authorizer: "xp", addon: "i", authParam: "a"}
-  : source.includes("async function zie(")
-  ? {owner: "zie", authorizer: "nd", addon: "i"}
-  : null;
+const end = source.indexOf("async function ", start);
+const owner = source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
+const profiles = {
+  $ce: {authorizer: "kl", addon: "i"},
+  _ce: {authorizer: "pu", addon: "i"},
+  Hse: {authorizer: "Ql", addon: "i"},
+  goe: {authorizer: "Gu", addon: "i"},
+  Tse: {authorizer: "Dl", addon: "i"},
+  mie: {authorizer: "Tf", addon: "i"},
+  Cae: {authorizer: "gd", addon: "i"},
+  doe: {authorizer: "gf", addon: "i", authParam: "a"},
+  Rae: {authorizer: "cp", addon: "i", authParam: "s"},
+  zie: {authorizer: "nd", addon: "i"}
+};
+const profile = Object.hasOwn(profiles, owner) ? profiles[owner] : null;
 assert.ok(profile, "known native app-tools owner");
-const end = source.indexOf(`async function ${profile.owner}(`, start);
 assert.ok(start >= 0 && end > start, "localized native app-tools peer helper");
 const helperSource = source.slice(start, end);
 const loadHelper = new Function(profile.authorizer, `${helperSource};return MTKnativeAppToolsPeerAuthorizer`);

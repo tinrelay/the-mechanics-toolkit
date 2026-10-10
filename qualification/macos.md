@@ -15,31 +15,96 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Prepared frontier build 12404
+## Prepared frontier build 20052
 
-On 2026-09-30, official macOS ARM64 Desktop `26.928.21956` / build `12404` was staged from
+The 2026-10-09 frontier uses official macOS ARM64 Desktop `26.1007.21159` / build `20052`.
+The full ZIP was verified against its Sparkle Ed25519 signature; SHA-256 is
+`7a12eecaba6e0119e347517c499df006a501a7cc20402fba02b03de407142918`.
+Pristine ASAR is `97b8e5fddfced82d782c5f3f3e7c5aba7940b8cb1068dd214ffa3d71687d9fdb`;
+vendor signature, notarization staple, and ASAR seal verified. The first candidate ASAR was
+`a9f3d49a4b79e5cdccceedb4cb8a6977845a6610e4d59058d229d67e0a700cf7`.
+The complete 18-patch fleet passed composed probes after signed repack, signature and ASAR-seal
+verification, native-payload preservation, executable terminal-helper checks, and byte-identical
+second application. The pristine source was unchanged. Supervised adoption reached renderer
+readiness at `2026-10-09T11:51:38.906Z`, but opening a chat then failed with
+`TypeError: gj.useSyncExternalStore is not a function`. This was a false-positive static gate,
+not live acceptance: the reasoning thread profile named an unrelated binding. Its fixture had
+incorrectly supplied React methods on that binding, and the behavioral probe had not mounted
+the thread hook. A stock-binding fixture now reproduces the same error before correction and
+passes after using `$A=qt()`, the owner's actual React runtime. The inspector validates that
+stock runtime and rejects an applied helper naming the wrong one. Corrected candidate ASAR is
+`fb86f52ad07fd82fafde6413a703edcf764210be4736b024029abea34db6a6bd`.
+Its complete 18-patch signed stage passed post-repack probes, native-payload preservation,
+signature/seal verification, and byte-identical second apply. The first non-live candidate was
+removed. A second supervised adoption reopened a usable chat, confirmed by the operator, but
+the model guard falsely warned on matching selections: its profile published `Me`, the available
+model list, rather than `je`, the stock effective selection. A composer-execution fixture
+reproduced that array/string mismatch and now verifies both ordinary selection and reserved-model
+selection with locked effort. The exact stock selection owner is checked before applying the
+corrected profile. The candidate containing both fixes has ASAR
+`c83034ca98d534cb030f6f4f9979d746e035009d098ce654d356d8b4249d7c85`.
+Its full 18-patch signed stage passed repack probes, native preservation, signature/seal checks,
+and byte-identical second apply; model-warning live acceptance remains pending. No model pin or
+chat selection was changed.
+
+The replacement CLI reports `0.162.0-alpha.17.2`, built with stable Rust `1.95.0` and LTO off
+from upstream commit `740e5af33c71225640e0c1c1555c514c2c93ab74` plus
+`standalone-output-compaction-20052`. CLI SHA-256 is
+`c4c13448b43b106c28d9fca91ac694dc96eeaf5f847fb0d9134e2603a49d27e0`.
+Both focused standalone-input tests failed before repair and passed afterward; 2,730 library
+tests outside the filter were skipped. The complete release build succeeded without query-depth
+patches or compiler bootstrap flags. Cargo.lock changed only 161 workspace-local versions from
+`0.0.0` to the release version; external dependency resolution was unchanged.
+
+Current probes bind reasoning retention to the actual conversation identity, the palette to
+the normalized room identity, and archive invalidation to the actual mounted sidebar rows.
+They cover task/project naming, outgoing left alignment, incoming right alignment, waits,
+terminal binding, attention, dot refusal/reload, and the bootstrap-owned readiness writer.
+No real dot was deleted or rebooted, no live compaction test was run, and no secondary-platform
+package qualification was repeated. The last accepted installation remains build `12947`;
+installed build `20052` is not accepted until the corrected candidate opens a usable chat.
+The initial port passed `npm run check`, `npm test`, and diff checks. The subsequent reasoning,
+model-selection, and macOS shared-daemon handoff corrections passed their focused causal tests,
+syntax checks, and repository hygiene/diff checks; the full suite was not repeated for each fix.
+On 2026-10-10, the final combined source passed `npm run check`, `npm test`, and
+`git diff --check` before release checkpointing.
+Linux production DEB/RPM staging fixtures were skipped on the macOS host; portable adapter and
+synthetic staging tests passed in the initial full run.
+
+## Last accepted build 12947
+
+On 2026-10-03, official macOS ARM64 Desktop `26.930.31730` / build `12947` was staged from
 the Sparkle-signature-verified full ZIP, SHA-256
-`b0f1a43e7ea59b698cadd95031faf57aa51c627269bc0a5752f5b8e1d8df73ce`.
-Pristine ASAR is `3bda98f2265ad23677dfe0163d1cc7855beade6bef11d27f830f6663d7658406`;
-candidate ASAR is `d401779db6e76f634595933e52da1c7cef7c96915353e67fafbcd4416c8abffd`.
+`bfda661a7c9ca44dac3168134058dd6007947cde318ade37d570c484329f6d41`.
+Pristine ASAR is `87a934de9a00a04d2e534693db87756321ca4f3413f6caa55d3a0d32a5543836`;
+candidate ASAR is `f80800a6d4d70803a268dd8c3d2ea154b70dfc107c0f264d21061a35290c1e6e`.
 The complete 18-patch fleet passed composed probes after signed repack, ASAR-seal verification,
 native-module preservation, executable terminal-helper checks, and byte-identical second apply.
-The pristine source was unchanged. The candidate has not been launched or installed.
+The pristine source was unchanged. The operator adopted this candidate on 2026-10-04 and
+reported normal visible behavior. On 2026-10-09, read-only inspection reconfirmed its installed
+Desktop identity, ASAR, replacement CLI, signature, and seal.
 
-The replacement CLI reports `0.159.2`, built with stable Rust `1.95.0` and LTO off from exact
-upstream commit `ff6aec96948b70d94983af2641a6b67c94faeff5` plus
-`standalone-output-compaction-12404`. CLI SHA-256 is
-`62076a6490c98e6f8cb25d3cf499297335445705adad169d176c4fd4d95cf57f`.
-The three source targets have identical pristine bytes to the prior qualified revision, so the
-existing repair applies exactly. No query-depth source patch is needed.
-Both focused compaction tests passed on this source revision; the other 2,665 library tests were
+The replacement CLI reports `0.160.0`, built with stable Rust `1.95.0` and LTO off from exact
+upstream commit `a956835d020762cb2b570053af06f643a11c0ecc` plus
+`standalone-output-compaction-12947`. CLI SHA-256 is
+`fa44f8c522f39211cc11d43c5b8991085272a85f47a3e44cbf0a41a3b2a3f0fd`.
+The remote-compaction source owner changed. Its standalone-output regression was reproduced red
+before applying the same bounded retention repair. No query-depth source patch is needed.
+Both focused compaction tests passed on this source revision; each run skipped 2,673 library tests
 outside the explicit filter. `just fmt`, the repository check/test suites, and diff checks passed.
 Production DEB/RPM staging fixtures were not run on the macOS host.
 
-Live task rendering, adoption, and policy predicates on this candidate remain pending the
-operator-authorized restart. Earlier semantic evidence below is not a new launch claim.
+Current owner probes cover archive-group metadata, scope-owned bulk selection, and roster reload
+invalidation for mounted local/cloud/remote rows. A failing palette memo-allocation fixture caught
+and corrected an undersized room cache before the final stage. Packed probes also preserve
+task-name/project resolution, outgoing left alignment, incoming right alignment, terminal binding,
+model guard, reasoning, dot lifecycle refusal, attention, and TinRelay contracts.
 
-## Last accepted build 12246
+This is operator acceptance and installed-identity evidence, not a repeated full live feature
+runbook or destructive supervisor qualification. Earlier semantic evidence below remains scoped
+to the builds where it was observed.
+
+## Prior accepted build 12246
 
 On 2026-09-29, the official macOS ARM64 full ZIP for Desktop `26.928.20755` / build `12246`
 (SHA-256 `ac129ebf2e908696dce449e33592edc16b90b173f454227148dd10df9d8ec100`) supplied an

@@ -44,22 +44,23 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.159.2.patch) is qualified for the staged macOS Desktop
-`26.928.21956` / build `12404`, which bundles `codex-cli 0.159.2` at upstream commit
-`ff6aec96948b70d94983af2641a6b67c94faeff5`. The three pristine source files are byte-identical to the preceding qualified revision;
-the same exact repair applies. Both focused tests and the stable-Rust release build passed on this
+[The current source diff](codex-0.162.0-alpha.17.2.patch) targets macOS Desktop
+`26.1007.21159` / build `20052`, which bundles `codex-cli 0.162.0-alpha.17.2` at upstream commit
+`740e5af33c71225640e0c1c1555c514c2c93ab74`. The remote-compaction owner changed;
+the same bounded retention behavior was ported and reproduced red before repair.
+Both focused tests and the stable-Rust release build passed on this
 source revision. The catalog
 also retains exact entries for earlier supported builds. The source-patch command verifies the
 selected commit and every target file's exact before or after hash; the shared textual diff alone
 is not an applicability claim.
 
-Build `12404` did not need the separate
+Build `20052` did not need the separate
 [ChatGPT query-depth source patch](../chatgpt-query-depth/); that exact patch remains for the
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-12404 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-12404 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-20052 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-20052 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the
@@ -71,8 +72,8 @@ Run the focused tests from the patched Codex checkout, then build from the TMTK 
 
 ```sh
 cd /path/to/codex/codex-rs
-CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact_remote_v2::tests::build_v2_compacted_history_filters_to_installed_retention_shape
-CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact::tests::insert_initial_context_before_standalone_function_output
+CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact_remote_v2::tests::build_v2_compacted_history_retains_standalone_external_input
+CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact::tests::assemble_compaction_history_places_context_before_standalone_external_input
 cd /path/to/the-mechanics-toolkit
 bin/tmtk-build-codex /path/to/codex
 ```

@@ -345,4 +345,14 @@ function mainFixture() {
   assert.equal(classify(unit({type: "assistant-message"})), true);
   assert.equal(classify(unit({type: "exec", accepted: true})), true);
   assert.equal(classify(unit({type: "exec", accepted: false})), false);
+  const current = stock.replace("function SO(", "function yO(").replace("zi(i)", "qn(i)")
+    .replace("qh(i)", "Gh(i)").replace("CO({", "bO({");
+  assert.equal(select(current)[0], current);
+  const currentPatched = current.replace('i.type===`dynamic-tool-call`',
+    'i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||i.type===`dynamic-tool-call`');
+  assert.equal(select(currentPatched)[0], currentPatched);
+  const currentClassify = Function("qn", "Gh", "bO", "MTKtinrelayOutgoingAcceptance",
+    `${currentPatched};return yO`)(() => true, () => true, () => true, item => item.accepted ? {} : null);
+  assert.equal(currentClassify(unit({type:"assistant-message"})), true);
+  assert.equal(currentClassify(unit({type:"exec",accepted:true})), true);
 }

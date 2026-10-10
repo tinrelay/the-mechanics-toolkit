@@ -1,25 +1,44 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.8` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.10` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.8
+## 0.2.10
 
-The macOS frontier is official Desktop `26.928.21956` / build `12404`, with the complete
-18-patch signed candidate staged but not yet adopted. The running accepted macOS build remains
-`12246` until an operator authorizes the normal supervised restart. Generated-owner profiles
-were currentized without changing shared feature semantics, including incoming right alignment,
-outgoing left alignment, task/project naming, and opt-in dot deletion/reboot guards.
+The macOS frontier is official Desktop `26.1007.21159` / build `20052`. Its 18-patch fleet
+passed signed static qualification, but its first adoption exposed a reasoning-thread React
+binding error on chat mount. The corrected hook now has causal red/green coverage and an exact
+stock-runtime check; corrected signed staging passed. Live chat acceptance is pending and the
+last accepted build is `12947`. The next chat check exposed a false model warning caused by
+publishing the available-model list instead of the effective selection. The corrected profile
+has causal selection/locked-effort coverage and passed signed restaging; the live warning check
+is pending.
+Generated-owner
+profiles follow the new Rolldown bundle without changing incoming right alignment, outgoing left
+alignment, task/project naming, or opt-in lifecycle policy. Readiness follows the stock bootstrap
+marker writer. Initial build `20052` reached renderer readiness but is not live-accepted.
 
-The bundled CLI is `0.159.2`. Apply `standalone-output-compaction-12404` to exact upstream
-commit `ff6aec96948b70d94983af2641a6b67c94faeff5`, then build with stable Rust `1.95.0`
-and LTO off. Its three compaction source files are byte-identical to the prior qualified revision,
-so the exact source repair is unchanged. No query-depth patch is needed. Use the documented LTO-off
+The stock sidebar now carries archive-group metadata and supplies bulk-menu scope directly.
+Protection resolves the selected conversations, not the viewer's group, and roster reloads
+invalidate mounted archive actions. Focused probes cover these new owner shapes and palette
+memo allocation. The complete fleet passed probes after signed repack and byte-identical second
+application, with signature/seal and native-payload checks green. Live task rendering and policy
+behavior still require the operator's restart.
+
+The bundled CLI is `0.162.0-alpha.17.2`. Apply `standalone-output-compaction-20052` to exact
+upstream commit `740e5af33c71225640e0c1c1555c514c2c93ab74`, then build with stable Rust `1.95.0`
+and LTO off. Both standalone-input retention/context-ordering tests failed before repair and
+passed afterward; the release build succeeded. No query-depth patch or bootstrap flags are needed.
+Use the documented LTO-off
 setting for focused release tests too, so they reuse build inputs instead of relinking with
 Thin LTO. `renderer-turn-window` and the retired sidebar-collapse patch remain unselected.
+
+macOS restart also recognizes an exact resumed terminal client when tools run through the shared
+App Server rather than beneath that CLI. It matches the same-user bundled executable and task ID,
+rejects ambiguity, and waits for the interactive CLI to exit before relaunching Desktop.
 
 Windows/Ubuntu build `10954` and Fedora build `9647` retain their existing profiles and
 receipts; this frontier does not claim a new secondary-platform package run. Configure dot lifecycle
@@ -58,7 +77,7 @@ x86-family lab receipt is an evidence boundary, not a code restriction.
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.8` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.10` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

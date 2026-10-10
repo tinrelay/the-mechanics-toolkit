@@ -99,8 +99,12 @@ function ownershipProfile(value) {
     { owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise", addon: "i" },
     { owner: "_ce", authorizer: "pu", envConst: "uce", addonConst: "dce", addon: "i" },
     {
-      owner: "oae", authorizer: "xp", envConst: "Zie", addonConst: "Qie", addon: "i",
+      owner: "doe", authorizer: "gf", envConst: "noe", addonConst: "roe", addon: "i",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,pipePath:i,socketPeerAuthorizer:a="
+    },
+    {
+      owner: "Rae", authorizer: "cp", envConst: "Dae", addonConst: "Oae", addon: "i",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s="
     }
   ];
   const pristine = profiles.filter(profile =>

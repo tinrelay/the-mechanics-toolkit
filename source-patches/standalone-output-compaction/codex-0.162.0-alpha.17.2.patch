@@ -1,16 +1,16 @@
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a66f07132 100644
+index f4db71b6882fdece78909298fbefa4e3b92f3392..552aba21c4f86040c194588c985d26098c96e319 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
-@@ -53,6 +53,7 @@ use tracing::error;
+@@ -61,6 +61,7 @@ use tracing::error;
  pub use codex_prompts::SUMMARIZATION_PROMPT;
  pub use codex_prompts::SUMMARY_PREFIX;
  const COMPACT_USER_MESSAGE_MAX_TOKENS: usize = 20_000;
 +pub(crate) const MAX_RETAINED_EXTERNAL_INPUT_TOKENS: i64 = 10_000;
  
- /// Controls whether compaction replacement history must include initial context.
+ /// Metadata for a new compaction checkpoint, kept separate from its replacement history.
  ///
-@@ -582,7 +583,8 @@ pub(crate) fn is_summary_message(message: &str) -> bool {
+@@ -606,7 +607,8 @@ pub(crate) fn is_summary_message(message: &str) -> bool {
  /// model-expected boundary.
  ///
  /// Placement rules:
@@ -20,7 +20,7 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
  /// - If no real user messages remain, insert before the compaction summary so
  ///   the summary stays last.
  /// - If there are no user messages, insert before the last compaction item so
-@@ -593,8 +595,12 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -617,8 +619,12 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      initial_context: Vec<ResponseItemEnvelope>,
  ) -> Vec<ResponseItemEnvelope> {
      let mut last_user_or_summary_index = None;
@@ -34,7 +34,7 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
          if let ResponseItem::AgentMessage { content, .. } = &item.item
              && !matches!(
                  content.first(),
-@@ -602,7 +608,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -626,7 +632,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
                      if text.starts_with("Message Type: FINAL_ANSWER\n")
              )
          {
@@ -43,7 +43,7 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
              break;
          }
          let Some(TurnItem::UserMessage(user)) = crate::event_mapping::parse_turn_item(&item.item)
-@@ -614,7 +620,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -638,7 +644,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
          // user-message-like item (fallback summary insertion point).
          last_user_or_summary_index.get_or_insert(i);
          if !is_summary_message(&user.message()) {
@@ -52,7 +52,7 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
              break;
          }
      }
-@@ -629,7 +635,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -653,7 +659,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
              )
              .then_some(i)
          });
@@ -61,7 +61,7 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
          .or(last_user_or_summary_index)
          .or(last_compaction_index);
  
-@@ -646,6 +652,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -670,6 +676,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      compacted_history
  }
  
@@ -73,22 +73,21 @@ index a937b39db0e4abb8067d28497f63839b8428e49d..8c0ebc6e08f1624e39ef4257fa59c54a
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage<'_>],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index fcc6064f18cb353feb08ef8ab6e26eef883f20b8..d46455a5b80215d6b0257854c0189ffb6f917cc0 100644
+index 6a061086b1d325a58280e2dd13274fbb904f3c11..b6424c8777d227a46431f1743bc41bba8703770b 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
-@@ -8,9 +8,11 @@ use crate::compact::CompactedHistoryMetadata;
+@@ -7,8 +7,10 @@ use crate::client_common::ResponseEvent;
+ use crate::compact::CompactedHistoryMetadata;
  use crate::compact::CompactionAnalyticsAttempt;
  use crate::compact::CompactionAnalyticsDetails;
- use crate::compact::InitialContextInjection;
 +use crate::compact::MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
- use crate::compact::build_compaction_initial_context;
+ use crate::compact::build_compaction_replacement_history;
  use crate::compact::compaction_status_from_result;
- use crate::compact::insert_initial_context_before_last_real_user_or_summary;
 +use crate::compact::is_standalone_function_call_output;
  use crate::compact_model_fallback::record_model_fallback;
  use crate::compact_model_fallback::should_retry_with_current_model;
  use crate::compact_remote_history::HistoryItemGroup;
-@@ -73,7 +75,6 @@ enum RetainedImageBudget {
+@@ -71,7 +73,6 @@ enum RetainedImageBudget {
  }
  
  pub(crate) const RETAINED_MESSAGE_TOKEN_BUDGET: usize = 64_000;
@@ -96,18 +95,17 @@ index fcc6064f18cb353feb08ef8ab6e26eef883f20b8..d46455a5b80215d6b0257854c0189ffb
  // Compact attempts can run much longer than normal turns, so keep the per-transport
  // retry budget smaller than the general Responses stream retry budget.
  const MAX_REMOTE_COMPACTION_V2_STREAM_RETRIES: u64 = 2;
-@@ -557,6 +558,10 @@ fn is_retained_for_remote_compaction_v2(
+@@ -547,6 +548,9 @@ fn is_retained_for_remote_compaction_v2(
      retain_client_developer_messages: bool,
  ) -> bool {
      let item = &envelope.item;
 +    if is_standalone_function_call_output(item) {
 +        return estimate_item_token_count(item) <= MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
 +    }
-+
      if let ResponseItem::AgentMessage {
          author,
          recipient,
-@@ -580,7 +585,7 @@ fn is_retained_for_remote_compaction_v2(
+@@ -570,7 +574,7 @@ fn is_retained_for_remote_compaction_v2(
          );
          return !is_descendant_progress
              && !is_completion
@@ -116,7 +114,7 @@ index fcc6064f18cb353feb08ef8ab6e26eef883f20b8..d46455a5b80215d6b0257854c0189ffb
      }
  
      let ResponseItem::Message { role, .. } = item else {
-@@ -785,6 +790,7 @@ mod tests {
+@@ -775,6 +779,7 @@ mod tests {
      use super::*;
      use codex_protocol::models::ContentItem;
      use codex_protocol::models::ContentItemKind;
@@ -124,10 +122,12 @@ index fcc6064f18cb353feb08ef8ab6e26eef883f20b8..d46455a5b80215d6b0257854c0189ffb
      use codex_protocol::models::InternalChatMessageMetadataPassthrough;
      use codex_protocol::models::MessagePhase;
      use pretty_assertions::assert_eq;
-@@ -852,6 +858,14 @@ mod tests {
+@@ -882,6 +887,29 @@ mod tests {
+         );
+     }
  
-     #[test]
-     fn build_v2_compacted_history_filters_to_installed_retention_shape() {
++    #[test]
++    fn build_v2_compacted_history_retains_standalone_external_input() {
 +        let standalone_output = ResponseItem::FunctionCallOutput {
 +            id: None,
 +            call_id: None,
@@ -136,50 +136,33 @@ index fcc6064f18cb353feb08ef8ab6e26eef883f20b8..d46455a5b80215d6b0257854c0189ffb
 +            output: FunctionCallOutputPayload::from_text("current delegated task".to_string()),
 +            internal_chat_message_metadata_passthrough: None,
 +        };
-         let hook = codex_protocol::items::build_hook_prompt_message(&[
-             codex_protocol::items::HookPromptFragment::from_single_hook("hook", "hook-run"),
-         ])
-@@ -872,6 +886,15 @@ mod tests {
-                 encrypted_function_args: None,
-                 internal_chat_message_metadata_passthrough: None,
-             },
-+            ResponseItem::FunctionCallOutput {
-+                id: None,
-+                call_id: Some("call_1".to_string()),
-+                name: None,
-+                namespace: None,
-+                output: FunctionCallOutputPayload::from_text("ordinary tool result".to_string()),
-+                internal_chat_message_metadata_passthrough: None,
-+            },
-+            standalone_output.clone(),
-             ResponseItem::Compaction {
-                 id: None,
-                 encrypted_content: "old".to_string(),
-@@ -888,7 +911,12 @@ mod tests {
- 
-         assert_eq!(
-             raw(history),
--            vec![message("user", "user", /*phase*/ None), hook, output]
-+            vec![
-+                message("user", "user", /*phase*/ None),
-+                hook,
-+                standalone_output,
-+                output,
-+            ]
-         );
-     }
- 
++        let older_user = message("user", "older completed task", /*phase*/ None);
++        let output = ResponseItem::Compaction {
++            id: None,
++            encrypted_content: "new".to_string(),
++            internal_chat_message_metadata_passthrough: None,
++        };
++        let (history, _) = build_without_metadata(
++            vec![older_user.clone(), standalone_output.clone()],
++            output.clone(),
++        );
++        assert_eq!(raw(history), vec![older_user, standalone_output, output]);
++    }
++
+     #[test]
+     fn build_v2_compacted_history_preserves_retained_metadata_sidecar() {
+         let retained = message("user", "keep", /*phase*/ None);
 diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
-index 217d6b63fda0c4451f28754e84228234781b4da5..840402d74974807f52feb2941f699916190cb72b 100644
+index f57bd8853af21562013b9953d0d63108b2bf6a00..dc8aa6be743b0c2e9a4f5539fc2e5692d6811fb7 100644
 --- a/codex-rs/core/src/compact_tests.rs
 +++ b/codex-rs/core/src/compact_tests.rs
-@@ -650,6 +650,47 @@ fn insert_initial_context_before_last_real_user_or_summary_keeps_summary_last()
+@@ -661,6 +661,46 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
      assert_eq!(refreshed, expected);
  }
  
 +#[test]
-+fn insert_initial_context_before_standalone_function_output() {
-+    let older_user = user_message("older user");
++fn assemble_compaction_history_places_context_before_standalone_external_input() {
++    let older_user = user_message("older completed task");
 +    let standalone_output = ResponseItem::FunctionCallOutput {
 +        id: None,
 +        call_id: None,
@@ -202,16 +185,15 @@ index 217d6b63fda0c4451f28754e84228234781b4da5..840402d74974807f52feb2941f699916
 +        encrypted_content: "encrypted".to_string(),
 +        internal_chat_message_metadata_passthrough: None,
 +    };
-+
-+    let refreshed = raw(insert_initial_context_before_last_real_user_or_summary(
++    let refreshed = raw(assemble_compaction_history(
 +        annotated(vec![
 +            older_user.clone(),
 +            standalone_output.clone(),
 +            compaction.clone(),
 +        ]),
-+        annotated(vec![initial_context.clone()]),
++        Vec::new(),
++        vec![initial_context.clone()],
 +    ));
-+
 +    assert_eq!(
 +        refreshed,
 +        vec![older_user, initial_context, standalone_output, compaction]
@@ -219,5 +201,5 @@ index 217d6b63fda0c4451f28754e84228234781b4da5..840402d74974807f52feb2941f699916
 +}
 +
  #[test]
- fn insert_initial_context_before_last_real_user_or_summary_keeps_compaction_last() {
+ fn assemble_compaction_history_keeps_compaction_last() {
      let agent_task = ResponseItem::AgentMessage {

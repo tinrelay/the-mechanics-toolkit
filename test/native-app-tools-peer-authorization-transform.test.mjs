@@ -18,9 +18,12 @@ try {
     {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"},
     {owner: "Hse", authorizer: "Ql", envConst: "Fse", addonConst: "Ise"},
     {owner: "_ce", authorizer: "pu", envConst: "uce", addonConst: "dce"},
-    {owner: "oae", authorizer: "xp", envConst: "Zie", addonConst: "Qie",
+    {owner: "doe", authorizer: "gf", envConst: "noe", addonConst: "roe",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,pipePath:i,socketPeerAuthorizer:a=",
-      ownerReturn: "a"}
+      ownerReturn: "a"},
+    {owner: "Rae", authorizer: "cp", envConst: "Dae", addonConst: "Oae",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s=",
+      ownerReturn: "s"}
   ]) {
     const extracted = path.join(scratch, profile.owner);
     const build = path.join(extracted, ".vite/build");

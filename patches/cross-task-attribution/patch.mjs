@@ -140,7 +140,7 @@ function findOwner() {
 
 function inspectState(owner) {
   const source = owner.source;
-  if (source.includes("function MTKsender(") && source.includes("function Lx(e){") &&
+  if (source.includes("function MTKsender(") && source.includes("function _S(e){") &&
       source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor')) {
     const nativeMarkers = [
       "function MTKsenderFromSource(",
@@ -149,11 +149,11 @@ function inspectState(owner) {
       'alignment:`end`,accentColor:MTKdelegatedAccentColor',
       "t[13]!==p",
       "onLabelClick:m,alignment:`end`,accentColor:MTKdelegatedAccentColor",
-      "function bv(e){",
+      "function zv(e){",
       "g=f===`start`?`items-start`:`items-end`"
     ];
     if (!nativeMarkers.every(marker => source.includes(marker))) {
-      throw new Error("Unrecognized build-12404 attribution patch: partial native alignment markers");
+      throw new Error("Unrecognized build-20052 attribution patch: partial native alignment markers");
     }
     return "applied";
   }
@@ -192,17 +192,17 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  if (delegation.text.startsWith("function Lx(e){let t=(0,Rx.c)(13),")) {
-    const wrapper = functionAt(source, source.indexOf("function bv(e){"));
+  if (delegation.text.startsWith("function _S(e){let t=(0,vS.c)(13),")) {
+    const wrapper = functionAt(source, source.indexOf("function zv(e){"));
     for (const contract of [
-      "function bv(e){let t=(0,xv.c)(21),",
+      "function zv(e){let t=(0,Bv.c)(21),",
       "alignment:r,accentColor:i,conversationId:a",
       "g=f===`start`?`items-start`:`items-end`",
-      "_g,{alignment:f,accentColor:i,message:o"
+      "Ug,{alignment:f,accentColor:i,message:o"
     ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
     if (!delegation.text.includes("onLabelClick:m})") ||
         !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
-      throw new Error("Upstream changed: build-12404 delegation label cache");
+      throw new Error("Upstream changed: build-20052 delegation label cache");
     }
     return {delegation, wrapper, profile: {nativeAlignment: true}};
   }
@@ -327,13 +327,13 @@ function patchAttribution(source, ownerFile, details) {
 
 function patchNativeAttribution(source, imports, details) {
   let delegation = details.delegation.text;
-  delegation = replaceOnce(delegation, "function Lx(e){let t=(0,Rx.c)(13),", "function Lx(e){let t=(0,Rx.c)(14),", "native delegation cache size");
+  delegation = replaceOnce(delegation, "function _S(e){let t=(0,vS.c)(13),", "function _S(e){let t=(0,vS.c)(14),", "native delegation cache size");
   const labelEnd = ",t[1]=p):p=t[1];";
   const metadata = "let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope)," +
     "MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??`local`,threadId:r})," +
     "MTKsourceTask=s==null||s===`local`?MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r)):null," +
     "MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask,r);" +
-    attributionLabel("zx", "p", "f");
+    attributionLabel("yS", "p", "f");
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "native delegation sender label");
   delegation = replaceOnce(delegation,
     "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(",
@@ -372,21 +372,21 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appInitial.includes("Hbo=fl(Z,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("KO=fl(Z,(e,{get:t})=>{let n=cs(e);switch(n?.kind){case`local`:") &&
-      appInitial.includes("function O5s(){let e=(0,j5s.c)(12),t=Fe(Z),")) {
+  if (appInitial.includes("uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("wF=Ih(q,(e,{get:t})=>{let n=wl(e);switch(n?.kind){case`local`:") &&
+      appInitial.includes("function Xhc(){let e=(0,$hc.c)(12),t=Di(q),")) {
     const sharedImport = uniqueMatch(ownerSource,
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
       "app-shared import");
-    for (const binding of ["A5t as Fe", "dJt as Z", "OI as Jo"]) {
-      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-12404 store binding ${binding}`);
+    for (const binding of ["Fan as Di", "H0t as q", "WB as cl"]) {
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20052 store binding ${binding}`);
     }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "Hbo")} as MTKtitleAtom,${exportedAs(appInitial, "KO")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uFo")} as MTKtitleAtom,${exportedAs(appInitial, "wF")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
       sharedImport: {
         before: sharedImport[0],
-        after: `import{${sharedImport.groups.specifiers},A5t as MTKcrossTaskStoreHook,dJt as MTKcrossTaskStoreScope,OI as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`
+        after: `import{${sharedImport.groups.specifiers},Fan as MTKcrossTaskStoreHook,H0t as MTKcrossTaskStoreScope,WB as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`
       }
     };
   }

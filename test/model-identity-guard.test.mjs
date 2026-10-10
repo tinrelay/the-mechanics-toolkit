@@ -97,8 +97,10 @@ const realm = rosterPolicy ? {
   __MTKmodelPinSubscribe() { return () => {}; }
 };
 const S7 = {useEffect(callback) { return callback(); }};
+const reactHook = helper.match(/function MTKuseModelIdentityGuard\(e,t,n\)\{return ([A-Za-z_$][\w$]*)\.useEffect\(/);
+assert.ok(reactHook, "model publication uses the owned React effect hook");
 const navigator = {platform: "MacIntel"};
-const api = Function("document", "MutationObserver", "Element", "S7", "globalThis", "navigator", `${helper};return {guard:MTKmodelIdentityGuard,mismatch:MTKmodelGuardMismatch,mutationRelevant:MTKmodelGuardMutationRelevant,describe:MTKmodelGuardDescription,recovery:MTKmodelGuardRecoveryMessage,instruction:MTKmodelGuardOverrideInstruction,use:MTKuseModelIdentityGuard}`)(document, FakeMutationObserver, FakeElement, S7, realm, navigator);
+const api = Function("document", "MutationObserver", "Element", reactHook[1], "globalThis", "navigator", `${helper};return {guard:MTKmodelIdentityGuard,mismatch:MTKmodelGuardMismatch,mutationRelevant:MTKmodelGuardMutationRelevant,describe:MTKmodelGuardDescription,recovery:MTKmodelGuardRecoveryMessage,instruction:MTKmodelGuardOverrideInstruction,use:MTKuseModelIdentityGuard}`)(document, FakeMutationObserver, FakeElement, S7, realm, navigator);
 
 const ordinaryTranscriptNode = {nodeType: 1, matches() { return false; }, querySelector() { return null; }};
 const composerNode = {nodeType: 1, matches(selectorText) { return selectorText.includes('[role="textbox"]'); }, querySelector() { return null; }};
@@ -123,8 +125,8 @@ assert.equal(api.instruction(), "Hold Control and click");
 navigator.platform = "MacIntel";
 assert.equal(api.recovery(pin), "Expected: GPT-5.6 Sol High — restore it, or Hold ⌘ and click here or BAD MODEL to override for this session.");
 
-const releaseWrong = api.guard.publish("task-1", "gpt-5.6-luna", "low");
-const releaseRight2 = api.guard.publish("task-2", "gpt-5.6-sol", "high");
+const releaseWrong = api.use("task-1", "gpt-5.6-luna", "low");
+const releaseRight2 = api.use("task-2", "gpt-5.6-sol", "high");
 await tick();
 assert.equal(room.getAttribute("data-mtk-model-guard-mismatch"), "true");
 assert.equal(selector.getAttribute("data-mtk-model-guard-alert"), "true");

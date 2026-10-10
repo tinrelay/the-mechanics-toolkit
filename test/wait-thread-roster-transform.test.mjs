@@ -14,6 +14,7 @@ runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
 runFixture("linux-10954", linux10954InitialFixture(), /XI as MTKwaitStoreScope/, true);
 runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 runFixture("macos-11645", build11645InitialFixture(), /tSt as MTKwaitStoreScope/, true);
+runFixture("macos-20052", build20052InitialFixture(), /H0t as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
 function runFixture(label, initialSource, expectedScope, splitStore = false) {
@@ -26,7 +27,7 @@ function runFixture(label, initialSource, expectedScope, splitStore = false) {
   const ownerTarget = path.join(assets, "agent-activity-item-fixture.js");
   fs.writeFileSync(initialTarget, initialSource);
   if (splitStore) fs.writeFileSync(path.join(assets, "app-shared-fixture.js"),
-    "const LX=e=>e,ZI=Symbol(`scope`),PX=e=>e,XI=Symbol(`scope`),cUt=e=>e,tSt=Symbol(`scope`),Tk=e=>`local:${e}`,Ek=e=>`remote:${e}`;export{LX,ZI,PX,XI,cUt,tSt,Tk,Ek};");
+    "const LX=e=>e,ZI=Symbol(`scope`),PX=e=>e,XI=Symbol(`scope`),cUt=e=>e,tSt=Symbol(`scope`),p7t=e=>e,GJt=Symbol(`scope`),VI=e=>`local:${e}`,HI=e=>`remote:${e}`,Tk=e=>`local:${e}`,Ek=e=>`remote:${e}`;const Fan=e=>e,H0t=Symbol(`scope`),WB=e=>`local:${e}`,GB=e=>`remote:${e}`;export{LX,ZI,PX,XI,cUt,tSt,p7t,GJt,VI,HI,Tk,Ek,Fan,H0t,WB,GB};");
   fs.writeFileSync(ownerTarget, ownerFixture(splitStore));
 
   assert.equal(runToolkit("check").state, "needs-apply");
@@ -118,6 +119,16 @@ function build11645InitialFixture() {
     "const l2i=to(Q,(e,{get:t})=>{if(e==null)return null;return s2i({...n,localTitle:r})});",
     "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),n=0;return t}",
     "export{zA as task,l2i as title};"
+  ].join("");
+}
+
+function build20052InitialFixture() {
+  return [
+    'import{Fan as Di,H0t as q,WB as cl,GB as Pi}from"./app-shared-fixture.js";',
+    "const Ih=(...e)=>e,wl=e=>e,wF=Ih(q,(e,{get:t})=>{let n=wl(e);return n});",
+    "const uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;return cFo({...r,localTitle:i})});",
+    "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),n=0;return t}",
+    "export{wF as task,uFo as title};"
   ].join("");
 }
 

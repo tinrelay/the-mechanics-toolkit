@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build12404 } from "./profiles/build12404.mjs";
+import { build20052 } from "./profiles/build20052.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -20,7 +20,7 @@ const turn = uniqueOwner(source =>
   source.includes("preventAutoCollapse:Ct||ir") ||
     linuxProfiles.some(profile => source.includes(profile.turn.owner)) ||
     source.includes(build9922.turn.owner) || source.includes(build10789.turn.owner) ||
-    source.includes(build11645.turn.owner) || source.includes(build12404.turn.owner) ||
+    source.includes(build11645.turn.owner) || source.includes(build20052.turn.owner) ||
     source.includes("function MTKuseReasoningRetention("),
   "local reasoning-collapse owner"
 );
@@ -28,7 +28,7 @@ const thread = uniqueOwner(source =>
   source.includes("Ve.current=le},[e,l,le,y,fe])") ||
     linuxProfiles.some(profile => source.includes(profile.thread.owner)) ||
     source.includes(build9922.thread.owner) || source.includes(build10789.thread.owner) ||
-    source.includes(build11645.thread.owner) || source.includes(build12404.thread.owner) ||
+    source.includes(build11645.thread.owner) || source.includes(build20052.thread.owner) ||
     source.includes("function MTKuseReasoningThreadRetention("),
   "local thread auto-collapse owner"
 );
@@ -62,13 +62,27 @@ process.stdout.write(`${JSON.stringify({
 function inspectState() {
   const source = fs.readFileSync(turn.file, "utf8");
   const threadSource = fs.readFileSync(thread.file, "utf8");
-  if (source.includes(build12404.turn.ownerFunction)) {
-    if (!source.includes(build12404.turn.reactOwner) || !source.includes(build12404.turn.reactUse)) {
-      throw new Error("Upstream changed: missing build-12404 stock React owner");
+  if (threadSource.includes(build20052.thread.ownerFunction)) {
+    if (!threadSource.includes(build20052.thread.reactOwner) ||
+        !threadSource.includes(build20052.thread.reactUse)) {
+      throw new Error("Upstream changed: missing build-20052 thread React owner");
+    }
+    if (threadSource.includes("function MTKuseReasoningThreadRetention(") &&
+        !threadSource.includes(`return ${build20052.thread.react}.useSyncExternalStore(`)) {
+      throw new Error("Unrecognized reasoning retention patch: wrong build-20052 thread React owner");
+    }
+  }
+  if (source.includes(build20052.turn.ownerFunction)) {
+    if (!source.includes(build20052.turn.identityOwner) ||
+        source.includes("function MTKuseReasoningRetention(") && !source.includes(build20052.turn.decisionAfter)) {
+      throw new Error("Upstream changed: build-20052 reasoning task identity owner");
+    }
+    if (!source.includes(build20052.turn.reactOwner) || !source.includes(build20052.turn.reactUse)) {
+      throw new Error("Upstream changed: missing build-20052 stock React owner");
     }
     if (source.includes("function MTKuseReasoningRetention(") &&
-        !source.includes(`return ${build12404.turn.react}.useSyncExternalStore(`)) {
-      throw new Error("Unrecognized reasoning retention patch: wrong build-12404 React owner");
+        !source.includes(`return ${build20052.turn.react}.useSyncExternalStore(`)) {
+      throw new Error("Unrecognized reasoning retention patch: wrong build-20052 React owner");
     }
   }
   const turnMarkers = [
@@ -80,7 +94,7 @@ function inspectState() {
     source.includes("preventAutoCollapse:Ct||ir||MTKreasoningRetained") ||
       linuxProfiles.some(profile => source.includes(profile.turn.appliedOwner)) ||
       source.includes(build9922.turn.appliedOwner) || source.includes(build10789.turn.appliedOwner) ||
-      source.includes(build11645.turn.appliedOwner) || source.includes(build12404.turn.appliedOwner)
+      source.includes(build11645.turn.appliedOwner) || source.includes(build20052.turn.appliedOwner)
   ];
   const threadMarkers = [
     threadSource.includes("function MTKuseReasoningThreadRetention("),
@@ -89,11 +103,11 @@ function inspectState() {
     threadSource.includes("if(!MTKreasoningThreadRetained)for(let t of i)gA(y,{conversationId:e,turnSearchKey:t},!0)") ||
       linuxProfiles.some(profile => threadSource.includes(profile.thread.appliedCollapse)) ||
       threadSource.includes(build9922.thread.appliedCollapse) || threadSource.includes(build10789.thread.appliedCollapse) ||
-      threadSource.includes(build11645.thread.appliedCollapse) || threadSource.includes(build12404.thread.appliedCollapse),
+      threadSource.includes(build11645.thread.appliedCollapse) || threadSource.includes(build20052.thread.appliedCollapse),
     threadSource.includes("[e,l,le,y,fe,MTKreasoningThreadRetained]") ||
       linuxProfiles.some(profile => threadSource.includes(profile.thread.appliedDependencies)) ||
       threadSource.includes(build9922.thread.appliedDependencies) || threadSource.includes(build10789.thread.appliedDependencies) ||
-      threadSource.includes(build11645.thread.appliedDependencies) || threadSource.includes(build12404.thread.appliedDependencies)
+      threadSource.includes(build11645.thread.appliedDependencies) || threadSource.includes(build20052.thread.appliedDependencies)
   ];
   const turnApplied = turnMarkers.every(Boolean);
   const threadApplied = threadMarkers.every(Boolean);
@@ -110,7 +124,7 @@ function inspectState() {
   const turn9922 = source.includes(build9922.turn.ownerFunction) && source.includes(build9922.turn.owner);
   const turn10789 = source.includes(build10789.turn.ownerFunction) && source.includes(build10789.turn.owner);
   const turn11645 = source.includes(build11645.turn.ownerFunction) && source.includes(build11645.turn.owner);
-  const turn12404 = source.includes(build12404.turn.ownerFunction) && source.includes(build12404.turn.owner);
+  const turn20052 = source.includes(build20052.turn.ownerFunction) && source.includes(build20052.turn.owner);
   const turnLinux = linuxProfiles.some(profile =>
     source.includes(profile.turn.ownerFunction) && source.includes(profile.turn.owner));
   const threadCurrent = threadSource.includes("function bM({conversationId:e,") &&
@@ -118,11 +132,11 @@ function inspectState() {
   const thread9922 = threadSource.includes(build9922.thread.ownerFunction) && threadSource.includes(build9922.thread.owner);
   const thread10789 = threadSource.includes(build10789.thread.ownerFunction) && threadSource.includes(build10789.thread.owner);
   const thread11645 = threadSource.includes(build11645.thread.ownerFunction) && threadSource.includes(build11645.thread.owner);
-  const thread12404 = threadSource.includes(build12404.thread.ownerFunction) && threadSource.includes(build12404.thread.owner);
+  const thread20052 = threadSource.includes(build20052.thread.ownerFunction) && threadSource.includes(build20052.thread.owner);
   const threadLinux = linuxProfiles.some(profile =>
     threadSource.includes(profile.thread.ownerFunction) && threadSource.includes(profile.thread.owner));
   if (!(turnCurrent && threadCurrent) && !(turn9922 && thread9922) && !(turn10789 && thread10789) &&
-      !(turn11645 && thread11645) && !(turn12404 && thread12404) && !(turnLinux && threadLinux)) {
+      !(turn11645 && thread11645) && !(turn20052 && thread20052) && !(turnLinux && threadLinux)) {
     throw new Error("Upstream changed: missing qualified reasoning retention contract");
   }
   verifyCollapseContract();
@@ -137,7 +151,7 @@ function verifyCollapseContract() {
   if (!source.includes("onToggle:e=>{let t=!K;if(M.current=e,d==null){A(t);return}d(t)}") &&
       !linuxProfiles.some(profile => source.includes(profile.activityToggle)) &&
       !source.includes(build9922.activityToggle) && !source.includes(build10789.activityToggle) &&
-      !source.includes(build11645.activityToggle) && !source.includes(build12404.activityToggle)) {
+      !source.includes(build11645.activityToggle) && !source.includes(build20052.activityToggle)) {
     throw new Error("Upstream changed: missing agent-activity toggle contract");
   }
 }
@@ -170,8 +184,8 @@ function patchTurn(file) {
   const current9922 = source.includes(build9922.turn.owner);
   const current10789 = source.includes(build10789.turn.owner);
   const current11645 = source.includes(build11645.turn.owner);
-  const current12404 = source.includes(build12404.turn.owner);
-  const profile = current12404 ? build12404.turn : current11645 ? build11645.turn : current10789 ? build10789.turn : current9922 ? build9922.turn : linux?.turn ?? null;
+  const current20052 = source.includes(build20052.turn.owner);
+  const profile = current20052 ? build20052.turn : current11645 ? build11645.turn : current10789 ? build10789.turn : current9922 ? build9922.turn : linux?.turn ?? null;
   const ownerFunction = profile?.ownerFunction ?? "function Z(e){let t=(0,Ba.c)(182),";
   const helper = reasoningHook(profile?.react ?? "Ha");
   source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning turn hook");
@@ -193,8 +207,8 @@ function patchThread(file) {
   const current9922 = source.includes(build9922.thread.owner);
   const current10789 = source.includes(build10789.thread.owner);
   const current11645 = source.includes(build11645.thread.owner);
-  const current12404 = source.includes(build12404.thread.owner);
-  const profile = current12404 ? build12404.thread : current11645 ? build11645.thread : current10789 ? build10789.thread : current9922 ? build9922.thread : linux?.thread ?? null;
+  const current20052 = source.includes(build20052.thread.owner);
+  const profile = current20052 ? build20052.thread : current11645 ? build11645.thread : current10789 ? build10789.thread : current9922 ? build9922.thread : linux?.thread ?? null;
   const ownerFunction = profile?.ownerFunction ?? "function bM({conversationId:e,";
   const helper = reasoningThreadHook(profile?.react ?? "wM");
   source = replaceOnce(source, ownerFunction, `${helper}${ownerFunction}`, "reasoning thread hook");

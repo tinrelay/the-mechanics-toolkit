@@ -63,7 +63,7 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("KO=fl(Z,") && source.includes("Hbo=fl(Z,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("wF=Ih(q,") && source.includes("uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;");
 });
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
@@ -349,7 +349,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let Zi=Ki.length"]
+  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Ka.length,eo={"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,

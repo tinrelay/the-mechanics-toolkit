@@ -10,6 +10,7 @@ import {
   inspectBuild9647ArchiveRuntime
 } from "../patches/task-visual-palette/profiles/build9647.mjs";
 import { linuxBuild9647 } from "../patches/task-visual-palette/profiles/linux.mjs";
+import { build20052 } from "../patches/task-visual-palette/profiles/build20052.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -19,6 +20,7 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-palette
 
 testArchiveRuntime();
 testLinuxArchiveRuntime();
+testCurrentArchiveOwners();
 
 try {
   const extracted = path.join(scratch, "extracted");
@@ -255,6 +257,51 @@ function testArchiveRuntime() {
   const source = archiveRuntimeFixture();
   assert.equal(inspectBuild9647ArchiveRuntime(source), "needs-apply");
   assert.equal(inspectBuild9647ArchiveRuntime(applyBuild9647ArchiveRuntime(source)), "applied");
+}
+
+function testCurrentArchiveOwners() {
+  const protectedIds = new Set(["protected"]);
+  const classifier = id => protectedIds.has(id);
+  const bulkPrefix = build20052.archive.replacements[0][1];
+  const bulk = Function("MTKsidebarArchiveProtected", "wF",
+    `${bulkPrefix}return t}return xXo`)(classifier, Symbol("tasks"));
+  const scope = {get: (_, key) => key === "local" ? {kind:"local",conversationId:"protected"} :
+    {kind:"remote",task:{id:"ordinary"}}};
+  const items = [{id:"archive-thread"},{id:"archive-task"},{id:"rename-thread"}];
+  assert.deepEqual(bulk({scope,items,selectedThreadKeys:["local","remote"]}), [{id:"rename-thread"}],
+    "bulk selection resolves each task through its own scope");
+  assert.deepEqual(bulk({scope,items,selectedThreadKeys:["remote"]}), items);
+
+  const inline = build20052.archive.replacements.find(([before]) => before.startsWith("archive:t"))[1]
+    .split(",getMenuItems:")[0];
+  const action = Function("MTKsidebarArchiveProtected", "r", "n", "t", "mt", "Te", "bt",
+    `return {${inline}}`);
+  assert.equal(action(classifier,"protected","archive-group",1,false,false,2).archive, null,
+    "local protection follows the conversation, not archive-group metadata");
+  assert.equal(action(classifier,"ordinary","protected",1,false,false,2).archive, 1);
+
+  let epoch = 0;
+  const react = {useSyncExternalStore: (_, snapshot) => snapshot()};
+  for (const [, after] of build20052.archive.runtimeReplacements.slice(1)) {
+    const cacheSize = Number(after.match(/\.c\)\((\d+)\)/)[1]);
+    const owner = after.match(/^function (\w+)/)[1];
+    const cacheAlias = after.match(/\(0,(\w+)\.c\)/)[1];
+    const cache = Array(cacheSize).fill(Symbol.for("react.memo_cache_sentinel"));
+    const render = Function("us", "MTKsidebarArchiveSubscribe", "MTKsidebarArchiveSnapshot", cacheAlias,
+      `${build20052.archive.runtimeReplacements[0][1].split("function xXo")[0]}` +
+      `${after}unused=null;return t}return ${owner}`)(() => react, () => {}, () => epoch, {c:() => cache});
+    render({});
+    cache[0] = "memoized action";
+    render({});
+    assert.equal(cache[0], "memoized action", "unchanged roster keeps mounted row memo state");
+    epoch++;
+    render({});
+    assert.equal(cache[0], Symbol.for("react.memo_cache_sentinel"),
+      "roster reload invalidates already-mounted archive actions");
+  }
+  const newSize = Number(build20052.local.cacheAfter.match(/\.c\)\((\d+)\)/)[1]);
+  const indices = [...build20052.local.rootAfter.matchAll(/t\[(\d+)\]/g)].map(match => Number(match[1]));
+  assert.ok(Math.max(...indices) < newSize, "palette room memo slots fit its allocated cache");
 }
 
 function testLinuxArchiveRuntime() {

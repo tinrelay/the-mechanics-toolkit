@@ -7,7 +7,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
-import {build12404} from "../patches/task-attention-policy/profiles/build12404.mjs";
+import {build20052} from "../patches/task-attention-policy/profiles/build20052.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -23,7 +23,7 @@ verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linu
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
-verifyProfile(build12404, build12404InitialFixture(), "export const fixture=true;", "macOS build 12404");
+verifyProfile(build20052, build20052InitialFixture(), "export const fixture=true;", "macOS build 20052");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -136,18 +136,18 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build12404InitialFixture() {
+function build20052InitialFixture() {
   return [
     "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
-    "const Z=Symbol(`scope`),M5s={useEffect(){}},Oxo={useSyncExternalStore(){return!1}};function Fe(e){return e}",
-    "function Bp(e,t,n){let r=Np(`signal`,e,t);return r}const GMn=Bp(Z,0);",
-    "function cs(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
-    "function O5s(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,j5s.c)(12),t=Fe(Z),n=0;return t}",
-    "function p0s(e,t){Og.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){Og.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
-    "var V1s;function wQs(){V1s=sd(Z,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?Aae({cloudThreadsAllowed:i,localThreadsAllowed:Ii(e(Yf)),threadKeys:o}):o;return r+s})}",
-    "function Txo(e){let t=(0,Dxo.c)(172),n=e.conversationId,$e={formatMessage(){return `New chat`}},It=`Tamsin`,z=null,Yt=!1,me=!1,vt=!1,ze=!1,_t=null,yt=0,wt=null,Ve=!1,Pt=!1,Xt=`idle`;",
-    "let Zt=Exo({title:It,titleOverride:z})??$e.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Qt=Pt?`loading`:Xt,$t=Yt?!1:(me??vt===!0)||ze&&(_t==null&&(yt??0)>0||wt!=null||Ve),en=Yt||ze||_t!=null?0:yt??0;",
-    "return{hasUnreadTurn:!Yt&&vt===!0}}"
+    "const q=Symbol(`scope`),egc={useEffect(){}},lqo={useSyncExternalStore(){return!1}};function Di(e){return e}",
+    "function fd(e,t,n){let r=Np(`signal`,e,t);return r}const enr=fd(q,0);",
+    "function wl(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function Xhc(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,$hc.c)(12),t=Di(q),n=0;return t}",
+    "function clc(e,t){gr.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){gr.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
+    "var Bcc;function wQs(){Bcc=Tu(q,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?tie({cloudThreadsAllowed:i,localThreadsAllowed:Js(e(Uc)),threadKeys:o}):o;return r+s})}",
+    "function oqo(e){let t=(0,cqo.c)(181),r=e.conversationId,$e={formatMessage(){return `New chat`}},jt=`Tamsin`,B=null,Wt=!1,he=!1,vt=!1,ze=!1,_t=null,yt=0,wt=null,Ve=!1,Pt=!1,Xt=`idle`;",
+    "let Kt=sqo({title:jt,titleOverride:B})??$e.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),qt=Pt?`loading`:Xt,Jt=Wt?!1:(he??vt===!0)||ze&&(_t==null&&(yt??0)>0||wt!=null||Ve),Yt=Wt||ze||_t!=null?0:yt??0;",
+    "return{hasUnreadTurn:!Wt&&vt===!0}}"
   ].join("");
 }
 
