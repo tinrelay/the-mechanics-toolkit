@@ -104,7 +104,9 @@ function launch(applicationRoot, rescueFilePath, invocationPrompt, candidatePath
     marker: path.join(incidentDirectory, "renderer.ready"),
     incidentDirectory,
     rescueFile: rescueFilePath,
-    invokingCliPid: ancestorProcessPid(configuration.cli, {platform: configuration.platform}),
+    invokingCliPid: ancestorProcessPid(configuration.cli, {
+      platform: configuration.platform, taskId: configuration.taskId
+    }),
     configuration
   };
   if ((process.env.CODEX_THREAD_ID || process.env.CODEX_SESSION_ID) && state.invokingCliPid == null) {

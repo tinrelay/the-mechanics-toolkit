@@ -84,7 +84,7 @@ pre-adoption rollback to offer. The command:
    blocking native dialog with **Don't Restart** and **Relaunch Codex**;
 6. after **Relaunch Codex**, asks the exact platform application identity at the target executable
    path to quit, waits for the
-   exact invoking Codex CLI ancestor recorded when the supervisor was armed, then records
+   exact invoking Codex CLI process recorded when the supervisor was armed, then records
    `preparing-candidate`; on macOS it shows a best-effort progress notification before proving the
    Codex state databases accept a writer;
 7. when adopting, installs the still-verified candidate through the platform package boundary and
@@ -179,10 +179,15 @@ quit if that substrate identity cannot be established. No adapter scans the proc
 names containing `Codex` or `ChatGPT`: macOS uses the exact `com.openai.codex` bundle identity and
 target executable; Linux compares `/proc/PID/exe` to the exact resolved Desktop and bundled-CLI
 executables; Windows uses exact installed-package, executable-path, and ancestor identities. Task
-handoff follows only this command's parent chain to the exact bundled CLI and
-freezes that PID. After Desktop
+handoff follows this command's parent chain to the exact bundled CLI. When macOS tools run
+through the shared App Server instead, it can identify a same-user terminal client with the exact
+bundled executable and `resume TASK_ID` invocation (with or without the escape-line bypass flag).
+Zero or multiple matches fail closed; the shared daemon is not a handoff target. That client PID
+is frozen when the supervisor is armed. After Desktop
 quits, that one invoking CLI must exit. If it remains, the supervisor asks the person to close its
 existing terminal or session and does not launch a second copy of the task.
+An interactive escape-line therefore must exit after the agent's final reply; completing the
+agent turn alone does not close its CLI process.
 
 Before installation, launch, and every explicit rescue resume, the supervisor also waits for the
 state, logs, goals, memories, and queue databases to accept a write reservation. This closes the

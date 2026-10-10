@@ -184,12 +184,14 @@ export function applicationIsRunning(executable, {
 export function ancestorProcessPid(executable, {
   platform = process.platform,
   startPid = process.ppid,
+  taskId = null,
   processRunner,
   processRoot = undefined,
   fileSystem = undefined
 } = {}) {
   return implementation(platform).ancestorProcessPid(executable, {
     startPid,
+    taskId,
     processRunner,
     processRoot,
     fileSystem

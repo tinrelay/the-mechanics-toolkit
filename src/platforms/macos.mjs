@@ -198,7 +198,8 @@ function run(arguments_) {
 export function ancestorProcessPid(executable, {
   startPid = process.ppid,
   processRunner = spawnSync,
-  maximumDepth = 32
+  maximumDepth = 32,
+  taskId = null
 } = {}) {
   if (typeof executable !== "string" || executable.trim() === "") {
     throw new Error("ancestor executable is required");
@@ -214,7 +215,7 @@ export function ancestorProcessPid(executable, {
       "-p", String(pid), "-o", "pid=", "-o", "ppid=", "-o", "comm="
     ], {encoding: "utf8"});
     if (result.error != null) throw result.error;
-    if (result.status !== 0 || result.stdout.trim() === "") return null;
+    if (result.status !== 0 || result.stdout.trim() === "") break;
     const match = result.stdout.match(/^\s*(\d+)\s+(\d+)\s+(.+?)\s*$/);
     if (match == null) throw new Error(`macOS returned an invalid process identity for PID ${pid}`);
     const observedPid = Number(match[1]);
@@ -223,6 +224,31 @@ export function ancestorProcessPid(executable, {
     if (observedPid !== pid) throw new Error(`macOS returned the wrong process identity for PID ${pid}`);
     if (command === executable) return pid;
     pid = parentPid;
+  }
+  // Shared App Server tools are not children of the interactive resume client.
+  // Only a same-user client for this exact executable and resume ID may own the handoff.
+  if (taskId != null) {
+    if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(taskId)) {
+      throw new Error("invoking CLI task ID must be a UUID");
+    }
+    const result = processRunner("/bin/ps", ["-U", String(process.getuid()), "-ww",
+      "-o", "pid=", "-o", "args="], {encoding: "utf8"});
+    if (result.error != null) throw result.error;
+    if (result.status !== 0) throw new Error("macOS could not inspect resumed CLI clients");
+    const matches = [];
+    for (const line of result.stdout.split("\n")) {
+      const row = line.match(/^\s*(\d+)\s+(.+)$/);
+      if (row == null || !row[2].startsWith(`${executable} `)) continue;
+      const invocation = row[2].slice(executable.length).trim();
+      if (invocation === `resume ${taskId}` ||
+          invocation === `--dangerously-bypass-approvals-and-sandbox resume ${taskId}`) {
+        const identity = processRunner("/bin/ps", ["-p", row[1], "-o", "comm="], {encoding: "utf8"});
+        if (identity.error != null) throw identity.error;
+        if (identity.status === 0 && identity.stdout.trim() === executable) matches.push(Number(row[1]));
+      }
+    }
+    if (matches.length > 1) throw new Error("macOS found ambiguous resumed CLI clients for this task");
+    return matches[0] ?? null;
   }
   return null;
 }

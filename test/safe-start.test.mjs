@@ -786,6 +786,21 @@ try {
       return {status: 0, stdout: processIdentities.get(pid) ?? "", stderr: "", error: null};
     }
   }), null, "a similarly named unrelated process is not an invoking Codex CLI");
+  const resumedTask = "11111111-1111-4111-8111-111111111111";
+  const resumedCli = `2255 ${exactCli} --dangerously-bypass-approvals-and-sandbox resume ${resumedTask}\n`;
+  const taskProcessRunner = listing => (_command, arguments_) => ({status: 0,
+    stdout: arguments_.includes("-U") ? listing : arguments_.includes("comm=") && arguments_.length === 4
+      ? `${exactCli}\n` : "630 1 /private/shared-daemon/codex\n", stderr: ""});
+  assert.equal(ancestorProcessPid(exactCli, {platform: "darwin", startPid: 630,
+    taskId: resumedTask, processRunner: taskProcessRunner(resumedCli)}), 2255,
+  "shared-daemon tools identify the exact resumed terminal task without adopting the daemon");
+  assert.equal(ancestorProcessPid(exactCli, {platform: "darwin", startPid: 630,
+    taskId: resumedTask, processRunner: taskProcessRunner(resumedCli.replace(resumedTask,
+      "22222222-2222-4222-8222-222222222222"))}), null,
+  "another resumed task cannot become this task's restart handoff");
+  assert.throws(() => ancestorProcessPid(exactCli, {platform: "darwin", startPid: 630,
+    taskId: resumedTask, processRunner: taskProcessRunner(resumedCli + resumedCli.replace("2255", "2256"))}),
+  /ambiguous.*resumed/i, "two matching terminal clients fail closed");
   let quiescenceChecks = 0;
   assert.equal(await waitForApplicationQuiescence({
     executable: applicationExecutable,
