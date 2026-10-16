@@ -53,7 +53,7 @@ function verifyStockAuthorization(value) {
   const contracts = [
     `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``,
     `${profile.addonConst}=\`browser-use-peer-authorization.node\``,
-    `${profile.addon}.authorizeSocketPeer(t,n)`,
+    `${profile.addon}.authorizeSocketPeer(t,${profile.devVar ?? "n"})`,
     "dynamic_app_tools_peer_rejected",
     "missing-socket-file-descriptor"
   ];
@@ -90,6 +90,10 @@ function ownerFor(profile, defaultAuthorizer) {
 
 function ownershipProfile(value) {
   const profiles = [
+    {
+      owner: "Moe", authorizer: "Vd", envConst: "xoe", addonConst: "Soe", addon: "a", devVar: "r",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s="
+    },
     { owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce", addon: "i" },
     { owner: "Tse", authorizer: "Dl", envConst: "vse", addonConst: "yse", addon: "i" },
     { owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie", addon: "i" },

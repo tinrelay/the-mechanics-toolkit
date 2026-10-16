@@ -78,6 +78,8 @@ capability, click-through routing, the renderer-to-main acknowledgment round tri
 permissions, restart reconstruction, flat-cache migration, first-write identity, corrupt-record
 rejection, independent per-task count and byte
 bounds, the global task-bucket ceiling, syntax validity, and byte-identical second application.
+The current live-title fixture also verifies that the receipt module imports its reactive title
+hook; the behavioral probe must not mask a missing production binding by supplying a mock alone.
 
 Current package and live evidence belongs in the fleet
 [extraction ledger](../../docs/extraction-ledger.md).

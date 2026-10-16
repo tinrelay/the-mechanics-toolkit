@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
-import { incomingBuild20156 } from "./profiles/build20156.mjs";
+import { incomingBuild20586 } from "./profiles/build20586.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -60,7 +60,7 @@ function inspectState() {
     "function MTKtinrelayOutgoingExec(",
     "function MTKtinrelayOutgoingView(",
     "(MTKtinrelayOutgoingExec,{Component:",
-    "i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i"
+    "MTKtinrelayOutgoingAcceptance("
   ];
   const activityMarkers = [
     "function MTKtinrelayOutgoingAcceptance(",
@@ -175,7 +175,7 @@ function inspectAppliedRenderer(source) {
   if (count(source, "(MTKtinrelayOutgoingExec,{Component:") !== 1) {
     throw new Error("Tinrelay outgoing renderer call is not unique");
   }
-  if (count(source, "i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||") !== 1) {
+  if ([...source.matchAll(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/g)].length !== 1) {
     throw new Error("Tinrelay outgoing collapsed-activity persistence is not unique");
   }
   if (helpers.includes("MTKtinrelayLocalShip")) {
@@ -312,8 +312,8 @@ function patchRenderer(value, turnValue) {
     patched,
     persistent[0],
     persistent[0].replace(
-      "i.type===`dynamic-tool-call`",
-      "i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||i.type===`dynamic-tool-call`"
+      `${persistent.groups?.item ?? "i"}.type===\`dynamic-tool-call\``,
+      `${persistent.groups?.item ?? "i"}.type===\`exec\`&&MTKtinrelayOutgoingAcceptance(${persistent.groups?.item ?? "i"})!=null||${persistent.groups?.item ?? "i"}.type===\`dynamic-tool-call\``
     ),
     "Tinrelay outgoing collapsed-activity persistence"
   );
@@ -324,8 +324,10 @@ function patchRenderer(value, turnValue) {
 }
 
 function persistentClassifier(source) {
-  const build20156 = [...source.matchAll(/function sk\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`mcp-tool-call`&&\$h\(i\)\|\|i\.type===`assistant-message`&&nr\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&yg\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&ck\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
-  if (build20156.length === 1) return build20156[0];
+  const frontier = [...source.matchAll(/function Ak\(\{unit:e,hasFollowingFinalAnswer:t,keepMcpAppEntriesPersistent:n,mcpServerStatuses:r,renderMcpApps:i\}\)\{if\(e\.kind!==`standalone`\)return!1;let (?<item>a)=e\.item\.item;return a\.type===`user-input-response`\?!a\.completed:a\.type===`mcp-tool-call`&&lg\(a\)\|\|a\.type===`assistant-message`&&ki\(a\)\|\|(?:a\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(a\)!=null\|\|)?a\.type===`dynamic-tool-call`&&Eg\(a\)\|\|n&&i&&a\.type===`mcp-tool-call`&&jk\(\{item:a,mcpServerStatuses:r\}\)\?!0:a\.type===`user-message`&&\(a\.steeringStatus===`pending`\|\|a\.deliveryStatus===`not-sent`\|\|a\.hookFeedback===!0\|\|!t\)\}/g)];
+  if (frontier.length === 1) return frontier[0];
+  const build20586 = [...source.matchAll(/function sk\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`mcp-tool-call`&&\$h\(i\)\|\|i\.type===`assistant-message`&&nr\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&yg\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&ck\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
+  if (build20586.length === 1) return build20586[0];
   const current = [...source.matchAll(/function yO\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`assistant-message`&&qn\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&Gh\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&bO\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
   if (current.length === 1) return current[0];
   const secondary = [...source.matchAll(/function SO\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`assistant-message`&&zi\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&qh\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&CO\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
@@ -691,13 +693,13 @@ function mainHelperSlice(source) {
 function mainHelperOwner(source) {
   return uniqueMatch(
     source,
-    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/g,
+    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/g,
     "Tinrelay outgoing main helper owner"
   )[0];
 }
 
 function resolveHostBus(source) {
-  const profile = [incomingBuild20156, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
+  const profile = [incomingBuild20586, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
     .find(candidate => source.includes(candidate.moduleAfter));
   if (profile != null) {
     const imported = uniqueMatch(
@@ -705,7 +707,7 @@ function resolveHostBus(source) {
       new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
       "current host-bus import"
     );
-    if ((profile === incomingBuild11645 || profile === incomingBuild20156) &&
+    if ((profile === incomingBuild11645 || profile === incomingBuild20586) &&
         imported.groups.specifiers.includes(`${profile.hostBus.exported} as MTKtinrelayBus`)) {
       return "MTKtinrelayBus";
     }
@@ -735,7 +737,7 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  for (const profile of [incomingBuild20156, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild20586, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
     if (source.includes(`function ${profile.message}(`) &&
         source.includes(`function ${profile.delegation}(`) &&
         source.includes(profile.moduleAfter)) {

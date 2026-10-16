@@ -23,6 +23,9 @@ try {
       ownerReturn: "a"},
     {owner: "Rae", authorizer: "cp", envConst: "Dae", addonConst: "Oae",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s=",
+      ownerReturn: "s"},
+    {owner: "Moe", authorizer: "Vd", envConst: "xoe", addonConst: "Soe", addon: "a", devVar: "r",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s=",
       ownerReturn: "s"}
   ]) {
     const extracted = path.join(scratch, profile.owner);
@@ -64,8 +67,8 @@ function runToolkit(action, extracted) {
 function fixture(profile) {
   return [
     `const ${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\`,${profile.addonConst}=\`browser-use-peer-authorization.node\`;`,
-    `const i={authorizeSocketPeer(){}};function ${profile.authorizer}(){return()=>({authorized:false})}`,
-    "function stock(t,n){return i.authorizeSocketPeer(t,n)}",
+    `const ${profile.addon ?? "i"}={authorizeSocketPeer(){}};function ${profile.authorizer}(){return()=>({authorized:false})}`,
+    `function stock(t,${profile.devVar ?? "n"}){return ${profile.addon ?? "i"}.authorizeSocketPeer(t,${profile.devVar ?? "n"})}`,
     `async function ${profile.owner}({${profile.ownerPrefix ?? "callTool:e,listTools:t,pipePath:n,socketPeerAuthorizer:r="}${profile.authorizer}()}){return ${profile.ownerReturn ?? "r"}}`,
     "const reasons=[`dynamic_app_tools_peer_rejected`,`missing-socket-file-descriptor`];",
     "export const fixture=true;"

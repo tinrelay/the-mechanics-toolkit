@@ -1,0 +1,141 @@
+diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
+index 7176134..926518e 100644
+--- a/codex-rs/core/src/compact.rs
++++ b/codex-rs/core/src/compact.rs
+@@ -61,6 +61,7 @@ use tracing::error;
+ pub use codex_prompts::SUMMARIZATION_PROMPT;
+ pub use codex_prompts::SUMMARY_PREFIX;
+ const COMPACT_USER_MESSAGE_MAX_TOKENS: usize = 20_000;
++pub(crate) const MAX_RETAINED_EXTERNAL_INPUT_TOKENS: i64 = 10_000;
+ 
+ /// Thread-local policy that preserves inherited context without changing model or skill budgets.
+ /// Insert into `StartThreadOptions::thread_extension_init` to disable automatic compaction.
+@@ -645,6 +646,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+     let mut last_real_user_index = None;
+     for (i, item) in compacted_history.iter().enumerate().rev() {
+         if crate::compact_retained_tool_outputs::is_retained_tool_output(item)
++            || is_standalone_function_call_output(&item.item)
+             || is_real_user_or_agent_message(&item.item)
+         {
+             last_real_user_index = Some(i);
+@@ -688,6 +690,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+     compacted_history
+ }
+ 
++pub(crate) fn is_standalone_function_call_output(item: &ResponseItem) -> bool {
++    matches!(item, ResponseItem::FunctionCallOutput { call_id: None, .. })
++}
++
+ pub(crate) fn build_compacted_history(
+     initial_context: Vec<ResponseItemEnvelope>,
+     user_messages: &[CompactedUserMessage<'_>],
+diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
+index bacf8c3..f6aec2a 100644
+--- a/codex-rs/core/src/compact_remote_v2.rs
++++ b/codex-rs/core/src/compact_remote_v2.rs
+@@ -8,6 +8,8 @@ use crate::ResponseStream;
+ use crate::client::ModelClientSession;
+ use crate::client::ResponsesHttpExecutor;
+ use crate::client_common::ResponseEvent;
++use crate::compact::MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
++use crate::compact::is_standalone_function_call_output;
+ use crate::compact::CompactedHistoryMetadata;
+ use crate::compact::CompactionAnalyticsAttempt;
+ use crate::compact::CompactionAnalyticsDetails;
+@@ -85,7 +87,6 @@ enum RetainedImageBudget {
+ }
+ 
+ pub(crate) const RETAINED_MESSAGE_TOKEN_BUDGET: usize = 64_000;
+-const MAX_RETAINED_AGENT_MESSAGE_TOKENS: i64 = 10_000;
+ // Compact attempts can run much longer than normal turns, so keep the per-transport
+ // retry budget smaller than the general Responses stream retry budget.
+ const MAX_REMOTE_COMPACTION_V2_STREAM_RETRIES: u64 = 2;
+@@ -534,6 +535,9 @@ fn is_retained_for_remote_compaction_v2(
+         return true;
+     }
+     let item = &envelope.item;
++    if is_standalone_function_call_output(item) {
++        return estimate_item_token_count(item) <= MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
++    }
+     if let ResponseItem::AgentMessage {
+         author,
+         recipient,
+@@ -557,7 +561,7 @@ fn is_retained_for_remote_compaction_v2(
+         );
+         return !is_descendant_progress
+             && !is_completion
+-            && estimate_item_token_count(item) <= MAX_RETAINED_AGENT_MESSAGE_TOKENS;
++            && estimate_item_token_count(item) <= MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
+     }
+ 
+     let ResponseItem::Message { role, .. } = item else {
+@@ -885,6 +889,28 @@ mod tests {
+         );
+     }
+ 
++    #[test]
++    fn build_v2_compacted_history_retains_standalone_external_input() {
++        let standalone_output: ResponseItem = serde_json::from_value(serde_json::json!({
++            "type": "function_call_output",
++            "name": "send_message_to_thread",
++            "namespace": "codex_app",
++            "output": "current delegated task"
++        }))
++        .unwrap();
++        let older_user = message("user", "older completed task", None);
++        let output = ResponseItem::Compaction {
++            id: None,
++            encrypted_content: "new".to_string(),
++            internal_chat_message_metadata_passthrough: None,
++        };
++        let (history, _) = build_without_metadata(
++            vec![older_user.clone(), standalone_output.clone()],
++            output.clone(),
++        );
++        assert_eq!(raw(history), vec![older_user, standalone_output, output]);
++    }
++
+     #[test]
+     fn build_v2_compacted_history_preserves_retained_metadata_sidecar() {
+         let retained = message("user", "keep", /*phase*/ None);
+diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
+index 2b5f93c..196a860 100644
+--- a/codex-rs/core/src/compact_tests.rs
++++ b/codex-rs/core/src/compact_tests.rs
+@@ -703,6 +703,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
+     assert_eq!(refreshed, expected);
+ }
+ 
++#[test]
++fn assemble_compaction_history_places_context_before_standalone_external_input() {
++    let older_user = user_message("older completed task");
++    let standalone_output: ResponseItem = serde_json::from_value(serde_json::json!({
++        "type": "function_call_output",
++        "name": "send_message_to_thread",
++        "namespace": "codex_app",
++        "output": "current delegated task"
++    }))
++    .unwrap();
++    let initial_context: ResponseItem = serde_json::from_value(serde_json::json!({
++        "type": "message",
++        "role": "developer",
++        "content": [{"type": "input_text", "text": "fresh permissions"}]
++    }))
++    .unwrap();
++    let compaction = ResponseItem::Compaction {
++        id: None,
++        encrypted_content: "encrypted".to_string(),
++        internal_chat_message_metadata_passthrough: None,
++    };
++    let refreshed = raw(assemble_compaction_history(
++        annotated(vec![older_user.clone(), standalone_output.clone(), compaction.clone()]),
++        Vec::new(),
++        vec![initial_context.clone()],
++    ));
++    assert_eq!(refreshed, vec![older_user, initial_context, standalone_output, compaction]);
++}
++
+ #[test]
+ fn assemble_compaction_history_keeps_compaction_last() {
+     let agent_task = ResponseItem::AgentMessage {
+

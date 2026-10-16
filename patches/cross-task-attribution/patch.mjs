@@ -112,7 +112,8 @@ function findOwner() {
     const file = path.join(assets, name);
     const source = fs.readFileSync(file, "utf8");
     if (source.includes("localConversation.codexDelegationUserMessage.app") &&
-        source.includes("defaultMessage:`Sent by {appName} from another task`") &&
+        (source.includes("defaultMessage:`Sent by {appName} from another task`") ||
+         source.includes("defaultMessage:`Sent by {appName} from another chat`")) &&
         source.includes("sourceThreadId")) {
       const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
       if (containingFunction(source, labelAt).text.includes("sourceThreadId")) {
@@ -140,7 +141,7 @@ function findOwner() {
 
 function inspectState(owner) {
   const source = owner.source;
-  if (source.includes("function MTKsender(") && source.includes("function _S(e){") &&
+  if (source.includes("function MTKsender(") && source.includes("function NS(e){") &&
       source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor')) {
     const nativeMarkers = [
       "function MTKsenderFromSource(",
@@ -149,11 +150,11 @@ function inspectState(owner) {
       'alignment:`end`,accentColor:MTKdelegatedAccentColor',
       "t[13]!==p",
       "onLabelClick:m,alignment:`end`,accentColor:MTKdelegatedAccentColor",
-      "function zv(e){",
+      "function ey(e){",
       "g=f===`start`?`items-start`:`items-end`"
     ];
     if (!nativeMarkers.every(marker => source.includes(marker))) {
-      throw new Error("Unrecognized build-20156 attribution patch: partial native alignment markers");
+      throw new Error("Unrecognized build-20586 attribution patch: partial native alignment markers");
     }
     return "applied";
   }
@@ -192,17 +193,17 @@ function inspectState(owner) {
 function inspectPristine(source, externalBubbleSource = null) {
   const labelAt = source.indexOf("localConversation.codexDelegationUserMessage.app");
   const delegation = containingFunction(source, labelAt);
-  if (delegation.text.startsWith("function _S(e){let t=(0,vS.c)(13),")) {
-    const wrapper = functionAt(source, source.indexOf("function zv(e){"));
+  if (delegation.text.startsWith("function NS(e){let t=(0,PS.c)(13),")) {
+    const wrapper = functionAt(source, source.indexOf("function ey(e){"));
     for (const contract of [
-      "function zv(e){let t=(0,Bv.c)(21),",
+      "function ey(e){let t=(0,ty.c)(21),",
       "alignment:r,accentColor:i,conversationId:a",
       "g=f===`start`?`items-start`:`items-end`",
-      "Ug,{alignment:f,accentColor:i,message:o"
+      "Zg,{alignment:f,accentColor:i,message:o"
     ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
     if (!delegation.text.includes("onLabelClick:m})") ||
         !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
-      throw new Error("Upstream changed: build-20156 delegation label cache");
+      throw new Error("Upstream changed: build-20586 delegation label cache");
     }
     return {delegation, wrapper, profile: {nativeAlignment: true}};
   }
@@ -327,13 +328,13 @@ function patchAttribution(source, ownerFile, details) {
 
 function patchNativeAttribution(source, imports, details) {
   let delegation = details.delegation.text;
-  delegation = replaceOnce(delegation, "function _S(e){let t=(0,vS.c)(13),", "function _S(e){let t=(0,vS.c)(14),", "native delegation cache size");
+  delegation = replaceOnce(delegation, "function NS(e){let t=(0,PS.c)(13),", "function NS(e){let t=(0,PS.c)(14),", "native delegation cache size");
   const labelEnd = ",t[1]=p):p=t[1];";
   const metadata = "let MTKstore=MTKcrossTaskStoreHook(MTKcrossTaskStoreScope)," +
     "MTKtitle=MTKstore.get(MTKtitleAtom,{hostId:s??`local`,threadId:r})," +
     "MTKsourceTask=s==null||s===`local`?MTKstore.get(MTKsourceTaskAtom,MTKsourceLocalKey(r)):null," +
     "MTKresolvedSender=MTKsenderFromSource(MTKtitle,MTKsourceTask,r);" +
-    attributionLabel("yS", "p", "f");
+    attributionLabel("FS", "p", "f");
   delegation = replaceOnce(delegation, labelEnd, labelEnd + metadata, "native delegation sender label");
   delegation = replaceOnce(delegation,
     "t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(",
@@ -372,21 +373,22 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appInitial.includes("uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("wF=Ih(q,(e,{get:t})=>{let n=wl(e);switch(n?.kind){case`local`:") &&
-      appInitial.includes("function Xhc(){let e=(0,$hc.c)(12),t=Di(q),")) {
+  if (appInitial.includes("Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("QB=wc(U,(e,{get:t})=>{let n=TD(e);switch(n?.kind){case`local`:") &&
+      appInitial.includes("function Suu(){let e=(0,Tuu.c)(12),t=hi(U),") &&
+      appInitial.includes('function CD(e){return`')) {
     const sharedImport = uniqueMatch(ownerSource,
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
       "app-shared import");
-    for (const binding of ["Fan as Di", "H0t as q", "WB as cl"]) {
-      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20156 store binding ${binding}`);
+    for (const binding of ["Ixt as hi", "Cot as U"]) {
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20586 store binding ${binding}`);
     }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "uFo")} as MTKtitleAtom,${exportedAs(appInitial, "wF")} as MTKsourceTaskAtom}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "Qxc")} as MTKtitleAtom,${exportedAs(appInitial, "QB")} as MTKsourceTaskAtom,${exportedAs(appInitial, "CD")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
       sharedImport: {
         before: sharedImport[0],
-        after: `import{${sharedImport.groups.specifiers},Fan as MTKcrossTaskStoreHook,H0t as MTKcrossTaskStoreScope,WB as MTKsourceLocalKey}from"${sharedImport.groups.relative}";`
+        after: `import{${sharedImport.groups.specifiers},Ixt as MTKcrossTaskStoreHook,Cot as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
       }
     };
   }

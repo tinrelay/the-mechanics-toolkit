@@ -62,25 +62,25 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  const build20156Seam = "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),";
-  if (value.includes(build20156Seam)) {
+  const build20586Seam = "function Suu(){let e=(0,Tuu.c)(12),t=hi(U),";
+  if (value.includes(build20586Seam)) {
     const contracts = [
-      build20156Seam,
-      "{groups:d,isWorkspaceRootOptionsLoading:f}=r(bI)",
-      "e.get(Yh)",
-      "$hc=J(),Y(),_g(),egc=us()"
+      build20586Seam,
+      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(JV)",
+      "e.get(Hh)",
+      "Tuu=Z(),G(),sl(),Euu=yu()"
     ];
     if (count(value, contracts[0]) !== 1 || count(value, contracts[1]) !== 1 ||
         count(value, contracts[2]) < 1 || count(value, contracts[3]) !== 1) {
-      throw new Error("Upstream changed: build-20156 agent roster owner is not unique");
+      throw new Error("Upstream changed: build-20586 agent roster owner is not unique");
     }
     return {
-      seam: build20156Seam,
-      scope: "Di(q)",
-      react: "egc",
-      projectsAtom: "bI",
-      readyAtom: "Yh",
-      client: "((e,t)=>e.get(Yh).forHost(t))"
+      seam: build20586Seam,
+      scope: "hi(U)",
+      react: "Euu",
+      projectsAtom: "JV",
+      readyAtom: "Hh",
+      client: "((e,t)=>e.get(Hh).forHost(t))"
     };
   }
   const build11645Seam = "function _0a(){let e=(0,b0a.c)(12),t=Jl(Q),";

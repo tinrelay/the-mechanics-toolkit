@@ -96,14 +96,14 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build20156OwnerFixture());
+  fs.writeFileSync(owner, build20586OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build20156Once = fs.readFileSync(owner);
+  const build20586Once = fs.readFileSync(owner);
   const published = [];
-  const composerText = build20156Once.toString().slice(build20156Once.toString().indexOf("function DW("));
-  const composer = Function("v7e", "tF", "g7e", "MTKuseModelIdentityGuard", `${composerText};return DW`)(
-    {c: () => []}, effort => effort, () => true, (...selection) => published.push(selection));
+  const composerText = build20586Once.toString().slice(build20586Once.toString().indexOf("function pG("));
+  const composer = Function("T7e", "TI", "C7e", "Ow", "MTKuseModelIdentityGuard", `${composerText};return pG`)(
+    {c: () => []}, effort => effort, () => true, value => value === "success", (...selection) => published.push(selection));
   const models = [{model: "gpt-6.1-sol"}, {model: "gpt-6-luna"}];
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"],
@@ -113,12 +113,23 @@ try {
     reasoningEffort: "low", locked: {lockedReasoningEffort: "high"}});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"],
     "the guard follows the stock effective-model and locked-effort selection");
-  assert.match(build20156Once.toString(), /MTKuseModelIdentityGuard\(r,je,Tt\)/);
-  assert.match(build20156Once.toString(), /return OW\.useEffect\(/);
-  const build20156Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build20156Behavior.status, 0, build20156Behavior.stderr || build20156Behavior.stdout);
+  for (const loading of [{isLoading: true}, {catalogStatus: "pending"},
+    {threadStatus: "pending"}, {locked: {isLoading: true}}]) {
+    composer({conversationId: "task-1", model: "gpt-6-luna", reasoningEffort: "low", models, ...loading});
+    assert.deepEqual(published.at(-1), [null, "gpt-6-luna", "low"],
+      "a provisional selection does not activate the task guard while native model settings are loading");
+  }
+  composer({conversationId: "task-1", model: "gpt-6-luna", reasoningEffort: "low", models});
+  assert.deepEqual(published.at(-1), ["task-1", "gpt-6-luna", "low"],
+    "a loaded mismatch still activates the guard without a timeout");
+  composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
+  assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"]);
+  assert.match(build20586Once.toString(), /MTKuseModelIdentityGuard\(yt\?null:i,Pe,Tt\)/);
+  assert.match(build20586Once.toString(), /return mG\.useEffect\(/);
+  const build20586Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build20586Behavior.status, 0, build20586Behavior.stderr || build20586Behavior.stdout);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build20156Once);
+  assert.deepEqual(fs.readFileSync(owner), build20586Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -195,12 +206,13 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build20156OwnerFixture() {
+function build20586OwnerFixture() {
   return [
-    'const OW={useEffect:e=>e()},tF=e=>e,g7e=()=>true;',
+    'const mG={useEffect:e=>e()},TI=e=>e,C7e=()=>true,Ow=e=>e===`success`;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function DW(e){let t=(0,v7e.c)(299),r=e.conversationId,de=e.locked,oe={reasoningEffort:e.reasoningEffort},xt=[],_e=e.reserve===true,ke=e.reserveModel,T=e.defaultModel,pe=e.model,ge=e.filter===true,Oe=e.models,he=e.lockedCatalog===true;',
-    'let je=_e?ke?.model??T:pe,Me=ge?Oe?.filter(g7e):Oe;he&&(Me=ke==null?[]:[ke]);',
-    'let Tt=de?.lockedReasoningEffort??tF(oe.reasoningEffort,xt),Et=true;return{t,r,je,Me,oe,Tt,Et}}'
+    'function pG(e){let t=(0,T7e.c)(324),i=e.conversationId,he=e.locked,ue={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},ke=e.catalogStatus??`success`,st=e.threadStatus??`idle`,xt=[],xe=e.reserve===true,Ne=e.reserveModel,j=e.defaultModel,_e=e.model,be=e.filter===true,Me=e.models,q=e.lockedCatalog===true;',
+    'let Pe=xe?Ne?.model??j:_e,Fe=be?Me?.filter(C7e):Me;q&&(Fe=Ne==null?[]:[Ne]);',
+    'let vt=he?.isLoading===!0||!Ow(ke)||ue.isLoading||st===`pending`;let yt=vt,bt=false;',
+    'let Tt=he?.lockedReasoningEffort??TI(ue.reasoningEffort,xt),Et=true;return{t,i,Pe,Me,ue,Tt,Et}}'
   ].join("");
 }

@@ -24,6 +24,10 @@ If the pinned model was removed or renamed, hold `⌘` and click either the lock
 lockout for this task until the application exits without rewriting its JSON pin. The alert and
 recovery text retain deliberate warning contrast in both Codex themes.
 
+The current macOS renderer's native model-settings loading state suspends the guard while task
+settings, the model catalog, or locked selections are hydrating. Temporary defaults are not a
+mismatch. Once loading finishes, a genuine mismatch warns immediately without a grace timer.
+
 ![The model identity guard locking the composer after a pinned task is switched away from its expected model](model-identity-guard-demo.webp)
 
 *The task remains readable, but another message cannot be sent until the pinned model and effort

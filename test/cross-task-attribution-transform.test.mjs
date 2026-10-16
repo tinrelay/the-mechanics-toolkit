@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { build20156 as palette20156 } from "../patches/task-visual-palette/profiles/build20156.mjs";
+import { build20586 as palette20586 } from "../patches/task-visual-palette/profiles/build20586.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -23,7 +23,7 @@ try {
     build10789BubbleFixture(), build10789OwnerFixture());
   verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
     build11645BubbleFixture(), build11645OwnerFixture());
-  verifyNative20156();
+  verifyNative20586();
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -60,18 +60,18 @@ try {
     assert.deepEqual(fs.readFileSync(primaryTarget), Buffer.from(primaryFixture), `${label} title owner stays untouched`);
   }
 
-  function verifyNative20156() {
-    const extracted = path.join(scratch, "build-20156");
+  function verifyNative20586() {
+    const extracted = path.join(scratch, "build-20586");
     const assets = path.join(extracted, "webview/assets");
     fs.mkdirSync(assets, {recursive: true});
     const ownerTarget = path.join(assets, "sites-end-resource-fixture.js");
     const initialTarget = path.join(assets, "app-initial-fixture.js");
     fs.writeFileSync(initialTarget, [
-      'import{Fan as Di,H0t as q,WB as cl}from"./app-shared-fixture.js";',
-      'function cFo(e){return e.localTitle}var uFo;uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return cFo({...r,localTitle:i})});',
-      'function Xhc(){let e=(0,$hc.c)(12),t=Di(q),n=`sidebarElectron.recentChats`;return n}',
-      'var wF;wF=Ih(q,(e,{get:t})=>{let n=wl(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
-      'export{uFo as QW,wF as nhn};'
+      'import{Ixt as hi,Cot as U}from"./app-shared-fixture.js";',
+      'function Xxc(e){return e.localTitle}var Qxc;Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return Xxc({...r,localTitle:i})});',
+      'function Suu(){let e=(0,Tuu.c)(12),t=hi(U),n=`sidebarElectron.recentChats`;return n}',
+      'var QB;QB=wc(U,(e,{get:t})=>{let n=TD(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
+      'function CD(e){return`local:${e}`}export{Qxc as QW,QB as nhn,CD as sourceKey};'
     ].join(""));
     fs.writeFileSync(path.join(assets, "app-primary-fixture.js"), 'export const noop=true;');
     fs.writeFileSync(path.join(assets, "app-shared-fixture.js"), 'export const noop=true;');
@@ -79,17 +79,17 @@ try {
       'import{noop as P}from"./app-primary-fixture.js";',
       'import{QW as T}from"./app-initial-fixture.js";',
       'import{noop as G}from"./app-shared-fixture.js";',
-      'function zv(e){let t=(0,Bv.c)(21),{label:n,alignment:r,accentColor:i,conversationId:a,message:o,sentAtMs:s,cwd:c,hostId:l,compactActions:u,onLabelClick:d}=e,f=r===void 0?`end`:r,g=f===`start`?`items-start`:`items-end`;return(0,Vv.jsx)(Ug,{alignment:f,accentColor:i,message:o})}',
-      'function _S(e){let t=(0,vS.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l=c!==void 0&&c,u=An(),d=ns()?`/hotkey-window/thread/${r}`:`/local/${r}`,f=null;',
-      'let p;t[1]===Symbol.for(`react.memo_cache_sentinel`)?(p=(0,yS.jsx)(G,{id:`localConversation.codexDelegationUserMessage.app`,defaultMessage:`Sent by {appName} from another task`}),t[1]=p):p=t[1];',
-      'let m=()=>u(d),h;return t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(h=(0,yS.jsx)(zv,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h):h=t[12],h}',
+      'function ey(e){let t=(0,ty.c)(21),{label:n,alignment:r,accentColor:i,conversationId:a,message:o,sentAtMs:s,cwd:c,hostId:l,compactActions:u,onLabelClick:d}=e,f=r===void 0?`end`:r,g=f===`start`?`items-start`:`items-end`;return(0,ny.jsx)(Zg,{alignment:f,accentColor:i,message:o})}',
+      'function NS(e){let t=(0,PS.c)(13),{conversationId:n,sourceThreadId:r,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:c}=e,l=c!==void 0&&c,u=An(),d=ns()?`/hotkey-window/thread/${r}`:`/local/${r}`,f=null;',
+      'let p;t[1]===Symbol.for(`react.memo_cache_sentinel`)?(p=(0,FS.jsx)(G,{id:`localConversation.codexDelegationUserMessage.app`,defaultMessage:`Sent by {appName} from another chat`}),t[1]=p):p=t[1];',
+      'let m=()=>u(d),h;return t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(h=(0,FS.jsx)(ey,{conversationId:n,label:p,message:i,sentAtMs:a,cwd:o,hostId:s,compactActions:l,onLabelClick:m}),t[5]=l,t[6]=n,t[7]=o,t[8]=s,t[9]=i,t[10]=a,t[11]=m,t[12]=h):h=t[12],h}',
       'export const fixture=true;'
     ].join(""));
     assert.equal(runToolkit("check", extracted).state, "needs-apply");
     assert.equal(runToolkit("apply", extracted).state, "applied");
     const once = fs.readFileSync(ownerTarget);
     let composed = once.toString();
-    for (const [before, after] of palette20156.delegation.replacements.slice(0, 2)) {
+    for (const [before, after] of palette20586.delegation.replacements.slice(0, 2)) {
       assert.ok(composed.includes(before), "palette composes with the current attribution owner");
       composed = composed.replace(before, after);
     }
@@ -97,9 +97,9 @@ try {
       "palette provenance preserves incoming right alignment");
     const jsx = {jsx: (type, props) => ({type, props}), jsxs: (type, props) => ({type, props})};
     const cache = {c: size => Array(size).fill(Symbol.for("react.memo_cache_sentinel"))};
-    const render = Function("Bv", "Vv", "Ug", "vS", "yS", "G", "An", "ns",
+    const render = Function("ty", "ny", "Zg", "PS", "FS", "G", "An", "ns",
       "MTKcrossTaskStoreHook", "MTKcrossTaskStoreScope", "MTKtitleAtom", "MTKsourceTaskAtom", "MTKsourceLocalKey",
-      `${once.toString().replace(/import\{[^}]+\}from"[^"]+";/g, "").replace("export const fixture=true;", "")};return {delegation:_S,wrapper:zv}`
+      `${once.toString().replace(/import\{[^}]+\}from"[^"]+";/g, "").replace("export const fixture=true;", "")};return {delegation:NS,wrapper:ey}`
     )(cache, jsx, "stock-bubble", cache, jsx, "stock-label", () => () => {}, () => false,
       () => ({get: atom => atom === "title" ? "Example Sender — Role" : null}), {}, "title", "source", id => id);
     const delegation = render.delegation({conversationId:"receiver",sourceThreadId:"sender",message:"Incoming message",sentAtMs:123});

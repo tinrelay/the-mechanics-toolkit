@@ -63,7 +63,7 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("wF=Ih(q,") && source.includes("uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("QB=wc(U,") && source.includes("Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;");
 });
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
@@ -79,6 +79,9 @@ assert.equal(
 );
 assert.equal(helper.includes("MTKoutboundUseTitle("), currentTitleOwner,
   "current receipts subscribe to a newly created recipient's title");
+if (currentTitleOwner) assert.match(owner,
+  /import\{[^}]*\b[$\w]+ as MTKoutboundUseTitle(?:,|\})/,
+  "the reactive title hook must be bound in the receipt module, not supplied only by the probe");
 assert.equal(helper.includes("MTKoutboundThreadSummaryAtom"), directSummaryOwner,
   "current receipts use the stock direct summary when a task is absent from the sidebar");
 
@@ -349,7 +352,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Ka.length,eo={"]
+  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -439,7 +442,7 @@ const mainOwners = fs.readdirSync(mainDirectory).filter(name => {
 assert.equal(mainOwners.length, 1, "unique durable receipt cache owner");
 const main = fs.readFileSync(path.join(mainDirectory, mainOwners[0]), "utf8");
 const mainStart = main.indexOf('const MTKoutboundReceiptContract=');
-const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/);
+const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/);
 assert.ok(mainOwner != null && mainOwner.index > 0, "localized durable receipt main helper");
 const mainHelper = main.slice(mainStart, mainStart + mainOwner.index);
 assert.ok(mainHelper.includes('process.platform==="win32"||(e.mode&63)===0'),
@@ -587,6 +590,11 @@ process.stdout.write(`${JSON.stringify({
 }, null, 2)}\n`);
 
 function evaluateReceiptReactBinding(expression) {
+  if (expression === "kr()") {
+    assert.ok(conversation.includes("I_=kr()") && conversation.includes("I_.useState") &&
+      conversation.includes("I_.useEffect"), "frontier receipt factory is the stock React owner");
+    return receiptReact;
+  }
   if (expression === "Db") return undefined;
   if (/^[$A-Z_a-z][$\w]*$/.test(expression)) return receiptReact;
   if (/^[$A-Z_a-z][$\w]*\(\)$/.test(expression)) return receiptReact;

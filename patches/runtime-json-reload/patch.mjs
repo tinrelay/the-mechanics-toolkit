@@ -15,7 +15,7 @@ const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
 const runtimeFiles = Object.freeze([
   "agent-roster.json"
 ]);
-const mainOwnerPattern = /var [$\w]+=[$\w]+\.(?:i|Lt)\(`electron-message-handler`\)/g;
+const mainOwnerPattern = /var [$\w]+=[$\w]+\.(?:i|Lt|a)\(`electron-message-handler`\)/g;
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();

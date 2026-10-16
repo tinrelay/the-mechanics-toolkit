@@ -60,8 +60,8 @@ try {
   const currentMain = path.join(current, ".vite/build/main-current.js");
   fs.mkdirSync(path.dirname(currentMain), {recursive: true});
   fs.writeFileSync(currentMain,
-    "const a={Lt:e=>e},p={app:{whenReady:async()=>{}},webContents:{}},i={er:class{add(){}}};" +
-    "var DZ=a.Lt(`electron-message-handler`);" +
+    "const a={a:e=>e},p={app:{whenReady:async()=>{}},webContents:{}},i={er:class{add(){}}};" +
+    "var DZ=a.a(`electron-message-handler`);" +
     "async function boot(){let B=new i.er;B.add(()=>{});let V=Date.now();" +
     "await p.app.whenReady(),I(`main app.whenReady resolved`,V),z&&after()}" +
     "function I(){}const z=false;function after(){}"

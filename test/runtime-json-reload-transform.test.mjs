@@ -15,6 +15,7 @@ try {
   exercise("local", rendererFixture());
   exercise("imported-9922", importedRendererFixture());
   exercise("imported-prefix-collision", importedPrefixCollisionFixture(), "Lt");
+  exercise("build-20586", importedRendererFixture(), "a");
   process.stdout.write("runtime JSON reload transform probe passed\n");
 
   function exercise(name, rendererSource, mainFactory = "i") {

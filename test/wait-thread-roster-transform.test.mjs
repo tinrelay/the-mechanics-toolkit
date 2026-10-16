@@ -14,7 +14,7 @@ runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
 runFixture("linux-10954", linux10954InitialFixture(), /XI as MTKwaitStoreScope/, true);
 runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 runFixture("macos-11645", build11645InitialFixture(), /tSt as MTKwaitStoreScope/, true);
-runFixture("macos-20156", build20156InitialFixture(), /H0t as MTKwaitStoreScope/, true);
+runFixture("macos-20586", build20586InitialFixture(), /Cot as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
 function runFixture(label, initialSource, expectedScope, splitStore = false) {
@@ -122,13 +122,13 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build20156InitialFixture() {
+function build20586InitialFixture() {
   return [
-    'import{Fan as Di,H0t as q,WB as cl,GB as Pi}from"./app-shared-fixture.js";',
-    "const Ih=(...e)=>e,wl=e=>e,wF=Ih(q,(e,{get:t})=>{let n=wl(e);return n});",
-    "const uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;return cFo({...r,localTitle:i})});",
-    "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),n=0;return t}",
-    "export{wF as task,uFo as title};"
+    'import{Ixt as hi,Cot as U}from"./app-shared-fixture.js";',
+    "const wc=(...e)=>e,TD=e=>e,QB=wc(U,(e,{get:t})=>{let n=TD(e);return n});",
+    "const Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;return Xxc({...r,localTitle:i})});",
+    "function Suu(){let e=(0,Tuu.c)(12),t=hi(U),n=0;return t}",
+    "function CD(e){return`local:${e}`}function wD(e){return`remote:${e}`}export{QB as task,Qxc as title,CD as localKey,wD as remoteKey};"
   ].join("");
 }
 

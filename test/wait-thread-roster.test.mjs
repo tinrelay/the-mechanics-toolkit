@@ -39,7 +39,7 @@ const dedicatedTitleOwner = fs.readdirSync(assets).some(name => {
     ["Q2t=Jf(o_,(e,{get:t})=>{", "X2t({...n,localTitle:r})"],
     ["G2t=Ll(Hc,(e,{get:t})=>{", "U2t({...n,localTitle:r})"],
     ["l2i=to(Q,(e,{get:t})=>{if(e==null)return null;", "s2i({...n,localTitle:r})"],
-    ["uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;", "cFo({...r,localTitle:i})"]
+    ["Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;", "Xxc({...r,localTitle:i})"]
   ].some(markers => markers.every(marker => value.includes(marker)));
 });
 assert.equal(

@@ -1,96 +1,54 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.11` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.12` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.11
+## 0.2.12
 
-The macOS target is Desktop `26.1007.30912` / build `20156`. Its bundled CLI is byte-identical
-to build `20052` (`0.162.0-alpha.17.2`), so the same verified source repair and replacement
-binary apply; no new Rust build or compaction reproduction is claimed. Use source-patch
-`standalone-output-compaction-20156` at the unchanged exact upstream revision below.
+The macOS target is Desktop `26.1013.31256` / build `20586`, with bundled CLI
+`0.163.0-alpha.10.2`. Apply source-patch `standalone-output-compaction-20586` to exact upstream
+commit `4ebc485ca321243727539187169425fcf972f2c4`, then use `bin/tmtk-build-codex` with stable
+Rust `1.95.0` and its default LTO-off setting. Both focused standalone-input tests failed on
+stock source and passed after repair. The experimental annotated-tool-output feature does not
+cover ordinary unmarked standalone input and is not enabled by TMTK.
 
-The desktop port updates the exact host-bus singleton/module and readiness bootstrap filename.
-Focused causal probes cover both changes; the remaining generated owners retain their behavior.
-The complete 18-patch signed stage passed; live acceptance remains pending. These separate gates
-are recorded in the macOS runbook.
+This port follows the new generated desktop owners and moved task-key exports. It preserves
+native pending-input persistence, selected-model/locked-effort reporting, source-task naming,
+incoming right alignment, outgoing left alignment, and runtime lifecycle protections. The
+18-patch fleet passed signed staging, post-repack probes, native-payload preservation, and
+byte-identical second application. The stable-Rust release build passed. A missing reactive-title
+hook import in outgoing receipts was corrected with a causal regression probe. The final build
+completed a healthy supervised restart and the operator returned to the real task, without rescue.
+The model guard now follows the native settings-loading state: provisional selections stay
+neutral, while a fully loaded mismatch warns immediately.
 Windows and Linux targets and qualification boundaries are unchanged.
 
-## 0.2.10
+## Existing installations
 
-The macOS frontier is official Desktop `26.1007.21159` / build `20052`. Its 18-patch fleet
-passed signed static qualification, but its first adoption exposed a reasoning-thread React
-binding error on chat mount. The corrected hook now has causal red/green coverage and an exact
-stock-runtime check; corrected signed staging passed. Live chat acceptance is pending and the
-last accepted build is `12947`. The next chat check exposed a false model warning caused by
-publishing the available-model list instead of the effective selection. The corrected profile
-has causal selection/locked-effort coverage and passed signed restaging; the live warning check
-is pending.
-Generated-owner
-profiles follow the new Rolldown bundle without changing incoming right alignment, outgoing left
-alignment, task/project naming, or opt-in lifecycle policy. Readiness follows the stock bootstrap
-marker writer. Initial build `20052` reached renderer readiness but is not live-accepted.
+Git history preserves earlier release instructions and package receipts. Do not apply an old
+source diff to the current CLI or infer live acceptance from a previous build's receipt.
 
-The stock sidebar now carries archive-group metadata and supplies bulk-menu scope directly.
-Protection resolves the selected conversations, not the viewer's group, and roster reloads
-invalidate mounted archive actions. Focused probes cover these new owner shapes and palette
-memo allocation. The complete fleet passed probes after signed repack and byte-identical second
-application, with signature/seal and native-payload checks green. Live task rendering and policy
-behavior still require the operator's restart.
+Remove `sidebar-action-collapse` from older private selections: Codex now owns that presentation.
+`renderer-turn-window` also remains unselected on the macOS frontier. Configure opt-in dot
+protection through the [runtime roster](patches/dot-lifecycle-protection/); it does not change
+native dot appearance or model/reasoning behavior. No task-data migration is needed.
 
-The bundled CLI is `0.162.0-alpha.17.2`. Apply `standalone-output-compaction-20052` to exact
-upstream commit `740e5af33c71225640e0c1c1555c514c2c93ab74`, then build with stable Rust `1.95.0`
-and LTO off. Both standalone-input retention/context-ordering tests failed before repair and
-passed afterward; the release build succeeded. No query-depth patch or bootstrap flags are needed.
-Use the documented LTO-off
-setting for focused release tests too, so they reuse build inputs instead of relinking with
-Thin LTO. `renderer-turn-window` and the retired sidebar-collapse patch remain unselected.
+Staging removes the vendor signature from only the copied macOS candidate before mutating it,
+then signs and verifies the finished bundle. The pristine source stays untouched. The supervisor
+recognizes the nested `CodexCLI.app` and resumed terminal-client layouts. Normal adoption does
+not requalify destructive rescue scenarios.
 
-macOS restart also recognizes an exact resumed terminal client when tools run through the shared
-App Server rather than beneath that CLI. It matches the same-user bundled executable and task ID,
-rejects ambiguity, and waits for the interactive CLI to exit before relaunching Desktop.
-
-Windows/Ubuntu build `10954` and Fedora build `9647` retain their existing profiles and
-receipts; this frontier does not claim a new secondary-platform package run. Configure dot lifecycle
-protection through the runtime roster as described in the [patch guide](patches/dot-lifecycle-protection/);
-native appearance and model behavior remain untouched.
-
-## 0.2.6
-
-For macOS build `11645`, use the corrected 17-patch example: `renderer-turn-window` is not selected
-or qualified on that build. Remove it from any existing private selection before staging. Staging
-now removes the vendor signature from only the copied candidate before changing its plist or ASAR,
-then signs and verifies the finished candidate. The pristine source remains untouched. This fixes
-non-live staging on a second Mac; it does not claim a new live adoption there.
-
-## 0.2.5
-
-This release qualified macOS Desktop `26.924.22138` / build `11645`. Its 17 selected
-patches passed signed staging, post-repack probes, native-payload preservation, and byte-identical
-second application. A genuine supervised replacement returned to a usable task; a TinRelay
-self-loop rendered after adoption. The bundled CLI is `0.158.0-alpha.2.1`. Apply the exact
-`standalone-output-compaction-11645` and `chatgpt-query-depth-11645` source patches to commit
-`0d9c7cbfa6cf1489f55a8a9542b75ddd2c061807` before building a replacement CLI. The macOS
-supervisor recognizes its current nested `CodexCLI.app` executable layout as well as the older
-layout.
-
-The sidebar-action-collapse patch is retired: current Codex puts those actions in a vertical rail.
-Remove it from an existing private patch selection before staging. No task-data migration is
-needed. Windows and Ubuntu build `10954` and Fedora build `9647` retain their exact generated-owner
-profiles; their recorded package/live receipts predate this removal. Each installing agent must
-pass the current selected-fleet stage and normal adoption gate for its official package. This
-release does not claim a fresh Windows or Linux package run.
-
-The package adapters also accept Windows x64, Ubuntu `amd64`, and Fedora `x86_64`. These paths
-need an architecture-matched official package and exact-build staging. The absence of an
-x86-family lab receipt is an evidence boundary, not a code restriction.
+Windows/Ubuntu build `10954` and Fedora build `9647` keep their exact profiles and earlier
+package/open evidence. Windows x64, DEB `amd64`, and RPM `x86_64` are supported code paths:
+use an architecture-matched official package and pass exact-build staging/adoption. The absence
+of an x86-family lab receipt is not a prohibition or permission to substitute ARM binaries.
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.11` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.12` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

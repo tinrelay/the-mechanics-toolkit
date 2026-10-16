@@ -40,37 +40,37 @@ try {
   }
   process.stdout.write("reasoning retention build-11645 transform probe passed\n");
 
-  fs.writeFileSync(turn, build20156TurnFixture());
-  fs.writeFileSync(thread, build20156ThreadFixture());
-  fs.writeFileSync(activity, build20156CollapseFixture());
+  fs.writeFileSync(turn, build20586TurnFixture());
+  fs.writeFileSync(thread, build20586ThreadFixture());
+  fs.writeFileSync(activity, build20586CollapseFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build20156Once = [turn, thread, activity].map(file => fs.readFileSync(file));
-  assert.match(fs.readFileSync(turn, "utf8"), /return gl\.useSyncExternalStore\(/,
-    "build-20156 turn hook uses the stock React owner, not the ml module binding");
-  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(c\).*preventAutoCollapse:Kt&&K\|\|ft\|\|sr\|\|MTKreasoningRetained/);
-  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Gk\(w,\{conversationId:t,turnSearchKey:n\},!0\)/);
-  const build20156Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build20156Probe.status, 0, build20156Probe.stderr || build20156Probe.stdout);
+  const build20586Once = [turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"), /return ml\.useSyncExternalStore\(/,
+    "build-20586 turn hook uses the stock React owner, not the fl memo-cache binding");
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(u\).*preventAutoCollapse:Bt&&K\|\|nt\|\|or\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&ck\(S,\{conversationId:t,turnSearchKey:n\},!0\)/);
+  const build20586Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build20586Probe.status, 0, build20586Probe.stderr || build20586Probe.stdout);
   fs.writeFileSync(turn, fs.readFileSync(turn, "utf8").replace(
-    "return gl.useSyncExternalStore(", "return ml.useSyncExternalStore("));
+    "return ml.useSyncExternalStore(", "return fl.useSyncExternalStore("));
   const badOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badOwner.status, 0, "the previous wrong React binding is rejected before staging");
-  assert.match(badOwner.stderr, /wrong build-20156 React owner/);
-  fs.writeFileSync(turn, build20156Once[0]);
+  assert.match(badOwner.stderr, /wrong build-20586 React owner/);
+  fs.writeFileSync(turn, build20586Once[0]);
   fs.writeFileSync(thread, fs.readFileSync(thread, "utf8").replace(
-    "return $A.useSyncExternalStore(", "return gj.useSyncExternalStore("));
+    "return vA.useSyncExternalStore(", "return gj.useSyncExternalStore("));
   const badThreadOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badThreadOwner.status, 0, "the applied thread hook must keep its stock React owner");
-  assert.match(badThreadOwner.stderr, /wrong build-20156 thread React owner/);
-  fs.writeFileSync(thread, build20156Once[1]);
+  assert.match(badThreadOwner.stderr, /wrong build-20586 thread React owner/);
+  fs.writeFileSync(thread, build20586Once[1]);
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [turn, thread, activity].entries()) {
-    assert.deepEqual(fs.readFileSync(file), build20156Once[index]);
+    assert.deepEqual(fs.readFileSync(file), build20586Once[index]);
   }
-  process.stdout.write("reasoning retention build-20156 transform probe passed\n");
+  process.stdout.write("reasoning retention build-20586 transform probe passed\n");
 
   fs.writeFileSync(turn, linux9771TurnFixture());
   fs.writeFileSync(thread, linux9771ThreadFixture());
@@ -197,28 +197,28 @@ function build11645CollapseFixture() {
   ].join("");
 }
 
-function build20156TurnFixture() {
+function build20586TurnFixture() {
   return [
-    'const ml={},Zc=()=>false;let gl=z();',
-    'function Lc(e){let t=(0,ml.c)(244),{conversationId:c,hostId:l,historyEntityKey:u,turnSearchKey:p,turnId:g,}=e,Jn=[];',
-    'let[$n,er]=(0,gl.useState)(()=>new Set(Jn.map(Zc)));let sr=Jn.some(Zc),cr;return {preventAutoCollapse:Kt&&K||ft||sr}}',
+    'const fl={},Yc=()=>false;let ml=ke();',
+    'function Fc(e){let t=(0,fl.c)(246),{conversationId:u,hostId:d,historyEntityKey:f,turnSearchKey:g,turnId:v,}=e,Wn=[];',
+    'let Bt=(0,ml.useContext)(null);let or=Wn.some(Yc),sr;return {preventAutoCollapse:Bt&&K||nt||or}}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build20156ThreadFixture() {
+function build20586ThreadFixture() {
   return [
-    'const gj={},qt=()=>({useEffect(){},useSyncExternalStore(){return false}}),$A=qt(),he=()=>({}),nn={},Gk=()=>{},GA=()=>false,rp={};',
-    'function UA({ref:e,conversationId:t,isBackgroundSubagentsEnabled:p,usesUnifiedTimeline:C}){let w=he(nn),Ne=null,Le=[],Dt={current:null};',
-    '(0,$A.useEffect)(()=>{let e=w.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:p}).visibleTurnEntries,n=Dt.current,r=e.find(e=>e.turnId===n);n!=null&&n!==Ne&&!GA(r)&&Gk(w,{conversationId:t,turnSearchKey:n},!0),Dt.current=Ne},[t,p,Ne,w,Le]);return C}',
+    'const gj={},Yn=()=>({useEffect(){},useSyncExternalStore(){return false}}),vA=Yn(),ee=()=>({}),Hl={},ck=()=>{},uA=()=>false,rp={};',
+    'function cA({ref:e,conversationId:t,isBackgroundSubagentsEnabled:d,usesUnifiedTimeline:x}){let S=ee(Hl),Oe=null,je=[],_t={current:null};',
+    '(0,vA.useEffect)(()=>{let e=S.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:d}).visibleTurnEntries,n=_t.current,r=e.find(e=>e.turnId===n);n!=null&&n!==Oe&&!uA(r)&&ck(S,{conversationId:t,turnSearchKey:n},!0),_t.current=Oe},[t,d,Oe,S,je]);return x}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build20156CollapseFixture() {
+function build20586CollapseFixture() {
   return [
     'function kO({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:i=!1,preventAutoCollapse:a,persistedCollapsed:o}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!i&&(o??!a)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
-    'const button={onToggle:e=>{let t=!d;S.current+=1,g.current=e,h(t),p(!t),(r??u)(t)}};',
+    'const button={onToggle:e=>{let t=!u;x.current+=1,h.current=e,m(t),f(!t),(r??l)(t)}};',
     'export const fixture=true;'
   ].join("");
 }

@@ -23,6 +23,7 @@ const profiles = {
   Cae: {authorizer: "gd", addon: "i"},
   doe: {authorizer: "gf", addon: "i", authParam: "a"},
   Rae: {authorizer: "cp", addon: "i", authParam: "s"},
+  Moe: {authorizer: "Vd", addon: "a", devVar: "r", authParam: "s"},
   zie: {authorizer: "nd", addon: "i"}
 };
 const profile = Object.hasOwn(profiles, owner) ? profiles[owner] : null;
@@ -56,7 +57,7 @@ assert.equal(
   1,
   "only the native app-tools pipe uses the mixed-signature fallback"
 );
-assert.equal(count(source, `${profile.addon}.authorizeSocketPeer(t,n)`), 1, "the native stock authorizer remains installed");
+assert.equal(count(source, `${profile.addon}.authorizeSocketPeer(t,${profile.devVar ?? "n"})`), 1, "the native stock authorizer remains installed");
 
 process.stdout.write(`${JSON.stringify({
   state: "green",

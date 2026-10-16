@@ -17,7 +17,7 @@ const owners = fs.readdirSync(assets).filter(name => {
 assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
-const nativeAligned = source.includes("function _S(e){") &&
+const nativeAligned = source.includes("function NS(e){") &&
   source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor');
 const externalBubbleImport = source.match(
   /import\{[^}]*\bt as [$A-Z_a-z][$\w]*[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
@@ -34,7 +34,7 @@ const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
   source.includes("PX as MTKcrossTaskStoreHook,XI as MTKcrossTaskStoreScope") ||
   source.includes("cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope") ||
-  source.includes("Fan as MTKcrossTaskStoreHook,H0t as MTKcrossTaskStoreScope");
+  source.includes("Ixt as MTKcrossTaskStoreHook,Cot as MTKcrossTaskStoreScope");
 assert.ok((bindingStart >= 0 && bindingStart < componentBoundary.index) || sharedStoreImported,
   "stock store bindings are captured outside the component");
 const helperEnd = [bindingStart, componentBoundary.index,
@@ -95,9 +95,9 @@ if (titleInternal === linuxBuild10954.titleSelector.atom &&
 } else if (titleInternal === "l2i" && titleOwner.includes("l2i=to(Q,")) {
   assert.ok(titleOwner.includes("s2i({...n,localTitle:r})"),
     "build-11645 title atom retains its stock selector owner");
-} else if (titleInternal === "uFo" && titleOwner.includes("uFo=Ih(q,")) {
-  assert.ok(titleOwner.includes("cFo({...r,localTitle:i})"),
-    "build-12947 title atom retains its stock selector owner");
+} else if (titleInternal === "Qxc" && titleOwner.includes("Qxc=wc(U,")) {
+  assert.ok(titleOwner.includes("Xxc({...r,localTitle:i})"),
+    "build-20586 title atom retains its stock selector owner");
 } else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
   (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i")),
@@ -124,7 +124,7 @@ if (sharedStoreImported) {
   assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
     appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)") ||
     appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)") ||
-    appInitial.includes("Fan as Di") && appInitial.includes("H0t as q") && appInitial.includes("t=Di(q)"),
+    appInitial.includes("Ixt as hi") && appInitial.includes("Cot as U") && appInitial.includes("t=hi(U)"),
   "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
@@ -137,16 +137,17 @@ if (sharedStoreImported) {
 
 for (const contract of [
   "MTKstore.get(MTKtitleAtom,{hostId:",
-  "defaultMessage:`Sent by {appName} from another task`",
+  nativeAligned ? "defaultMessage:`Sent by {appName} from another chat`" :
+    "defaultMessage:`Sent by {appName} from another task`",
   '"data-mtk-palette-attribution-name":!0'
 ]) assert.equal(count(completeSource, contract), 1, `attribution contract: ${contract}`);
 if (nativeAligned) {
   assert.equal(count(source, 'alignment:`end`,accentColor:MTKdelegatedAccentColor'), 1,
     "delegated message uses native right alignment, constrained width, and accent");
-  assert.ok(source.includes("function zv(e){let t=(0,Bv.c)(") &&
+  assert.ok(source.includes("function ey(e){let t=(0,ty.c)(") &&
     source.includes("g=f===`start`?`items-start`:`items-end`"),
   "native wrapper aligns both label and bubble");
-  assert.ok(source.includes("Ug,{alignment:f,accentColor:i,message:o"),
+  assert.ok(source.includes("Zg,{alignment:f,accentColor:i,message:o"),
     "native user-message bubble receives alignment and accent");
 } else {
   for (const contract of ["messageBubbleStyle:MTKdelegatedBubbleStyle",

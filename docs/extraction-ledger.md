@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1007.30912` / `20156` | 18 selected | Signed static proof green; exact host-bus/readiness corrections have focused causal coverage. Live acceptance pending |
+| macOS ARM64 application | `26.1013.31256` / `20586` | 18 selected | Signed stage, source regression/build proof, healthy supervised restart, and operator-observed task return |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,7 +27,7 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-`dot-lifecycle-protection` is opt-in and recognizes the exact macOS build-`20156` owners.
+`dot-lifecycle-protection` is opt-in and recognizes the exact macOS build-`20586` owners.
 Its existing deletion/reboot refusal and runtime-policy probes remain part of the selected fleet.
 Earlier build `12947` was adopted and operator-accepted on October 4; build `12246` also has
 supervised task-return and live policy/registry evidence. The current candidate has not been
@@ -37,16 +37,16 @@ No real dot was deleted or rebooted during qualification.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact profiles recognize macOS build `20156` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window and the retired sidebar collapse remain unselected on macOS. |
+| Generated JavaScript | Exact profiles recognize macOS build `20586` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window and the retired sidebar collapse remain unselected on macOS. |
 | Package integrity | macOS signature and ASAR seal; Windows signed MSIX reconstruction and re-extraction; Ubuntu authenticated DEB reconstruction; and Fedora authenticated RPM reconstruction passed on the packages named above. Second application was byte-identical. |
 | Live adoption | macOS build `12947` was operator-adopted and accepted; build `12246` and Windows build `10954` have recorded genuine supervised task-return evidence. Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
-| Shared behavior | macOS build `12947` is the latest recorded operator-accepted semantic reference. Running build `20052` has composed packed probes; new build `20156` awaits live acceptance. Windows and Ubuntu retain their earlier exact package/open receipts. Full feature tours were not repeated. |
+| Shared behavior | macOS build `20586` has composed packed probes, a healthy supervised restart, and operator-observed task return after receipt and model-loading corrections. Windows and Ubuntu retain their earlier exact package/open receipts. Full feature tours were not repeated. |
 | Open limits | Dot guards outside the patched desktop, Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for the macOS build-`20156` candidate but
+same-version Codex CLI source patch selected for the macOS build-`20586` candidate but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

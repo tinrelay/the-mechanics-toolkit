@@ -306,7 +306,7 @@ assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?`s
 assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
-const collapseMarker = rendererSource.indexOf("i.type===`exec`&&MTKtinrelayOutgoingAcceptance(i)!=null||");
+const collapseMarker = rendererSource.search(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/);
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);
 const collapseEnd = collapseEndMarker < 0 ? -1 : collapseEndMarker + 1;
@@ -316,8 +316,8 @@ const collapseFunction = collapseSource.match(/^function (?<name>[$A-Z_a-z][$\w]
 const collapseAggregateStart = rendererSource.lastIndexOf("function ", collapseStart - 1);
 const collapseAggregateSource = rendererSource.slice(collapseAggregateStart, collapseEnd);
 const collapseAggregate = collapseAggregateSource.match(/^function (?<name>[$A-Z_a-z][$\w]*)\(/)?.groups.name;
-const dynamicPredicate = collapseSource.match(/i\.type===`dynamic-tool-call`&&(?<name>[$A-Z_a-z][$\w]*)\(i\)/)?.groups.name;
-const mcpPredicate = collapseSource.match(/i\.type===`mcp-tool-call`&&(?<name>[$A-Z_a-z][$\w]*)\(\{item:i,mcpServerStatuses:n\}\)/)?.groups.name;
+const dynamicPredicate = collapseSource.match(/([ia])\.type===`dynamic-tool-call`&&(?<name>[$A-Z_a-z][$\w]*)\(\1\)/)?.groups.name;
+const mcpPredicate = collapseSource.match(/([ia])\.type===`mcp-tool-call`&&(?<name>[$A-Z_a-z][$\w]*)\(\{item:\1,mcpServerStatuses:[nr]\}\)/)?.groups.name;
 assert.ok(collapseFunction && collapseAggregate && dynamicPredicate && mcpPredicate, "collapsed activity classifier dependencies");
 const collapseApi = Function(
   dynamicPredicate, mcpPredicate, "MTKtinrelayOutgoingAcceptance",
@@ -338,7 +338,7 @@ for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "markdown", "ev
   assert.ok(!helper.includes(forbidden), `renderer omits ${forbidden}`);
 
 const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
-const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt)\(`electron-message-handler`\)/);
+const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/);
 const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "outgoing main helpers are localized");
 assert.ok(mainSource.slice(mainStart, mainEnd).includes('process.platform==="win32"'),

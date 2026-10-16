@@ -16,8 +16,8 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-const markerOwner = main.includes('g=require("./bootstrap-CooIJpZm.js")')
-  ? fs.readFileSync(path.join(build, "bootstrap-CooIJpZm.js"), "utf8")
+const markerOwner = main.includes('g=require("./bootstrap-Dn-4EbjT.js")')
+  ? fs.readFileSync(path.join(build, "bootstrap-Dn-4EbjT.js"), "utf8")
   : main;
 assert.match(markerOwner, /[$A-Z_a-z][$\w]*=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/,
   "readiness uses the existing per-launch marker path environment boundary");
@@ -29,7 +29,7 @@ assert.equal([
   "ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
   "aa.dispatchMessage(`ready`,{persistedStateResponsePriority:reo?`critical`:void 0})",
   "mh.dispatchMessage(`ready`,{persistedStateResponsePriority:fgc?`critical`:void 0})",
-  "Ho.dispatchMessage(`ready`,{persistedStateResponsePriority:kkc?`critical`:void 0})"
+  "hs.dispatchMessage(`ready`,{})"
 ].reduce((total, contract) => total + count(renderer, contract), 0), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");

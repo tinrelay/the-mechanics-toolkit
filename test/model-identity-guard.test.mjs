@@ -125,6 +125,18 @@ assert.equal(api.instruction(), "Hold Control and click");
 navigator.platform = "MacIntel";
 assert.equal(api.recovery(pin), "Expected: GPT-5.6 Sol High — restore it, or Hold ⌘ and click here or BAD MODEL to override for this session.");
 
+const releaseLoading = api.use(null, "gpt-5.6-luna", "low");
+await tick();
+assert.equal(room.getAttribute("data-mtk-model-guard-mismatch"), null,
+  "loading does not paint the temporary selection as BAD MODEL");
+assert.equal(editor.getAttribute("contenteditable"), "true");
+releaseLoading();
+const releaseLoadedMatch = api.use("task-1", "gpt-5.6-sol", "high");
+await tick();
+assert.equal(room.getAttribute("data-mtk-model-guard-mismatch"), null,
+  "a matching hydrated selection stays neutral");
+releaseLoadedMatch();
+
 const releaseWrong = api.use("task-1", "gpt-5.6-luna", "low");
 const releaseRight2 = api.use("task-2", "gpt-5.6-sol", "high");
 await tick();
