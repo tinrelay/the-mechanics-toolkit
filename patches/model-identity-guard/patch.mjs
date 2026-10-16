@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build20052 } from "./profiles/build20052.mjs";
+import { build20156 } from "./profiles/build20156.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -17,8 +17,8 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 const assets = path.join(root, "webview/assets");
 const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];
 const owner = uniqueOwner(source =>
-  (source.includes(build20052.ownerFunction) &&
-    (source.includes(build20052.publicationBefore) || source.includes(build20052.appliedPublication)) ||
+  (source.includes(build20156.ownerFunction) &&
+    (source.includes(build20156.publicationBefore) || source.includes(build20156.appliedPublication)) ||
    source.includes(build11645.ownerFunction) &&
     (source.includes(build11645.publicationBefore) || source.includes(build11645.appliedPublication)) ||
    source.includes(build10789.ownerFunction) &&
@@ -48,14 +48,14 @@ process.stdout.write(`${JSON.stringify({
 
 function inspectState() {
   const source = fs.readFileSync(owner.file, "utf8");
-  if (source.includes(build20052.ownerFunction) && !source.includes(build20052.selectionOwner)) {
-    throw new Error("Upstream changed: build-20052 selected-model owner");
+  if (source.includes(build20156.ownerFunction) && !source.includes(build20156.selectionOwner)) {
+    throw new Error("Upstream changed: build-20156 selected-model owner");
   }
   const markers = [
     source.includes("function MTKinstallModelIdentityGuard("),
     source.includes("function MTKuseModelIdentityGuard("),
     source.includes("MTKmodelIdentityGuardHook=MTKuseModelIdentityGuard(r,ve,Xe)") ||
-      source.includes(build20052.appliedPublication) ||
+      source.includes(build20156.appliedPublication) ||
       source.includes(build11645.appliedPublication) ||
       source.includes(build10789.appliedPublication) ||
       linuxProfiles.some(profile => source.includes(profile.appliedPublication)) ||
@@ -70,10 +70,10 @@ function inspectState() {
   const linuxOwner = linuxProfiles.some(profile =>
     source.includes(profile.ownerFunction) && source.includes(profile.publicationBefore));
   const build11645Owner = source.includes(build11645.ownerFunction) && source.includes(build11645.publicationBefore);
-  const build20052Owner = source.includes(build20052.ownerFunction) && source.includes(build20052.publicationBefore);
+  const build20156Owner = source.includes(build20156.ownerFunction) && source.includes(build20156.publicationBefore);
   const build9922Owner = source.includes(build9922.ownerFunction) && source.includes(build9922.publicationBefore);
   const build10789Owner = source.includes(build10789.ownerFunction) && source.includes(build10789.publicationBefore);
-  if (!build20052Owner && !build11645Owner && !linuxOwner && !build9922Owner && !build10789Owner) {
+  if (!build20156Owner && !build11645Owner && !linuxOwner && !build9922Owner && !build10789Owner) {
     throw new Error("Upstream changed: missing qualified model selector contract");
   }
   return "needs-apply";
@@ -122,7 +122,7 @@ const MTKmodelIdentityGuard=MTKinstallModelIdentityGuard();function MTKuseModelI
 
 function patchOwner(file, roster = false) {
   let source = fs.readFileSync(file, "utf8");
-  const profile = [build20052, build11645, linuxBuild10954, build10789, linuxBuild9771, linuxBuild9647, build9922].find(candidate =>
+  const profile = [build20156, build11645, linuxBuild10954, build10789, linuxBuild9771, linuxBuild9647, build9922].find(candidate =>
     source.includes(candidate.ownerFunction) && source.includes(candidate.publicationBefore));
   if (profile != null) {
     const helper = modelGuardHelper(roster).replace("S7.useEffect", `${profile.reactAlias}.useEffect`);

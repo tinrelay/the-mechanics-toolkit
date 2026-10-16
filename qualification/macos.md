@@ -15,7 +15,37 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Prepared frontier build 20052
+## Prepared frontier build 20156
+
+On 2026-10-13, the installed updater offered macOS ARM64 Desktop `26.1007.30912` /
+build `20156`; the feed also contained build `20324`, which was not substituted for this offer.
+The full ZIP's Sparkle Ed25519 signature and exact length (719,413,559 bytes) verified;
+ZIP SHA-256 is `b699a8c2d5a2f23cac59dc67388e25af4bf5fc2fb6ab30ffa243a968e4f815a3`.
+Vendor code signature, notarization staple, and ASAR seal verified. Pristine ASAR is
+`75e397e2280dde93b70a85aa926f4282c728eacc84dfeb15ba7fb6ddd84628af`.
+
+Stock CLI `0.162.0-alpha.17.2` SHA-256 is
+`0d5ac7aae20c4eda6242428d5e218c55ba96d8763fda2a271088ff37104b9d28`, byte-identical
+to the official build-`20052` CLI. The exact source revision, three source-patch hashes,
+focused Rust red/green evidence, and replacement CLI below are reused; no Rust build or
+compaction reproduction was repeated for this refresh.
+
+The first complete stage failed closed on the changed host-bus singleton; independent pristine
+checks also rejected the changed bootstrap filename. The actual bus is `Hf=Vf.getInstance()`
+exported as `Nvn` from `app-shared-8bd9d0399038.js`; readiness uses the stock writer in
+`bootstrap-CooIJpZm.js`. Focused causal fixtures failed before these exact corrections and passed
+afterward. The remaining generated owners retain their prior semantics.
+
+The complete 18-patch signed stage passed composed probes after repack, signature and ASAR-seal
+verification, native-payload preservation, executable terminal-helper checks, and byte-identical
+second application. The pristine source was unchanged. Candidate ASAR SHA-256 is
+`76ea348e9fb825b7d7d140ed65fc7f405d9e894188b8465586b25bb2354d21bb`.
+`npm run check --silent`, `npm test --silent`, and `git diff --check` passed; production Linux
+DEB/RPM staging fixtures were skipped by their platform guard on macOS. No installation,
+restart, live task, destructive dot action, live compaction, or secondary-platform qualification
+is claimed for this candidate. Running build `20052` was not replaced.
+
+## Previous frontier build 20052
 
 The 2026-10-09 frontier uses official macOS ARM64 Desktop `26.1007.21159` / build `20052`.
 The full ZIP was verified against its Sparkle Ed25519 signature; SHA-256 is

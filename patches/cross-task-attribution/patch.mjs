@@ -153,7 +153,7 @@ function inspectState(owner) {
       "g=f===`start`?`items-start`:`items-end`"
     ];
     if (!nativeMarkers.every(marker => source.includes(marker))) {
-      throw new Error("Unrecognized build-20052 attribution patch: partial native alignment markers");
+      throw new Error("Unrecognized build-20156 attribution patch: partial native alignment markers");
     }
     return "applied";
   }
@@ -202,7 +202,7 @@ function inspectPristine(source, externalBubbleSource = null) {
     ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
     if (!delegation.text.includes("onLabelClick:m})") ||
         !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
-      throw new Error("Upstream changed: build-20052 delegation label cache");
+      throw new Error("Upstream changed: build-20156 delegation label cache");
     }
     return {delegation, wrapper, profile: {nativeAlignment: true}};
   }
@@ -379,7 +379,7 @@ function resolveImports(ownerSource, ownerFile) {
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
       "app-shared import");
     for (const binding of ["Fan as Di", "H0t as q", "WB as cl"]) {
-      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20052 store binding ${binding}`);
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20156 store binding ${binding}`);
     }
     return {
       before: initialImport[0],

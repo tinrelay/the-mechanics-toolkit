@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { build20052 as palette20052 } from "../patches/task-visual-palette/profiles/build20052.mjs";
+import { build20156 as palette20156 } from "../patches/task-visual-palette/profiles/build20156.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -23,7 +23,7 @@ try {
     build10789BubbleFixture(), build10789OwnerFixture());
   verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
     build11645BubbleFixture(), build11645OwnerFixture());
-  verifyNative20052();
+  verifyNative20156();
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -60,8 +60,8 @@ try {
     assert.deepEqual(fs.readFileSync(primaryTarget), Buffer.from(primaryFixture), `${label} title owner stays untouched`);
   }
 
-  function verifyNative20052() {
-    const extracted = path.join(scratch, "build-20052");
+  function verifyNative20156() {
+    const extracted = path.join(scratch, "build-20156");
     const assets = path.join(extracted, "webview/assets");
     fs.mkdirSync(assets, {recursive: true});
     const ownerTarget = path.join(assets, "sites-end-resource-fixture.js");
@@ -89,7 +89,7 @@ try {
     assert.equal(runToolkit("apply", extracted).state, "applied");
     const once = fs.readFileSync(ownerTarget);
     let composed = once.toString();
-    for (const [before, after] of palette20052.delegation.replacements.slice(0, 2)) {
+    for (const [before, after] of palette20156.delegation.replacements.slice(0, 2)) {
       assert.ok(composed.includes(before), "palette composes with the current attribution owner");
       composed = composed.replace(before, after);
     }

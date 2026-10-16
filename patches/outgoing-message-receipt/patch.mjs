@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build20052 } from "./profiles/build20052.mjs";
+import { build20156 } from "./profiles/build20156.mjs";
 import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
@@ -131,7 +131,7 @@ function inspectState() {
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
-  const currentBuild = [build20052, build11645, build10789, build9922].find(build =>
+  const currentBuild = [build20156, build11645, build10789, build9922].find(build =>
     conversationSource.includes(build.dynamic.before) || conversationSource.includes(build.dynamic.after));
   const current = currentBuild?.dynamic ?? build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
@@ -301,9 +301,9 @@ function patchConversation(value, turnValue) {
     patched = addImportSpecifier(patched, `./${path.basename(build11645.taskImports.sharedModule)}`,
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
-  if (value.includes(build20052.dynamic.before)) {
-    patched = addImportSpecifier(patched, "./app-shared-2f2228189a8d.js",
-      "Nvn as MTKoutboundHostBus", "build-20052 host bus import");
+  if (value.includes(build20156.dynamic.before)) {
+    patched = addImportSpecifier(patched, "./app-shared-8bd9d0399038.js",
+      "Nvn as MTKoutboundHostBus", "build-20156 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
   patched = replaceOnce(
@@ -359,7 +359,7 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  for (const [label, build] of [["20052", build20052], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
+  for (const [label, build] of [["20156", build20156], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
   const current9922 = build.dynamic;
   if (value.includes(current9922.before) && value.includes(current9922.call) &&
       value.includes(current9922.parentBefore)) {
@@ -580,9 +580,9 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
-    if (value.includes(build20052.dynamic.before) &&
-        currentShared[0].groups.relative === "./app-shared-2f2228189a8d.js" &&
-        exportedAs(source, "Ff") === "Nvn" && source.includes("Ff=Pf.getInstance()") &&
+    if (value.includes(build20156.dynamic.before) &&
+        currentShared[0].groups.relative === "./app-shared-8bd9d0399038.js" &&
+        exportedAs(source, "Hf") === "Nvn" && source.includes("Hf=Vf.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
     }
@@ -939,13 +939,13 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
-  const build20052Contracts = [
+  const build20156Contracts = [
     "H=B!=null&&R.isCollapsed?B.persistentUnits:[]",
     "le=U.length===0?null:(0,Tk.jsx)(jO,{...i,units:U})",
     "let ue=le,de;",
     "persistentContent:ue,children:fe"
   ];
-  if (build20052Contracts.every(contract => value.includes(contract))) return owner;
+  if (build20156Contracts.every(contract => value.includes(contract))) return owner;
   if (build11645.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -983,7 +983,7 @@ function resolveTaskImports(ownerSource) {
   if ([
     "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),",
     "function Xhc(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,$hc.c)(12),t=Di(q),",
-    "function Xhc(){MTKuseAttentionBootstrap20052();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,$hc.c)(12),t=Di(q),"
+    "function Xhc(){MTKuseAttentionBootstrap20156();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,$hc.c)(12),t=Di(q),"
   ].some(owner => appInitial.includes(owner)) &&
       appInitial.includes("wF=Ih(q,(e,{get:t})=>{let n=wl(e);") &&
       appInitial.includes("uFo=Ih(q,(e,{get:t})=>{if(e==null)return null;") &&
@@ -991,7 +991,7 @@ function resolveTaskImports(ownerSource) {
     return {
       before: importMatch[0],
       after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "wF")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "uFo")} as MTKoutboundTitleAtom}from"${importMatch.groups.relative}";`,
-      sharedModule: "./app-shared-2f2228189a8d.js",
+      sharedModule: "./app-shared-8bd9d0399038.js",
       sharedHookExport: "Fan",
       sharedScopeExport: "H0t",
       sharedTitleHookExport: "fB",

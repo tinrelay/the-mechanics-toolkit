@@ -40,37 +40,37 @@ try {
   }
   process.stdout.write("reasoning retention build-11645 transform probe passed\n");
 
-  fs.writeFileSync(turn, build20052TurnFixture());
-  fs.writeFileSync(thread, build20052ThreadFixture());
-  fs.writeFileSync(activity, build20052CollapseFixture());
+  fs.writeFileSync(turn, build20156TurnFixture());
+  fs.writeFileSync(thread, build20156ThreadFixture());
+  fs.writeFileSync(activity, build20156CollapseFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build20052Once = [turn, thread, activity].map(file => fs.readFileSync(file));
+  const build20156Once = [turn, thread, activity].map(file => fs.readFileSync(file));
   assert.match(fs.readFileSync(turn, "utf8"), /return gl\.useSyncExternalStore\(/,
-    "build-20052 turn hook uses the stock React owner, not the ml module binding");
+    "build-20156 turn hook uses the stock React owner, not the ml module binding");
   assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(c\).*preventAutoCollapse:Kt&&K\|\|ft\|\|sr\|\|MTKreasoningRetained/);
   assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&Gk\(w,\{conversationId:t,turnSearchKey:n\},!0\)/);
-  const build20052Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build20052Probe.status, 0, build20052Probe.stderr || build20052Probe.stdout);
+  const build20156Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build20156Probe.status, 0, build20156Probe.stderr || build20156Probe.stdout);
   fs.writeFileSync(turn, fs.readFileSync(turn, "utf8").replace(
     "return gl.useSyncExternalStore(", "return ml.useSyncExternalStore("));
   const badOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badOwner.status, 0, "the previous wrong React binding is rejected before staging");
-  assert.match(badOwner.stderr, /wrong build-20052 React owner/);
-  fs.writeFileSync(turn, build20052Once[0]);
+  assert.match(badOwner.stderr, /wrong build-20156 React owner/);
+  fs.writeFileSync(turn, build20156Once[0]);
   fs.writeFileSync(thread, fs.readFileSync(thread, "utf8").replace(
     "return $A.useSyncExternalStore(", "return gj.useSyncExternalStore("));
   const badThreadOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badThreadOwner.status, 0, "the applied thread hook must keep its stock React owner");
-  assert.match(badThreadOwner.stderr, /wrong build-20052 thread React owner/);
-  fs.writeFileSync(thread, build20052Once[1]);
+  assert.match(badThreadOwner.stderr, /wrong build-20156 thread React owner/);
+  fs.writeFileSync(thread, build20156Once[1]);
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [turn, thread, activity].entries()) {
-    assert.deepEqual(fs.readFileSync(file), build20052Once[index]);
+    assert.deepEqual(fs.readFileSync(file), build20156Once[index]);
   }
-  process.stdout.write("reasoning retention build-20052 transform probe passed\n");
+  process.stdout.write("reasoning retention build-20156 transform probe passed\n");
 
   fs.writeFileSync(turn, linux9771TurnFixture());
   fs.writeFileSync(thread, linux9771ThreadFixture());
@@ -197,7 +197,7 @@ function build11645CollapseFixture() {
   ].join("");
 }
 
-function build20052TurnFixture() {
+function build20156TurnFixture() {
   return [
     'const ml={},Zc=()=>false;let gl=z();',
     'function Lc(e){let t=(0,ml.c)(244),{conversationId:c,hostId:l,historyEntityKey:u,turnSearchKey:p,turnId:g,}=e,Jn=[];',
@@ -206,7 +206,7 @@ function build20052TurnFixture() {
   ].join("");
 }
 
-function build20052ThreadFixture() {
+function build20156ThreadFixture() {
   return [
     'const gj={},qt=()=>({useEffect(){},useSyncExternalStore(){return false}}),$A=qt(),he=()=>({}),nn={},Gk=()=>{},GA=()=>false,rp={};',
     'function UA({ref:e,conversationId:t,isBackgroundSubagentsEnabled:p,usesUnifiedTimeline:C}){let w=he(nn),Ne=null,Le=[],Dt={current:null};',
@@ -215,7 +215,7 @@ function build20052ThreadFixture() {
   ].join("");
 }
 
-function build20052CollapseFixture() {
+function build20156CollapseFixture() {
   return [
     'function kO({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:i=!1,preventAutoCollapse:a,persistedCollapsed:o}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!i&&(o??!a)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
     'const button={onToggle:e=>{let t=!d;S.current+=1,g.current=e,h(t),p(!t),(r??u)(t)}};',

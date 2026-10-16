@@ -16,8 +16,8 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-const markerOwner = main.includes('g=require("./bootstrap-Du6FqCuH.js")')
-  ? fs.readFileSync(path.join(build, "bootstrap-Du6FqCuH.js"), "utf8")
+const markerOwner = main.includes('g=require("./bootstrap-CooIJpZm.js")')
+  ? fs.readFileSync(path.join(build, "bootstrap-CooIJpZm.js"), "utf8")
   : main;
 assert.match(markerOwner, /[$A-Z_a-z][$\w]*=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/,
   "readiness uses the existing per-launch marker path environment boundary");

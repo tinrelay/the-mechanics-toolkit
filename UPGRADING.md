@@ -1,10 +1,23 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.10` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.11` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.11
+
+The macOS target is Desktop `26.1007.30912` / build `20156`. Its bundled CLI is byte-identical
+to build `20052` (`0.162.0-alpha.17.2`), so the same verified source repair and replacement
+binary apply; no new Rust build or compaction reproduction is claimed. Use source-patch
+`standalone-output-compaction-20156` at the unchanged exact upstream revision below.
+
+The desktop port updates the exact host-bus singleton/module and readiness bootstrap filename.
+Focused causal probes cover both changes; the remaining generated owners retain their behavior.
+The complete 18-patch signed stage passed; live acceptance remains pending. These separate gates
+are recorded in the macOS runbook.
+Windows and Linux targets and qualification boundaries are unchanged.
 
 ## 0.2.10
 
@@ -77,7 +90,7 @@ x86-family lab receipt is an evidence boundary, not a code restriction.
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.10` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.11` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

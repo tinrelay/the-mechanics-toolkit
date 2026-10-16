@@ -5,7 +5,7 @@ import path from "node:path";
 import { build9922 } from "../patches/reasoning-retention/profiles/build9922.mjs";
 import { build10789 } from "../patches/reasoning-retention/profiles/build10789.mjs";
 import { build11645 } from "../patches/reasoning-retention/profiles/build11645.mjs";
-import { build20052 } from "../patches/reasoning-retention/profiles/build20052.mjs";
+import { build20156 } from "../patches/reasoning-retention/profiles/build20156.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
@@ -77,11 +77,11 @@ assert.equal(diagnostics.at(-1)?.code, "invalid-keep-reasoning-open");
 policy.rules[0].keepReasoningOpen = true;
 assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
   "thread transitions validate the same roster extension boundary");
-if (thread.source.includes(build20052.thread.ownerFunction)) {
+if (thread.source.includes(build20156.thread.ownerFunction)) {
   assert.ok(thread.source.includes("$A=qt()") && thread.source.includes("(0,$A.useEffect)"),
-    "build-20052 thread uses the stock React runtime");
+    "build-20156 thread uses the stock React runtime");
   const start = thread.source.indexOf("const MTKreasoningThreadNoopSubscribe=");
-  const end = thread.source.indexOf(build20052.thread.ownerFunction, start);
+  const end = thread.source.indexOf(build20156.thread.ownerFunction, start);
   assert.ok(start >= 0 && end > start, "thread hook helper seam");
   const threadHook = Function("gj", "$A", "globalThis",
     `${thread.source.slice(start, end)};return MTKuseReasoningThreadRetention`)({}, Ui, realm);
@@ -96,7 +96,7 @@ assert.equal(
     thread.source.includes(build9922.thread.appliedCollapse) ||
     thread.source.includes(build10789.thread.appliedCollapse) ||
     thread.source.includes(build11645.thread.appliedCollapse) ||
-    thread.source.includes(build20052.thread.appliedCollapse),
+    thread.source.includes(build20156.thread.appliedCollapse),
   true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
@@ -107,7 +107,7 @@ assert.ok(
     thread.source.includes(build9922.thread.appliedDependencies) ||
     thread.source.includes(build10789.thread.appliedDependencies) ||
     thread.source.includes(build11645.thread.appliedDependencies) ||
-    thread.source.includes(build20052.thread.appliedDependencies),
+    thread.source.includes(build20156.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
@@ -126,7 +126,7 @@ assert.equal(
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner) ||
     turn.source.includes(build11645.turn.appliedOwner) ||
-    turn.source.includes(build20052.turn.appliedOwner),
+    turn.source.includes(build20156.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

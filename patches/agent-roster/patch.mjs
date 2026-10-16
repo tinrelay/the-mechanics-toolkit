@@ -62,20 +62,20 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  const build20052Seam = "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),";
-  if (value.includes(build20052Seam)) {
+  const build20156Seam = "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),";
+  if (value.includes(build20156Seam)) {
     const contracts = [
-      build20052Seam,
+      build20156Seam,
       "{groups:d,isWorkspaceRootOptionsLoading:f}=r(bI)",
       "e.get(Yh)",
       "$hc=J(),Y(),_g(),egc=us()"
     ];
     if (count(value, contracts[0]) !== 1 || count(value, contracts[1]) !== 1 ||
         count(value, contracts[2]) < 1 || count(value, contracts[3]) !== 1) {
-      throw new Error("Upstream changed: build-20052 agent roster owner is not unique");
+      throw new Error("Upstream changed: build-20156 agent roster owner is not unique");
     }
     return {
-      seam: build20052Seam,
+      seam: build20156Seam,
       scope: "Di(q)",
       react: "egc",
       projectsAtom: "bI",

@@ -59,9 +59,9 @@ const delegationReplacements = [
   ]
 ];
 
-export const build20052 = {
+export const build20156 = {
   app: {
-    name: "26.1007.21159-20052",
+    name: "26.1007.21159-20156",
     pristineSeam: "function Xhc(){let e=(0,$hc.c)(12),t=Di(q),",
     seam: "function Xhc(){MTKuseAgentRoster();let e=(0,$hc.c)(12),t=Di(q),",
     patchedSeam: "function Xhc(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,$hc.c)(12),t=Di(q),",
@@ -69,7 +69,7 @@ export const build20052 = {
     helperReplacements: [["QSl.useEffect", "egc.useEffect"]]
   },
   local: {
-    name: "26.1007.21159-20052",
+    name: "26.1007.21159-20156",
     cacheBefore: "function lc(e){let t=(0,gc.c)(114),",
     cacheAfter: "function lc(e){let t=(0,gc.c)(116),",
     rootBefore: "t[96]!==B||t[97]!==be||t[98]!==xe||t[99]!==Se||t[100]!==we||t[101]!==Te||t[102]!==Ee||t[103]!==De||t[104]!==Oe||t[105]!==ke||t[106]!==Ae||t[107]!==je||t[108]!==Me||t[109]!==Ne?(Pe=(0,Q.jsxs)(`div`,{ref:B,className:`relative h-full min-h-0`,children:[be,xe,Se,we,Te,Ee,De,Oe,ke,Ae,je,Me,Ne]}),t[96]=B,t[97]=be,t[98]=xe,t[99]=Se,t[100]=we,t[101]=Te,t[102]=Ee,t[103]=De,t[104]=Oe,t[105]=ke,t[106]=Ae,t[107]=je,t[108]=Me,t[109]=Ne,t[110]=Pe):Pe=t[110];",

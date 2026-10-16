@@ -41,7 +41,7 @@ function inspectState(mainValue, rendererValue) {
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
   const contractFamilies = profile.splitBootstrap ? [
-    ["bootstrap writer import", ['g=require("./bootstrap-Du6FqCuH.js")']]
+    ["bootstrap writer import", ['g=require("./bootstrap-CooIJpZm.js")']]
   ] : [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
     ["development relaunch writer", [`function ${profile.writer}(`]]
@@ -70,8 +70,8 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
-  if (value.includes('g=require("./bootstrap-Du6FqCuH.js")')) {
-    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-Du6FqCuH.js"), "utf8");
+  if (value.includes('g=require("./bootstrap-CooIJpZm.js")')) {
+    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-CooIJpZm.js"), "utf8");
     for (const contract of [
       "kO=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
       "function FO({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[kO]?.trim(),writeMarker:r=",

@@ -14,7 +14,7 @@ runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
 runFixture("linux-10954", linux10954InitialFixture(), /XI as MTKwaitStoreScope/, true);
 runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 runFixture("macos-11645", build11645InitialFixture(), /tSt as MTKwaitStoreScope/, true);
-runFixture("macos-20052", build20052InitialFixture(), /H0t as MTKwaitStoreScope/, true);
+runFixture("macos-20156", build20156InitialFixture(), /H0t as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
 function runFixture(label, initialSource, expectedScope, splitStore = false) {
@@ -122,7 +122,7 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build20052InitialFixture() {
+function build20156InitialFixture() {
   return [
     'import{Fan as Di,H0t as q,WB as cl,GB as Pi}from"./app-shared-fixture.js";',
     "const Ih=(...e)=>e,wl=e=>e,wF=Ih(q,(e,{get:t})=>{let n=wl(e);return n});",

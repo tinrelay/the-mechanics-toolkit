@@ -45,8 +45,10 @@ results discardable.
 ## Qualified source
 
 [The current source diff](codex-0.162.0-alpha.17.2.patch) targets macOS Desktop
-`26.1007.21159` / build `20052`, which bundles `codex-cli 0.162.0-alpha.17.2` at upstream commit
-`740e5af33c71225640e0c1c1555c514c2c93ab74`. The remote-compaction owner changed;
+`26.1007.30912` / build `20156`, which bundles `codex-cli 0.162.0-alpha.17.2` at upstream commit
+`740e5af33c71225640e0c1c1555c514c2c93ab74`. The stock CLI is byte-identical to the preceding
+qualified build, so its exact source repair, focused test evidence, and replacement build are
+reused. During that source qualification, the remote-compaction owner changed;
 the same bounded retention behavior was ported and reproduced red before repair.
 Both focused tests and the stable-Rust release build passed on this
 source revision. The catalog
@@ -54,13 +56,13 @@ also retains exact entries for earlier supported builds. The source-patch comman
 selected commit and every target file's exact before or after hash; the shared textual diff alone
 is not an applicability claim.
 
-Build `20052` did not need the separate
+The current CLI does not need the separate
 [ChatGPT query-depth source patch](../chatgpt-query-depth/); that exact patch remains for the
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-20052 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-20052 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-20156 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-20156 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

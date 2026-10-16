@@ -7,7 +7,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
-import {build20052} from "../patches/task-attention-policy/profiles/build20052.mjs";
+import {build20156} from "../patches/task-attention-policy/profiles/build20156.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -23,7 +23,7 @@ verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linu
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
-verifyProfile(build20052, build20052InitialFixture(), "export const fixture=true;", "macOS build 20052");
+verifyProfile(build20156, build20156InitialFixture(), "export const fixture=true;", "macOS build 20156");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -136,7 +136,7 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build20052InitialFixture() {
+function build20156InitialFixture() {
   return [
     "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
     "const q=Symbol(`scope`),egc={useEffect(){}},lqo={useSyncExternalStore(){return!1}};function Di(e){return e}",

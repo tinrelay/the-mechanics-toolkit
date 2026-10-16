@@ -96,12 +96,12 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build20052OwnerFixture());
+  fs.writeFileSync(owner, build20156OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build20052Once = fs.readFileSync(owner);
+  const build20156Once = fs.readFileSync(owner);
   const published = [];
-  const composerText = build20052Once.toString().slice(build20052Once.toString().indexOf("function DW("));
+  const composerText = build20156Once.toString().slice(build20156Once.toString().indexOf("function DW("));
   const composer = Function("v7e", "tF", "g7e", "MTKuseModelIdentityGuard", `${composerText};return DW`)(
     {c: () => []}, effort => effort, () => true, (...selection) => published.push(selection));
   const models = [{model: "gpt-6.1-sol"}, {model: "gpt-6-luna"}];
@@ -113,12 +113,12 @@ try {
     reasoningEffort: "low", locked: {lockedReasoningEffort: "high"}});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"],
     "the guard follows the stock effective-model and locked-effort selection");
-  assert.match(build20052Once.toString(), /MTKuseModelIdentityGuard\(r,je,Tt\)/);
-  assert.match(build20052Once.toString(), /return OW\.useEffect\(/);
-  const build20052Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build20052Behavior.status, 0, build20052Behavior.stderr || build20052Behavior.stdout);
+  assert.match(build20156Once.toString(), /MTKuseModelIdentityGuard\(r,je,Tt\)/);
+  assert.match(build20156Once.toString(), /return OW\.useEffect\(/);
+  const build20156Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build20156Behavior.status, 0, build20156Behavior.stderr || build20156Behavior.stdout);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build20052Once);
+  assert.deepEqual(fs.readFileSync(owner), build20156Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -195,7 +195,7 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build20052OwnerFixture() {
+function build20156OwnerFixture() {
   return [
     'const OW={useEffect:e=>e()},tF=e=>e,g7e=()=>true;',
     'const selector={"data-codex-intelligence-trigger":true};',

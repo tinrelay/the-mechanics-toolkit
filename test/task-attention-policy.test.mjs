@@ -5,7 +5,7 @@ import path from "node:path";
 import { build9922 } from "../patches/task-attention-policy/profiles/build9922.mjs";
 import { build10789 } from "../patches/task-attention-policy/profiles/build10789.mjs";
 import { build11645 } from "../patches/task-attention-policy/profiles/build11645.mjs";
-import { build20052 } from "../patches/task-attention-policy/profiles/build20052.mjs";
+import { build20156 } from "../patches/task-attention-policy/profiles/build20156.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -30,7 +30,7 @@ function testRosterAttention(appSource, appPrimarySource) {
   const linuxProfile = [linuxBuild10954, linuxBuild9771, linuxBuild9647].find(profile =>
     appSource.includes(`function MTKuseAttentionBootstrap${profile.suffix}(`)
   );
-  const macProfile = [build20052, build11645, build10789, build9922].find(candidate =>
+  const macProfile = [build20156, build11645, build10789, build9922].find(candidate =>
     appSource.includes(`function MTKuseAttentionBootstrap${candidate.suffix}(`)
   );
   const profile = macProfile ?? linuxProfile;

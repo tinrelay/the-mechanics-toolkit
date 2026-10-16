@@ -69,13 +69,13 @@ try {
     'let n=((e,t)=>e.get(Tu).forHost(t))(e,"local")'
   ], "macOS build 11645");
 
-  verifyProfile(target, build20052Fixture(), [
+  verifyProfile(target, build20156Fixture(), [
     "function MTKuseAgentRoster(){let e=Di(q);",
     "return egc.useEffect(",
     "let a=i(bI);",
     "e.get(Yh)==null&&await e.when(({get:e})=>e(Yh)!=null)",
     'let n=((e,t)=>e.get(Yh).forHost(t))(e,"local")'
-  ], "macOS build 20052");
+  ], "macOS build 20156");
 
   process.stdout.write("agent roster current-build transform probe passed\n");
 
@@ -176,7 +176,7 @@ function build11645Fixture() {
   ].join("");
 }
 
-function build20052Fixture() {
+function build20156Fixture() {
   return [
     "const q=Symbol(`scope`),bI=Ia(q,({get:e})=>e),Yh=Qs(q,()=>null);",
     "const Di=e=>e;var $hc,egc;function Orc(){$hc=J(),Y(),_g(),egc=us()}",

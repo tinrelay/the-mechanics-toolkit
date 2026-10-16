@@ -37,7 +37,7 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoin
   const frontierProfile = select(frontier);
   assert.deepEqual([frontierProfile.jsx, frontierProfile.normalize, frontierProfile.hostBridge,
     frontierProfile.routeFlag, frontierProfile.newRoute, frontierProfile.oldRoute],
-  ["G", "He", "te", "Je", "We", "Se"], "build-20052 receipts preserve the stock task navigation owner");
+  ["G", "He", "te", "Je", "We", "Se"], "build-20156 receipts preserve the stock task navigation owner");
 }
 
 try {
