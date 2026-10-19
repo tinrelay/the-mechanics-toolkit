@@ -45,7 +45,7 @@ retain their existing names because their exact generated contracts still match.
 
 The complete signed 18-patch stage passed post-repack composed probes, native-payload preservation,
 executable terminal-helper checks, signature/ASAR-seal verification, and byte-identical second
-application. The source was unchanged. Candidate ASAR SHA-256:
+application. The source was unchanged. Initial 0.2.13 candidate ASAR SHA-256:
 `f94525a983dcdcb6d33a4509b069d9dbd4e2fb3959a2caf090a7bb72e131ae8c`.
 The composer's native React initializer resolves through the actual shared `yzt` export; receipt
 tests assert the reactive-title import before injecting test values. Destructive dot actions,
@@ -59,6 +59,18 @@ the real task and confirmed the outgoing message receipt after a test send to an
 The known-good rollback was removed by the successful supervisor. Earlier existing-browser-session
 handoff failures remain unexplained, not repaired by this port. Readiness alone is not a full
 feature claim; this receipt additionally has real task return and the changed receipt's live test.
+
+Subsequent live use exposed two TinRelay presentation defects: the main handler's request binding
+had changed, and the current forward-column scroller no longer used zero as its bottom. Both
+received causal red/green regressions. TMTK 0.2.14's corrected 18-patch signed rebuild passed
+post-repack probes, integrity/native-payload checks, and byte-identical reapplication. Current
+installed ASAR SHA-256:
+`12fefeb54634c8280cd87512ac0e03281a74cdcc9895149f7223e369e196f816`.
+Supervised restart reached readiness at 16:20:01 UTC on October 19. The operator confirmed a fresh
+self-ping's outgoing and incoming cards with stable scrolling. A temporary per-element scroll
+guard restored control during repair; it disappeared on restart and is not part of the patch.
+`npm run check --silent` and `npm test --silent` passed after both fixes; native CLI evidence and
+platform limits above are unchanged.
 
 The workbench retains the authenticated vendor ZIP and compact receipts. Superseded prior
 bundles/ZIPs, disposable extracted/source copies, and the accepted loose candidate/redundant CLI

@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { mainMessageBinding } from "./main-message-binding.mjs";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
@@ -141,6 +142,7 @@ function inspectPristineActivity(source) {
 }
 
 function inspectPristineMain(source) {
+  mainMessageBinding(source);
   mainStartup(source);
   if (count(source, "case`electron-add-new-workspace-root-option`:") !== 1) {
     throw new Error("Upstream changed: Tinrelay outgoing main message seam is not unique");
@@ -204,6 +206,9 @@ function inspectAppliedActivity(source) {
 }
 
 function inspectAppliedMain(source) {
+  if (!source.includes(currentMainHandlers(mainMessageBinding(source)))) {
+    throw new Error("Upstream changed: Tinrelay outgoing handlers do not use their request owner");
+  }
   const startup = mainStartup(source);
   if (startup.groups.observer == null) {
     throw new Error("Tinrelay outgoing main observer startup is missing");
@@ -288,7 +293,7 @@ function inspectTurnAnchors(rendererSource, turnSource, mainSource) {
     "MTKtinrelayOutgoingAnchorBucketLimit=64",
     "function MTKtinrelayOutgoingAnchorRemember(",
     "function MTKtinrelayOutgoingAnchorsList(",
-    "anchor:r",
+    "anchor:MTKanchor",
     "case`mtk-tinrelay-outgoing-anchors-list`:"
   ]) {
     if (!mainSource.includes(marker)) throw new Error(`Tinrelay outgoing main turn-anchor postcondition missing: ${marker}`);
@@ -386,7 +391,7 @@ function patchMain(value) {
   patched = replaceOnce(
     patched,
     "case`electron-add-new-workspace-root-option`:",
-    `${currentMainHandlers()}case\`electron-add-new-workspace-root-option\`:`,
+    `${currentMainHandlers(mainMessageBinding(value))}case\`electron-add-new-workspace-root-option\`:`,
     "Tinrelay outgoing main message handler"
   );
   const startup = mainStartup(patched);
@@ -467,8 +472,8 @@ function currentOutgoingExec(hostBus) {
   return `function MTKtinrelayOutgoingExec(e){let{Component:t,item:n,sourceThreadId:r,sourceTurnId:i,...a}=e,o=MTKtinrelayOutgoingAcceptance(n),[s,MTKsetTinrelayOutgoingEvent]=MTKtinrelayReact.useState(null),l=MTKtinrelayReact.useRef(null),MTKturnFinished=MTKtinrelayUseOutgoingTurnFinished(r,i);return MTKtinrelayReact.useEffect(()=>{if(o==null)return;l.current=MTKtinrelayScrollSnapshot();let e=crypto.randomUUID(),t=${hostBus}.subscribe("mtk-tinrelay-outgoing-result",t=>{if(t?.requestId!==e)return;let n=t.ok===!0&&MTKtinrelayOutgoingMatches(t.event,o)?t.event:null,a=MTKtinrelayOutgoingAnchorRecord(t?.anchor),s=typeof r==="string"&&r.length>0&&typeof i==="string"&&i.length>0;MTKsetTinrelayOutgoingEvent(s&&a==null?null:n==null?null:{event:n,recordedAtMs:a?.recordedAtMs}),a!=null&&MTKtinrelayOutgoingAnchorRemember(a),n!=null&&(!s||a!=null)&&MTKtinrelayScheduleScroll(l.current)});return ${hostBus}.dispatchMessage("mtk-tinrelay-outgoing-lookup",{requestId:e,transmissionId:o.transmission_id,senderShip:o.sender_ship,recipientShip:o.recipient_ship,sourceThreadId:r,sourceTurnId:i}),t},[o?.transmission_id,o?.sender_ship,o?.recipient_ship,r,i]),o!=null&&MTKtinrelayOutgoingMatches(s?.event,o)?typeof r==="string"&&r.length>0&&typeof i==="string"&&i.length>0?MTKturnFinished?null:(0,Tb.jsx)(MTKtinrelayOutgoingView,{event:s.event,sentAtMs:s.recordedAtMs}):(0,Tb.jsx)(MTKtinrelayOutgoingView,{event:s.event,sentAtMs:s.recordedAtMs}):(0,Tb.jsx)(t,{item:n,...a})}`;
 }
 
-function currentMainHandlers() {
-  return "case`mtk-tinrelay-outgoing-lookup`:{let n=await MTKtinrelayOutgoingLookup(t),r=n==null?null:MTKtinrelayOutgoingAnchorRemember({contract:MTKtinrelayOutgoingAnchorContract,sourceThreadId:t?.sourceThreadId,sourceTurnId:t?.sourceTurnId,transmissionId:n.transmission_id,recordedAtMs:Date.now()}),i=typeof t?.sourceThreadId===`string`&&t.sourceThreadId.length>0&&typeof t?.sourceTurnId===`string`&&t.sourceTurnId.length>0;this.windowManager.sendMessageToWebContents(e,{type:`mtk-tinrelay-outgoing-result`,requestId:typeof t?.requestId===`string`?t.requestId:``,ok:n!=null&&(!i||r!=null),event:n,anchor:r});break}case`mtk-tinrelay-outgoing-anchors-list`:{let n=MTKtinrelayOutgoingAnchorsList(t?.sourceThreadId);this.windowManager.sendMessageToWebContents(e,{type:`mtk-tinrelay-outgoing-anchors-result`,requestId:typeof t?.requestId===`string`?t.requestId:``,ok:n!=null,records:n??[]});break}";
+function currentMainHandlers(request) {
+  return `case\`mtk-tinrelay-outgoing-lookup\`:{let MTKevent=await MTKtinrelayOutgoingLookup(${request}),MTKanchor=MTKevent==null?null:MTKtinrelayOutgoingAnchorRemember({contract:MTKtinrelayOutgoingAnchorContract,sourceThreadId:${request}?.sourceThreadId,sourceTurnId:${request}?.sourceTurnId,transmissionId:MTKevent.transmission_id,recordedAtMs:Date.now()}),MTKowned=typeof ${request}?.sourceThreadId===\`string\`&&${request}.sourceThreadId.length>0&&typeof ${request}?.sourceTurnId===\`string\`&&${request}.sourceTurnId.length>0;this.windowManager.sendMessageToWebContents(e,{type:\`mtk-tinrelay-outgoing-result\`,requestId:typeof ${request}?.requestId===\`string\`?${request}.requestId:\`\`,ok:MTKevent!=null&&(!MTKowned||MTKanchor!=null),event:MTKevent,anchor:MTKanchor});break}case\`mtk-tinrelay-outgoing-anchors-list\`:{let MTKrecords=MTKtinrelayOutgoingAnchorsList(${request}?.sourceThreadId);this.windowManager.sendMessageToWebContents(e,{type:\`mtk-tinrelay-outgoing-anchors-result\`,requestId:typeof ${request}?.requestId===\`string\`?${request}.requestId:\`\`,ok:MTKrecords!=null,records:MTKrecords??[]});break}`;
 }
 
 function acceptanceParser() {

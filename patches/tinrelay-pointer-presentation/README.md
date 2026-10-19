@@ -52,6 +52,8 @@ local error rather than approximate rendering.
 When either direction settles into its hoisted radio card, the patch returns the conversation to
 the bottom after the layout has caught up only if the reader was no more than one viewport away
 before the change. It never pulls someone back down while they are reading older history.
+The bottom follows the scroller's actual layout: positive offsets in current forward-column
+Codex, and zero in older reverse-column builds. A zero offset is not assumed to mean bottom.
 
 ## Outgoing transmissions
 
@@ -155,6 +157,10 @@ owns the completed-exec classifier, completed-command
 renderer, private Electron socket listener, and one host-message lookup. The two small internal
 transforms remain separate because those are different upstream Codex owners, but the toolkit
 exposes and applies them as one Tinrelay patch.
+
+The host-message cases bind to the enclosing main handler's actual request argument. Both the
+outgoing lookup/anchor restore and legacy incoming-pointer inspection are checked through that
+owner; isolated helper tests must not supply an obsolete request-variable name on its behalf.
 
 Unknown, duplicated, partial, or changed ownership fails with `Upstream changed`. Remote bodies use
 Codex's sanitized Markdown renderer; raw HTML is not injected or executed. Tinrelay transport,

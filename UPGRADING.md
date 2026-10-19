@@ -1,10 +1,21 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.13` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.14` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.14
+
+The Desktop target and native CLI repair are unchanged from 0.2.13. This release fixes TinRelay
+outgoing-card lookup and restoration to use the actual main handler's request argument, including
+legacy incoming-pointer inspection. It also follows the scroller's real forward/reverse layout
+instead of treating zero as the bottom of every chat. Regression tests exercise the enclosing
+handler arguments and both scroll directions, including leaving a history reader undisturbed.
+The signed 18-patch rebuild and full checks/tests passed. After supervised restart, a fresh
+TinRelay self-ping rendered in both directions without the scroll jump, confirmed by the operator.
+Rebuild and restart to adopt; no TinRelay transport or configuration change is required.
 
 ## 0.2.13
 

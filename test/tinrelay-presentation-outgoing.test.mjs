@@ -353,8 +353,16 @@ assert.ok(mainHandlerStart >= 0 && mainHandlerEnd > mainHandlerStart,
 const mainHandlerFactory = api => Function(
   "MTKtinrelayOutgoingLookup", "MTKtinrelayOutgoingAnchorRemember", "MTKtinrelayOutgoingAnchorsList",
   "MTKtinrelayOutgoingAnchorContract",
-  `return async function(type,t,e){switch(type){${mainSource.slice(mainHandlerStart, mainHandlerEnd)}default:break}}`
+  `return async function(type,request,target){return (async function(${mainHandlerBindings()}){switch(${mainHandlerBindings().split(",")[1]}.type){${mainSource.slice(mainHandlerStart, mainHandlerEnd)}default:break}}).call(this,target,{...request,type})}`
 )(api.lookup, api.anchorRemember, api.anchorsList, "tinrelay-outgoing-anchor-v1");
+
+function mainHandlerBindings() {
+  const owners = [...mainSource.slice(0, mainHandlerStart).matchAll(
+    /async (?:handleMessage|function handler)\(([$\w]+),([$\w]+)\)\{/g
+  )];
+  assert.ok(owners.length > 0, "probe uses the actual enclosing main handler arguments");
+  return `${owners.at(-1)[1]},${owners.at(-1)[2]}`;
+}
 
 assert.equal(mainApi.event(event), null, "observer accepts no ship before runtime configuration");
 
@@ -478,6 +486,15 @@ try {
   assert.equal(failedAnchorResponses[0].ok, false,
     "the main process does not acknowledge a turn-owned presentation whose durable anchor failed");
   assert.deepEqual(mainApi.anchorsList("source-task"), [anchor]);
+  await mainHandler.call({windowManager: {sendMessageToWebContents(_webContents, response) {
+    responses.push(response);
+  }}}, "mtk-tinrelay-outgoing-anchors-list", {
+    requestId: "restore-anchors", sourceThreadId: "source-task"
+  }, {});
+  assert.deepEqual(responses.at(-1), {
+    type: "mtk-tinrelay-outgoing-anchors-result", requestId: "restore-anchors",
+    ok: true, records: [anchor]
+  }, "turn reconstruction uses the actual main request argument too");
   const anchorInput = {
     contract: anchor.contract,
     sourceThreadId: anchor.sourceThreadId,

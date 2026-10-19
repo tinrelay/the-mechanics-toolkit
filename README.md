@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1013.40934`, build `20770` | Signed 18-patch stage, healthy supervised restart, and operator-confirmed outgoing receipt. |
+| macOS ARM64 application | `26.1013.40934`, build `20770` | Signed 18-patch stage, healthy restart, task receipts, and two-way TinRelay cards with stable scrolling. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |

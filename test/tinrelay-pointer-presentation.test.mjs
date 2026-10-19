@@ -203,6 +203,27 @@ assert.deepEqual(await mainHelpers.inspect(request), {
   body: executorResult.signed_transmission.body
 }, "only validated display fields cross back to the renderer");
 
+async function verifyPointerMainHandler() {
+  const pointerCaseStart = mainSource.indexOf("case`mtk-tinrelay-pointer-inspect`:");
+  const pointerCaseEnd = mainSource.indexOf("case`", pointerCaseStart + 5);
+  const pointerOwner = [...mainSource.slice(0, pointerCaseStart).matchAll(
+    /async (?:handleMessage|function handler)\(([$\w]+),([$\w]+)\)\{/g
+  )].at(-1);
+  assert.ok(pointerOwner, "legacy pointer probe uses the enclosing main handler arguments");
+  const pointerHandler = Function("MTKtinrelayInspect",
+    `return async function(${pointerOwner[1]},${pointerOwner[2]}){switch(${pointerOwner[2]}.type){${mainSource.slice(pointerCaseStart, pointerCaseEnd)}}}`
+  )(mainHelpers.inspect);
+  const pointerResponses = [];
+  await pointerHandler.call({windowManager: {sendMessageToWebContents(target, response) {
+    assert.equal(target, "source-window");
+    pointerResponses.push(response);
+  }}}, "source-window", {...request, type: "mtk-tinrelay-pointer-inspect"});
+  assert.deepEqual(pointerResponses[0], {
+    type: "mtk-tinrelay-pointer-result", requestId: request.requestId, ok: true,
+    transmission: await mainHelpers.inspect(request)
+  }, "legacy pointer inspection preserves request identity through the real main handler");
+}
+
 const unlabeledInspection = {
   contract: "tinrelay-inspected-inbox-v1",
   kind: "transmission",
@@ -246,6 +267,7 @@ for (const call of calls) {
   });
 }
 
+await verifyPointerMainHandler();
 executorResult = {...unlabeledInspection, sender_ship: "wrong-ship"};
 await assert.rejects(mainHelpers.inspect(request), /did not match this pointer/);
 for (const [label, inspection] of [
@@ -295,6 +317,7 @@ const scrollHelpersEnd = rendererHelpers.indexOf("function MTKtinrelayEnsureStyl
 assert.ok(scrollHelpersEnd > 0, "localized Tinrelay scroll helpers");
 let queuedScroll = null;
 const nearScroller = {
+  direction: "column-reverse",
   clientHeight: 600,
   scrollTop: -590,
   isConnected: true,
@@ -302,14 +325,17 @@ const nearScroller = {
   scrollTo(options) { this.lastScroll = options; }
 };
 const hiddenScroller = {...nearScroller, clientHeight: 0, getClientRects: () => []};
+let visibleScroller = nearScroller;
 const scrollApi = Function(
   "document",
   "setTimeout",
+  "getComputedStyle",
   incomingHostBusOwner,
   `${rendererHelpers.slice(0, scrollHelpersEnd)};return {snapshot:MTKtinrelayScrollSnapshot,schedule:MTKtinrelayScheduleScroll}`
 )(
-  {querySelectorAll: () => [hiddenScroller, nearScroller]},
+  {querySelectorAll: () => [hiddenScroller, visibleScroller]},
   (callback, delay) => { queuedScroll = {callback, delay}; },
+  element => ({flexDirection: element.direction}),
   {}
 );
 const nearSnapshot = scrollApi.snapshot();
@@ -329,6 +355,32 @@ nearScroller.scrollTop = -601;
 queuedScroll = null;
 scrollApi.schedule(scrollApi.snapshot());
 assert.equal(queuedScroll, null, "reading more than one viewport up is never disturbed");
+const forwardScroller = {
+  ...nearScroller, direction: "column", scrollHeight: 41047, clientHeight: 969,
+  scrollTop: 40078, lastScroll: null
+};
+visibleScroller = forwardScroller;
+scrollApi.schedule(scrollApi.snapshot());
+queuedScroll.callback();
+assert.deepEqual(forwardScroller.lastScroll, {behavior: "instant", top: 40078},
+  "current Codex's forward scroller stays at the bottom, not at the start of history");
+forwardScroller.lastScroll = null;
+forwardScroller.scrollTop = 0;
+queuedScroll = null;
+assert.equal(scrollApi.snapshot().follow, false, "top of forward history is not near the bottom");
+scrollApi.schedule(scrollApi.snapshot());
+assert.equal(queuedScroll, null, "reading old forward history does not schedule a scroll");
+forwardScroller.scrollTop = 40078;
+scrollApi.schedule(scrollApi.snapshot());
+forwardScroller.scrollHeight += 100;
+queuedScroll.callback();
+assert.deepEqual(forwardScroller.lastScroll, {behavior: "instant", top: 40178},
+  "the settled destination follows forward content growth");
+forwardScroller.lastScroll = null;
+scrollApi.schedule(scrollApi.snapshot());
+forwardScroller.scrollTop = 30000;
+queuedScroll.callback();
+assert.equal(forwardScroller.lastScroll, null, "moving into forward history cancels the pending snap");
 for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "MTKoutboundFormattedText", "window.open"])
   assert.ok(!rendererHelpers.includes(forbidden), `renderer omits ${forbidden}`);
 assert.match(rendererHelpers,

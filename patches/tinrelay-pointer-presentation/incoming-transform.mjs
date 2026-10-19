@@ -2,6 +2,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { mainMessageBinding } from "./main-message-binding.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
@@ -168,7 +169,8 @@ function inspectAppliedRenderer(source) {
     'mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}',
     '[class~=\\"group/user-message\\"]{align-items:flex-start}',
     'function MTKtinrelayScrollSnapshot()',
-    'Math.max(0,-e.scrollTop)<=Math.max(1,e.clientHeight)',
+    'function MTKtinrelayScrollBottom(e)',
+    'Math.abs(e.scrollTop-MTKtinrelayScrollBottom(e))<=Math.max(1,e.clientHeight)',
     'setTimeout(()=>{let t=e.element',
     'MTKtinrelayScheduleScroll(d.current)',
     `(0,${profile.helperJsx}.jsx)(MTKtinrelayMessageView,{body:`
@@ -232,6 +234,7 @@ function inspectAppliedRendererBase(source) {
 }
 
 function inspectPristineMain(source) {
+  mainMessageBinding(source);
   mainProcessProfile(source);
   for (const contract of [
     "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
@@ -244,6 +247,9 @@ function inspectPristineMain(source) {
 }
 
 function inspectAppliedMain(source) {
+  if (!source.includes(mainPointerHandler(mainMessageBinding(source)))) {
+    throw new Error("Upstream changed: Tinrelay pointer handler does not use its request owner");
+  }
   inspectAppliedMainBase(source);
   const helpers = mainHelperSlice(source);
   for (const contract of [
@@ -419,7 +425,7 @@ function pointerHelpers(jsx = "Tb") {
 }
 
 function scrollHelpers() {
-  return 'function MTKtinrelayScrollSnapshot(){let e=[...document.querySelectorAll(".thread-scroll-container")].find(e=>e.clientHeight>0&&e.getClientRects().length>0);return e==null?null:{element:e,follow:Math.max(0,-e.scrollTop)<=Math.max(1,e.clientHeight)}}function MTKtinrelayScheduleScroll(e){e?.follow===!0&&setTimeout(()=>{let t=e.element;t.isConnected&&t.clientHeight>0&&Math.max(0,-t.scrollTop)<=Math.max(1,t.clientHeight)&&t.scrollTo({behavior:"instant",top:0})},32)}';
+  return 'function MTKtinrelayScrollBottom(e){return getComputedStyle(e).flexDirection==="column-reverse"?0:Math.max(0,e.scrollHeight-e.clientHeight)}function MTKtinrelayScrollSnapshot(){let e=[...document.querySelectorAll(".thread-scroll-container")].find(e=>e.clientHeight>0&&e.getClientRects().length>0);return e==null?null:{element:e,follow:Math.abs(e.scrollTop-MTKtinrelayScrollBottom(e))<=Math.max(1,e.clientHeight)}}function MTKtinrelayScheduleScroll(e){e?.follow===!0&&setTimeout(()=>{let t=e.element;if(!t.isConnected||t.clientHeight<=0)return;let n=MTKtinrelayScrollBottom(t);Math.abs(t.scrollTop-n)<=Math.max(1,t.clientHeight)&&t.scrollTo({behavior:"instant",top:n})},32)}';
 }
 
 function presentationHelpers(hostBus, jsx = "Tb", messageComponent = "Eg") {
@@ -439,10 +445,14 @@ function patchMain(value, config) {
   patched = replaceOnce(
     patched,
     "case`electron-add-new-workspace-root-option`:",
-    "case`mtk-tinrelay-pointer-inspect`:{let n;try{let r=await MTKtinrelayInspect(t);n={type:`mtk-tinrelay-pointer-result`,requestId:t.requestId,ok:!0,transmission:r}}catch(r){n={type:`mtk-tinrelay-pointer-result`,requestId:typeof t.requestId===`string`?t.requestId:``,ok:!1,error:r instanceof Error?r.message:`Tinrelay inspection failed.`}}this.windowManager.sendMessageToWebContents(e,n);break}case`electron-add-new-workspace-root-option`:",
+    `${mainPointerHandler(mainMessageBinding(value))}case\`electron-add-new-workspace-root-option\`:`,
     "Tinrelay main message handler"
   );
   return patched;
+}
+
+function mainPointerHandler(request) {
+  return `case\`mtk-tinrelay-pointer-inspect\`:{let MTKresult;try{let MTKtransmission=await MTKtinrelayInspect(${request});MTKresult={type:\`mtk-tinrelay-pointer-result\`,requestId:${request}.requestId,ok:!0,transmission:MTKtransmission}}catch(MTKerror){MTKresult={type:\`mtk-tinrelay-pointer-result\`,requestId:typeof ${request}.requestId===\`string\`?${request}.requestId:\`\`,ok:!1,error:MTKerror instanceof Error?MTKerror.message:\`Tinrelay inspection failed.\`}}this.windowManager.sendMessageToWebContents(e,MTKresult);break}`;
 }
 
 function mainHelpers(config, childProcess) {

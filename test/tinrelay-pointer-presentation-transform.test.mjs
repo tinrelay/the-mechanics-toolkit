@@ -30,7 +30,7 @@ try {
   fs.writeFileSync(rendererTarget, rendererFixture());
   fs.writeFileSync(turnTarget, turnFixture());
   fs.writeFileSync(activityTarget, activityFixture());
-  fs.writeFileSync(mainTarget, mainFixture());
+  fs.writeFileSync(mainTarget, mainFixture("n"));
   fs.writeFileSync(config, JSON.stringify({
     workspaceRoot: "/srv/example-workspace",
     tinrelay: {client: "/opt/tinrelay/bin/tinrelay"}
@@ -86,6 +86,12 @@ try {
     "an observer wired to a different Electron binding fails closed");
   assert.equal(fs.readFileSync(mainTarget, "utf8"), mismatchedStartup,
     "a mismatched observer binding fails before mutation");
+  fs.writeFileSync(mainTarget, mainOnce);
+  const wrongRequest = mainText.replace("MTKtinrelayOutgoingLookup(n)", "MTKtinrelayOutgoingLookup(t)");
+  assert.notEqual(wrongRequest, mainText, "fixture exercises the current n request owner");
+  fs.writeFileSync(mainTarget, wrongRequest);
+  assert.match(runOutgoingTransformFailure("check").stderr, /do not use their request owner/,
+    "a stale request binding is rejected even when every patch marker is present");
   fs.writeFileSync(mainTarget, mainOnce);
   const rendererText = rendererOnce.toString("utf8");
   const durableSourceTurn = 'sourceThreadId:d,sourceTurnId:typeof R==="string"&&R.startsWith(d+"\\0")?R.slice(d.length+1):void 0';
@@ -317,13 +323,13 @@ function activityFixture() {
   ].join("");
 }
 
-function mainFixture() {
+function mainFixture(request = "t") {
   return [
     'let x=require("node:child_process");',
     "const i={i(){return null}};",
     "const d={app:{whenReady(){return Promise.resolve()},getPath(e){return `/app/${e}`}}},l={app:void 0},q={Set:class{}},P=()=>{},R=0;",
     "var mQ=i.i(`electron-message-handler`);",
-    "async function handler(e,t){switch(t.type){case`show-plan-summary`:break;case`update-diff-if-open`:break;case`electron-add-new-workspace-root-option`:break}}",
+    `async function handler(e,${request}){switch(${request}.type){case\`show-plan-summary\`:break;case\`update-diff-if-open\`:break;case\`electron-add-new-workspace-root-option\`:break}}`,
     "async function startup(){let L=new q.Set;L.add(()=>{});await d.app.whenReady(),P(`main app.whenReady resolved`,R)}",
     "export const fixture=true;"
   ].join("");

@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1013.40934` / `20770` | 18 selected | Signed stage, healthy supervised adoption/task return, and operator-confirmed outgoing receipt. Unchanged CLI proof reused |
+| macOS ARM64 application | `26.1013.40934` / `20770` | 18 selected | Signed stage, healthy supervised adoption/task return, task receipts, and two-way TinRelay cards with stable scrolling. Unchanged CLI proof reused |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
