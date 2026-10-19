@@ -96,13 +96,13 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build20586OwnerFixture());
+  fs.writeFileSync(owner, build20770OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build20586Once = fs.readFileSync(owner);
+  const build20770Once = fs.readFileSync(owner);
   const published = [];
-  const composerText = build20586Once.toString().slice(build20586Once.toString().indexOf("function pG("));
-  const composer = Function("T7e", "TI", "C7e", "Ow", "MTKuseModelIdentityGuard", `${composerText};return pG`)(
+  const composerText = build20770Once.toString().slice(build20770Once.toString().indexOf("function fG("));
+  const composer = Function("E7e", "wI", "w7e", "Dw", "MTKuseModelIdentityGuard", `${composerText};return fG`)(
     {c: () => []}, effort => effort, () => true, value => value === "success", (...selection) => published.push(selection));
   const models = [{model: "gpt-6.1-sol"}, {model: "gpt-6-luna"}];
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
@@ -124,12 +124,12 @@ try {
     "a loaded mismatch still activates the guard without a timeout");
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"]);
-  assert.match(build20586Once.toString(), /MTKuseModelIdentityGuard\(yt\?null:i,Pe,Tt\)/);
-  assert.match(build20586Once.toString(), /return mG\.useEffect\(/);
-  const build20586Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build20586Behavior.status, 0, build20586Behavior.stderr || build20586Behavior.stdout);
+  assert.match(build20770Once.toString(), /MTKuseModelIdentityGuard\(yt\?null:i,Pe,Tt\)/);
+  assert.match(build20770Once.toString(), /return pG\.useEffect\(/);
+  const build20770Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build20770Behavior.status, 0, build20770Behavior.stderr || build20770Behavior.stdout);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build20586Once);
+  assert.deepEqual(fs.readFileSync(owner), build20770Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -206,13 +206,13 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build20586OwnerFixture() {
+function build20770OwnerFixture() {
   return [
-    'const mG={useEffect:e=>e()},TI=e=>e,C7e=()=>true,Ow=e=>e===`success`;',
+    'const pG={useEffect:e=>e()},wI=e=>e,w7e=()=>true,Dw=e=>e===`success`;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function pG(e){let t=(0,T7e.c)(324),i=e.conversationId,he=e.locked,ue={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},ke=e.catalogStatus??`success`,st=e.threadStatus??`idle`,xt=[],xe=e.reserve===true,Ne=e.reserveModel,j=e.defaultModel,_e=e.model,be=e.filter===true,Me=e.models,q=e.lockedCatalog===true;',
-    'let Pe=xe?Ne?.model??j:_e,Fe=be?Me?.filter(C7e):Me;q&&(Fe=Ne==null?[]:[Ne]);',
-    'let vt=he?.isLoading===!0||!Ow(ke)||ue.isLoading||st===`pending`;let yt=vt,bt=false;',
-    'let Tt=he?.lockedReasoningEffort??TI(ue.reasoningEffort,xt),Et=true;return{t,i,Pe,Me,ue,Tt,Et}}'
+    'function fG(e){let t=(0,E7e.c)(324),i=e.conversationId,he=e.locked,ue={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},ke=e.catalogStatus??`success`,ot=e.threadStatus??`idle`,xt=[],xe=e.reserve===true,Ne=e.reserveModel,j=e.defaultModel,_e=e.model,be=e.filter===true,Me=e.models,q=e.lockedCatalog===true;',
+    'let Pe=xe?Ne?.model??j:_e,Fe=be?Me?.filter(w7e):Me;q&&(Fe=Ne==null?[]:[Ne]);',
+    'let vt=he?.isLoading===!0||!Dw(ke)||ue.isLoading||ot===`pending`;let yt=vt,bt=false;',
+    'let Tt=he?.lockedReasoningEffort??wI(ue.reasoningEffort,xt),Et=true;return{t,i,Pe,Me,ue,Tt,Et}}'
   ].join("");
 }

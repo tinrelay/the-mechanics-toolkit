@@ -305,7 +305,7 @@ function patchConversation(value, turnValue) {
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
   if (value.includes(build20586.dynamic.before)) {
-    patched = addImportSpecifier(patched, "./app-shared-01b9f268c4a3.js",
+    patched = addImportSpecifier(patched, "./app-shared-52443cbe9ac4.js",
       "gPt as MTKoutboundHostBus", "build-20586 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
@@ -584,7 +584,7 @@ function resolveHostBus(value) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
     if (value.includes(build20586.dynamic.before) &&
-        currentShared[0].groups.relative === "./app-shared-01b9f268c4a3.js" &&
+        currentShared[0].groups.relative === "./app-shared-52443cbe9ac4.js" &&
         exportedAs(source, "$m") === "gPt" && source.includes("$m=Qm.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
@@ -866,8 +866,8 @@ function sendProfile(value) {
     ? {jsx: "W", normalize: "pe", hostBridge: "Pe", routeFlag: "d", newRoute: "Ie", oldRoute: "Te"}
     : header.genericRender === "U" && owner.text.includes("let e=r(c);Ze.dispatchHostMessage({type:`navigate-to-route`,path:Oe()?ce(e):u(e)})")
     ? {jsx: "W", normalize: "r", hostBridge: "Ze", routeFlag: "Oe", newRoute: "ce", oldRoute: "u"}
-    : header.genericRender === "W" && owner.text.includes("let e=y(s);ye.dispatchHostMessage({type:`navigate-to-route`,path:Dt()?pe(e):ie(e)})") && owner.text.includes("d=(0,G.jsxs)(I,")
-    ? {jsx: "G", normalize: "y", hostBridge: "ye", routeFlag: "Dt", newRoute: "pe", oldRoute: "ie"}
+    : header.genericRender === "W" && owner.text.includes("let e=y(s);be.dispatchHostMessage({type:`navigate-to-route`,path:Dt()?he(e):se(e)})") && owner.text.includes("d=(0,G.jsxs)(I,")
+    ? {jsx: "G", normalize: "y", hostBridge: "be", routeFlag: "Dt", newRoute: "he", oldRoute: "se"}
     : uniqueMatch(
       owner.text,
       new RegExp(`${id}=\\(0,(?<jsx>${id})\\.jsxs\\)[\\s\\S]*?let e=(?<normalize>${id})\\(${id}\\);(?<hostBridge>${id})\\.dispatchHostMessage\\(\\{type:\`navigate-to-route\`,path:(?<routeFlag>${id})\\(\\)\\?(?<newRoute>${id})\\(e\\):(?<oldRoute>${id})\\(e\\)\\}\\)`, "g"),
@@ -994,7 +994,7 @@ function resolveTaskImports(ownerSource) {
     return {
       before: importMatch[0],
       after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "QB")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Qxc")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "CD")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "wD")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
-      sharedModule: "./app-shared-01b9f268c4a3.js",
+      sharedModule: "./app-shared-52443cbe9ac4.js",
       sharedHookExport: "Ixt",
       sharedScopeExport: "Cot",
       sharedTitleHookExport: "zxt",

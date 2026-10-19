@@ -33,12 +33,12 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoin
     currentProfile.newRoute, currentProfile.oldRoute], ["r", "Ze", "Oe", "ce", "u"]);
   const frontier = source.replaceAll("render:U", "render:W").replace("function U(", "function W(")
     .replace("let e=pe(s);Pe.dispatchHostMessage({type:`navigate-to-route`,path:d()?Ie(e):Te(e)})",
-      "let e=y(s);ye.dispatchHostMessage({type:`navigate-to-route`,path:Dt()?pe(e):ie(e)})")
+      "let e=y(s);be.dispatchHostMessage({type:`navigate-to-route`,path:Dt()?he(e):se(e)})")
     .replace("let f=(0,W.jsxs)(F,{});return f", "let d=(0,G.jsxs)(I,{});return d");
   const frontierProfile = select(frontier);
   assert.deepEqual([frontierProfile.jsx, frontierProfile.normalize, frontierProfile.hostBridge,
     frontierProfile.routeFlag, frontierProfile.newRoute, frontierProfile.oldRoute],
-  ["G", "y", "ye", "Dt", "pe", "ie"], "build-20586 receipts preserve the stock task navigation owner");
+  ["G", "y", "be", "Dt", "he", "se"], "build-20770 receipts preserve the stock task navigation owner");
 }
 
 // Exercise the native frontier renderer's memoized publication, not only the receipt policy.
@@ -149,8 +149,8 @@ try {
         'function CD(e){return e}function wD(e){return e}'
       ].join(""))
       .replace("export{", "export{QB as task20586,Qxc as title20586,CD as local20586,wD as remote20586,")
-      .replace("const x=0,", 'import{Ixt as hi,Cot as U,zxt as Eu}from"./app-shared-01b9f268c4a3.js";const x=0,'));
-  fs.writeFileSync(path.join(build20586Pristine, "webview/assets/app-shared-01b9f268c4a3.js"),
+      .replace("const x=0,", 'import{Ixt as hi,Cot as U,zxt as Eu}from"./app-shared-52443cbe9ac4.js";const x=0,'));
+  fs.writeFileSync(path.join(build20586Pristine, "webview/assets/app-shared-52443cbe9ac4.js"),
     'function jW(e,t,n){return null}const Ixt=()=>{},Cot=Symbol();export{Ixt,Cot,jW as zxt};');
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });

@@ -1,29 +1,28 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.12` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.13` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.12
+## 0.2.13
 
-The macOS target is Desktop `26.1013.31256` / build `20586`, with bundled CLI
-`0.163.0-alpha.10.2`. Apply source-patch `standalone-output-compaction-20586` to exact upstream
+The macOS target is Desktop `26.1013.40934` / build `20770`, with bundled CLI
+`0.163.0-alpha.10.2`. Apply source-patch `standalone-output-compaction-20770` to exact upstream
 commit `4ebc485ca321243727539187169425fcf972f2c4`, then use `bin/tmtk-build-codex` with stable
 Rust `1.95.0` and its default LTO-off setting. Both focused standalone-input tests failed on
 stock source and passed after repair. The experimental annotated-tool-output feature does not
 cover ordinary unmarked standalone input and is not enabled by TMTK.
 
-This port follows the new generated desktop owners and moved task-key exports. It preserves
-native pending-input persistence, selected-model/locked-effort reporting, source-task naming,
-incoming right alignment, outgoing left alignment, and runtime lifecycle protections. The
-18-patch fleet passed signed staging, post-repack probes, native-payload preservation, and
-byte-identical second application. The stable-Rust release build passed. A missing reactive-title
-hook import in outgoing receipts was corrected with a causal regression probe. The final build
-completed a healthy supervised restart and the operator returned to the real task, without rescue.
-The model guard now follows the native settings-loading state: provisional selections stay
-neutral, while a fully loaded mismatch warns immediately.
+The stock CLI is byte-identical to the prior target, so its exact source repair, focused Rust
+tests, and stable-Rust replacement build are reused rather than rebuilt. This port updates only
+the composer's generated model aliases and outgoing-receipt navigation/import bindings; the
+other sixteen pristine patch checks recognized their existing owners. The model guard retains
+its native loading-state gate, and outgoing receipts retain their live-title hook import.
+The complete 18-patch signed stage passed post-repack probes, native-payload preservation, seal
+verification, and byte-identical second application. Supervised adoption reached renderer readiness
+without rescue; the operator returned to the real task and confirmed the outgoing receipt test.
 Windows and Linux targets and qualification boundaries are unchanged.
 
 ## Existing installations
@@ -48,7 +47,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.12` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.13` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

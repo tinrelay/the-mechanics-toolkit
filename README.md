@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1013.31256`, build `20586` | 18-patch signed stage and healthy supervised restart; operator returned to the real task. |
+| macOS ARM64 application | `26.1013.40934`, build `20770` | Signed 18-patch stage, healthy supervised restart, and operator-confirmed outgoing receipt. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -125,7 +125,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.163.0-alpha.10.2` / Desktop `26.1013.31256` build `20586` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.163.0-alpha.10.2` / Desktop `26.1013.40934` build `20770` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The current macOS CLI builds without it. |
 
 ## Documentation map

@@ -15,66 +15,54 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 20586
+## Current frontier build 20770
 
-On 2026-10-16, the installed updater offered macOS ARM64 Desktop `26.1013.31256` /
-build `20586`. The full ZIP's Sparkle Ed25519 signature and exact length (722,756,051 bytes)
-verified. ZIP SHA-256 is
-`5c75de21199a2637a2f1f648086cf1105565eecae89ac0e58cf151a1b16c703c`.
-Vendor code signature, notarization staple, and ASAR seal verified. Pristine ASAR is
-`bf9c41fa9770fbfacfba93042ff71c24cb65c82935819377275faac08103383f`.
+On 2026-10-19 the updater cache contained build-20770 deltas, and the official appcast supplied
+macOS ARM64 Desktop `26.1013.40934` / build `20770`. The cached deltas require an unpatched
+base; the full ZIP was acquired instead. Its exact 722,770,743-byte length and Sparkle Ed25519
+signature verified. ZIP SHA-256:
+`14389c9e9bd7871a31e380089f8bc54e07c627050f676ecdaa567b26929f7a1b`.
+Vendor signature, notarization staple, and ASAR seal verified. Pristine ASAR SHA-256:
+`5ddc4e48259aa6f979e04529b1a5a4ae54b0f5c4ad6db5c6e004924c10916ddb`.
 
-Stock CLI `0.163.0-alpha.10.2` SHA-256 is
-`1afb28c01d7d49e892bd75f11076b10f1451e34e0ee308a95e5ab7f69f9c84fe`.
-The exact upstream source is `4ebc485ca321243727539187169425fcf972f2c4` with
-`standalone-output-compaction-20586`. Both focused standalone-input retention/context-ordering
-tests failed on stock source and passed after repair. The native experimental annotated-output
-path does not preserve these ordinary unmarked inputs and was not enabled. The release build
-passed with stable Rust `1.95.0`, LTO off, and no bootstrap/Rustflags overrides. Its SHA-256 is
+The stock CLI remains `0.163.0-alpha.10.2`, SHA-256
+`1afb28c01d7d49e892bd75f11076b10f1451e34e0ee308a95e5ab7f69f9c84fe`,
+byte-identical to build 20586. Exact upstream revision
+`4ebc485ca321243727539187169425fcf972f2c4`, the three source-patch file hashes, the focused
+standalone-input red/green tests, and the stable-Rust 1.95.0/LTO-off build are reused.
+Replacement CLI SHA-256:
 `3184f80758a4652be0f32fe8d8b569538afb6942513dcee0a52587d7c9f49468`.
-Cargo changed only 160 workspace package-version substitutions in its lockfile, not dependency
-resolution. The full library suite and provider/model calls were not run.
+No Rust rebuild, provider/model call, or new compaction reproduction was run. The experimental
+annotated-input path remains disabled and does not retire the unmarked-input repair.
 
-Generated-owner probes preserve effective selected-model/locked-effort reporting and the actual
-turn/thread React bindings. Source-task metadata imports follow the moved task keys; the new
-collapsed-activity classifier's pending user-response/message behavior is preserved. Composed
-probes cover incoming right alignment, outgoing left alignment, waits, room/footer colors,
-archive and dot refusal/reload, terminal binding, attention, and stock readiness ownership.
-No real dot deletion/reboot, live compaction, or secondary-platform qualification is claimed.
+Sixteen of eighteen pristine patch checks recognized unchanged owners. The composer profile
+needed exact generated aliases (`fG`, `pG`, `wI`, `Dw`, `ot`); its native loading gate
+and effective-model/locked-effort semantics are unchanged. Outgoing receipts needed the current
+navigation bridge/routes and exact shared-module filename; the reactive title hook remains
+imported. Focused current-owner fixtures cover these bindings, loading neutrality, ready
+mismatches, receipt rendering, and byte-identical reapplication. Unchanged profile families
+retain their existing names because their exact generated contracts still match.
 
-The complete 18-patch signed stage passed post-repack composed probes, native-payload preservation,
+The complete signed 18-patch stage passed post-repack composed probes, native-payload preservation,
 executable terminal-helper checks, signature/ASAR-seal verification, and byte-identical second
-application. The pristine source stayed unchanged. Current installed and staged ASAR SHA-256:
-`550ae22338b734db291fef5d97f67aaa7a0e70187055bdbd0cfde339d39e4be0`.
+application. The source was unchanged. Candidate ASAR SHA-256:
+`f94525a983dcdcb6d33a4509b069d9dbd4e2fb3959a2caf090a7bb72e131ae8c`.
+The composer's native React initializer resolves through the actual shared `yzt` export; receipt
+tests assert the reactive-title import before injecting test values. Destructive dot actions,
+secondary-platform qualification, and a full live feature tour were not repeated.
+`npm run check --silent`, `npm test --silent`, focused owner probes, repository hygiene, and
+`git diff --check` passed. Production Linux DEB/RPM stage fixtures were platform-skipped on macOS;
+portable adapter and synthetic package checks remain separate evidence.
+On 2026-10-19 supervised adoption installed the exact candidate above and reached renderer
+readiness at 15:25:58 UTC, with no rescue Terminal or repair attempt. The operator returned to
+the real task and confirmed the outgoing message receipt after a test send to another task.
+The known-good rollback was removed by the successful supervisor. Earlier existing-browser-session
+handoff failures remain unexplained, not repaired by this port. Readiness alone is not a full
+feature claim; this receipt additionally has real task return and the changed receipt's live test.
 
-Two causal regressions were corrected before this receipt: an outgoing receipt crashed with
-`MTKoutboundUseTitle is not defined` because the native `zxt` import was missing; the behavioral
-probe now checks the production binding rather than masking it with a mock. The model guard also
-uses the exact native `yt` settings-loading state, so provisional defaults stay neutral and a
-loaded mismatch warns immediately. Focused fixtures failed before each correction and passed
-afterward. Final `npm run check --silent`, `npm test --silent`, repository hygiene, and diff checks
-passed. Linux production DEB/RPM fixtures remain platform-skipped
-on macOS; portable adapter and synthetic package tests are separate evidence.
-
-On 2026-10-16 the operator returned to the real task and reported that the final supervised restart
-worked. The successful receipt recorded the invoking CLI exiting at 17:20:11 UTC and renderer
-readiness at 17:20:18 UTC, with zero repair attempts and no rescue Terminal. Earlier attempts
-exited successfully after reporting `Opening in existing browser session`; why another instance
-survived or appeared remains unexplained. No supervisor code was changed and no recovery repair
-is claimed. This final healthy run passed; it does not erase those prior failures.
-
-Retained campaign bulk is one authenticated vendor ZIP, one current candidate, and the replacement
-CLI input. Source/build trees, extracted comparison/pristine copies, superseded candidates, and
-completed rollback copies were removed; compact receipts and logs remain.
-
-## Existing acceptance boundary
-
-Build `20586` now has signed static proof, a healthy supervised restart, and operator-observed task
-return. A complete feature tour, live compaction, dot deletion/reboot, and destructive supervisor
-recovery were not repeated. Earlier full semantic reference evidence remains in Git history;
-the current receipt does not claim those broader gates.
-The Oops limitation remains: renderer readiness can precede a usable task; confirm the task UI
-after adoption. No destructive supervisor recovery exercise is implied by a normal port.
+The workbench retains the authenticated vendor ZIP and compact receipts. Superseded prior
+bundles/ZIPs, disposable extracted/source copies, and the accepted loose candidate/redundant CLI
+were removed after verification and acceptance. The live application is the canonical app.
 
 This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
 matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It

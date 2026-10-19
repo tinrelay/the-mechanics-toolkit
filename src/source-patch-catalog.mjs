@@ -1,13 +1,13 @@
 const definitions = [
   {
-    "name": "standalone-output-compaction-20586",
+    "name": "standalone-output-compaction-20770",
     "patch": "source-patches/standalone-output-compaction/codex-0.163.0-alpha.10.2.patch",
     "upstream": "https://github.com/openai/codex",
     "tag": "rust-v0.163.0-alpha.10.2",
     "commit": "4ebc485ca321243727539187169425fcf972f2c4",
     "desktop": {
-      "version": "26.1013.31256",
-      "build": "20586"
+      "version": "26.1013.40934",
+      "build": "20770"
     },
     "files": {
       "codex-rs/core/src/compact.rs": {
