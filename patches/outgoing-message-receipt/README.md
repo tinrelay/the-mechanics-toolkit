@@ -80,6 +80,10 @@ rejection, independent per-task count and byte
 bounds, the global task-bucket ceiling, syntax validity, and byte-identical second application.
 The current live-title fixture also verifies that the receipt module imports its reactive title
 hook; the behavioral probe must not mask a missing production binding by supplying a mock alone.
+The current title selector is a readable family, not a plain signal. Its family-aware reactive
+reader must resolve the title; the plain signal reader returns the selector object unchanged.
+The regression preserves that distinction, checks named and newly hydrated recipients, and rejects
+an applied receipt with the wrong hook even though its import exists.
 
 Current package and live evidence belongs in the fleet
 [extraction ledger](../../docs/extraction-ledger.md).

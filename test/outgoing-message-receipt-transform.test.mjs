@@ -156,9 +156,9 @@ try {
         'function ND(e){return e}function PD(e){return e}'
       ].join(""))
       .replace("export{", "export{WB as task21421,Bkc as title21421,ND as local21421,PD as remote21421,")
-      .replace("const x=0,", 'import{$St as E,Qst as J,iCt as Eu}from"./app-shared-2eda13eb7044.js";const x=0,'));
-  fs.writeFileSync(path.join(build21421Pristine, "webview/assets/app-shared-2eda13eb7044.js"),
-    'function jW(e,t,n){return null}const $St=()=>{},Qst=Symbol();export{$St,Qst,jW as iCt};');
+      .replace("const x=0,", 'import{$St as E,Qst as J,iCt as Eu}from"./app-shared-fc3316d48427.js";const x=0,'));
+  fs.writeFileSync(path.join(build21421Pristine, "webview/assets/app-shared-fc3316d48427.js"),
+    'function hz(e){return e}function SR(e){return e}function l2e(e,t,n){let l=e;return hz(SR(l,n))}const $St=()=>{},Qst=Symbol();export{$St,Qst,hz as iCt,l2e as nCt};');
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -225,7 +225,10 @@ try {
   assert.equal(frontierBehavior.status, 0, frontierBehavior.stderr || frontierBehavior.stdout);
   const frontierOwnerFile = path.join(build21421Pristine, "webview/assets/app-control-fixture.js");
   const frontierOwner = fs.readFileSync(frontierOwnerFile, "utf8");
-  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",iCt as MTKoutboundUseTitle", ""));
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",nCt as MTKoutboundUseTitle", ",iCt as MTKoutboundUseTitle"));
+  assert.match(runToolkit(build21421Pristine, "check", 1).stderr, /owner=false/,
+    "applied inspection requires the family-aware title reader");
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",nCt as MTKoutboundUseTitle", ""));
   assert.match(runToolkit(build21421Pristine, "check", 1).stderr, /owner=false/,
     "applied inspection rejects the missing live-title hook before staging");
   fs.writeFileSync(frontierOwnerFile, frontierOwner);

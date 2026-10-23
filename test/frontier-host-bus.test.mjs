@@ -9,8 +9,8 @@ import {build21421} from "../patches/outgoing-message-receipt/profiles/build2142
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-frontier-bus-"));
 const renderer = path.join(scratch, "conversation.js");
-const shared = path.join(scratch, "app-shared-2eda13eb7044.js");
-const source = 'import{MFt as Bus}from"./app-shared-2eda13eb7044.js";';
+const shared = path.join(scratch, "app-shared-fc3316d48427.js");
+const source = 'import{MFt as Bus}from"./app-shared-fc3316d48427.js";';
 const id = "[$A-Z_a-z][$\\w]*";
 const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const uniqueMatch = (value, pattern, label) => {

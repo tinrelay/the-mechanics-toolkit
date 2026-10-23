@@ -65,6 +65,12 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
     source.includes("WB=Yl(J,") && source.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;");
 });
+const readableTitleFamily = fs.readdirSync(assets).some(name =>
+  /^app-initial-.*\.js$/.test(name) &&
+  fs.readFileSync(path.join(assets, name), "utf8").includes("Bkc=Yl(J,"));
+const reactiveTitleExport = currentTitleOwner ? unique(owner,
+  /import\{[^}]*\b(?<exported>[$\w]+) as MTKoutboundUseTitle(?:,|\})/g,
+  "reactive title reader").groups.exported : null;
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
@@ -106,7 +112,7 @@ const jsx = {
   jsxs(type, props) { return {type, props}; }
 };
 const taskAtom = Symbol("task-atom");
-const titleAtom = Symbol("title-atom");
+const titleAtom = readableTitleFamily ? {kind: "readable-family"} : Symbol("title-atom");
 const summaryAtom = Symbol("thread-summary-atom");
 const liveTitles = new Map([["bridge-keeper", "Bridge Keeper — Coordination"]]);
 const store = {
@@ -156,7 +162,12 @@ const values = [
 ];
 if (dedicatedTitleOwner || currentTitleOwner) values.splice(names.indexOf("MTKoutboundTitleAtom"), 0, titleAtom);
 if (directSummaryOwner) values.splice(names.indexOf("MTKoutboundThreadSummaryAtom"), 0, summaryAtom);
-if (currentTitleOwner) values.push((atom, key) => atom === titleAtom ? liveTitles.get(key?.threadId) ?? null : null);
+if (currentTitleOwner) values.push((atom, key) => {
+  // The current title is a readable-family. The plain signal hook returns that
+  // descriptor unchanged; only the family-aware hook reads its current value.
+  if (readableTitleFamily && reactiveTitleExport !== "nCt") return atom;
+  return atom === titleAtom ? liveTitles.get(key?.threadId) ?? null : null;
+});
 const api = Function(...names, `${helper};return {MTKoutboundArguments,MTKoutboundLabel,MTKoutboundPreview,MTKoutboundTaskColor,MTKoutboundContrast,MTKoutboundLabelColor,MTKOutboundMessageReceipt,MTKrenderOutboundMessage}`)(...values);
 
 assert.equal(api.MTKoutboundArguments({threadId: "bridge-keeper", prompt: "hello"})?.threadId, "bridge-keeper");

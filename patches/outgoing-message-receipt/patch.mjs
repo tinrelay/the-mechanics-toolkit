@@ -305,7 +305,7 @@ function patchConversation(value, turnValue) {
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
   if (value.includes(build21421.dynamic.before)) {
-    patched = addImportSpecifier(patched, "./app-shared-2eda13eb7044.js",
+    patched = addImportSpecifier(patched, build21421.sharedModule,
       "MFt as MTKoutboundHostBus", "build-21421 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
@@ -584,7 +584,7 @@ function resolveHostBus(value) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
     if (value.includes(build21421.dynamic.before) &&
-        currentShared[0].groups.relative === "./app-shared-2eda13eb7044.js" &&
+        currentShared[0].groups.relative === build21421.sharedModule &&
         exportedAs(source, "Rm") === "MFt" && source.includes("Rm=Lm.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
@@ -993,13 +993,18 @@ function resolveTaskImports(ownerSource) {
       appInitial.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;") &&
       appInitial.includes("function ND(e){return") && appInitial.includes("function PD(e){return") &&
       ["$St as E", "Qst as J"].every(binding => appInitial.includes(binding))) {
+    const shared = fs.readFileSync(path.resolve(path.dirname(target), build21421.sharedModule), "utf8");
+    if (exportedAs(shared, "l2e") !== "nCt" || !shared.includes("function l2e(e,t,n){") ||
+        !shared.includes("hz(SR(l,n))}")) {
+      throw new Error("Upstream changed: readable-family title hook owner is missing");
+    }
     return {
       before: importMatch[0],
       after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "WB")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Bkc")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "ND")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "PD")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
-      sharedModule: "./app-shared-2eda13eb7044.js",
+      sharedModule: build21421.sharedModule,
       sharedHookExport: "$St",
       sharedScopeExport: "Qst",
-      sharedTitleHookExport: "iCt",
+      sharedTitleHookExport: "nCt",
       reactiveTitle: true
     };
   }
