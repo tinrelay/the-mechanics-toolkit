@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build20586 } from "./profiles/build20586.mjs";
+import { build21421 } from "./profiles/build21421.mjs";
 import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
@@ -134,7 +134,7 @@ function inspectState() {
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
-  const currentBuild = [build20586, build11645, build10789, build9922].find(build =>
+  const currentBuild = [build21421, build11645, build10789, build9922].find(build =>
     conversationSource.includes(build.dynamic.before) || conversationSource.includes(build.dynamic.after));
   const current = currentBuild?.dynamic ?? build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
@@ -304,9 +304,9 @@ function patchConversation(value, turnValue) {
     patched = addImportSpecifier(patched, `./${path.basename(build11645.taskImports.sharedModule)}`,
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
-  if (value.includes(build20586.dynamic.before)) {
-    patched = addImportSpecifier(patched, "./app-shared-52443cbe9ac4.js",
-      "gPt as MTKoutboundHostBus", "build-20586 host bus import");
+  if (value.includes(build21421.dynamic.before)) {
+    patched = addImportSpecifier(patched, "./app-shared-2eda13eb7044.js",
+      "MFt as MTKoutboundHostBus", "build-21421 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
   patched = replaceOnce(
@@ -362,7 +362,7 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  for (const [label, build] of [["20586", build20586], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
+  for (const [label, build] of [["21421", build21421], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
   const current9922 = build.dynamic;
   if (value.includes(current9922.before) && value.includes(current9922.call) &&
       value.includes(current9922.parentBefore)) {
@@ -583,9 +583,9 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
-    if (value.includes(build20586.dynamic.before) &&
-        currentShared[0].groups.relative === "./app-shared-52443cbe9ac4.js" &&
-        exportedAs(source, "$m") === "gPt" && source.includes("$m=Qm.getInstance()") &&
+    if (value.includes(build21421.dynamic.before) &&
+        currentShared[0].groups.relative === "./app-shared-2eda13eb7044.js" &&
+        exportedAs(source, "Rm") === "MFt" && source.includes("Rm=Lm.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
     }
@@ -868,6 +868,8 @@ function sendProfile(value) {
     ? {jsx: "W", normalize: "r", hostBridge: "Ze", routeFlag: "Oe", newRoute: "ce", oldRoute: "u"}
     : header.genericRender === "W" && owner.text.includes("let e=y(s);be.dispatchHostMessage({type:`navigate-to-route`,path:Dt()?he(e):se(e)})") && owner.text.includes("d=(0,G.jsxs)(I,")
     ? {jsx: "G", normalize: "y", hostBridge: "be", routeFlag: "Dt", newRoute: "he", oldRoute: "se"}
+    : header.genericRender === "U" && owner.text.includes("let e=Re(s);g.dispatchHostMessage({type:`navigate-to-route`,path:mt()?Ne(e):ke(e)})") && owner.text.includes("d=(0,W.jsxs)(j,")
+    ? {jsx: "W", normalize: "Re", hostBridge: "g", routeFlag: "mt", newRoute: "Ne", oldRoute: "ke"}
     : uniqueMatch(
       owner.text,
       new RegExp(`${id}=\\(0,(?<jsx>${id})\\.jsxs\\)[\\s\\S]*?let e=(?<normalize>${id})\\(${id}\\);(?<hostBridge>${id})\\.dispatchHostMessage\\(\\{type:\`navigate-to-route\`,path:(?<routeFlag>${id})\\(\\)\\?(?<newRoute>${id})\\(e\\):(?<oldRoute>${id})\\(e\\)\\}\\)`, "g"),
@@ -942,12 +944,12 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
-  const build20586Contracts = [
+  const build21421Contracts = [
     "V=z!=null&&L.isCollapsed?z.persistentUnits:[]",
-    "persistentContent:ce,children:ue",
-    "children:[oe,de,he]"
+    "persistentContent:le,children:de",
+    "children:[se,fe,he]"
   ];
-  if (build20586Contracts.every(contract => value.includes(contract))) return owner;
+  if (build21421Contracts.every(contract => value.includes(contract))) return owner;
   if (build11645.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -983,21 +985,21 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   if ([
-    "function Suu(){let e=(0,Tuu.c)(12),t=hi(U),",
-    "function Suu(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Tuu.c)(12),t=hi(U),",
-    "function Suu(){MTKuseAttentionBootstrap20586();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Tuu.c)(12),t=hi(U),"
+    "function Dbu(){let e=(0,Abu.c)(12),t=E(J),",
+    "function Dbu(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),",
+    "function Dbu(){MTKuseAttentionBootstrap21421();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),"
   ].some(owner => appInitial.includes(owner)) &&
-      appInitial.includes("QB=wc(U,(e,{get:t})=>{let n=TD(e);") &&
-      appInitial.includes("Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("function CD(e){return") && appInitial.includes("function wD(e){return") &&
-      ["Ixt as hi", "Cot as U"].every(binding => appInitial.includes(binding))) {
+      appInitial.includes("WB=Yl(J,(e,{get:t})=>{let n=FD(e);") &&
+      appInitial.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("function ND(e){return") && appInitial.includes("function PD(e){return") &&
+      ["$St as E", "Qst as J"].every(binding => appInitial.includes(binding))) {
     return {
       before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "QB")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Qxc")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "CD")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "wD")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
-      sharedModule: "./app-shared-52443cbe9ac4.js",
-      sharedHookExport: "Ixt",
-      sharedScopeExport: "Cot",
-      sharedTitleHookExport: "zxt",
+      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "WB")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Bkc")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "ND")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "PD")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
+      sharedModule: "./app-shared-2eda13eb7044.js",
+      sharedHookExport: "$St",
+      sharedScopeExport: "Qst",
+      sharedTitleHookExport: "iCt",
       reactiveTitle: true
     };
   }
@@ -1409,8 +1411,8 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes(build20586.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
-      (value.includes(build20586.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
+    return (value.includes(build21421.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
+      (value.includes(build21421.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:u,turnId:") || value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });

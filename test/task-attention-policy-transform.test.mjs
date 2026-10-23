@@ -7,7 +7,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
-import {build20586} from "../patches/task-attention-policy/profiles/build20586.mjs";
+import {build21421} from "../patches/task-attention-policy/profiles/build21421.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -23,7 +23,7 @@ verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linu
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
-verifyProfile(build20586, build20586InitialFixture(), "export const fixture=true;", "macOS build 20586");
+verifyProfile(build21421, build21421InitialFixture(), "export const fixture=true;", "macOS build 21421");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -136,18 +136,18 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build20586InitialFixture() {
+function build21421InitialFixture() {
   return [
     "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
-    "const U=Symbol(`scope`),Euu={useEffect(){}},hPc={useSyncExternalStore(){return!1}};function hi(e){return e}",
-    "function cs(e,t,n){let r=Np(`signal`,e,t);return r}const cqi=cs(U,0);",
-    "function TD(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
-    "function Suu(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Tuu.c)(12),t=hi(U),n=0;return t}",
-    "function Fru(e,t){fn.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){fn.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
-    "var oru;function wQs(){oru=Y(U,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?Y7n({cloudThreadsAllowed:i,localThreadsAllowed:lO(e($g)),threadKeys:o}):o;return r+s})}",
-    "function fPc(e){let t=(0,mPc.c)(169),r=e.conversationId,tt={formatMessage(){return `New chat`}},Pt=`Tamsin`,B=null,qt=!1,_e=!1,bt=!1,Ve=!1,yt=null,xt=0,Et=null,Ue=!1,Mt=!1,Jt=`idle`;",
-    "let Yt=pPc({title:Pt,titleOverride:B})??tt.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Xt=Mt?`loading`:Jt,Zt=qt?!1:(_e??bt===!0)||Ve&&(yt==null&&(xt??0)>0||Et!=null||Ue),Qt=qt||Ve||yt!=null?0:xt??0;",
-    "return{hasUnreadTurn:!qt&&bt===!0}}"
+    "const J=Symbol(`scope`),jbu={useEffect(){}},_Hc={useSyncExternalStore(){return!1}};function E(e){return e}",
+    "function oc(e,t,n){let r=Np(`signal`,e,t);return r}const fEt=oc(J,0);",
+    "function FD(e){return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}",
+    "function Dbu(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),n=0;return t}",
+    "function zpu(e,t){iu.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){iu.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
+    "var upu;function wQs(){upu=W(J,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?Dnr({cloudThreadsAllowed:i,localThreadsAllowed:vO(e(s_)),threadKeys:o}):o;return r+s})}",
+    "function mHc(e){let t=(0,gHc.c)(168),r=e.conversationId,nt={formatMessage(){return `New chat`}},Ft=`Tamsin`,H=null,Jt=!1,ve=!1,xt=!1,He=!1,bt=null,St=0,Dt=null,We=!1,Nt=!1,Yt=`idle`;",
+    "let Xt=hHc({title:Ft,titleOverride:H})??nt.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`}),Zt=Nt?`loading`:Yt,Qt=Jt?!1:(ve??xt===!0)||He&&(bt==null&&(St??0)>0||Dt!=null||We),$t=Jt||He||bt!=null?0:St??0;",
+    "return{hasUnreadTurn:!Jt&&xt===!0}}"
   ].join("");
 }
 

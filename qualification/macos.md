@@ -15,66 +15,63 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 20770
+## Current frontier build 21421
 
-On 2026-10-19 the updater cache contained build-20770 deltas, and the official appcast supplied
-macOS ARM64 Desktop `26.1013.40934` / build `20770`. The cached deltas require an unpatched
-base; the full ZIP was acquired instead. Its exact 722,770,743-byte length and Sparkle Ed25519
-signature verified. ZIP SHA-256:
-`14389c9e9bd7871a31e380089f8bc54e07c627050f676ecdaa567b26929f7a1b`.
+The app's ready Sparkle offer was macOS ARM64 Desktop `26.1016.61520` / build `21421`.
+A newer feed entry was not substituted for that cached offer. The cached delta required an
+unpatched base, so one official full ZIP was acquired instead. Its exact 747,190,319-byte length
+and Sparkle Ed25519 signature verified. ZIP SHA-256:
+`ad716ab23102cf9ccce5cc17efc8d130385f4fb8a98c71024544cbb043fc98f1`.
 Vendor signature, notarization staple, and ASAR seal verified. Pristine ASAR SHA-256:
-`5ddc4e48259aa6f979e04529b1a5a4ae54b0f5c4ad6db5c6e004924c10916ddb`.
+`c9945f821fcbaf48424933a82860beac4dd4ad8b8a5444a75568fa6e38a1ad4b`.
 
-The stock CLI remains `0.163.0-alpha.10.2`, SHA-256
-`1afb28c01d7d49e892bd75f11076b10f1451e34e0ee308a95e5ab7f69f9c84fe`,
-byte-identical to build 20586. Exact upstream revision
-`4ebc485ca321243727539187169425fcf972f2c4`, the three source-patch file hashes, the focused
-standalone-input red/green tests, and the stable-Rust 1.95.0/LTO-off build are reused.
-Replacement CLI SHA-256:
-`3184f80758a4652be0f32fe8d8b569538afb6942513dcee0a52587d7c9f49468`.
-No Rust rebuild, provider/model call, or new compaction reproduction was run. The experimental
-annotated-input path remains disabled and does not retire the unmarked-input repair.
+The stock CLI is `0.163.0-alpha.11.1`, SHA-256
+`9394a943e3fce54f998ecc150eb0b7d6e22ce0da48e5063c59b4883e80aeaecd`.
+Exact upstream revision: `680c4ba93ec79c292287fb9e0b627dc7a76e3b5e`.
+The two focused standalone-input tests failed on stock and passed after the bounded source repair;
+all three patched files retain the catalog's exact before/after hashes. Rust `1.95.0` with LTO
+off built the replacement, without bootstrap or unstable compiler flags. Replacement SHA-256:
+`aa700f75ed84b8a29238eafbe250a60384a05aca621b8507e2756130a8ba9fa9`.
+Only workspace package versions changed in Cargo.lock; dependency resolution was unchanged.
+The annotated-input experiment remains disabled. No provider/model qualification or live
+compaction reproduction was run.
 
-Sixteen of eighteen pristine patch checks recognized unchanged owners. The composer profile
-needed exact generated aliases (`fG`, `pG`, `wI`, `Dw`, `ot`); its native loading gate
-and effective-model/locked-effort semantics are unchanged. Outgoing receipts needed the current
-navigation bridge/routes and exact shared-module filename; the reactive title hook remains
-imported. Focused current-owner fixtures cover these bindings, loading neutrality, ready
-mismatches, receipt rendering, and byte-identical reapplication. Unchanged profile families
-retain their existing names because their exact generated contracts still match.
+The selected 18-patch port updates exact generated owners: app-primary model selection, shared
+task-title/store bindings, delegated-message attribution, receipt navigation, wait roster, reasoning
+turn/thread owners, palette/archive hooks, dot deletion/reboot guards, terminal shortcut, TinRelay
+incoming/activity/persistence owners, and split readiness bootstrap. Stable behavior is unchanged:
+loading stays neutral, locked reasoning effort is authoritative, incoming bubbles remain right
+aligned, outgoing radio cards preserve native scroll direction, and native dot presentation is
+untouched. The staged gate must run the complete fleet together against the actual owner modules,
+not only synthetic fixtures or individual pristine checks.
 
-The complete signed 18-patch stage passed post-repack composed probes, native-payload preservation,
-executable terminal-helper checks, signature/ASAR-seal verification, and byte-identical second
-application. The source was unchanged. Initial 0.2.13 candidate ASAR SHA-256:
-`f94525a983dcdcb6d33a4509b069d9dbd4e2fb3959a2caf090a7bb72e131ae8c`.
-The composer's native React initializer resolves through the actual shared `yzt` export; receipt
-tests assert the reactive-title import before injecting test values. Destructive dot actions,
-secondary-platform qualification, and a full live feature tour were not repeated.
-`npm run check --silent`, `npm test --silent`, focused owner probes, repository hygiene, and
-`git diff --check` passed. Production Linux DEB/RPM stage fixtures were platform-skipped on macOS;
-portable adapter and synthetic package checks remain separate evidence.
-On 2026-10-19 supervised adoption installed the exact candidate above and reached renderer
-readiness at 15:25:58 UTC, with no rescue Terminal or repair attempt. The operator returned to
-the real task and confirmed the outgoing message receipt after a test send to another task.
-The known-good rollback was removed by the successful supervisor. Earlier existing-browser-session
-handoff failures remain unexplained, not repaired by this port. Readiness alone is not a full
-feature claim; this receipt additionally has real task return and the changed receipt's live test.
+On 2026-10-23, the complete signed 18-patch stage passed composed probes, changed-module syntax,
+byte-identical second application, preserved native payloads and executable terminal helper,
+signature/ASAR-seal verification, and probes rerun after repacking. Candidate ASAR SHA-256:
+`c1a66f2c94a03d23104cc5c5d0367475609d49fa4b6976d346a30fefa59ba9a1`.
+The pristine source was unchanged. `npm run check --silent`, `npm test --silent`, repository
+hygiene, and `git diff --check` passed. Composition initially caught stale attribution imports
+and an activity-classifier insertion owner; later probe failures identified stale root, turn-boundary,
+and bootstrap names. Each was reconciled with the actual native owner rather than loosening its
+behavioral assertion. No new presentation or supervisor semantics were introduced.
 
-Subsequent live use exposed two TinRelay presentation defects: the main handler's request binding
-had changed, and the current forward-column scroller no longer used zero as its bottom. Both
-received causal red/green regressions. TMTK 0.2.14's corrected 18-patch signed rebuild passed
-post-repack probes, integrity/native-payload checks, and byte-identical reapplication. Current
-installed ASAR SHA-256:
-`12fefeb54634c8280cd87512ac0e03281a74cdcc9895149f7223e369e196f816`.
-Supervised restart reached readiness at 16:20:01 UTC on October 19. The operator confirmed a fresh
-self-ping's outgoing and incoming cards with stable scrolling. A temporary per-element scroll
-guard restored control during repair; it disappeared on restart and is not part of the patch.
-`npm run check --silent` and `npm test --silent` passed after both fixes; native CLI evidence and
-platform limits above are unchanged.
+On 2026-10-23, supervised adoption installed the exact candidate at the canonical application path
+and reached renderer readiness at 06:56:38 UTC, without rescue or an automatic repair attempt.
+The installed build and ASAR hash match the stage receipt above. The operator returned to the real
+chat and used its composer. A fresh TinRelay self-ping was accepted and delivered back to this task;
+the operator confirmed the outgoing and incoming cards and stable scrolling. The supervisor removed
+its transaction-only known-good copy after success. No supervisor implementation was changed.
 
-The workbench retains the authenticated vendor ZIP and compact receipts. Superseded prior
-bundles/ZIPs, disposable extracted/source copies, and the accepted loose candidate/redundant CLI
-were removed after verification and acceptance. The live application is the canonical app.
+This is current launch/task-return and TinRelay presentation evidence, not a full live feature tour.
+Task-to-task receipt and wait behavior, model/reasoning controls, and destructive dot actions were
+not exercised live again; their exact current generated owners passed the composed static probes.
+
+Secondary-platform qualification, destructive dot actions, provider acceptance, and a full live
+feature tour were not run. Windows/Ubuntu build `10954` and Fedora build `9647` keep their
+separate earlier receipts. Production Linux package-stage fixtures are platform-skipped on macOS.
+
+The workbench retains one authenticated ZIP and compact receipts/logs. The accepted loose candidate,
+disposable source/build/extracted trees, and superseded build-`20770` ZIP were removed.
 
 This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
 matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It

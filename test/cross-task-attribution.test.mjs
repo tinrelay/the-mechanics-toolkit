@@ -34,7 +34,7 @@ const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
   source.includes("PX as MTKcrossTaskStoreHook,XI as MTKcrossTaskStoreScope") ||
   source.includes("cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope") ||
-  source.includes("Ixt as MTKcrossTaskStoreHook,Cot as MTKcrossTaskStoreScope");
+  source.includes("$St as MTKcrossTaskStoreHook,Qst as MTKcrossTaskStoreScope");
 assert.ok((bindingStart >= 0 && bindingStart < componentBoundary.index) || sharedStoreImported,
   "stock store bindings are captured outside the component");
 const helperEnd = [bindingStart, componentBoundary.index,
@@ -95,9 +95,9 @@ if (titleInternal === linuxBuild10954.titleSelector.atom &&
 } else if (titleInternal === "l2i" && titleOwner.includes("l2i=to(Q,")) {
   assert.ok(titleOwner.includes("s2i({...n,localTitle:r})"),
     "build-11645 title atom retains its stock selector owner");
-} else if (titleInternal === "Qxc" && titleOwner.includes("Qxc=wc(U,")) {
-  assert.ok(titleOwner.includes("Xxc({...r,localTitle:i})"),
-    "build-20586 title atom retains its stock selector owner");
+} else if (titleInternal === "Bkc" && titleOwner.includes("Bkc=Yl(J,")) {
+  assert.ok(titleOwner.includes("Rkc({...r,localTitle:i})"),
+    "build-21421 title atom retains its stock selector owner");
 } else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
   (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i")),
@@ -124,7 +124,7 @@ if (sharedStoreImported) {
   assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
     appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)") ||
     appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)") ||
-    appInitial.includes("Ixt as hi") && appInitial.includes("Cot as U") && appInitial.includes("t=hi(U)"),
+    appInitial.includes("$St as E") && appInitial.includes("Qst as J") && appInitial.includes("t=E(J)"),
   "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));

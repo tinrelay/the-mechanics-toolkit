@@ -154,7 +154,7 @@ function inspectState(owner) {
       "g=f===`start`?`items-start`:`items-end`"
     ];
     if (!nativeMarkers.every(marker => source.includes(marker))) {
-      throw new Error("Unrecognized build-20586 attribution patch: partial native alignment markers");
+      throw new Error("Unrecognized native attribution patch: partial alignment markers");
     }
     return "applied";
   }
@@ -203,7 +203,7 @@ function inspectPristine(source, externalBubbleSource = null) {
     ]) if (!source.includes(contract)) throw new Error(`Upstream changed: native delegation alignment ${contract}`);
     if (!delegation.text.includes("onLabelClick:m})") ||
         !delegation.text.includes("t[5]!==l||t[6]!==n||t[7]!==o||t[8]!==s||t[9]!==i||t[10]!==a||t[11]!==m?(")) {
-      throw new Error("Upstream changed: build-20586 delegation label cache");
+      throw new Error("Upstream changed: native delegation label cache");
     }
     return {delegation, wrapper, profile: {nativeAlignment: true}};
   }
@@ -373,22 +373,22 @@ function resolveImports(ownerSource, ownerFile) {
   const appInitialFile = ownedImport(ownerFile, initialImport.groups.relative);
   const appPrimary = fs.readFileSync(appPrimaryFile, "utf8");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appInitial.includes("Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("QB=wc(U,(e,{get:t})=>{let n=TD(e);switch(n?.kind){case`local`:") &&
-      appInitial.includes("function Suu(){let e=(0,Tuu.c)(12),t=hi(U),") &&
-      appInitial.includes('function CD(e){return`')) {
+  if (appInitial.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("WB=Yl(J,(e,{get:t})=>{let n=FD(e);switch(n?.kind){case`local`:") &&
+      appInitial.includes("function Dbu(){let e=(0,Abu.c)(12),t=E(J),") &&
+      appInitial.includes('function ND(e){return`')) {
     const sharedImport = uniqueMatch(ownerSource,
       /import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-shared-[^"]+\.js)";/g,
       "app-shared import");
-    for (const binding of ["Ixt as hi", "Cot as U"]) {
-      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-20586 store binding ${binding}`);
+    for (const binding of ["$St as E", "Qst as J"]) {
+      if (!appInitial.includes(binding)) throw new Error(`Upstream changed: build-21421 store binding ${binding}`);
     }
     return {
       before: initialImport[0],
-      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "Qxc")} as MTKtitleAtom,${exportedAs(appInitial, "QB")} as MTKsourceTaskAtom,${exportedAs(appInitial, "CD")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
+      after: `import{${initialImport.groups.specifiers},${exportedAs(appInitial, "Bkc")} as MTKtitleAtom,${exportedAs(appInitial, "WB")} as MTKsourceTaskAtom,${exportedAs(appInitial, "ND")} as MTKsourceLocalKey}from"${initialImport.groups.relative}";`,
       sharedImport: {
         before: sharedImport[0],
-        after: `import{${sharedImport.groups.specifiers},Ixt as MTKcrossTaskStoreHook,Cot as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
+        after: `import{${sharedImport.groups.specifiers},$St as MTKcrossTaskStoreHook,Qst as MTKcrossTaskStoreScope}from"${sharedImport.groups.relative}";`
       }
     };
   }

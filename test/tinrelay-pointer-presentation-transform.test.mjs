@@ -317,9 +317,9 @@ function turnFixture() {
 
 function activityFixture() {
   return [
-    "const Je=e=>false,$=(e,t)=>({item:e,grouping:t}),dn=e=>e;",
-    "function ln(e){switch(e.type){case`external-event`:return null;case`exec`:case`patch`:return $(dn(e),Je(e)?`standalone`:`groupable`);case`user-message`:return $(e,`standalone`)}}",
-    "export{ln};"
+    "const Ht=e=>false,$=(e,t)=>({item:e,grouping:t}),pr=e=>e;",
+    "function dr(e,{dynamicToolCallRenderer:t,includeGeneratedImages:n=!1,mcpServerStatuses:r}={}){switch(e.type){case`external-event`:return $(e,`groupable`);case`exec`:case`patch`:return $(pr(e),Ht(e)?`standalone`:`groupable`);case`user-message`:return $(e,`standalone`)}}",
+    "export{dr};"
   ].join("");
 }
 

@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1013.40934` / `20770` | 18 selected | Signed stage, healthy supervised adoption/task return, task receipts, and two-way TinRelay cards with stable scrolling. Unchanged CLI proof reused |
+| macOS ARM64 application | `26.1016.61520` / `21421` | 18 selected | Signed stage, native red/green tests, healthy supervised task return, and operator-confirmed two-way TinRelay cards with stable scrolling |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,26 +27,26 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-`dot-lifecycle-protection` is opt-in and recognizes the exact macOS build-`20770` owners.
+`dot-lifecycle-protection` is opt-in and recognizes the exact macOS build-`21421` owners.
 Its existing deletion/reboot refusal and runtime-policy probes remain part of the selected fleet.
-Build `20770` was adopted on October 19 and its outgoing receipt was operator-confirmed;
-the full feature tour and destructive dot actions were not repeated. Build `20052` supplied
-causal coverage for the reasoning thread's stock React binding
-and the composer's effective selected-model publication; these corrections are retained.
+Build `21421` was adopted on October 23 through the supervisor, without rescue. The operator
+returned to this real chat and confirmed a fresh TinRelay self-ping's two cards and stable
+scrolling. Exact stock React bindings, effective selected model, locked reasoning effort,
+and neutral loading gates remain covered by causal probes; a full live feature tour was not repeated.
 No real dot was deleted or rebooted during qualification.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact profiles recognize macOS build `20770` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window and the retired sidebar collapse remain unselected on macOS. |
+| Generated JavaScript | Exact profiles recognize macOS build `21421` and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window and the retired sidebar collapse remain unselected on macOS. |
 | Package integrity | macOS signature and ASAR seal; Windows signed MSIX reconstruction and re-extraction; Ubuntu authenticated DEB reconstruction; and Fedora authenticated RPM reconstruction passed on the packages named above. Second application was byte-identical. |
-| Live adoption | macOS build `20770` has genuine supervised adoption, renderer readiness, task return, and an operator-confirmed outgoing receipt. Windows build `10954` retains supervised task-return evidence; Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
-| Shared behavior | Running macOS build `20770` has composed packed probes, a healthy supervised restart/task return, and operator-confirmed outgoing receipt after exact generated-owner updates. Windows and Ubuntu retain their earlier package/open receipts. |
+| Live adoption | macOS build `21421` has healthy supervised adoption, real chat return, and operator-confirmed two-way TinRelay cards with stable scrolling. Windows build `10954` retains supervised task-return evidence; Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
+| Shared behavior | Current generated-owner fixtures cover exact imports, model loading, reasoning, archive protection, attribution, receipts, waits, radio, and readiness. Composition and package gates are recorded in the macOS runbook; a green static gate does not imply live acceptance. Windows and Ubuntu retain their earlier package/open receipts. |
 | Open limits | Dot guards outside the patched desktop, Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for the macOS build-`20770` candidate but
+same-version Codex CLI source patch selected for the macOS build-`21421` candidate but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

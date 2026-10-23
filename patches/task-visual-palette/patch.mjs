@@ -6,7 +6,7 @@ import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build20586 } from "./profiles/build20586.mjs";
+import { build21421 } from "./profiles/build21421.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -176,15 +176,15 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
-  if (build20586.archive.applied.every(contract => source.includes(contract))) {
-    if (!build20586.archive.runtimeApplied.every(contract => source.includes(contract))) {
-      throw new Error("Unrecognized build-20586 archive runtime reload");
+  if (build21421.archive.applied.every(contract => source.includes(contract))) {
+    if (!build21421.archive.runtimeApplied.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-21421 archive runtime reload");
     }
     return "applied";
   }
-  if (build20586.archive.pristine.every(contract => source.includes(contract))) {
-    if (!build20586.archive.runtimePristine.every(contract => source.includes(contract))) {
-      throw new Error("Unrecognized build-20586 archive runtime owner");
+  if (build21421.archive.pristine.every(contract => source.includes(contract))) {
+    if (!build21421.archive.runtimePristine.every(contract => source.includes(contract))) {
+      throw new Error("Unrecognized build-21421 archive runtime owner");
     }
     return "needs-apply";
   }
@@ -273,7 +273,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
-    build20586.app,
+    build21421.app,
     build11645.app,
     build10789.app,
     build9922.app,
@@ -300,7 +300,7 @@ function appProfile(source) {
 }
 function bottomFadeProfile(appSource, primarySource) {
   const profiles = [
-    build20586.bottomFade,
+    build21421.bottomFade,
     build11645.bottomFade,
     build9922.bottomFade,
     linuxBuild10954.bottomFade,
@@ -316,7 +316,7 @@ function bottomFadeProfile(appSource, primarySource) {
 }
 function localProfile(source) {
   const profiles = [
-    build20586.local,
+    build21421.local,
     build11645.local,
     build10789.local,
     build9922.local,
@@ -656,12 +656,12 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
-  if (build20586.archive.pristine.every(contract => source.includes(contract))) {
+  if (build21421.archive.pristine.every(contract => source.includes(contract))) {
     for (const replacement of [
-      ...build20586.archive.replacements,
-      ...build20586.archive.runtimeReplacements
+      ...build21421.archive.replacements,
+      ...build21421.archive.runtimeReplacements
     ]) {
-      source = replaceOnce(source, ...replacement, "build-20586 archive owner");
+      source = replaceOnce(source, ...replacement, "build-21421 archive owner");
     }
     fs.writeFileSync(file, source);
     return;
@@ -769,7 +769,7 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  const profile = [build20586.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  const profile = [build21421.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
   if (profile != null) {
     for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);

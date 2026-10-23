@@ -44,16 +44,15 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.163.0-alpha.10.2.patch) targets macOS Desktop
-`26.1013.40934` / build `20770`, which bundles `codex-cli 0.163.0-alpha.10.2` at upstream commit
-`4ebc485ca321243727539187169425fcf972f2c4`. Both focused tests failed on this stock revision and
+[The current source diff](codex-0.163.0-alpha.11.1.patch) targets macOS Desktop
+`26.1016.61520` / build `21421`, which bundles `codex-cli 0.163.0-alpha.11.1` at upstream commit
+`680c4ba93ec79c292287fb9e0b627dc7a76e3b5e`. Both focused tests failed on this stock revision and
 passed after the bounded retention/context-ordering repair. The new experimental
 `retain_client_tool_outputs` feature only retains explicitly annotated inputs; it does not
 replace this fallback for ordinary unmarked standalone external inputs. It was not enabled.
-The current stock CLI is byte-identical to the prior macOS target; the exact focused Rust
-red/green evidence and stable-Rust replacement binary are reused, not rebuilt for an outer
-Desktop version change.
-The stable-Rust release build and complete signed desktop stage passed; live acceptance is a
+The three patched source files retain their exact previous before/after hashes, but the current
+CLI is a new binary: focused Rust red/green tests were rerun and a new replacement is built.
+The macOS runbook records release-build and signed-stage evidence; live acceptance is a
 separate gate. The catalog
 also retains exact entries for earlier supported builds. The source-patch command verifies the
 selected commit and every target file's exact before or after hash; the shared textual diff alone
@@ -64,8 +63,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-20770 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-20770 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-21421 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-21421 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

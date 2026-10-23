@@ -295,7 +295,7 @@ assert.deepEqual(rendererApi.acceptance(execItem({...acceptance, sender_ship: "o
   {...acceptance, sender_ship: "other-ship"}, "accepted-send identity comes from Tinrelay stdout");
 
 const activityStart = activitySource.indexOf("function MTKtinrelayOutgoingAcceptance(");
-const activityEnd = ["function an(", "function ln("]
+const activityEnd = ["function dr(", "function an(", "function ln("]
   .map(marker => activitySource.indexOf(marker, activityStart))
   .find(index => index >= 0) ?? -1;
 assert.ok(activityStart >= 0 && activityEnd > activityStart, "outgoing activity parser is localized");

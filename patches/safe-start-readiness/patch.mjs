@@ -41,7 +41,7 @@ function inspectState(mainValue, rendererValue) {
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
   const contractFamilies = profile.splitBootstrap ? [
-    ["bootstrap writer import", ['g=require("./bootstrap-Dn-4EbjT.js")']]
+    ["bootstrap writer import", ['_=require("./bootstrap-DCRTDDSX.js")']]
   ] : [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
     ["development relaunch writer", [`function ${profile.writer}(`]]
@@ -70,24 +70,24 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
-  if (value.includes('g=require("./bootstrap-Dn-4EbjT.js")')) {
-    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-Dn-4EbjT.js"), "utf8");
+  if (value.includes('_=require("./bootstrap-DCRTDDSX.js")')) {
+    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-DCRTDDSX.js"), "utf8");
     for (const contract of [
-      "QO=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
-      "function ik({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[QO]?.trim(),writeMarker:r=",
-      "exports.w=ik"
+      "qM=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
+      "function $M({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[qM]?.trim(),writeMarker:r=",
+      "exports.w=$M"
     ]) {
       if (count(bootstrap, contract) !== 1) {
         throw new Error(`Upstream changed: safe-start bootstrap writer is not unique: ${contract}`);
       }
     }
-    const marker = "`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`", writer = "g.w";
+    const marker = "`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`", writer = "_.w";
     const action = readinessAction(marker, writer);
     return {
       marker, writer, splitBootstrap: true,
       before: "case`ready`:{n.initializationOnly||(this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{n.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
-      rendererReady: "hs.dispatchMessage(`ready`,{})"
+      rendererReady: "Ei.dispatchMessage(`ready`,{})"
     };
   }
   const markers = [...value.matchAll(/\b([A-Za-z_$][\w$]*)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/g)]

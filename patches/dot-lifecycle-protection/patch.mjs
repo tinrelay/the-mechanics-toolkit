@@ -12,17 +12,17 @@ function unique(pattern) {
   return path.join(assets,names[0]);
 }
 const initial=unique(/^app-initial-.*\.js$/),reboot=unique(/^reboot-dialog-.*\.js$/);
-const helper=String.raw`const MTKdotLifecyclePolicy=1;function MTKdotEntries(){let e=globalThis.__MTK_AGENT_ROSTER__?.current()?.entries??[],t=[];for(let n of e){let r=n.data;if(n.kind!=="agent"||r?.orbitId===void 0)continue;if(typeof r.orbitId!=="string"||r.orbitId.length===0||r.orbitId.length>512||["protectDeletion","protectReboot"].some(e=>r[e]!==void 0&&typeof r[e]!=="boolean"))throw Error("Invalid TMTK dot policy");t.push(n)}return t}function MTKdotProtected(e,t,n){let r=e==="delete"?"protectDeletion":e==="reboot"?"protectReboot":null;return r!==null&&MTKdotEntries().some(e=>(typeof t==="string"?e.data.orbitId===t:typeof n==="string"&&e.taskId===n)&&e.data[r]===!0)}function MTKdotRebootProtected(e,t){return MTKdotProtected("reboot",e.query.getData(Pw,t)?.id,t)}globalThis.__MTK_DOT_POLICY__=Object.freeze({version:1,protected:MTKdotProtected,assertReboot(e,t){if(MTKdotRebootProtected(e,t))throw Error("This dot is protected from reboot by TMTK")},nameForThread(e,t){try{let n=MTKdotEntries().find(t=>t.taskId===e);return n==null?null:typeof t==="string"&&t.trim().length>0?t.trim():n.data.name}catch{return null}}});`;
+const helper=String.raw`const MTKdotLifecyclePolicy=1;function MTKdotEntries(){let e=globalThis.__MTK_AGENT_ROSTER__?.current()?.entries??[],t=[];for(let n of e){let r=n.data;if(n.kind!=="agent"||r?.orbitId===void 0)continue;if(typeof r.orbitId!=="string"||r.orbitId.length===0||r.orbitId.length>512||["protectDeletion","protectReboot"].some(e=>r[e]!==void 0&&typeof r[e]!=="boolean"))throw Error("Invalid TMTK dot policy");t.push(n)}return t}function MTKdotProtected(e,t,n){let r=e==="delete"?"protectDeletion":e==="reboot"?"protectReboot":null;return r!==null&&MTKdotEntries().some(e=>(typeof t==="string"?e.data.orbitId===t:typeof n==="string"&&e.taskId===n)&&e.data[r]===!0)}function MTKdotRebootProtected(e,t){return MTKdotProtected("reboot",e.query.getData(Iw,t)?.id,t)}globalThis.__MTK_DOT_POLICY__=Object.freeze({version:1,protected:MTKdotProtected,assertReboot(e,t){if(MTKdotRebootProtected(e,t))throw Error("This dot is protected from reboot by TMTK")},nameForThread(e,t){try{let n=MTKdotEntries().find(t=>t.taskId===e);return n==null?null:typeof t==="string"&&t.trim().length>0?t.trim():n.data.name}catch{return null}}});`;
 const initialPairs=[
-  ['function hza(e,t,n,r){let i=',helper+'function hza(e,t,n,r){if(MTKdotProtected("delete",t))return;let i='],
-  ['if(!d()||e.get(jkn,i).has(n.threadId))return;','if(MTKdotProtected("delete",t)||!d()||e.get(jkn,i).has(n.threadId))return;'],
-  ['function NPc(e,t,n=e.get(_k,t)){let r=e.query.getData(Pw,t);if(r==null)return;','function NPc(e,t,n=e.get(_k,t)){let r=e.query.getData(Pw,t);if(r==null||MTKdotProtected("delete",r.id))return;'],
-  ['function PPc(e,t,n){return{id:`delete-orbit`,','function PPc(e,t,n){if(MTKdotProtected("delete",e.query.getData(Pw,t)?.id,t))return null;return{id:`delete-orbit`,'],
-  ['function UPc(e,t){if(!e.get(rg,`970190263`))return null;','function UPc(e,t){if(MTKdotRebootProtected(e,t)||!e.get(rg,`970190263`))return null;']
+  ['function jWa(e,t,n,r){let i=',helper+'function jWa(e,t,n,r){if(MTKdotProtected("delete",t))return;let i='],
+  ['if(!d()||e.get(Jjn,i).has(n.threadId))return;','if(MTKdotProtected("delete",t)||!d()||e.get(Jjn,i).has(n.threadId))return;'],
+  ['function FHc(e,t,n=e.get(yk,t)){let r=e.query.getData(Iw,t);if(r==null)return;','function FHc(e,t,n=e.get(yk,t)){let r=e.query.getData(Iw,t);if(r==null||MTKdotProtected("delete",r.id))return;'],
+  ['function IHc(e,t,n){return{id:`delete-orbit`,','function IHc(e,t,n){if(MTKdotProtected("delete",e.query.getData(Iw,t)?.id,t))return null;return{id:`delete-orbit`,'],
+  ['function KHc(e,t){if(!e.get(Fh,`970190263`))return null;','function KHc(e,t){if(MTKdotRebootProtected(e,t)||!e.get(Fh,`970190263`))return null;']
 ];
 const rebootPairs=[
-  ['x=async()=>{await(await k.postResponse(`/cloud-aeons/primary/reboot`,','x=async()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(_,f);await(await k.postResponse(`/cloud-aeons/primary/reboot`,'],
-  ['assertRequestCurrent:()=>{if(!_.get(j,`970190263`)||_.get(O)||_.get(M)!==f)throw Error(`The selected dot cannot be rebooted`)','assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(_,f);if(!_.get(j,`970190263`)||_.get(O)||_.get(M)!==f)throw Error(`The selected dot cannot be rebooted`)']
+  ['m=async()=>{await(await O.postResponse(`/cloud-aeons/primary/reboot`,','m=async()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(f,s);await(await O.postResponse(`/cloud-aeons/primary/reboot`,'],
+  ['assertRequestCurrent:()=>{if(!f.get(M,`970190263`)||f.get(A)||f.get(D)!==s)throw Error(`The selected dot cannot be rebooted`)','assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(f,s);if(!f.get(M,`970190263`)||f.get(A)||f.get(D)!==s)throw Error(`The selected dot cannot be rebooted`)']
 ];
 const files=[{file:initial,pairs:initialPairs},{file:reboot,pairs:rebootPairs}];
 const count=(s,v)=>s.split(v).length-1;

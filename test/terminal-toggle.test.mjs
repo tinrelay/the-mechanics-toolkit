@@ -5,7 +5,7 @@ import path from "node:path";
 import { build9922Contracts } from "../patches/terminal-toggle/profiles/build9922.mjs";
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
-import { build20586Contracts } from "../patches/terminal-toggle/profiles/build20586.mjs";
+import { build21421Contracts } from "../patches/terminal-toggle/profiles/build21421.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -39,9 +39,9 @@ for (const catalog of catalogs) {
   );
 }
 const build11645 = source.includes(build11645Contracts[3]);
-const build20586 = source.includes(build20586Contracts[3]);
+const build21421 = source.includes(build21421Contracts[3]);
 assert.equal(
-  count(source, build20586
+  count(source, build21421
     ? "f=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"
     : build11645
     ? "l=n===`toggleTerminal`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),u;"
@@ -54,9 +54,9 @@ const build9647Linux = source.includes(linuxBuild9647Contracts[2]);
 const build9922 = source.includes(build9922Contracts[3]);
 const build10789 = source.includes(build10789Contracts[3]);
 const build10954Linux = source.includes(linuxBuild10954Contracts[3]);
-assert.ok(build20586 || build11645 || build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
+assert.ok(build21421 || build11645 || build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
   "the qualified terminal owner is present");
-const contracts = build20586 ? build20586Contracts : build11645 ? build11645Contracts : build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
+const contracts = build21421 ? build21421Contracts : build11645 ? build11645Contracts : build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
   build9922 ? build9922Contracts : build9771Linux ? linuxBuild9771Contracts : linuxBuild9647Contracts;
 assert.equal(
   count(source, contracts[1]),
@@ -64,16 +64,16 @@ assert.equal(
   "the configured accelerators feed the existing hotkey dispatcher"
 );
 assert.equal(
-  count(source, build20586 ? "allowWithinEditable:f,enabled:o,onKeyDown:p" :
+  count(source, build21421 ? "allowWithinEditable:f,enabled:o,onKeyDown:p" :
     build11645 ? "allowWithinEditable:i,enabled:a,onKeyDown:o" : "allowWithinEditable:c,enabled:a,onKeyDown:l"),
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build20586) {
-  assert.equal(count(source, build20586Contracts[3]), 1,
-    "the build-20586 command keeps the stock terminal visibility selector");
-  assert.equal(count(source, build20586Contracts[4]), 1,
-    "the build-20586 command keeps the stock Control-backtick binding");
+if (build21421) {
+  assert.equal(count(source, build21421Contracts[3]), 1,
+    "the build-21421 command keeps the stock terminal visibility selector");
+  assert.equal(count(source, build21421Contracts[4]), 1,
+    "the build-21421 command keeps the stock Control-backtick binding");
 } else if (build11645) {
   assert.equal(count(source, build11645Contracts[3]), 1,
     "the build-11645 command keeps the stock terminal action owner");

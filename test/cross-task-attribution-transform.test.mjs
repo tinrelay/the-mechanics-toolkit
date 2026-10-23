@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
-import { build20586 as palette20586 } from "../patches/task-visual-palette/profiles/build20586.mjs";
+import { build21421 as palette21421 } from "../patches/task-visual-palette/profiles/build21421.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -23,7 +23,7 @@ try {
     build10789BubbleFixture(), build10789OwnerFixture());
   verifyProfile("build 11645", build11645InitialFixture(), build9922PrimaryFixture(),
     build11645BubbleFixture(), build11645OwnerFixture());
-  verifyNative20586();
+  verifyNative21421();
   process.stdout.write("cross-task attribution current-build transform probe passed\n");
 
   function verifyProfile(label, initialFixture, primaryFixture, bubbleFixture, ownerSource = ownerFixture()) {
@@ -60,18 +60,18 @@ try {
     assert.deepEqual(fs.readFileSync(primaryTarget), Buffer.from(primaryFixture), `${label} title owner stays untouched`);
   }
 
-  function verifyNative20586() {
-    const extracted = path.join(scratch, "build-20586");
+  function verifyNative21421() {
+    const extracted = path.join(scratch, "build-21421");
     const assets = path.join(extracted, "webview/assets");
     fs.mkdirSync(assets, {recursive: true});
     const ownerTarget = path.join(assets, "sites-end-resource-fixture.js");
     const initialTarget = path.join(assets, "app-initial-fixture.js");
     fs.writeFileSync(initialTarget, [
-      'import{Ixt as hi,Cot as U}from"./app-shared-fixture.js";',
-      'function Xxc(e){return e.localTitle}var Qxc;Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return Xxc({...r,localTitle:i})});',
-      'function Suu(){let e=(0,Tuu.c)(12),t=hi(U),n=`sidebarElectron.recentChats`;return n}',
-      'var QB;QB=wc(U,(e,{get:t})=>{let n=TD(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
-      'function CD(e){return`local:${e}`}export{Qxc as QW,QB as nhn,CD as sourceKey};'
+      'import{$St as E,Qst as J}from"./app-shared-fixture.js";',
+      'function Rkc(e){return e.localTitle}var Bkc;Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;let r={hasConversation:true,liveTitle:null},i=null;return Rkc({...r,localTitle:i})});',
+      'function Dbu(){let e=(0,Abu.c)(12),t=E(J),n=`sidebarElectron.recentChats`;return n}',
+      'var WB;WB=Yl(J,(e,{get:t})=>{let n=FD(e);switch(n?.kind){case`local`:return{kind:`local`,cwd:n.cwd}}});',
+      'function ND(e){return`local:${e}`}export{Bkc as QW,WB as nhn,ND as sourceKey};'
     ].join(""));
     fs.writeFileSync(path.join(assets, "app-primary-fixture.js"), 'export const noop=true;');
     fs.writeFileSync(path.join(assets, "app-shared-fixture.js"), 'export const noop=true;');
@@ -89,7 +89,7 @@ try {
     assert.equal(runToolkit("apply", extracted).state, "applied");
     const once = fs.readFileSync(ownerTarget);
     let composed = once.toString();
-    for (const [before, after] of palette20586.delegation.replacements.slice(0, 2)) {
+    for (const [before, after] of palette21421.delegation.replacements.slice(0, 2)) {
       assert.ok(composed.includes(before), "palette composes with the current attribution owner");
       composed = composed.replace(before, after);
     }

@@ -1,40 +1,34 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.14` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.15` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.14
+## 0.2.15
 
-The Desktop target and native CLI repair are unchanged from 0.2.13. This release fixes TinRelay
-outgoing-card lookup and restoration to use the actual main handler's request argument, including
-legacy incoming-pointer inspection. It also follows the scroller's real forward/reverse layout
-instead of treating zero as the bottom of every chat. Regression tests exercise the enclosing
-handler arguments and both scroll directions, including leaving a history reader undisturbed.
-The signed 18-patch rebuild and full checks/tests passed. After supervised restart, a fresh
-TinRelay self-ping rendered in both directions without the scroll jump, confirmed by the operator.
-Rebuild and restart to adopt; no TinRelay transport or configuration change is required.
-
-## 0.2.13
-
-The macOS target is Desktop `26.1013.40934` / build `20770`, with bundled CLI
-`0.163.0-alpha.10.2`. Apply source-patch `standalone-output-compaction-20770` to exact upstream
-commit `4ebc485ca321243727539187169425fcf972f2c4`, then use `bin/tmtk-build-codex` with stable
+The macOS target is Desktop `26.1016.61520` / build `21421`, with bundled CLI
+`0.163.0-alpha.11.1`. Apply source-patch `standalone-output-compaction-21421` to exact upstream
+commit `680c4ba93ec79c292287fb9e0b627dc7a76e3b5e`, then use `bin/tmtk-build-codex` with stable
 Rust `1.95.0` and its default LTO-off setting. Both focused standalone-input tests failed on
 stock source and passed after repair. The experimental annotated-tool-output feature does not
 cover ordinary unmarked standalone input and is not enabled by TMTK.
 
-The stock CLI is byte-identical to the prior target, so its exact source repair, focused Rust
-tests, and stable-Rust replacement build are reused rather than rebuilt. This port updates only
-the composer's generated model aliases and outgoing-receipt navigation/import bindings; the
-other sixteen pristine patch checks recognized their existing owners. The model guard retains
-its native loading-state gate, and outgoing receipts retain their live-title hook import.
-The complete 18-patch signed stage passed post-repack probes, native-payload preservation, seal
-verification, and byte-identical second application. Supervised adoption reached renderer readiness
-without rescue; the operator returned to the real task and confirmed the outgoing receipt test.
-Windows and Linux targets and qualification boundaries are unchanged.
+This port updates exact generated owners across the selected renderer fleet, including the
+new app-primary split, task-title/store imports, native activity classifier, dot lifecycle paths,
+and readiness bootstrap. It preserves the model guard's native loading-state gate and effective
+model/locked effort, incoming right alignment, and the prior outgoing-card/scroll corrections.
+The source repair is unchanged in behavior, but was re-proved red/green on this exact revision;
+the replacement CLI is rebuilt, not borrowed from an earlier package.
+
+The full signed 18-patch stage, composed post-repack probes, integrity/native-payload checks,
+and byte-identical second application passed. Staging and live adoption are separate gates recorded
+in the [macOS receipt](qualification/macos.md). Build `21421` reached readiness through supervised
+adoption without rescue; the operator returned to the real chat and confirmed a fresh TinRelay
+self-ping's outgoing/incoming cards and stable scrolling. This is not a full live feature tour.
+Windows and Linux targets and qualification boundaries are unchanged. No TinRelay transport or
+configuration change is required.
 
 ## Existing installations
 
@@ -58,7 +52,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.13` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.15` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.
@@ -68,7 +62,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
    Windows staging also requires a separately verified same-inner-build known-good source.
 3. Adopt through the documented platform procedure after explicit operator confirmation. Verify a
    real task and editable composer, not only a renderer-ready marker: a previous macOS candidate
-   reached that marker while displaying Codex's Oops screen. macOS build `12246` and Windows
+   reached that marker while displaying Codex's Oops screen. macOS build `21421` and Windows
    build `10954` have supervised task-return evidence; Ubuntu build `10954` has only
    direct-install/open evidence.
 4. Retain compact receipts and hashes, one pristine package and one current candidate. Remove

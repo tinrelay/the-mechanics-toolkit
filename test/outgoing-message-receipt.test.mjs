@@ -63,7 +63,7 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("QB=wc(U,") && source.includes("Qxc=wc(U,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("WB=Yl(J,") && source.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;");
 });
 const directSummaryOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
@@ -352,7 +352,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
+  const activityBoundary = ["let ro=Qa.length,io={", "let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -590,8 +590,8 @@ process.stdout.write(`${JSON.stringify({
 }, null, 2)}\n`);
 
 function evaluateReceiptReactBinding(expression) {
-  if (expression === "kr()") {
-    assert.ok(conversation.includes("I_=kr()") && conversation.includes("I_.useState") &&
+  if (expression === "j()") {
+    assert.ok(conversation.includes("I_=j()") && conversation.includes("I_.useState") &&
       conversation.includes("I_.useEffect"), "frontier receipt factory is the stock React owner");
     return receiptReact;
   }
