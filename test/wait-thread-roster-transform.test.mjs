@@ -14,7 +14,7 @@ runFixture("linux-9647", linux9647InitialFixture(), /q as MTKwaitStoreScope/);
 runFixture("linux-10954", linux10954InitialFixture(), /XI as MTKwaitStoreScope/, true);
 runFixture("macos-10789", build10789InitialFixture(), /ZI as MTKwaitStoreScope/, true);
 runFixture("macos-11645", build11645InitialFixture(), /tSt as MTKwaitStoreScope/, true);
-runFixture("macos-21421", build21421InitialFixture(), /Qst as MTKwaitStoreScope/, true);
+runFixture("macos-21421", build21421InitialFixture(), /Bst as MTKwaitStoreScope/, true);
 process.stdout.write("wait-thread roster transform probe passed\n");
 
 function runFixture(label, initialSource, expectedScope, splitStore = false) {
@@ -27,7 +27,7 @@ function runFixture(label, initialSource, expectedScope, splitStore = false) {
   const ownerTarget = path.join(assets, "agent-activity-item-fixture.js");
   fs.writeFileSync(initialTarget, initialSource);
   if (splitStore) fs.writeFileSync(path.join(assets, "app-shared-fixture.js"),
-    "const LX=e=>e,ZI=Symbol(`scope`),PX=e=>e,XI=Symbol(`scope`),cUt=e=>e,tSt=Symbol(`scope`),p7t=e=>e,GJt=Symbol(`scope`),VI=e=>`local:${e}`,HI=e=>`remote:${e}`,Tk=e=>`local:${e}`,Ek=e=>`remote:${e}`;const Fan=e=>e,H0t=Symbol(`scope`),WB=e=>`local:${e}`,GB=e=>`remote:${e}`;export{LX,ZI,PX,XI,cUt,tSt,p7t,GJt,VI,HI,Tk,Ek,Fan,H0t,WB,GB};");
+    "const LX=e=>e,ZI=Symbol(`scope`),PX=e=>e,XI=Symbol(`scope`),cUt=e=>e,tSt=Symbol(`scope`),p7t=e=>e,GJt=Symbol(`scope`),VI=e=>`local:${e}`,HI=e=>`remote:${e}`,Tk=e=>`local:${e}`,Ek=e=>`remote:${e}`;const Fan=e=>e,H0t=Symbol(`scope`),WB=e=>`local:${e}`,GB=e=>`remote:${e}`;const rCt=e=>e,Bst=Symbol();export{rCt,Bst,LX,ZI,PX,XI,cUt,tSt,p7t,GJt,VI,HI,Tk,Ek,Fan,H0t,WB,GB};");
   fs.writeFileSync(ownerTarget, ownerFixture(splitStore));
 
   assert.equal(runToolkit("check").state, "needs-apply");
@@ -124,11 +124,11 @@ function build11645InitialFixture() {
 
 function build21421InitialFixture() {
   return [
-    'import{$St as E,Qst as J}from"./app-shared-fixture.js";',
-    "const Yl=(...e)=>e,FD=e=>e,WB=Yl(J,(e,{get:t})=>{let n=FD(e);return n});",
-    "const Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;return Rkc({...r,localTitle:i})});",
-    "function Dbu(){let e=(0,Abu.c)(12),t=E(J),n=0;return t}",
-    "function ND(e){return`local:${e}`}function PD(e){return`remote:${e}`}export{WB as task,Bkc as title,ND as localKey,PD as remoteKey};"
+    'import{rCt as bs,Bst as V}from"./app-shared-fixture.js";',
+    "const H=(...e)=>e,Bk=e=>e,eK=H(V,(e,{get:t})=>{let n=Bk(e);return n});",
+    "const Efs=H(V,(e,{get:t})=>{if(e==null)return null;return wfs({...i,localTitle:a})});",
+    "function DW(){let e=(0,jW.c)(12),t=bs(V),n=0;return t}",
+    "function Rk(e){return`local:${e}`}function zk(e){return`remote:${e}`}export{eK as task,Efs as title,Rk as localKey,zk as remoteKey};"
   ].join("");
 }
 

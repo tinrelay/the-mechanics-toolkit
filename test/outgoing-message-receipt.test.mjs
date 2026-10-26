@@ -63,11 +63,11 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("WB=Yl(J,") && source.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("eK=H(V,") && source.includes("Efs=H(V,(e,{get:t})=>{if(e==null)return null;");
 });
 const readableTitleFamily = fs.readdirSync(assets).some(name =>
   /^app-initial-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("Bkc=Yl(J,"));
+  fs.readFileSync(path.join(assets, name), "utf8").includes("Efs=H(V,"));
 const reactiveTitleExport = currentTitleOwner ? unique(owner,
   /import\{[^}]*\b(?<exported>[$\w]+) as MTKoutboundUseTitle(?:,|\})/g,
   "reactive title reader").groups.exported : null;
@@ -165,7 +165,7 @@ if (directSummaryOwner) values.splice(names.indexOf("MTKoutboundThreadSummaryAto
 if (currentTitleOwner) values.push((atom, key) => {
   // The current title is a readable-family. The plain signal hook returns that
   // descriptor unchanged; only the family-aware hook reads its current value.
-  if (readableTitleFamily && reactiveTitleExport !== "nCt") return atom;
+  if (readableTitleFamily && reactiveTitleExport !== "oCt") return atom;
   return atom === titleAtom ? liveTitles.get(key?.threadId) ?? null : null;
 });
 const api = Function(...names, `${helper};return {MTKoutboundArguments,MTKoutboundLabel,MTKoutboundPreview,MTKoutboundTaskColor,MTKoutboundContrast,MTKoutboundLabelColor,MTKOutboundMessageReceipt,MTKrenderOutboundMessage}`)(...values);
@@ -363,7 +363,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let ro=Qa.length,io={", "let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
+  const activityBoundary = ["let Xa=Ja.length,Za={", "let ro=Qa.length,io={", "let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,

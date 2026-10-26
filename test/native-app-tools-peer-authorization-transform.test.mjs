@@ -24,7 +24,7 @@ try {
     {owner: "Rae", authorizer: "cp", envConst: "Dae", addonConst: "Oae",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s=",
       ownerReturn: "s"},
-    {owner: "Moe", authorizer: "Vd", envConst: "xoe", addonConst: "Soe", addon: "a", devVar: "r",
+    {owner: "tue", authorizer: "vd", envConst: "Wle", addonConst: "Gle", addon: "a", devVar: "r",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s=",
       ownerReturn: "s"}
   ]) {

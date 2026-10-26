@@ -13,7 +13,7 @@ const assets = path.join(root, "webview/assets");
 const renderer = unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
-const activity = unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-.*\.js$/.test(name))
+const activity = unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-(?!row-).*\.js$/.test(name))
   .map(name => path.join(assets, name)), "activity classifier");
 const main = unique(fs.readdirSync(path.join(root, ".vite/build")).filter(name => /^main-.*\.js$/.test(name))
   .map(name => path.join(root, ".vite/build", name)), "main process");
@@ -295,9 +295,9 @@ assert.deepEqual(rendererApi.acceptance(execItem({...acceptance, sender_ship: "o
   {...acceptance, sender_ship: "other-ship"}, "accepted-send identity comes from Tinrelay stdout");
 
 const activityStart = activitySource.indexOf("function MTKtinrelayOutgoingAcceptance(");
-const activityEnd = ["function dr(", "function an(", "function ln("]
+const activityEnd = Math.min(...["function dr(", "function an(", "function ln("]
   .map(marker => activitySource.indexOf(marker, activityStart))
-  .find(index => index >= 0) ?? -1;
+  .filter(index => index >= 0));
 assert.ok(activityStart >= 0 && activityEnd > activityStart, "outgoing activity parser is localized");
 const activityApi = Function(`${activitySource.slice(activityStart, activityEnd)};return MTKtinrelayOutgoingAcceptance`)();
 assert.deepEqual(activityApi(item), acceptance, "activity classifier recognizes ordinary Tinrelay acceptance");

@@ -12,19 +12,24 @@ function unique(pattern) {
   return path.join(assets,names[0]);
 }
 const initial=unique(/^app-initial-.*\.js$/),reboot=unique(/^reboot-dialog-.*\.js$/);
-const helper=String.raw`const MTKdotLifecyclePolicy=1;function MTKdotEntries(){let e=globalThis.__MTK_AGENT_ROSTER__?.current()?.entries??[],t=[];for(let n of e){let r=n.data;if(n.kind!=="agent"||r?.orbitId===void 0)continue;if(typeof r.orbitId!=="string"||r.orbitId.length===0||r.orbitId.length>512||["protectDeletion","protectReboot"].some(e=>r[e]!==void 0&&typeof r[e]!=="boolean"))throw Error("Invalid TMTK dot policy");t.push(n)}return t}function MTKdotProtected(e,t,n){let r=e==="delete"?"protectDeletion":e==="reboot"?"protectReboot":null;return r!==null&&MTKdotEntries().some(e=>(typeof t==="string"?e.data.orbitId===t:typeof n==="string"&&e.taskId===n)&&e.data[r]===!0)}function MTKdotRebootProtected(e,t){return MTKdotProtected("reboot",e.query.getData(Iw,t)?.id,t)}globalThis.__MTK_DOT_POLICY__=Object.freeze({version:1,protected:MTKdotProtected,assertReboot(e,t){if(MTKdotRebootProtected(e,t))throw Error("This dot is protected from reboot by TMTK")},nameForThread(e,t){try{let n=MTKdotEntries().find(t=>t.taskId===e);return n==null?null:typeof t==="string"&&t.trim().length>0?t.trim():n.data.name}catch{return null}}});`;
+const helper=String.raw`const MTKdotLifecyclePolicy=1;function MTKdotEntries(){let e=globalThis.__MTK_AGENT_ROSTER__?.current()?.entries??[],t=[];for(let n of e){let r=n.data;if(n.kind!=="agent"||r?.orbitId===void 0)continue;if(typeof r.orbitId!=="string"||r.orbitId.length===0||r.orbitId.length>512||["protectDeletion","protectReboot"].some(e=>r[e]!==void 0&&typeof r[e]!=="boolean"))throw Error("Invalid TMTK dot policy");t.push(n)}return t}function MTKdotProtected(e,t,n){let r=e==="delete"?"protectDeletion":e==="reboot"?"protectReboot":null;return r!==null&&MTKdotEntries().some(e=>(typeof t==="string"?e.data.orbitId===t:typeof n==="string"&&e.taskId===n)&&e.data[r]===!0)}function MTKdotRebootProtected(e,t){return MTKdotProtected("reboot",e.query.getData(CC,t)?.id,t)}globalThis.__MTK_DOT_POLICY__=Object.freeze({version:1,protected:MTKdotProtected,rebootProtected:MTKdotRebootProtected,assertReboot(e,t){if(MTKdotRebootProtected(e,t))throw Error("This dot is protected from reboot by TMTK")},nameForThread(e,t){try{let n=MTKdotEntries().find(t=>t.taskId===e);return n==null?null:typeof t==="string"&&t.trim().length>0?t.trim():n.data.name}catch{return null}}});`;
 const initialPairs=[
-  ['function jWa(e,t,n,r){let i=',helper+'function jWa(e,t,n,r){if(MTKdotProtected("delete",t))return;let i='],
-  ['if(!d()||e.get(Jjn,i).has(n.threadId))return;','if(MTKdotProtected("delete",t)||!d()||e.get(Jjn,i).has(n.threadId))return;'],
-  ['function FHc(e,t,n=e.get(yk,t)){let r=e.query.getData(Iw,t);if(r==null)return;','function FHc(e,t,n=e.get(yk,t)){let r=e.query.getData(Iw,t);if(r==null||MTKdotProtected("delete",r.id))return;'],
-  ['function IHc(e,t,n){return{id:`delete-orbit`,','function IHc(e,t,n){if(MTKdotProtected("delete",e.query.getData(Iw,t)?.id,t))return null;return{id:`delete-orbit`,'],
-  ['function KHc(e,t){if(!e.get(Fh,`970190263`))return null;','function KHc(e,t){if(MTKdotRebootProtected(e,t)||!e.get(Fh,`970190263`))return null;']
+  ['function fla(e,t,n,r){let i=',helper+'function fla(e,t,n,r){if(MTKdotProtected("delete",t))return;let i='],
+  ['if(!d()||e.get(eC,i).has(n.threadId))return;','if(MTKdotProtected("delete",t)||!d()||e.get(eC,i).has(n.threadId))return;'],
+  ['function Sps(e,t,n=e.get(Oj,t)){let r=e.query.getData(CC,t);if(r==null)return;','function Sps(e,t,n=e.get(Oj,t)){let r=e.query.getData(CC,t);if(r==null||MTKdotProtected("delete",r.id))return;'],
+  ['function Cps(e,t,n){return{id:`delete-orbit`,','function Cps(e,t,n){if(MTKdotProtected("delete",e.query.getData(CC,t)?.id,t))return null;return{id:`delete-orbit`,'],
+
 ];
 const rebootPairs=[
-  ['m=async()=>{await(await O.postResponse(`/cloud-aeons/primary/reboot`,','m=async()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(f,s);await(await O.postResponse(`/cloud-aeons/primary/reboot`,'],
-  ['assertRequestCurrent:()=>{if(!f.get(M,`970190263`)||f.get(A)||f.get(D)!==s)throw Error(`The selected dot cannot be rebooted`)','assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(f,s);if(!f.get(M,`970190263`)||f.get(A)||f.get(D)!==s)throw Error(`The selected dot cannot be rebooted`)']
+  ['g=async()=>{await(await D.postResponse(`/cloud-aeons/primary/reboot`,','g=async()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(h,d);await(await D.postResponse(`/cloud-aeons/primary/reboot`,'],
+  ['assertRequestCurrent:()=>{if(!h.get(E,`970190263`)||h.get(A)||h.get(O)!==d)throw Error(`The selected dot cannot be rebooted`)','assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(h,d);if(!h.get(E,`970190263`)||h.get(A)||h.get(O)!==d)throw Error(`The selected dot cannot be rebooted`)']
 ];
-const files=[{file:initial,pairs:initialPairs},{file:reboot,pairs:rebootPairs}];
+const primary=unique(/^app-primary-.*\.js$/);
+const primaryPairs=[[
+  'function sYn(e,t){if(!e.get(Qp,`970190263`))return null;',
+  'function sYn(e,t){if(globalThis.__MTK_DOT_POLICY__.rebootProtected(e,t)||!e.get(Qp,`970190263`))return null;'
+]];
+const files=[{file:initial,pairs:initialPairs},{file:primary,pairs:primaryPairs},{file:reboot,pairs:rebootPairs}];
 const count=(s,v)=>s.split(v).length-1;
 function inspect() {
   const vectors=files.flatMap(({file,pairs})=>{const s=fs.readFileSync(file,"utf8");return pairs.map(([before,after])=>({before:count(s,before),after:count(s,after)}))});
@@ -35,7 +40,9 @@ function inspect() {
 }
 let state=inspect();
 if(command==="apply"&&state==="needs-apply") {
-  if(!fs.readFileSync(initial,"utf8").includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze("))throw Error("dot-lifecycle-protection requires agent-roster first");
+  const rosterOwners=fs.readdirSync(assets).filter(name=>/^app-(?:initial|runtime)-.*\.js$/.test(name)&&
+    fs.readFileSync(path.join(assets,name),"utf8").includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze("));
+  if(rosterOwners.length!==1)throw Error("dot-lifecycle-protection requires one agent-roster owner first");
   const changed=files.map(({file,pairs})=>{
     let s=fs.readFileSync(file,"utf8");
     for(const [before,after] of pairs)s=s.replace(before,after);

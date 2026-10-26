@@ -5,7 +5,7 @@ import path from "node:path";
 import { build9922 } from "../patches/task-attention-policy/profiles/build9922.mjs";
 import { build10789 } from "../patches/task-attention-policy/profiles/build10789.mjs";
 import { build11645 } from "../patches/task-attention-policy/profiles/build11645.mjs";
-import { build21421 } from "../patches/task-attention-policy/profiles/build21421.mjs";
+import { build21828 } from "../patches/task-attention-policy/profiles/build21828.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -16,7 +16,8 @@ const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-attention-policy.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
 const names = fs.readdirSync(assets);
-const appName = names.filter(name => /^app-initial-.*\.js$/.test(name));
+const appName = names.filter(name => /^app-(?:initial|runtime)-.*\.js$/.test(name) &&
+  fs.readFileSync(path.join(assets, name), "utf8").includes("const MTKattentionRosterBridge=1"));
 const primaryName = names.filter(name => /^app-primary-.*\.js$/.test(name));
 assert.equal(appName.length, 1, "unique app-initial asset");
 assert.equal(primaryName.length, 1, "unique app-primary asset");
@@ -30,7 +31,7 @@ function testRosterAttention(appSource, appPrimarySource) {
   const linuxProfile = [linuxBuild10954, linuxBuild9771, linuxBuild9647].find(profile =>
     appSource.includes(`function MTKuseAttentionBootstrap${profile.suffix}(`)
   );
-  const macProfile = [build21421, build11645, build10789, build9922].find(candidate =>
+  const macProfile = [build21828, build11645, build10789, build9922].find(candidate =>
     appSource.includes(`function MTKuseAttentionBootstrap${candidate.suffix}(`)
   );
   const profile = macProfile ?? linuxProfile;

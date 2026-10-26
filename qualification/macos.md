@@ -15,7 +15,70 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 21477
+## Current frontier build 21828 — supervised task return
+
+The selected official offer is Desktop `26.1021.31345` / build `21828`, macOS ARM64.
+The 750,413,801-byte full ZIP passed Sparkle Ed25519 verification. The vendor bundle signature,
+notarization staple, and ASAR seal verified. ZIP SHA-256:
+`2afcd58e0484a76479cca23174e085127a9d9e63466b75739eb6825a5ff613f4`.
+Pristine ASAR SHA-256:
+`130145706a912db74e4d260ad7538f10f1e05e88af955f9afba42cdf01e64606`.
+The feed publishes no attached release notes. Only Sparkle deltas were cached; none was modified.
+
+Stock CLI `0.164.0-alpha.11.1` has SHA-256
+`a04752e4d46a4d89e53e6f61c59c5349a638c8ce172ffbf391fd482b4d902a4e`.
+Exact upstream source: `6905ecede7816e91373e9eabda3f6b0368fc747b`, tag
+`rust-v0.164.0-alpha.11.1`. Both focused standalone-input tests failed on that stock source,
+then passed after the three-file repair (2 passed, 2,798 skipped). The remote-v2 source is
+unchanged from the predecessor; local compaction's new annotated-message handling is preserved.
+No experimental retention feature was enabled. The catalog checks all three exact before/after
+hashes. Cargo.lock changed only 166 workspace version substitutions, not dependency resolution.
+
+This refresh moves roster/palette/attention bootstrap and hotkey dispatch to `app-runtime`,
+sidebar actions to `app-primary`, and app-control constants to a dedicated module. Current
+profiles are named `build21828`; older secondary-platform owners remain separate. Dot deletion
+and request-time reboot guards retain their behavior; the reboot menu now calls the same policy
+across a module boundary. Archive subscriptions use the stock React factory in the sidebar's
+actual owner. The registry discovers runtime-owned capabilities rather than silently omitting
+them. Receipt names use the current stock readable-family hook. TinRelay preserves the native
+history-preview persistence rule and existing finished-turn scroll anchoring. The trusted final
+readiness event now comes from mounted routes in `app-primary`, not initialization or an overlay.
+
+The complete stable Rust `1.95.0` ARM64 release build passed through `bin/tmtk-build-codex`
+with LTO off and `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP` unset.
+It reports `0.164.0-alpha.11.1`. Replacement CLI SHA-256:
+`e53f98b902f1162b799d99b0b181d6144aae0fd95d7872621828b543b49bea88`.
+
+On 2026-10-26 the signed 18-patch stage passed complete composition, changed-module syntax,
+byte-identical second application, native payload preservation, executable terminal-helper checks,
+signature and ASAR-seal verification, and all probes rerun after repacking. Candidate ASAR SHA-256:
+`65579973a74f24a121f7aa4f65b2464fac1954ed919c3744c36eba640ab33431`.
+The copied CLI matches the release-build hash. `npm run check`, `npm test`, and `git diff --check`
+passed; Linux production package-stage fixtures are platform-skipped on macOS. The three source
+before hashes were checked against the exact upstream commit, and reverse application checked cleanly.
+The source app stayed unchanged during staging. After proof, its expanded copy, source/build tree,
+and extracted ASAR were removed; the authenticated ZIP, one candidate, one current replacement
+binary input, and compact receipts remain. No superseded candidate or transaction rollback is retained.
+
+On 2026-10-26, operator-confirmed `bin/tmtk-restart --candidate` installed this candidate at the
+canonical application path and reached renderer readiness at 21:51:53 UTC without rescue.
+The supervisor finished in `ready` state and removed its transaction-only rollback. Read-only
+inspection of the installed application confirms the exact version/build above, a valid signature
+and ASAR seal, and the staged ASAR and replacement CLI hashes.
+
+The operator returned to this real conversation and sent fresh requests. A native task-message
+test reached the recipient, who returned the requested ACK. The native wait ran and ended when
+that reply arrived. An accepted TinRelay self-ping returned through normal bridge delivery to this
+conversation. These are current task-return and messaging results, not just a readiness marker.
+The legacy dynamic-tool entry point reports that task tools moved to the Codex app MCP server;
+the successful send and wait used that current server. No transport or client configuration was changed.
+
+No new full live feature tour, live compaction reproduction, destructive dot action, secondary-platform
+qualification, or separate provider-acceptance test was performed. Changed roster/palette, keyboard,
+model-loading, archive, and dot seams have the composed causal probes above; this receipt does not
+claim they were each independently exercised live.
+
+## Previous live-accepted build 21477
 
 The selected official macOS ARM64 offer is Desktop `26.1016.62342` / build `21477`.
 The full 747,146,531-byte ZIP passed its Sparkle Ed25519 signature; vendor bundle signature,

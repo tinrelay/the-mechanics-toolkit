@@ -92,6 +92,32 @@ try {
   assert.deepEqual(JSON.parse(nativeApply.stdout).packages, ["crossTaskAttribution"]);
   const nativeProbe = spawnSync(process.execPath, [behavioralProbe, native], {encoding: "utf8"});
   assert.equal(nativeProbe.status, 0, nativeProbe.stderr || nativeProbe.stdout);
+
+  const runtimeRoot = path.join(scratch, "runtime-owners");
+  const runtimeAssets = path.join(runtimeRoot, "webview/assets");
+  fs.mkdirSync(runtimeAssets, {recursive: true});
+  fs.mkdirSync(path.join(runtimeRoot, ".vite/build"), {recursive: true});
+  fs.writeFileSync(path.join(runtimeAssets, "app-initial-fixture.js"), "export const fixture=true;");
+  fs.writeFileSync(path.join(runtimeRoot, ".vite/build/main-fixture.js"), "export const fixture=true;");
+  const runtimeFile = path.join(runtimeAssets, "app-runtime-fixture.js");
+  fs.writeFileSync(runtimeFile, [
+    'const MTKagentRosterRelativePath=".codex/agent-roster.json";',
+    "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
+    'const MTKpaletteRelativePath=".codex/task-visual-palette.json";',
+    "let MTKsidebarPalette={rules:[]};",
+    "function MTKmatchPalette(e,t,n){return e?.rules.find(e=>e.pattern?.test?.(t)||e.taskId===n)??null}",
+    "function MTKusePaletteBootstrap(){}const MTKattentionRosterBridge=1;"
+  ].join(""));
+  const runtimeApply = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", runtimeRoot], {encoding: "utf8"});
+  assert.equal(runtimeApply.status, 0, runtimeApply.stderr || runtimeApply.stdout);
+  assert.deepEqual(JSON.parse(runtimeApply.stdout).packages, ["agentRoster", "taskAttentionPolicy", "taskVisualPalette"],
+    "capabilities are discovered at their actual split runtime owner");
+  const runtimeOnce = fs.readFileSync(runtimeFile);
+  const runtimeProbe = spawnSync(process.execPath, [behavioralProbe, runtimeRoot], {encoding: "utf8"});
+  assert.equal(runtimeProbe.status, 0, runtimeProbe.stderr || runtimeProbe.stdout);
+  const runtimeAgain = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", runtimeRoot], {encoding: "utf8"});
+  assert.equal(runtimeAgain.status, 0, runtimeAgain.stderr || runtimeAgain.stdout);
+  assert.deepEqual(fs.readFileSync(runtimeFile), runtimeOnce, "runtime registrations apply only once");
   process.stdout.write("renderer patch registry transform probe passed\n");
 
   function runToolkit(action) {

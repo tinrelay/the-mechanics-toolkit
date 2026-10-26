@@ -17,7 +17,7 @@ const owners = fs.readdirSync(assets).filter(name => {
 assert.equal(owners.length, 1, "unique patched cross-task attribution owner");
 const ownerPath = path.join(assets, owners[0]);
 const source = fs.readFileSync(ownerPath, "utf8");
-const nativeAligned = source.includes("function NS(e){") &&
+const nativeAligned = source.includes("function YC(e){") &&
   source.includes('alignment:`end`,accentColor:MTKdelegatedAccentColor');
 const externalBubbleImport = source.match(
   /import\{[^}]*\bt as [$A-Z_a-z][$\w]*[^}]*\}from"(?<relative>\.\/user-message-[^"]+\.js)";/
@@ -34,7 +34,7 @@ const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
   source.includes("PX as MTKcrossTaskStoreHook,XI as MTKcrossTaskStoreScope") ||
   source.includes("cUt as MTKcrossTaskStoreHook,tSt as MTKcrossTaskStoreScope") ||
-  source.includes("$St as MTKcrossTaskStoreHook,Qst as MTKcrossTaskStoreScope");
+  source.includes("rCt as MTKcrossTaskStoreHook,Bst as MTKcrossTaskStoreScope");
 assert.ok((bindingStart >= 0 && bindingStart < componentBoundary.index) || sharedStoreImported,
   "stock store bindings are captured outside the component");
 const helperEnd = [bindingStart, componentBoundary.index,
@@ -95,12 +95,12 @@ if (titleInternal === linuxBuild10954.titleSelector.atom &&
 } else if (titleInternal === "l2i" && titleOwner.includes("l2i=to(Q,")) {
   assert.ok(titleOwner.includes("s2i({...n,localTitle:r})"),
     "build-11645 title atom retains its stock selector owner");
-} else if (titleInternal === "Bkc" && titleOwner.includes("Bkc=Yl(J,")) {
-  assert.ok(titleOwner.includes("Rkc({...r,localTitle:i})"),
-    "build-21421 title atom retains its stock selector owner");
+} else if (titleInternal === "Efs" && titleOwner.includes("Efs=H(V,")) {
+  assert.ok(titleOwner.includes("wfs({...i,localTitle:a})"),
+    "build-21828 title atom retains its stock selector owner");
 } else assert.fail("title atom is not owned by a current qualified profile");
 assert.ok(titleOwner.includes("hasConversation") && titleOwner.includes("liveTitle") &&
-  (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i")),
+  (titleOwner.includes("localTitle:r") || titleOwner.includes("localTitle:i") || titleOwner.includes("localTitle:a")),
 "title selector retains its stock task metadata");
 
 const metadata = uniqueMatch(
@@ -124,7 +124,7 @@ if (sharedStoreImported) {
   assert.ok(appInitial.includes("LX as jr") && appInitial.includes("ZI as X") && appInitial.includes("t=jr(X)") ||
     appInitial.includes("PX as Qr") && appInitial.includes("XI as X") && appInitial.includes("t=Qr(X)") ||
     appInitial.includes("cUt as Jl") && appInitial.includes("tSt as Q") && appInitial.includes("t=Jl(Q)") ||
-    appInitial.includes("$St as E") && appInitial.includes("Qst as J") && appInitial.includes("t=E(J)"),
+    appInitial.includes("rCt as bs") && appInitial.includes("Bst as V") && appInitial.includes("bs(V)"),
   "metadata uses the qualified shared stock store and scope");
 } else {
   const storeInternal = exportedInternal(appInitial, importedExport(initialImport.specifiers, capturedStore.store));
@@ -144,10 +144,10 @@ for (const contract of [
 if (nativeAligned) {
   assert.equal(count(source, 'alignment:`end`,accentColor:MTKdelegatedAccentColor'), 1,
     "delegated message uses native right alignment, constrained width, and accent");
-  assert.ok(source.includes("function ey(e){let t=(0,ty.c)(") &&
+  assert.ok(source.includes("function gb(e){let t=(0,_b.c)(") &&
     source.includes("g=f===`start`?`items-start`:`items-end`"),
   "native wrapper aligns both label and bubble");
-  assert.ok(source.includes("Zg,{alignment:f,accentColor:i,message:o"),
+  assert.ok(source.includes("$_,{alignment:f,accentColor:i,message:o"),
     "native user-message bubble receives alignment and accent");
 } else {
   for (const contract of ["messageBubbleStyle:MTKdelegatedBubbleStyle",

@@ -1,26 +1,26 @@
 const definitions = [
   {
-    "name": "standalone-output-compaction-21477",
-    "patch": "source-patches/standalone-output-compaction/codex-0.163.0-alpha.11.2.patch",
+    "name": "standalone-output-compaction-21828",
+    "patch": "source-patches/standalone-output-compaction/codex-0.164.0-alpha.11.1.patch",
     "upstream": "https://github.com/openai/codex",
-    "tag": "rust-v0.163.0-alpha.11.2",
-    "commit": "51f97c6bca5500edbb986f6d9fe64fa2e63cbdd4",
+    "tag": "rust-v0.164.0-alpha.11.1",
+    "commit": "6905ecede7816e91373e9eabda3f6b0368fc747b",
     "desktop": {
-      "version": "26.1016.62342",
-      "build": "21477"
+      "version": "26.1021.31345",
+      "build": "21828"
     },
     "files": {
       "codex-rs/core/src/compact.rs": {
-        "before": "28363b56f58b999358b3f2fbf9953a1633818c0a74f5a71a3d7f3d813144355a",
-        "after": "69fc67177dd0e5cd5818ae7c3531e27385e324b5428e1d2bb583cdd9e4919e8c"
+        "before": "8fdc85c3ccfb66cc41855622cd3219c43d3d55930c7a0e2595f29caaa74f895d",
+        "after": "542adc22b9529b3b68f2605ee29a1f9e93e059e83702c95e8c713cca06659c69"
       },
       "codex-rs/core/src/compact_remote_v2.rs": {
         "before": "cb81ae523a2d3674ffe0acd12a492431d773e1148a420bbd99850b9081277673",
         "after": "2390820426b760e44ea1ae97c50753b96a0386edd08cb11d029359fd439c70f7"
       },
       "codex-rs/core/src/compact_tests.rs": {
-        "before": "7a9ea6dd89671fa8e552bf732bf793c6b14afb390ca1d46c543f5c705ba42900",
-        "after": "ba33cbdb9c15631ea4e11c91a8c01114bcf3520a88291f735ac3b844c340d563"
+        "before": "3b599a5212eb257bc3bfa41e7ece7f5b60d9ef244732dc9d8731cdaa02321245",
+        "after": "db1190c843990821a8b6671fe32351b7dcf4e71b4e84729cd4519952e320b682"
       }
     }
   },

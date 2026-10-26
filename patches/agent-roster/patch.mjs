@@ -11,7 +11,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const assets = path.join(root, "webview/assets");
-const target = uniqueFile(/^app-initial-.*\.js$/, assets);
+const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
+  fs.readFileSync(path.join(assets, name), "utf8").includes("function DW(){"));
+if (runtime.length > 1) throw new Error("Upstream changed: ambiguous agent roster runtime");
+const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueFile(/^app-initial-.*\.js$/, assets);
 let source = fs.readFileSync(target, "utf8");
 let state = inspectState(source);
 
@@ -62,6 +65,15 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
+  const build21828Seam = "function DW(){let e=(0,jW.c)(12),t=K(f),";
+  if (value.includes(build21828Seam)) {
+    for (const contract of [build21828Seam,
+      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(Vf)", "rrr as Bh"]) {
+      if (count(value, contract) !== 1) throw new Error(`Upstream changed: build-21828 agent roster ${contract}`);
+    }
+    return {seam: build21828Seam, scope: "K(f)", react: "NW", projectsAtom: "Vf",
+      readyAtom: "Bh", client: "((e,t)=>e.get(Bh).forHost(t))"};
+  }
   const build21421Seam = "function Dbu(){let e=(0,Abu.c)(12),t=E(J),";
   if (value.includes(build21421Seam)) {
     const contracts = [

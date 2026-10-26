@@ -74,11 +74,11 @@ const expectedNames = [
 assert.deepEqual(names, expectedNames);
 assert.equal(new Set(names).size, names.length, "one owner registers each active package");
 
-const paletteCalls = appCalls.filter(call => call.name === "taskVisualPalette");
+const paletteCalls = [...appCalls, ...lazyCalls].filter(call => call.name === "taskVisualPalette");
 if (paletteCalls.length === 1) {
   const palette = {rules: [{pattern: /^Bridge Keeper(?:\s+—|$)/, color: "#6B8E72"}]};
   const matchPalette = (loaded, title, taskId) => loaded.rules.find(rule => rule.pattern.test(title) || rule.pattern.test(taskId)) ?? null;
-  Function("MTKpatchRegistry", "MTKmatchPalette", "MTKsidebarPalette", paletteCalls[0].source)(registry, matchPalette, palette);
+  Function("globalThis", "MTKpatchRegistry", "MTKmatchPalette", "MTKsidebarPalette", paletteCalls[0].source)(firstRealm, registry, matchPalette, palette);
   const capability = registry.packages.taskVisualPalette;
   assert.equal(capability.version, 1);
   assert.equal(capability.resolveTaskColor({taskId: "other", title: "Bridge Keeper — Coordination"}), "#6B8E72");
@@ -95,7 +95,7 @@ for (const call of lazyCalls) {
     Function("globalThis", "MTKsender", "MTKprojectFromCwd", call.source)(firstRealm,
       (title, project, taskId) => taskId==="example-dot-thread" ? title : title?.includes(" — ") ? title.split(" — ")[0] : project ? `${project}/${title}` : title,
       cwd => cwd?.split("/").at(-1) ?? null);
-  } else {
+  } else if (call.name !== "taskVisualPalette") {
     Function("globalThis", call.source)(firstRealm);
   }
 }

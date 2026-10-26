@@ -6,7 +6,10 @@ import path from "node:path";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: agent-roster.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
-const target = uniqueFile(/^app-initial-.*\.js$/, assets);
+const targets = fs.readdirSync(assets).filter(name => /^app-(?:initial|runtime)-.*\.js$/.test(name) &&
+  fs.readFileSync(path.join(assets, name), "utf8").includes('const MTKagentRosterRelativePath='));
+assert.equal(targets.length, 1, "one agent roster helper owner");
+const target = path.join(assets, targets[0]);
 const source = fs.readFileSync(target, "utf8");
 const start = source.indexOf('const MTKagentRosterRelativePath=');
 const end = source.indexOf("function MTKuseAgentRoster()", start);

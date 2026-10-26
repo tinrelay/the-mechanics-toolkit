@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build21421 } from "./profiles/build21421.mjs";
+import { build21828 } from "./profiles/build21828.mjs";
 import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
@@ -134,7 +134,7 @@ function inspectState() {
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
-  const currentBuild = [build21421, build11645, build10789, build9922].find(build =>
+  const currentBuild = [build21828, build11645, build10789, build9922].find(build =>
     conversationSource.includes(build.dynamic.before) || conversationSource.includes(build.dynamic.after));
   const current = currentBuild?.dynamic ?? build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
@@ -304,9 +304,9 @@ function patchConversation(value, turnValue) {
     patched = addImportSpecifier(patched, `./${path.basename(build11645.taskImports.sharedModule)}`,
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
-  if (value.includes(build21421.dynamic.before)) {
-    patched = addImportSpecifier(patched, build21421.sharedModule,
-      "MFt as MTKoutboundHostBus", "build-21421 host bus import");
+  if (value.includes(build21828.dynamic.before)) {
+    patched = addImportSpecifier(patched, build21828.sharedModule,
+      "SIt as MTKoutboundHostBus", "build-21828 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
   patched = replaceOnce(
@@ -362,7 +362,7 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  for (const [label, build] of [["21421", build21421], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
+  for (const [label, build] of [["21828", build21828], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
   const current9922 = build.dynamic;
   if (value.includes(current9922.before) && value.includes(current9922.call) &&
       value.includes(current9922.parentBefore)) {
@@ -558,7 +558,7 @@ function nativeActionsProfile(value) {
 }
 
 function conversationHelperBoundary(value) {
-  if (value.includes("function tC(e){let t=(0,nC.c)(")) return "function tC(";
+  if (value.includes("function _w(e){let t=(0,vw.c)(")) return "function _w(";
   if (value.includes("function aS(")) return "function aS(";
   if (value.includes("function zy(")) return "function zy(";
   if (value.includes("function Lv(")) return "function Lv(";
@@ -583,9 +583,9 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
-    if (value.includes(build21421.dynamic.before) &&
-        currentShared[0].groups.relative === build21421.sharedModule &&
-        exportedAs(source, "Rm") === "MFt" && source.includes("Rm=Lm.getInstance()") &&
+    if (value.includes(build21828.dynamic.before) &&
+        currentShared[0].groups.relative === build21828.sharedModule &&
+        exportedAs(source, "u_") === "SIt" && source.includes("u_=l_.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
     }
@@ -870,6 +870,8 @@ function sendProfile(value) {
     ? {jsx: "G", normalize: "y", hostBridge: "be", routeFlag: "Dt", newRoute: "he", oldRoute: "se"}
     : header.genericRender === "U" && owner.text.includes("let e=Re(s);g.dispatchHostMessage({type:`navigate-to-route`,path:mt()?Ne(e):ke(e)})") && owner.text.includes("d=(0,W.jsxs)(j,")
     ? {jsx: "W", normalize: "Re", hostBridge: "g", routeFlag: "mt", newRoute: "Ne", oldRoute: "ke"}
+    : header.genericRender === "W" && owner.text.includes("let e=we(s);g.dispatchHostMessage({type:`navigate-to-route`,path:Ue()?ne(e):Pe(e)})") && owner.text.includes("d=(0,G.jsxs)(F,")
+    ? {jsx: "G", normalize: "we", hostBridge: "g", routeFlag: "Ue", newRoute: "ne", oldRoute: "Pe"}
     : uniqueMatch(
       owner.text,
       new RegExp(`${id}=\\(0,(?<jsx>${id})\\.jsxs\\)[\\s\\S]*?let e=(?<normalize>${id})\\(${id}\\);(?<hostBridge>${id})\\.dispatchHostMessage\\(\\{type:\`navigate-to-route\`,path:(?<routeFlag>${id})\\(\\)\\?(?<newRoute>${id})\\(e\\):(?<oldRoute>${id})\\(e\\)\\}\\)`, "g"),
@@ -888,8 +890,10 @@ function sendProfile(value) {
 }
 
 function importedToolConstant(value, toolName) {
-  const imports = [...value.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g)];
-  if (imports.length !== 1) throw new Error("Upstream changed: app-initial tool import is not unique");
+  const imports = [...value.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/(?:app-initial|thread-handoff-dynamic-tool-progress)-[^"]+\.js)";/g)]
+    .filter(match => fs.readFileSync(path.resolve(path.dirname(target), match.groups.relative), "utf8")
+      .includes("=`" + toolName + "`"));
+  if (imports.length !== 1) throw new Error("Upstream changed: app-control tool constant owner is not unique");
   const moduleSource = fs.readFileSync(path.resolve(path.dirname(target), imports[0].groups.relative), "utf8");
   const internal = uniqueMatch(
     moduleSource,
@@ -944,12 +948,12 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
-  const build21421Contracts = [
+  const build21828Contracts = [
     "V=z!=null&&L.isCollapsed?z.persistentUnits:[]",
-    "persistentContent:le,children:de",
-    "children:[se,fe,he]"
+    "persistentContent:ce,children:ue",
+    "children:[oe,de,he]"
   ];
-  if (build21421Contracts.every(contract => value.includes(contract))) return owner;
+  if (build21828Contracts.every(contract => value.includes(contract))) return owner;
   if (build11645.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -985,26 +989,26 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   if ([
-    "function Dbu(){let e=(0,Abu.c)(12),t=E(J),",
+    "Efs=H(V,(e,{get:t})=>{if(e==null)return null;",
     "function Dbu(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),",
-    "function Dbu(){MTKuseAttentionBootstrap21421();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),"
+    "function Dbu(){MTKuseAttentionBootstrap21828();MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,Abu.c)(12),t=E(J),"
   ].some(owner => appInitial.includes(owner)) &&
-      appInitial.includes("WB=Yl(J,(e,{get:t})=>{let n=FD(e);") &&
-      appInitial.includes("Bkc=Yl(J,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("function ND(e){return") && appInitial.includes("function PD(e){return") &&
-      ["$St as E", "Qst as J"].every(binding => appInitial.includes(binding))) {
-    const shared = fs.readFileSync(path.resolve(path.dirname(target), build21421.sharedModule), "utf8");
-    if (exportedAs(shared, "l2e") !== "nCt" || !shared.includes("function l2e(e,t,n){") ||
-        !shared.includes("hz(SR(l,n))}")) {
+      appInitial.includes("eK=H(V,(e,{get:t})=>{let n=Bk(e);") &&
+      appInitial.includes("Efs=H(V,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("function Rk(e){return") && appInitial.includes("function zk(e){return") &&
+      ["rCt as bs", "Bst as V"].every(binding => appInitial.includes(binding))) {
+    const shared = fs.readFileSync(path.resolve(path.dirname(target), build21828.sharedModule), "utf8");
+    if (exportedAs(shared, "D1e") !== "oCt" || !shared.includes("function D1e(e,t,n){") ||
+        !shared.includes("iq(fK(l,n))}")) {
       throw new Error("Upstream changed: readable-family title hook owner is missing");
     }
     return {
       before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "WB")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Bkc")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "ND")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "PD")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
-      sharedModule: build21421.sharedModule,
-      sharedHookExport: "$St",
-      sharedScopeExport: "Qst",
-      sharedTitleHookExport: "nCt",
+      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "eK")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "Efs")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "Rk")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "zk")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
+      sharedModule: build21828.sharedModule,
+      sharedHookExport: "rCt",
+      sharedScopeExport: "Bst",
+      sharedTitleHookExport: "oCt",
       reactiveTitle: true
     };
   }
@@ -1402,7 +1406,7 @@ function uniqueConversationOwner() {
       (value.includes("function zC(") && value.includes("let e=Hf(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function Ow(") && value.includes("let e=Cp(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
-      (value.includes("function tC(e){") && value.includes("let e=Ag(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+      (value.includes("function _w(e){") && value.includes("let e=lm(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
     return split && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
@@ -1416,8 +1420,8 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes(build21421.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
-      (value.includes(build21421.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
+    return (value.includes(build21828.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
+      (value.includes(build21828.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:u,turnId:") || value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });

@@ -96,13 +96,13 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build21421OwnerFixture());
+  fs.writeFileSync(owner, build21828OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build21421Once = fs.readFileSync(owner);
+  const build21828Once = fs.readFileSync(owner);
   const published = [];
-  const composerText = build21421Once.toString().slice(build21421Once.toString().indexOf("function tG("));
-  const composer = Function("ett", "rI", "Qet", "$O", "MTKuseModelIdentityGuard", `${composerText};return tG`)(
+  const composerText = build21828Once.toString().slice(build21828Once.toString().indexOf("function Hui("));
+  const composer = Function("$ui", "T5t", "Zui", "Jke", "MTKuseModelIdentityGuard", `${composerText};return Hui`)(
     {c: () => []}, effort => effort, () => true, value => value === "success", (...selection) => published.push(selection));
   const models = [{model: "gpt-6.1-sol"}, {model: "gpt-6-luna"}];
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
@@ -124,12 +124,12 @@ try {
     "a loaded mismatch still activates the guard without a timeout");
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"]);
-  assert.match(build21421Once.toString(), /MTKuseModelIdentityGuard\(bt\?null:r,Ie,Et\)/);
-  assert.match(build21421Once.toString(), /return nG\.useEffect\(/);
-  const build21421Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build21421Behavior.status, 0, build21421Behavior.stderr || build21421Behavior.stdout);
+  assert.match(build21828Once.toString(), /MTKuseModelIdentityGuard\(_t\?null:r,Me,Ct\)/);
+  assert.match(build21828Once.toString(), /return e9\.useEffect\(/);
+  const build21828Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build21828Behavior.status, 0, build21828Behavior.stderr || build21828Behavior.stdout);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build21421Once);
+  assert.deepEqual(fs.readFileSync(owner), build21828Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -206,13 +206,13 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build21421OwnerFixture() {
+function build21828OwnerFixture() {
   return [
-    'const nG={useEffect:e=>e()},rI=e=>e,Qet=()=>true,$O=e=>e===`success`;',
+    'const e9={useEffect:e=>e()},T5t=e=>e,Zui=()=>true,Jke=e=>e===`success`;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function tG(e){let t=(0,ett.c)(328),r=e.conversationId,_e=e.locked,fe={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},je=e.catalogStatus??`success`,st=e.threadStatus??`idle`,St=[],we=e.reserve===true,Fe=e.reserveModel,A=e.defaultModel,ye=e.model,Ce=e.filter===true,Pe=e.models,Se=e.lockedCatalog===true;',
-    'let Ie=we?Fe?.model??A:ye,Le=Ce?Pe?.filter(Qet):Pe;Se&&(Le=Fe==null?[]:[Fe]);',
-    'let yt=_e?.isLoading===!0||!$O(je)||fe.isLoading||st===`pending`;let bt=yt,xt=false;',
-    'let Et=_e?.lockedReasoningEffort??rI(fe.reasoningEffort,St),Dt=true;return{t,r,Ie,Pe,fe,Et,Dt}}'
+    'function Hui(e){let t=(0,$ui.c)(329),r=e.conversationId,me=e.locked,le={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},De=e.catalogStatus??`success`,it=e.threadStatus??`idle`,yt=[],ye=e.reserve===true,je=e.reserveModel,A=e.defaultModel,he=e.model,ve=e.filter===true,Ae=e.models,_e=e.lockedCatalog===true;',
+    'let Me=ye?je?.model??A:he,Ne=ve?Ae?.filter(Zui):Ae;_e&&(Ne=je==null?[]:[je]);',
+    'let ht=me?.isLoading===!0||!Jke(De)||le.isLoading||it===`pending`;let _t=ht,vt=false;',
+    'let Ct=me?.lockedReasoningEffort??T5t(le.reasoningEffort,yt),wt=true;return{t,r,Me,Ae,le,Ct,wt}}'
   ].join("");
 }

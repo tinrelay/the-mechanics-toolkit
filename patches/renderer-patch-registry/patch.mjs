@@ -94,6 +94,18 @@ function activePackages() {
   for (const file of assetFiles()) {
     if (file === appInitial) continue;
     const source = fs.readFileSync(file, "utf8");
+    addIf(packages, source.includes("globalThis.__MTK_AGENT_ROSTER__=Object.freeze("), {
+      name: "agentRoster", file, anchor: 'const MTKagentRosterRelativePath=',
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("agentRoster",{version:1,file:"agent-roster.json",discovery:"registered-local-project-roots"});`
+    });
+    addIf(packages, source.includes("function MTKusePaletteBootstrap("), {
+      name: "taskVisualPalette", file, anchor: 'const MTKpaletteRelativePath=',
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("taskVisualPalette",{version:1,resolveTaskColor(e){try{let t=MTKmatchPalette(MTKsidebarPalette,e?.title,e?.taskId);return t?.color??null}catch{return null}}});`
+    });
+    addIf(packages, taskAttentionPolicyMarkers.some(marker => source.includes(marker)), {
+      name: "taskAttentionPolicy", file, anchor: "const MTKattentionRosterBridge=1",
+      call: `globalThis.__MTK_PATCH_REGISTRY__?.register?.("taskAttentionPolicy",{version:1});`
+    });
     addIf(packages, source.includes("function MTKinstallRuntimeJsonReload("), {
       name: "runtimeJsonReload",
       file,

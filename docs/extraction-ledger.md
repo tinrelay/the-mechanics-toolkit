@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1016.62342` / `21477` | 18 selected | Matching native build/tests, signed stage, supervised task return, two-way TinRelay, and corrected outgoing recipient names passed |
+| macOS ARM64 application | `26.1021.31345` / `21828` | 18 selected | Exact-source compaction red/green, matching release build, signed stage, post-repack probes, byte-identical reapplication, supervised task return, task-message ACK/wait, and two-way TinRelay |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,29 +27,28 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-`dot-lifecycle-protection` is opt-in and recognizes the macOS generated-owner family retained in build `21477`.
-Its existing deletion/reboot refusal and runtime-policy probes remain part of the selected fleet.
-Build `21477` is installed after supervised task return. October 23 task messaging and two-way
-TinRelay passed, but outgoing cards displayed task IDs despite correct colors and wait labels.
-The correction uses the stock readable-family title hook; its regression reproduces the prior
-fallback and now passes. The corrected candidate returned through the supervisor without rescue;
-Mike verified the recipient's name on a fresh outgoing task-message card.
+Build `21828` has new exact generated owners and several module-boundary changes; it is not
+live-accepted merely by inheritance from `21477`. Roster/palette/attention and keyboard ownership moved
+to `app-runtime`; sidebar actions moved to `app-primary`. The registry follows the runtime
+capabilities. Dot lifecycle guards, archive subscriptions, family-aware recipient names, radio
+persistence/scroll behavior, and final route-mounted readiness retain focused probes.
+Build `21828` is installed after supervised task return, a task-message ACK and wait, and
+two-way TinRelay. No real dot was deleted or rebooted during qualification.
 Stock React bindings, effective selected model, locked reasoning effort, and neutral loading gates
 remain covered by causal probes. This does not claim a new full live feature tour.
-No real dot was deleted or rebooted during qualification.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact profiles recognize macOS build `21477` using the unchanged owner family named `21421`, and the prior Windows/Ubuntu build `10954` and Fedora build `9647` owners. Shared feature implementations are not forked per OS. Renderer turn-window and the retired sidebar collapse remain unselected on macOS. |
-| Package integrity | macOS signature and ASAR seal; Windows signed MSIX reconstruction and re-extraction; Ubuntu authenticated DEB reconstruction; and Fedora authenticated RPM reconstruction passed on the packages named above. Second application was byte-identical. |
-| Live adoption | macOS build `21477`, including the recipient-name correction, returned through the supervisor without rescue and passed a fresh outgoing label check. Windows build `10954` retains supervised task-return evidence; Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
+| Generated JavaScript | Exact `build21828` profiles recognize the macOS refresh; prior Windows/Ubuntu build `10954` and Fedora build `9647` owners remain. Shared feature implementations are not forked per OS. Renderer turn-window and retired sidebar collapse remain unselected on macOS. |
+| Package integrity | macOS build `21828` signature, ASAR seal, complete fleet, post-repack probes, and native preservation passed. Windows signed MSIX reconstruction and re-extraction, Ubuntu authenticated DEB reconstruction, and Fedora authenticated RPM reconstruction retain their named earlier receipts. Second application was byte-identical. |
+| Live adoption | macOS build `21828` returned to the real task through the supervisor without rescue, with matching installed hashes, a task-message ACK and wait, and two-way TinRelay. No new full live feature tour is claimed. Windows build `10954` retains supervised task-return evidence; Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
 | Shared behavior | Current generated-owner fixtures cover exact imports, model loading, reasoning, archive protection, attribution, receipts, waits, radio, and readiness. Composition and package gates are recorded in the macOS runbook; a green static gate does not imply live acceptance. Windows and Ubuntu retain their earlier package/open receipts. |
 | Open limits | Dot guards outside the patched desktop, Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for the macOS build-`21477` candidate but
+same-version Codex CLI source patch selected for the macOS build-`21828` candidate but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

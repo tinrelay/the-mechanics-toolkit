@@ -6,7 +6,7 @@ import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build21421 } from "./profiles/build21421.mjs";
+import { build21828 } from "./profiles/build21828.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -18,6 +18,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const appInitial = uniqueFile(/^app-initial-.*\.js$/);
+const runtimeOwners = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
+  fs.readFileSync(path.join(assets, name), "utf8").includes("function DW(){"));
+if (runtimeOwners.length > 1) throw new Error("ambiguous palette bootstrap runtime");
+const bootstrapTarget = runtimeOwners.length === 1 ? path.join(assets, runtimeOwners[0]) : appInitial;
 const appPrimary = uniqueFile(/^app-primary-.*\.js$/);
 const localPage = uniqueFile(
   /^local-conversation-page-.*\.js$/,
@@ -40,12 +44,12 @@ if (command === "apply" && state === "needs-apply") {
       !["messageBubbleStyle:MTKdelegatedBubbleStyle", "accentColor:MTKdelegatedAccentColor"].some(contract => attributionSource.includes(contract))) {
     throw new Error("Palette apply requires the cross-task attribution mitigation first");
   }
-  patchAppInitial(appInitial, configuredWorkspaceRoot(false));
+  patchAppInitial(bootstrapTarget, configuredWorkspaceRoot(false));
   patchBottomFade(appInitial, appPrimary);
   patchSidebarArchiveAffordances(appInitial, appPrimary);
   patchLocalPage(localPage);
   patchDelegation(delegation);
-  for (const file of [appInitial, appPrimary, localPage, delegation]) {
+  for (const file of new Set([appInitial, bootstrapTarget, appPrimary, localPage, delegation])) {
     moduleSyntaxCheck(file);
   }
   state = inspectState();
@@ -54,7 +58,7 @@ if (command === "apply" && state === "needs-apply") {
 
 process.stdout.write(`${JSON.stringify({
   state,
-  targets: [appInitial, appPrimary, localPage, delegation].map(file => path.relative(root, file))
+  targets: [...new Set([appInitial, bootstrapTarget, appPrimary, localPage, delegation])].map(file => path.relative(root, file))
 }, null, 2)}\n`);
 
 function moduleSyntaxCheck(file) {
@@ -71,7 +75,8 @@ function moduleSyntaxCheck(file) {
 }
 
 function inspectState() {
-  const appSource = fs.readFileSync(appInitial, "utf8");
+  const appSource = fs.readFileSync(appInitial, "utf8") +
+    (bootstrapTarget === appInitial ? "" : fs.readFileSync(bootstrapTarget, "utf8"));
   const appPrimarySource = fs.readFileSync(appPrimary, "utf8");
   const localSource = fs.readFileSync(localPage, "utf8");
   const delegationSource = fs.readFileSync(delegation, "utf8");
@@ -176,15 +181,15 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
-  if (build21421.archive.applied.every(contract => source.includes(contract))) {
-    if (!build21421.archive.runtimeApplied.every(contract => source.includes(contract))) {
-      throw new Error("Unrecognized build-21421 archive runtime reload");
+  if (build21828.archive.applied.every(contract => primarySource.includes(contract))) {
+    if (!build21828.archive.runtimeApplied.every(contract => primarySource.includes(contract))) {
+      throw new Error("Unrecognized build-21828 archive runtime reload");
     }
     return "applied";
   }
-  if (build21421.archive.pristine.every(contract => source.includes(contract))) {
-    if (!build21421.archive.runtimePristine.every(contract => source.includes(contract))) {
-      throw new Error("Unrecognized build-21421 archive runtime owner");
+  if (build21828.archive.pristine.every(contract => primarySource.includes(contract))) {
+    if (!build21828.archive.runtimePristine.every(contract => primarySource.includes(contract))) {
+      throw new Error("Unrecognized build-21828 archive runtime owner");
     }
     return "needs-apply";
   }
@@ -273,7 +278,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
-    build21421.app,
+    build21828.app,
     build11645.app,
     build10789.app,
     build9922.app,
@@ -300,7 +305,7 @@ function appProfile(source) {
 }
 function bottomFadeProfile(appSource, primarySource) {
   const profiles = [
-    build21421.bottomFade,
+    build21828.bottomFade,
     build11645.bottomFade,
     build9922.bottomFade,
     linuxBuild10954.bottomFade,
@@ -316,7 +321,7 @@ function bottomFadeProfile(appSource, primarySource) {
 }
 function localProfile(source) {
   const profiles = [
-    build21421.local,
+    build21828.local,
     build11645.local,
     build10789.local,
     build9922.local,
@@ -656,14 +661,15 @@ function addArchiveReloadNotification(source, prefix) {
 
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
-  if (build21421.archive.pristine.every(contract => source.includes(contract))) {
+  let currentPrimary = fs.readFileSync(primaryFile, "utf8");
+  if (build21828.archive.pristine.every(contract => currentPrimary.includes(contract))) {
     for (const replacement of [
-      ...build21421.archive.replacements,
-      ...build21421.archive.runtimeReplacements
+      ...build21828.archive.replacements,
+      ...build21828.archive.runtimeReplacements
     ]) {
-      source = replaceOnce(source, ...replacement, "build-21421 archive owner");
+      currentPrimary = replaceOnce(currentPrimary, ...replacement, "build-21828 archive owner");
     }
-    fs.writeFileSync(file, source);
+    fs.writeFileSync(primaryFile, currentPrimary);
     return;
   }
   if (build11645.archive.pristine.every(contract => source.includes(contract))) {
@@ -769,7 +775,7 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  const profile = [build21421.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  const profile = [build21828.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
   if (profile != null) {
     for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);

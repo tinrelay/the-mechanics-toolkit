@@ -77,6 +77,21 @@ try {
     'let n=((e,t)=>e.get(_h).forHost(t))(e,"local")'
   ], "macOS build 21421");
 
+  fs.rmSync(target);
+  verifyProfile(path.join(assets, "app-runtime-fixture.js"), [
+    'import{rrr as Bh}from"./app-initial-fixture.js";',
+    "const f=Symbol(`scope`),Vf={},K=e=>e,NW={useEffect(){}};",
+    "function DW(){let e=(0,jW.c)(12),t=K(f),value=0;return e}",
+    "function owner(){let {groups:f,isWorkspaceRootOptionsLoading:p}=o(Vf);return f}",
+    "export const fixture=true;"
+  ].join(""), [
+    "function MTKuseAgentRoster(){let e=K(f);",
+    "return NW.useEffect(",
+    "let a=i(Vf);",
+    "e.get(Bh)==null&&await e.when(({get:e})=>e(Bh)!=null)",
+    'let n=((e,t)=>e.get(Bh).forHost(t))(e,"local")'
+  ], "macOS build 21828 runtime owner");
+
   process.stdout.write("agent roster current-build transform probe passed\n");
 
   function verifyProfile(target, fixture, expected, label) {

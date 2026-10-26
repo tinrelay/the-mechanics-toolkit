@@ -10,8 +10,9 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 }
 
 const mainTarget = uniqueAsset(path.join(root, ".vite/build"), /^main-.*\.js$/);
-const rendererTarget = uniqueAsset(path.join(root, "webview/assets"), /^app-initial-.*\.js$/);
 let mainSource = fs.readFileSync(mainTarget, "utf8");
+const rendererTarget = uniqueAsset(path.join(root, "webview/assets"),
+  mainSource.includes('_=require("./bootstrap-CoL4UX0u.js")') ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/);
 const rendererSource = fs.readFileSync(rendererTarget, "utf8");
 let state = inspectState(mainSource, rendererSource);
 
@@ -41,7 +42,7 @@ function inspectState(mainValue, rendererValue) {
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
   const contractFamilies = profile.splitBootstrap ? [
-    ["bootstrap writer import", ['_=require("./bootstrap-DCRTDDSX.js")']]
+    ["bootstrap writer import", ['_=require("./bootstrap-CoL4UX0u.js")']]
   ] : [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
     ["development relaunch writer", [`function ${profile.writer}(`]]
@@ -70,12 +71,12 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
-  if (value.includes('_=require("./bootstrap-DCRTDDSX.js")')) {
-    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-DCRTDDSX.js"), "utf8");
+  if (value.includes('_=require("./bootstrap-CoL4UX0u.js")')) {
+    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-CoL4UX0u.js"), "utf8");
     for (const contract of [
-      "qM=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
-      "function $M({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[qM]?.trim(),writeMarker:r=",
-      "exports.w=$M"
+      "rF=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`",
+      "function lF({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`),markerPath:n=process.env[rF]?.trim(),writeMarker:r=",
+      "exports.w=lF"
     ]) {
       if (count(bootstrap, contract) !== 1) {
         throw new Error(`Upstream changed: safe-start bootstrap writer is not unique: ${contract}`);
@@ -87,7 +88,7 @@ function safeStartProfile(value, rendererValue) {
       marker, writer, splitBootstrap: true,
       before: "case`ready`:{n.initializationOnly||(this.windowManager.markWebContentsReady(e),",
       applied: `case\`ready\`:{n.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===\`primary\`&&${action},this.windowManager.markWebContentsReady(e),`,
-      rendererReady: "Ei.dispatchMessage(`ready`,{})"
+      rendererReady: "Ro.dispatchMessage(`ready`,{})"
     };
   }
   const markers = [...value.matchAll(/\b([A-Za-z_$][\w$]*)=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/g)]

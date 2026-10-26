@@ -3,14 +3,14 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
-import {incomingBuild21421} from "../patches/tinrelay-pointer-presentation/profiles/build21421.mjs";
-import {build21421} from "../patches/outgoing-message-receipt/profiles/build21421.mjs";
+import {incomingBuild21828} from "../patches/tinrelay-pointer-presentation/profiles/build21828.mjs";
+import {build21828} from "../patches/outgoing-message-receipt/profiles/build21828.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "tmtk-frontier-bus-"));
 const renderer = path.join(scratch, "conversation.js");
-const shared = path.join(scratch, "app-shared-fc3316d48427.js");
-const source = 'import{MFt as Bus}from"./app-shared-fc3316d48427.js";';
+const shared = path.join(scratch, "app-shared-2cae01273bae.js");
+const source = 'import{SIt as Bus}from"./app-shared-2cae01273bae.js";';
 const id = "[$A-Z_a-z][$\\w]*";
 const escapeRegExp = value => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const uniqueMatch = (value, pattern, label) => {
@@ -26,27 +26,27 @@ function functionSource(file, name) {
   return text.slice(start, end < 0 ? undefined : end);
 }
 try {
-  fs.writeFileSync(shared, 'const Rm=Lm.getInstance();const methods={dispatchMessage(e,t){},subscribe(e,t){}};export{Rm as MFt};');
+  fs.writeFileSync(shared, 'const u_=l_.getInstance();const methods={dispatchMessage(e,t){},subscribe(e,t){}};export{u_ as SIt};');
   const incoming = Function("fs", "path", "renderer", "incomingRendererProfile", "uniqueMatch", "escapeRegExp",
     `${functionSource("patches/tinrelay-pointer-presentation/incoming-transform.mjs", "resolveHostBus")};return resolveHostBus`)(
-    fs, path, renderer, () => incomingBuild21421, uniqueMatch, escapeRegExp);
+    fs, path, renderer, () => incomingBuild21828, uniqueMatch, escapeRegExp);
   assert.equal(incoming(source), "MTKtinrelayBus", "incoming correspondence uses the actual frontier singleton");
   const other = {dynamic: {before: "legacy-owner"}, hostBus: {exported: "Other"}};
-  const outgoing = Function("fs", "path", "conversationTarget", "build21421", "build11645", "build10789", "build9922", "linuxBuild9771", "linuxBuild10954", "uniqueMatch", "escapeRegExp", "id",
+  const outgoing = Function("fs", "path", "conversationTarget", "build21828", "build11645", "build10789", "build9922", "linuxBuild9771", "linuxBuild10954", "uniqueMatch", "escapeRegExp", "id",
     `${functionSource("patches/outgoing-message-receipt/patch.mjs", "exportedAs")};${functionSource("patches/outgoing-message-receipt/patch.mjs", "resolveHostBus")};return resolveHostBus`)(
-    fs, path, renderer, build21421, other, other, other, other, other, uniqueMatch, escapeRegExp, id);
-  assert.equal(outgoing(source + build21421.dynamic.before), "MTKoutboundHostBus",
+    fs, path, renderer, build21828, other, other, other, other, other, uniqueMatch, escapeRegExp, id);
+  assert.equal(outgoing(source + build21828.dynamic.before), "MTKoutboundHostBus",
     "outgoing receipts use the same real host bus");
 
-  const classifier = 'function Ak({unit:e,hasFollowingFinalAnswer:t,keepMcpAppEntriesPersistent:n,mcpServerStatuses:r,renderMcpApps:i}){if(e.kind!==`standalone`)return!1;let a=e.item.item;return a.type===`user-input-response`?!a.completed:a.type===`mcp-tool-call`&&lg(a)||a.type===`assistant-message`&&Mo(a)||a.type===`dynamic-tool-call`&&Eg(a)||n&&i&&a.type===`mcp-tool-call`&&jk({item:a,mcpServerStatuses:r})?!0:a.type===`user-message`&&(a.steeringStatus===`pending`||a.deliveryStatus===`not-sent`||a.hookFeedback===!0||!t)}';
+  const classifier = 'function hj({unit:e,hasFollowingFinalAnswer:t,keepMcpAppEntriesPersistent:n,mcpServerStatuses:r,renderMcpApps:i}){if(e.kind!==`standalone`)return!1;let a=e.item.item;return a.type===`user-input-response`?!a.completed:a.type===`mcp-tool-call`&&v_(a)||a.type===`assistant-message`&&ba(a)||a.type===`dynamic-tool-call`&&am(a)||n&&i&&a.type===`mcp-tool-call`&&gj({item:a,mcpServerStatuses:r})?!0:a.type===`user-message`&&(a.steeringStatus===`pending`||a.wasInHistoryPreview===!0||a.deliveryStatus===`not-sent`||a.hookFeedback===!0||!t)}';
   const selectClassifier = Function("uniqueMatch",
     `${functionSource("patches/tinrelay-pointer-presentation/outgoing-transform.mjs", "persistentClassifier")};return persistentClassifier`)(uniqueMatch);
   assert.equal(selectClassifier(classifier).groups.item, "a");
   const patched = classifier.replace('a.type===`dynamic-tool-call`',
     'a.type===`exec`&&MTKtinrelayOutgoingAcceptance(a)!=null||a.type===`dynamic-tool-call`');
   assert.equal(selectClassifier(patched)[0], patched, "complete current classifier is recognized after application");
-  const persistent = Function("MTKtinrelayOutgoingAcceptance", "lg", "Mo", "Eg", "jk",
-    `${patched};return Ak`)(item => item.accepted ? {} : null, () => false, () => false,
+  const persistent = Function("MTKtinrelayOutgoingAcceptance", "v_", "ba", "am", "gj",
+    `${patched};return hj`)(item => item.accepted ? {} : null, () => false, () => false,
     () => false, () => false);
   const unit = item => ({kind: "standalone", item: {item}});
   assert.equal(persistent({unit: unit({type: "exec", accepted: true}), hasFollowingFinalAnswer: true}), true);
@@ -56,6 +56,8 @@ try {
   assert.equal(persistent({unit: unit({type: "user-message"}), hasFollowingFinalAnswer: false}), true);
   assert.equal(persistent({unit: unit({type: "user-message"}), hasFollowingFinalAnswer: true}), false);
   assert.equal(persistent({unit: unit({type: "user-message", deliveryStatus: "not-sent"}), hasFollowingFinalAnswer: true}), true);
+  assert.equal(persistent({unit: unit({type: "user-message", wasInHistoryPreview: true}), hasFollowingFinalAnswer: true}), true,
+    "the native history-preview persistence rule survives composition");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});
 }

@@ -23,7 +23,7 @@ const profiles = {
   Cae: {authorizer: "gd", addon: "i"},
   doe: {authorizer: "gf", addon: "i", authParam: "a"},
   Rae: {authorizer: "cp", addon: "i", authParam: "s"},
-  Moe: {authorizer: "Vd", addon: "a", devVar: "r", authParam: "s"},
+  tue: {authorizer: "vd", addon: "a", devVar: "r", authParam: "s"},
   zie: {authorizer: "nd", addon: "i"}
 };
 const profile = Object.hasOwn(profiles, owner) ? profiles[owner] : null;

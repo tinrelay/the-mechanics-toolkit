@@ -7,8 +7,9 @@ const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: safe-start-readiness.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
-const renderer = fs.readFileSync(uniqueAsset(assets, /^app-initial-.*\.js$/), "utf8");
 const main = fs.readFileSync(uniqueAsset(build, /^main-.*\.js$/), "utf8");
+const renderer = fs.readFileSync(uniqueAsset(assets,
+  main.includes('_=require("./bootstrap-CoL4UX0u.js")') ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/), "utf8");
 
 assert.ok(main.includes("--tmtk-safe-start-marker="),
   "the trusted stock ready message invokes Codex's existing relaunch-marker writer");
@@ -16,8 +17,8 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-const markerOwner = main.includes('_=require("./bootstrap-DCRTDDSX.js")')
-  ? fs.readFileSync(path.join(build, "bootstrap-DCRTDDSX.js"), "utf8")
+const markerOwner = main.includes('_=require("./bootstrap-CoL4UX0u.js")')
+  ? fs.readFileSync(path.join(build, "bootstrap-CoL4UX0u.js"), "utf8")
   : main;
 assert.ok(/[$A-Z_a-z][$\w]*=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`/.test(markerOwner),
   "readiness uses the existing per-launch marker path environment boundary");
@@ -29,7 +30,7 @@ assert.equal([
   "ur.dispatchMessage(`ready`,{persistedStateResponsePriority:R9?`critical`:void 0})",
   "aa.dispatchMessage(`ready`,{persistedStateResponsePriority:reo?`critical`:void 0})",
   "mh.dispatchMessage(`ready`,{persistedStateResponsePriority:fgc?`critical`:void 0})",
-  "Ei.dispatchMessage(`ready`,{})"
+  "Ro.dispatchMessage(`ready`,{})"
 ].reduce((total, contract) => total + count(renderer, contract), 0), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");

@@ -44,16 +44,14 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.163.0-alpha.11.2.patch) targets macOS Desktop
-`26.1016.62342` / build `21477`, which bundles `codex-cli 0.163.0-alpha.11.2` at upstream commit
-`51f97c6bca5500edbb986f6d9fe64fa2e63cbdd4`. The three target files are byte-identical to the
-previous revision's stock files, whose two focused tests failed before repair and passed afterward.
-That stock-red baseline is carried by exact hashes, not claimed as a new run. The experimental
+[The current source diff](codex-0.164.0-alpha.11.1.patch) targets macOS Desktop
+`26.1021.31345` / build `21828`, which bundles `codex-cli 0.164.0-alpha.11.1` at upstream commit
+`6905ecede7816e91373e9eabda3f6b0368fc747b`. Both focused tests failed against this exact stock
+source and passed after the repair. Upstream annotated-message handling remains unchanged. The experimental
 `retain_client_tool_outputs` feature only retains explicitly annotated inputs; it does not
 replace this fallback for ordinary unmarked standalone external inputs. It was not enabled.
-The three patched source files retain their exact previous before/after hashes, but the current
-CLI is a new binary: repaired-source tests passed on this exact revision and a new replacement was built.
-The macOS runbook records release-build and signed-stage evidence; live acceptance is a
+The current CLI requires its own matching binary; do not reuse a prior version's executable.
+The macOS runbook records release-build and signed-stage evidence as each gate completes; live acceptance is a
 separate gate. The catalog
 also retains exact entries for earlier supported builds. The source-patch command verifies the
 selected commit and every target file's exact before or after hash; the shared textual diff alone
@@ -64,8 +62,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-21477 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-21477 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-21828 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-21828 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the
@@ -82,6 +80,11 @@ CARGO_PROFILE_RELEASE_LTO=off just test --release -p codex-core --lib compact::t
 cd /path/to/the-mechanics-toolkit
 bin/tmtk-build-codex /path/to/codex
 ```
+
+For the current qualified macOS recipe, prefix the tests and build with
+`env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_BOOTSTRAP RUSTUP_TOOLCHAIN=1.95.0`.
+This explicitly selects the existing stable compiler instead of installing the newer version
+named by upstream's toolchain file.
 
 The focused release tests and build use the same LTO setting so they can reuse compiled
 dependencies. The TMTK wrapper builds the ordinary release binary with
