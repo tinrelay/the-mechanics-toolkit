@@ -12,7 +12,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("function DW(){"));
+  fs.readFileSync(path.join(assets, name), "utf8").includes("function ZW(){"));
 if (runtime.length > 1) throw new Error("Upstream changed: ambiguous agent roster runtime");
 const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueFile(/^app-initial-.*\.js$/, assets);
 let source = fs.readFileSync(target, "utf8");
@@ -65,14 +65,18 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  const build21828Seam = "function DW(){let e=(0,jW.c)(12),t=K(f),";
-  if (value.includes(build21828Seam)) {
-    for (const contract of [build21828Seam,
-      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(Vf)", "rrr as Bh"]) {
-      if (count(value, contract) !== 1) throw new Error(`Upstream changed: build-21828 agent roster ${contract}`);
+  const build22530Seam = "function ZW(){let e=(0,tG.c)(12),t=R(q),";
+  if (value.includes(build22530Seam)) {
+    for (const contract of [build22530Seam,
+      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(ym)", "mor as qm"]) {
+      if (count(value, contract) !== 1) throw new Error(`Upstream changed: build-22530 agent roster ${contract}`);
     }
-    return {seam: build21828Seam, scope: "K(f)", react: "NW", projectsAtom: "Vf",
-      readyAtom: "Bh", client: "((e,t)=>e.get(Bh).forHost(t))"};
+    const initial = fs.readFileSync(uniqueFile(/^app-initial-.*\.js$/, assets), "utf8");
+    for (const contract of ["mg=Ua(Q,()=>null)", "mg as mor"]) {
+      if (count(initial, contract) !== 1) throw new Error(`Upstream changed: build-22530 manager atom ${contract}`);
+    }
+    return {seam: build22530Seam, scope: "R(q)", react: "rG", projectsAtom: "ym",
+      readyAtom: "qm", client: "((e,t)=>e.get(qm).forHost(t))"};
   }
   const build21421Seam = "function Dbu(){let e=(0,Abu.c)(12),t=E(J),";
   if (value.includes(build21421Seam)) {

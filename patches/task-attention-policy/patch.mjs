@@ -5,7 +5,7 @@ import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build21828 } from "./profiles/build21828.mjs";
+import { build22530 } from "./profiles/build22530.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -14,10 +14,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: task-attention-policy.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-const profiles = [build21828, build11645, linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
+const profiles = [build22530, build11645, linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("function DW(){"));
+  fs.readFileSync(path.join(assets, name), "utf8").includes("function ZW(){"));
 if (runtime.length > 1) throw new Error("Upstream changed: ambiguous attention runtime");
 const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueAsset(/^app-initial-.*\.js$/);
 const primaryTarget = uniqueAsset(/^app-primary-.*\.js$/);
@@ -42,15 +42,15 @@ if (command === "apply" && state === "needs-apply") {
     matches[0],
     rowTarget === target
   ));
-  if (matches[0].suffix === "21828") {
+  if (matches[0].suffix === "22530") {
     const initialImport = [...source.matchAll(/import\{(?<specifiers>[^}]+)\}from"(?<relative>\.\/app-initial-[^"]+\.js)";/g)];
     if (initialImport.length !== 1) throw new Error("Upstream changed: attention decoder module import");
     const match = initialImport[0];
     const initial = fs.readFileSync(path.resolve(assets, match.groups.relative), "utf8");
-    if (!initial.includes("Bk as Dkn") || !initial.includes("function Bk(e){if(e==null)return null;")) {
+    if (!initial.includes("Ix as I0n") || !initial.includes("function Ix(e){if(e==null)return null;")) {
       throw new Error("Upstream changed: attention thread-key decoder");
     }
-    source = replaceOnce(source, match[0], `import{${match.groups.specifiers},Dkn as MTKattentionDecode}from"${match.groups.relative}";`, "attention decoder import");
+    source = replaceOnce(source, match[0], `import{${match.groups.specifiers},I0n as MTKattentionDecode}from"${match.groups.relative}";`, "attention decoder import");
   }
   fs.writeFileSync(target, source);
   if (rowTarget !== target) fs.writeFileSync(rowTarget, primarySource);

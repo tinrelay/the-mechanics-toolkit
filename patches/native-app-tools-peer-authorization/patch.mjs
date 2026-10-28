@@ -91,7 +91,7 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
-      owner: "tue", authorizer: "vd", envConst: "Wle", addonConst: "Gle", addon: "a", devVar: "r",
+      owner: "Zue", authorizer: "od", envConst: "Bue", addonConst: "Vue", addon: "a", devVar: "r",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s="
     },
     { owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce", addon: "i" },

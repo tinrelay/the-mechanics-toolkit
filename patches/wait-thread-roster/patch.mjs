@@ -6,7 +6,7 @@ import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linu
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build21828 } from "./profiles/build21828.mjs";
+import { build22530 } from "./profiles/build22530.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -228,7 +228,7 @@ function resolveTaskImports(ownerSource) {
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
   const profiles = [
-    taskImportProfile(build21828.taskImports),
+    taskImportProfile(build22530.taskImports),
     taskImportProfile(build11645.taskImports),
     taskImportProfile(build10789.taskImports),
     taskImportProfile(build9922.taskImports),

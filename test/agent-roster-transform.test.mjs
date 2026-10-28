@@ -78,19 +78,20 @@ try {
   ], "macOS build 21421");
 
   fs.rmSync(target);
+  fs.writeFileSync(target, 'const Q={},Ua=(scope,read)=>({scope,read}),mg=Ua(Q,()=>null);function oco(){}export{mg as mor,oco as pq};');
   verifyProfile(path.join(assets, "app-runtime-fixture.js"), [
-    'import{rrr as Bh}from"./app-initial-fixture.js";',
-    "const f=Symbol(`scope`),Vf={},K=e=>e,NW={useEffect(){}};",
-    "function DW(){let e=(0,jW.c)(12),t=K(f),value=0;return e}",
-    "function owner(){let {groups:f,isWorkspaceRootOptionsLoading:p}=o(Vf);return f}",
+    'import{pq as Bh,mor as qm}from"./app-initial-fixture.js";',
+    "const q=Symbol(`scope`),ym={},R=e=>e,rG={useEffect(){}};",
+    "function ZW(){let e=(0,tG.c)(12),t=R(q),value=0;return e}",
+    "function owner(){let {groups:f,isWorkspaceRootOptionsLoading:p}=o(ym);return f}",
     "export const fixture=true;"
   ].join(""), [
-    "function MTKuseAgentRoster(){let e=K(f);",
-    "return NW.useEffect(",
-    "let a=i(Vf);",
-    "e.get(Bh)==null&&await e.when(({get:e})=>e(Bh)!=null)",
-    'let n=((e,t)=>e.get(Bh).forHost(t))(e,"local")'
-  ], "macOS build 21828 runtime owner");
+    "function MTKuseAgentRoster(){let e=R(q);",
+    "return rG.useEffect(",
+    "let a=i(ym);",
+    "e.get(qm)==null&&await e.when(({get:e})=>e(qm)!=null)",
+    'let n=((e,t)=>e.get(qm).forHost(t))(e,"local")'
+  ], "macOS build 22530 runtime owner");
 
   process.stdout.write("agent roster current-build transform probe passed\n");
 

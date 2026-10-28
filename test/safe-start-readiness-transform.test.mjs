@@ -202,20 +202,20 @@ try {
   }
   assert.equal(run("apply", build12947).state, "applied");
   assert.deepEqual(fs.readFileSync(build12947Main), build12947Once);
-  const build21828 = path.join(scratch, "build-21828");
-  const build21828MainDir = path.join(build21828, ".vite/build");
-  const build21828Assets = path.join(build21828, "webview/assets");
-  fs.mkdirSync(build21828MainDir, {recursive: true});
-  fs.mkdirSync(build21828Assets, {recursive: true});
-  const bootstrap = path.join(build21828MainDir, "bootstrap-CoL4UX0u.js");
+  const build22530 = path.join(scratch, "build-22530");
+  const build22530MainDir = path.join(build22530, ".vite/build");
+  const build22530Assets = path.join(build22530, "webview/assets");
+  fs.mkdirSync(build22530MainDir, {recursive: true});
+  fs.mkdirSync(build22530Assets, {recursive: true});
+  const bootstrap = path.join(build22530MainDir, "bootstrap-BLyztc2V.js");
   fs.writeFileSync(bootstrap,
-    "var rF=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`,t={n:`background`};" +
-    "function lF({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`)," +
-    "markerPath:n=process.env[rF]?.trim(),writeMarker:r=(e,t)=>{globalThis.__marker=e}}={}){" +
-    "if(!n)return!1;return r(n,{browserBackgroundNetworkingDisabled:e}),!0}exports.w=lF;");
-  const main21828 = path.join(build21828MainDir, "main-build21828.js");
-  fs.writeFileSync(main21828,
-    'const _=require("./bootstrap-CoL4UX0u.js");' +
+    "var AF=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`,t={n:`background`};" +
+    "function IF({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split(`=`,1)[0]===`--${t.n}`)," +
+    "markerPath:n=process.env[AF]?.trim(),writeMarker:r=(e,t)=>{globalThis.__marker=e}}={}){" +
+    "if(!n)return!1;return r(n,{browserBackgroundNetworkingDisabled:e}),!0}exports.w=IF;");
+  const main22530 = path.join(build22530MainDir, "main-build22530.js");
+  fs.writeFileSync(main22530,
+    'const v=require("./bootstrap-BLyztc2V.js");' +
     "class Owner{handleMessage(e,n){switch(n.type){case`ready`:{n.initializationOnly||" +
     "(this.windowManager.markWebContentsReady(e),this.avatarOverlayManager.handleRendererReady(e.id));break}}}};" +
     "let owner=new Owner;owner.windowManager={markWebContentsReady(){}," +
@@ -224,27 +224,27 @@ try {
     "owner.handleMessage({id:1,appearance:process.argv[2]},{type:`ready`," +
     "initializationOnly:process.argv[3]===`initialization`});" +
     "process.stdout.write(globalThis.__marker??``)");
-  fs.writeFileSync(path.join(build21828Assets, "app-primary-build21828.js"),
-    "const Ro={dispatchMessage(){}};function routes(){Ro.dispatchMessage(`ready`," +
+  fs.writeFileSync(path.join(build22530Assets, "app-primary-build22530.js"),
+    "const Lu={dispatchMessage(){}};function routes(){Lu.dispatchMessage(`ready`," +
     "{})}");
-  assert.equal(run("check", build21828).state, "needs-apply");
-  assert.equal(run("apply", build21828).state, "applied");
-  const main21828Once = fs.readFileSync(main21828);
+  assert.equal(run("check", build22530).state, "needs-apply");
+  assert.equal(run("apply", build22530).state, "applied");
+  const main22530Once = fs.readFileSync(main22530);
   const bootstrapOnce = fs.readFileSync(bootstrap);
   for (const [appearance, initialization, expected] of [
     ["primary", "ready", "/tmp/renderer.ready"],
     ["globalDictation", "ready", ""],
     ["primary", "initialization", ""]
   ]) {
-    const result = spawnSync(process.execPath, [main21828, appearance, initialization], {
+    const result = spawnSync(process.execPath, [main22530, appearance, initialization], {
       encoding: "utf8",
       env: {...process.env, CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH: "/tmp/renderer.ready"}
     });
     assert.equal(result.status, 0, result.stderr || result.stdout);
     assert.equal(result.stdout, expected, `${appearance}/${initialization} split-bootstrap readiness`);
   }
-  assert.equal(run("apply", build21828).state, "applied");
-  assert.deepEqual(fs.readFileSync(main21828), main21828Once);
+  assert.equal(run("apply", build22530).state, "applied");
+  assert.deepEqual(fs.readFileSync(main22530), main22530Once);
   assert.deepEqual(fs.readFileSync(bootstrap), bootstrapOnce, "stock bootstrap writer is untouched");
   process.stdout.write("safe-start readiness transform probe passed\n");
 } finally {

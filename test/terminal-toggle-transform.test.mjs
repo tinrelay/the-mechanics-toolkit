@@ -9,7 +9,7 @@ import { build9922Contracts } from "../patches/terminal-toggle/profiles/build992
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
 import { build21421Contracts } from "../patches/terminal-toggle/profiles/build21421.mjs";
-import { build21828Contracts } from "../patches/terminal-toggle/profiles/build21828.mjs";
+import { build22530Contracts } from "../patches/terminal-toggle/profiles/build22530.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -28,7 +28,7 @@ runFixture("21421", fixtureSource(build21421Contracts,
   "f=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"));
 runSplitFixture("10789", build10789Contracts);
 runSplitFixture("linux-10954", linuxBuild10954Contracts);
-runSplitFixture("21828", build21828Contracts);
+runSplitFixture("22530", build22530Contracts);
 process.stdout.write("terminal toggle transform probe passed\n");
 
 function runFixture(label, fixture) {
@@ -82,14 +82,14 @@ function runSplitFixture(label, contracts) {
     const build = path.join(scratch, ".vite/build");
     fs.mkdirSync(assets, {recursive: true});
     fs.mkdirSync(build, {recursive: true});
-    const app = path.join(assets, label === "21828" ? "app-runtime-fixture.js" : "app-initial-fixture.js");
-    if (label === "21828") fs.writeFileSync(path.join(assets, "app-primary-fixture.js"),
+    const app = path.join(assets, label === "22530" ? "app-runtime-fixture.js" : "app-initial-fixture.js");
+    if (label === "22530") fs.writeFileSync(path.join(assets, "app-primary-fixture.js"),
       `/*${contracts[3]}*/export const fixture=true;`);
     const shared = path.join(assets, "app-shared-fixture.js");
     const src = path.join(build, "src-fixture.js");
     const worker = path.join(build, "worker.js");
-    const editable = label === "21828"
-      ? "h=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),g="
+    const editable = label === "22530"
+      ? "f=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"
       : "c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;";
     fs.writeFileSync(app, `/*
 ${editable}

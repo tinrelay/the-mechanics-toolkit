@@ -19,6 +19,23 @@ const loaderBindings = helper.match(
   /try\{e\.get\((?<ready>[$A-Z_a-z][$\w]*)\)==null&&await e\.when\(\(\{get:e\}\)=>e\((?:[$A-Z_a-z][$\w]*)\)!=null\);let n=(?:(?<client>[$A-Z_a-z][$\w]*)|\(\(e,t\)=>e\.get\((?<manager>[$A-Z_a-z][$\w]*)\)\.forHost\(t\)\))\(e,"local"\)/
 );
 assert.ok(loaderBindings?.groups, "agent roster loader bindings");
+let readyAtom = Symbol("ready");
+if (path.basename(target).startsWith("app-runtime-")) {
+  const ready = loaderBindings.groups.ready;
+  const imported = [...source.matchAll(/import\{([^}]+)\}from"(\.\/app-initial-[^"]+\.js)"/g)]
+    .flatMap(match => match[1].split(",").filter(binding => binding.endsWith(` as ${ready}`))
+      .map(binding => ({exported: binding.split(" as ")[0], file: match[2]})));
+  assert.equal(imported.length, 1, "roster readiness has one stock import owner");
+  const initial = fs.readFileSync(path.resolve(assets, imported[0].file), "utf8");
+  const exports = [...initial.matchAll(/export\{([^}]+)\}/g)].flatMap(match => match[1].split(","));
+  const binding = exports.find(entry => entry.endsWith(` as ${imported[0].exported}`));
+  assert.ok(binding, "roster readiness export exists in the actual initial module");
+  const local = binding.split(" as ")[0];
+  const atom = initial.match(new RegExp(`\\b${local}=([$\\w]+)\\(([$\\w]+),\\(\\)=>null\\)`));
+  assert.ok(atom, "roster readiness resolves to the stock nullable manager atom, not an initializer function");
+  readyAtom = Function(atom[1], atom[2], `return ${atom[0].slice(local.length + 1)}`)(
+    () => Object.freeze({id: Symbol("manager atom")}), Symbol("scope"));
+}
 
 const files = new Map();
 const metadata = new Map();
@@ -38,7 +55,10 @@ const client = {
     throw new Error(`unexpected request ${type}`);
   }
 };
-const state = { get: () => ({forHost: () => client}), when: async () => {} };
+const state = { get(atom) {
+  assert.equal(atom, readyAtom, "loader reads the stock manager atom");
+  return {forHost: () => client};
+}, when: async () => {} };
 const realm = {};
 const quietConsole = { error() {} };
 const api = Function(
@@ -50,7 +70,7 @@ const api = Function(
   atob,
   TextDecoder,
   quietConsole,
-  Symbol("ready"),
+  readyAtom,
   () => client
 );
 

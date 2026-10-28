@@ -262,7 +262,7 @@ function syntaxCheck(file) {
     maxBuffer: 64 * 1024 * 1024
   });
   if (result.status !== 0) {
-    const output = result.stderr || result.stdout;
+    const output = result.stderr || result.stdout || result.error?.message || `process ended with signal ${result.signal}`;
     const summary = output.match(/SyntaxError:[^\n]*/)?.[0] ?? output.trim().slice(-1000);
     throw new Error(`module syntax check failed for ${path.relative(root, file)}: ${summary}`);
   }

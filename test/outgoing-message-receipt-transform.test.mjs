@@ -6,7 +6,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { build9922 } from "../patches/outgoing-message-receipt/profiles/build9922.mjs";
-import { build21828 } from "../patches/outgoing-message-receipt/profiles/build21828.mjs";
+import { build22530 } from "../patches/outgoing-message-receipt/profiles/build22530.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771
@@ -45,14 +45,14 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoin
   const offeredProfile = select(offered);
   assert.deepEqual([offeredProfile.jsx, offeredProfile.normalize, offeredProfile.hostBridge,
     offeredProfile.routeFlag, offeredProfile.newRoute, offeredProfile.oldRoute],
-  ["W", "Re", "g", "mt", "Ne", "ke"], "build-21828 receipts preserve the actual stock navigation owner");
+  ["W", "Re", "g", "mt", "Ne", "ke"], "build-22530 receipts preserve the actual stock navigation owner");
 }
 
 // Exercise the native frontier renderer's memoized publication, not only the receipt policy.
 {
   const cache = Array(19).fill(Symbol.for("react.memo_cache_sentinel"));
-  const renderer = Function("vw", "Bn", "Kl", "lm",
-    `${build21828.dynamic.after};return u}return _w`)(
+  const renderer = Function("Ow", "G", "pd", "Cm",
+    `${build22530.dynamic.after};return u}return Dw`)(
     {c: () => cache}, () => "idle", Symbol("subscription"),
     () => ({render: (_item, _variant, _icon, _leading, context) => context}));
   const item = {completed: true};
@@ -146,19 +146,19 @@ try {
   fs.rmSync(path.join(build11645Pristine, "webview/assets/app-shared-70a4f71efb70.js"));
   fs.writeFileSync(path.join(build11645Pristine, "webview/assets/app-shared-36eae88777f2.js"),
     "function u8(e){return e}function pFr(e){return e}const gk=()=>{},u8Key=0,pFrKey=0;export{gk as dUt,u8 as Tk,pFr as Ek,gk as cUt,u8Key as tSt};");
-  const build21828Pristine = path.join(scratch, "build-21828-pristine");
-  fs.cpSync(extracted, build21828Pristine, {recursive: true});
-  fs.writeFileSync(path.join(build21828Pristine, "webview/assets/app-initial-fixture.js"),
-    initialFixture().replace("const V={subscribe(){return()=>{}},dispatchMessage(){}};", "")
+  const build22530Pristine = path.join(scratch, "build-22530-pristine");
+  fs.cpSync(extracted, build22530Pristine, {recursive: true});
+  fs.writeFileSync(path.join(build22530Pristine, "webview/assets/app-initial-fixture.js"),
+    initialFixture().replace("const Q={subscribe(){return()=>{}},dispatchMessage(){}};", "")
       .replace("function xyl(){}", [
-        'function xyl(){}function DW(){let e=(0,jW.c)(12),t=bs(V),n=0;return t}',
-        'const H=(...e)=>e,Bk=e=>e,eK=H(V,(e,{get:t})=>{let n=Bk(e);return n}),Efs=H(V,(e,{get:t})=>{if(e==null)return null;return t(e)});',
-        'function Rk(e){return e}function zk(e){return e}'
+        'function xyl(){}function DW(){let e=(0,jW.c)(12),t=Or(Q),n=0;return t}',
+        'const U=(...e)=>e,Ix=e=>e,sq=U(Q,(e,{get:t})=>{let n=Ix(e);return n}),kfs=U(Q,(e,{get:t})=>{if(e==null)return null;return t(e)});',
+        'function Px(e){return e}function Fx(e){return e}'
       ].join(""))
-      .replace("export{", "export{eK as task21828,Efs as title21828,Rk as local21828,zk as remote21828,")
-      .replace("const x=0,", 'import{rCt as bs,Bst as V,iCt as Eu}from"./app-shared-2cae01273bae.js";const x=0,'));
-  fs.writeFileSync(path.join(build21828Pristine, "webview/assets/app-shared-2cae01273bae.js"),
-    'function iq(e){return e}function fK(e){return e}function D1e(e,t,n){let l=e;return iq(fK(l,n))}const rCt=()=>{},Bst=Symbol();export{rCt,Bst,iq as iCt,D1e as oCt};');
+      .replace("export{", "export{sq as task22530,kfs as title22530,Px as local22530,Fx as remote22530,")
+      .replace("const x=0,", 'import{MCt as Or,uct as Q,iCt as Eu}from"./app-shared-e9f258fd3588.js";const x=0,'));
+  fs.writeFileSync(path.join(build22530Pristine, "webview/assets/app-shared-e9f258fd3588.js"),
+    'function tq(e){return e}function cK(e){return e}function Q1e(e,t,n){let l=e;return tq(cK(l,n))}const MCt=()=>{},uct=Symbol();export{MCt,uct,tq as LCt,Q1e as FCt};');
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -220,19 +220,19 @@ try {
   assertBuild10789TitleInspection(build10954Pristine);
   assertBuild10789TitleInspection(windows10954Pristine);
   assertBuild11645TitleInspection(build11645Pristine);
-  assert.equal(runToolkit(build21828Pristine, "apply").state, "applied");
-  const frontierBehavior = spawnSync(process.execPath, [behavioralProbe, build21828Pristine], {encoding: "utf8"});
+  assert.equal(runToolkit(build22530Pristine, "apply").state, "applied");
+  const frontierBehavior = spawnSync(process.execPath, [behavioralProbe, build22530Pristine], {encoding: "utf8"});
   assert.equal(frontierBehavior.status, 0, frontierBehavior.stderr || frontierBehavior.stdout);
-  const frontierOwnerFile = path.join(build21828Pristine, "webview/assets/app-control-fixture.js");
+  const frontierOwnerFile = path.join(build22530Pristine, "webview/assets/app-control-fixture.js");
   const frontierOwner = fs.readFileSync(frontierOwnerFile, "utf8");
-  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",oCt as MTKoutboundUseTitle", ",iCt as MTKoutboundUseTitle"));
-  assert.match(runToolkit(build21828Pristine, "check", 1).stderr, /owner=false/,
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",FCt as MTKoutboundUseTitle", ",LCt as MTKoutboundUseTitle"));
+  assert.match(runToolkit(build22530Pristine, "check", 1).stderr, /owner=false/,
     "applied inspection requires the family-aware title reader");
-  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",oCt as MTKoutboundUseTitle", ""));
-  assert.match(runToolkit(build21828Pristine, "check", 1).stderr, /owner=false/,
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",FCt as MTKoutboundUseTitle", ""));
+  assert.match(runToolkit(build22530Pristine, "check", 1).stderr, /owner=false/,
     "applied inspection rejects the missing live-title hook before staging");
   fs.writeFileSync(frontierOwnerFile, frontierOwner);
-  assert.equal(runToolkit(build21828Pristine, "apply").state, "applied");
+  assert.equal(runToolkit(build22530Pristine, "apply").state, "applied");
   assert.equal(fs.readFileSync(frontierOwnerFile, "utf8"), frontierOwner);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
@@ -496,7 +496,7 @@ function conversationFixture() {
     'function Ra(){return"running"}',
     "function QS(e){let t=(0,$S.c)(17),{conversationId:n,enableTimelineTargets:r,agentActivityIcon:i,isLeadingSummaryPart:a,item:o,variant:s}=e,c=a===void 0||a,l=s===void 0?`row`:s;if(Ra(`off`,n)===`stopped`)return null;let u,d;if(t[0]!==i||t[1]!==c||t[2]!==o||t[3]!==l){d=Symbol.for(`react.early_return_sentinel`);bb0:{let e=bh(o);if(e?.hiddenInConversation===!0){d=null;break bb0}u=e?.render?.(o,l,i,c)}t[0]=i,t[1]=c,t[2]=o,t[3]=l,t[4]=u,t[5]=d}else u=t[4],d=t[5];return u}",
     "function Oy(e){let t=(0,$S.c)(195),{turnId:o,conversationId:p}=e,Ze=null,Qe=!1,ft,Rr=()=>null;return ft=Qe?(0,$.jsx)(`div`,{className:`flex w-full items-center justify-center pt-8`,children:(0,$.jsx)(Rr,{className:`icon-sm`})}):(0,$.jsxs)($.Fragment,{children:[Ze,null]}),ft}",
-    "function cO(e){let t=(0,wO.c)(392),{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,J=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return t[375]!==J||t[376]!==f||t[377]!==Oe||t[378]!==n?(e=(0,$.jsx)(QS,{agentActivityIcon:J,conversationId:f,enableTimelineTargets:Oe,item:n}),t[375]=J,t[376]=f,t[377]=Oe,t[378]=n,t[379]=e):e=t[379]}}}",
+    "function cO(e){let t=(0,wO.c)(392),{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:U}=e,J=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return t[375]!==J||t[376]!==f||t[377]!==Oe||t[378]!==n?(e=(0,$.jsx)(QS,{agentActivityIcon:J,conversationId:f,enableTimelineTargets:Oe,item:n}),t[375]=J,t[376]=f,t[377]=Oe,t[378]=n,t[379]=e):e=t[379]}}}",
     "const toolActivityTurnKey=true;export{cO};"
   ].join("");
 }
@@ -523,7 +523,7 @@ function linuxConversationFixture() {
     linux.before,
     ";return u}",
     linux.parentBefore,
-    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Ue=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:U}=e,Ue=null,Oe=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
     "t[377]!==Ue||t[378]!==f||t[379]!==Oe||t[380]!==n?",
     linux.call,
     ":e=t[381]}}}",
@@ -542,7 +542,7 @@ function linux9647ConversationFixture() {
     linux.before,
     ";return u}",
     linux.parentBefore,
-    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Ke=null,ke=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:U}=e,Ke=null,ke=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
     "t[375]!==Ke||t[376]!==f||t[377]!==ke||t[378]!==n?",
     linux.call,
     ":e=t[379]}}}",
@@ -582,7 +582,7 @@ function build9922ConversationFixture() {
     current.before,
     ";return u}",
     current.parentBefore,
-    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:H}=e,Y=null,De=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
+    '{conversationId:f,toolActivityTurnKey:R,turnId:w,hostId:U}=e,Y=null,De=!1,n={type:`dynamic-tool-call`};switch(n.type){case`dynamic-tool-call`:{let e;return ',
     "t[377]!==Y||t[378]!==f||t[379]!==De||t[380]!==n?",
     current.call,
     ":e=t[381]}}}",

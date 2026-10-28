@@ -1,33 +1,34 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.17` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.18` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.17
+## 0.2.18
 
-The macOS target is Desktop `26.1021.31345` / build `21828`, with bundled CLI
-`0.164.0-alpha.11.1`. Apply `standalone-output-compaction-21828` to exact upstream commit
-`6905ecede7816e91373e9eabda3f6b0368fc747b`, then build with stable Rust `1.95.0` through
+The macOS target is Desktop `26.1023.51421` / build `22530`, with bundled CLI
+`0.165.0-alpha.1.2`. Apply `standalone-output-compaction-22530` to exact upstream commit
+`720fec862a608ae1e5878d1eecb04fb93192e93c`, then build with stable Rust `1.95.0` through
 `bin/tmtk-build-codex` and its default LTO-off setting. Do not reuse the prior version's binary.
 
-This is a generated-owner and module-boundary refresh. Roster/palette/attention bootstrap and
-keyboard dispatch now live in `app-runtime`, sidebar actions in `app-primary`, and app-control
-tool constants in their own module. Exact build-`21828` profiles preserve the shared policies,
-family-aware reactive recipient names, incoming/outgoing alignment, and radio scroll anchoring.
-The registry publishes capabilities from their actual runtime owner. Final renderer readiness
-comes from mounted routes in `app-primary`, not its initialization-only event.
+Exact build-`22530` profiles refresh the current generated owners, including the simplified
+terminal dispatcher, sidebar unread/archive controls, family-aware title subscription, host bus,
+and split bootstrap readiness writer. Shared attribution, alignment, and radio scroll anchoring
+remain unchanged. The Dot guard preserves upstream request-time deletion-target revalidation;
+TinRelay preserves the new native `followsInterruptedFinalAnswer` persistence rule.
+The roster loader resolves the current manager atom through its actual stock export; its probe
+checks that identity rather than accepting any requested symbol as a manager.
+Syntax-check subprocess failures now report their underlying error instead of masking it.
 
-Both compaction tests failed on this exact stock source and passed after the narrow repair;
-upstream annotated-message handling is preserved. No experimental retention feature is enabled.
-The signed 18-patch stage passed complete composition, post-repack probes, native preservation,
-signature/seal checks, and byte-identical second application. Static stage and live adoption
-remain separate gates in the [macOS receipt](qualification/macos.md).
-Build `21828` returned to a usable real task through supervised adoption without rescue.
-The installed ASAR and CLI match the staged hashes; task messaging received an ACK, the wait
-ran, and a TinRelay self-ping returned. This is not a full live feature tour.
+All three compaction repair files are byte-identical to build `21828`'s stock source, so its
+stock-red evidence carries by exact hashes, not by a new stock run. Both repaired-source tests
+passed on this exact new revision. No experimental retention feature is enabled. The matching
+release build and complete signed 18-patch stage passed. The corrected candidate returned to a
+real task through the supervisor; roster colors, task-message ACK/wait, and two-way TinRelay
+passed. The [macOS receipt](qualification/macos.md) records the exact hashes and smoke-test limits;
+this is not a new full live feature tour or live compaction test.
 Windows/Linux qualification boundaries and TinRelay transport/configuration are unchanged.
 
 ## Existing installations
@@ -52,7 +53,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.17` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.18` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.
@@ -62,7 +63,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
    Windows staging also requires a separately verified same-inner-build known-good source.
 3. Adopt through the documented platform procedure after explicit operator confirmation. Verify a
    real task and editable composer, not only a renderer-ready marker: a previous macOS candidate
-   reached that marker while displaying Codex's Oops screen. macOS build `21828` and Windows
+   reached that marker while displaying Codex's Oops screen. macOS build `22530` and Windows
    build `10954` have supervised task-return evidence; Ubuntu build `10954` has only
    direct-install/open evidence.
 4. Retain compact receipts and hashes, one pristine package and one current candidate. Remove

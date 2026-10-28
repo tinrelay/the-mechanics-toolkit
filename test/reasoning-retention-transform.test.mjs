@@ -40,37 +40,37 @@ try {
   }
   process.stdout.write("reasoning retention build-11645 transform probe passed\n");
 
-  fs.writeFileSync(turn, build21828TurnFixture());
-  fs.writeFileSync(thread, build21828ThreadFixture());
-  fs.writeFileSync(activity, build21828CollapseFixture());
+  fs.writeFileSync(turn, build22530TurnFixture());
+  fs.writeFileSync(thread, build22530ThreadFixture());
+  fs.writeFileSync(activity, build22530CollapseFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build21828Once = [turn, thread, activity].map(file => fs.readFileSync(file));
-  assert.match(fs.readFileSync(turn, "utf8"), /return Nl\.useSyncExternalStore\(/,
-    "build-21828 turn hook uses the stock React owner, not the _l memo-cache binding");
-  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(l\).*preventAutoCollapse:Jt&&q\|\|ct\|\|or\|\|MTKreasoningRetained/);
-  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&nN\(x,\{conversationId:t,turnSearchKey:n\},!0\)/);
-  const build21828Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build21828Probe.status, 0, build21828Probe.stderr || build21828Probe.stdout);
+  const build22530Once = [turn, thread, activity].map(file => fs.readFileSync(file));
+  assert.match(fs.readFileSync(turn, "utf8"), /return Pl\.useSyncExternalStore\(/,
+    "build-22530 turn hook uses the stock React owner, not the _l memo-cache binding");
+  assert.match(fs.readFileSync(turn, "utf8"), /MTKuseReasoningRetention\(l\).*preventAutoCollapse:Kt&&G\|\|dt\|\|sr\|\|MTKreasoningRetained/);
+  assert.match(fs.readFileSync(thread, "utf8"), /!MTKreasoningThreadRetained&&pN\(S,\{conversationId:t,turnSearchKey:n\},!0\)/);
+  const build22530Probe = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build22530Probe.status, 0, build22530Probe.stderr || build22530Probe.stdout);
   fs.writeFileSync(turn, fs.readFileSync(turn, "utf8").replace(
-    "return Nl.useSyncExternalStore(", "return jl.useSyncExternalStore("));
+    "return Pl.useSyncExternalStore(", "return Ml.useSyncExternalStore("));
   const badOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badOwner.status, 0, "the previous wrong React binding is rejected before staging");
-  assert.match(badOwner.stderr, /wrong build-21828 React owner/);
-  fs.writeFileSync(turn, build21828Once[0]);
+  assert.match(badOwner.stderr, /wrong build-22530 React owner/);
+  fs.writeFileSync(turn, build22530Once[0]);
   fs.writeFileSync(thread, fs.readFileSync(thread, "utf8").replace(
-    "return pF.useSyncExternalStore(", "return gj.useSyncExternalStore("));
+    "return wF.useSyncExternalStore(", "return gj.useSyncExternalStore("));
   const badThreadOwner = spawnSync(process.execPath,
     [toolkit, "patch", "reasoning-retention", "check", extracted], {encoding: "utf8"});
   assert.notEqual(badThreadOwner.status, 0, "the applied thread hook must keep its stock React owner");
-  assert.match(badThreadOwner.stderr, /wrong build-21828 thread React owner/);
-  fs.writeFileSync(thread, build21828Once[1]);
+  assert.match(badThreadOwner.stderr, /wrong build-22530 thread React owner/);
+  fs.writeFileSync(thread, build22530Once[1]);
   assert.equal(run("apply").state, "applied");
   for (const [index, file] of [turn, thread, activity].entries()) {
-    assert.deepEqual(fs.readFileSync(file), build21828Once[index]);
+    assert.deepEqual(fs.readFileSync(file), build22530Once[index]);
   }
-  process.stdout.write("reasoning retention build-21828 transform probe passed\n");
+  process.stdout.write("reasoning retention build-22530 transform probe passed\n");
 
   fs.writeFileSync(turn, linux9771TurnFixture());
   fs.writeFileSync(thread, linux9771ThreadFixture());
@@ -197,25 +197,25 @@ function build11645CollapseFixture() {
   ].join("");
 }
 
-function build21828TurnFixture() {
+function build22530TurnFixture() {
   return [
-    'const jl={},_l=()=>false;let Nl=F();',
-    'function rl(e){let t=(0,jl.c)(255),{conversationId:l,hostId:d,historyEntityKey:f,turnSearchKey:p,turnId:m,}=e,Yn=[];',
-    'let Jt=(0,Nl.useContext)(null);let or=Yn.some(_l),sr;return {preventAutoCollapse:Jt&&q||ct||or}}',
+    'const Ml={},vl=()=>false;let Pl=S();',
+    'function il(e){let t=(0,Ml.c)(255),{conversationId:l,hostId:u,historyEntityKey:d,turnSearchKey:h,turnId:g,}=e,Yn=[];',
+    'let Kt=(0,Pl.useContext)(null);let sr=Yn.some(vl),lr;return {preventAutoCollapse:Kt&&G||dt||sr}}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build21828ThreadFixture() {
+function build22530ThreadFixture() {
   return [
-    'const gj={},St=()=>({useEffect(){},useSyncExternalStore(){return false}}),pF=St(),Wn=()=>({}),_i={},nN=()=>{},aF=()=>false,rp={};',
-    'function rF({ref:e,conversationId:t,isBackgroundSubagentsEnabled:d,usesUnifiedTimeline:b}){let x=Wn(_i),we=null,De=[],gt={current:null};',
-    '(0,pF.useEffect)(()=>{let e=x.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:d}).visibleTurnEntries,n=gt.current,r=e.find(e=>e.turnId===n);n!=null&&n!==we&&!aF(r)&&nN(x,{conversationId:t,turnSearchKey:n},!0),gt.current=we},[t,d,we,x,De]);return b}',
+    'const gj={},J=()=>({useEffect(){},useSyncExternalStore(){return false}}),wF=J(),ie=()=>({}),hp={},pN=()=>{},gF=()=>false,rp={};',
+    'function mF({ref:e,conversationId:t,isBackgroundSubagentsEnabled:d,usesUnifiedTimeline:x}){let S=ie(hp),Me=null,Fe=[],St={current:null};',
+    '(0,wF.useEffect)(()=>{let e=S.get(rp,{conversationId:t,isBackgroundSubagentsEnabled:d}).visibleTurnEntries,n=St.current,r=e.find(e=>e.turnId===n);n!=null&&n!==Me&&!gF(r)&&pN(S,{conversationId:t,turnSearchKey:n},!0),St.current=Me},[t,d,Me,S,Fe]);return x}',
     'export const fixture=true;'
   ].join("");
 }
 
-function build21828CollapseFixture() {
+function build22530CollapseFixture() {
   return [
     'function kO({hasFinalAssistantStarted:e,isTurnCancelled:t,hasRenderableAgentItems:n,forceExpanded:i=!1,preventAutoCollapse:a,persistedCollapsed:o}){return e&&!t&&n?{shouldAllowCollapse:!0,isCollapsed:!i&&(o??!a)}:{shouldAllowCollapse:!1,isCollapsed:!1}}',
     'const button={onToggle:e=>{let t=!u;x.current+=1,h.current=e,m(t),f(!t),(r??l)(t)}};',

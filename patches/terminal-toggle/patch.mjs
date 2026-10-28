@@ -6,7 +6,7 @@ import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
 import { build11645Contracts } from "./profiles/build11645.mjs";
 import { build21421Contracts } from "./profiles/build21421.mjs";
-import { build21828Contracts } from "./profiles/build21828.mjs";
+import { build22530Contracts } from "./profiles/build22530.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -17,7 +17,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes(build21828Contracts[0]));
+  fs.readFileSync(path.join(assets, name), "utf8").includes(build22530Contracts[0]));
 if (runtime.length > 1) throw new Error("Upstream changed: ambiguous terminal runtime");
 const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueAsset(assets, /^app-initial-.*\.js$/);
 const commandBefore =
@@ -81,12 +81,12 @@ function inspectState(value, commands) {
 }
 
 function verifyOwnedBehavior(value) {
-  if (value.includes(build21828Contracts[0])) {
+  if (value.includes(build22530Contracts[0])) {
     const primary = fs.readFileSync(uniqueAsset(assets, /^app-primary-.*\.js$/), "utf8");
     const shared = fs.readFileSync(uniqueAsset(assets, /^app-shared-.*\.js$/), "utf8");
-    if (build21828Contracts.slice(0, 3).every(contract => count(value, contract) === 1) &&
-        count(primary, build21828Contracts[3]) === 1 && count(shared, build21828Contracts[4]) === 1) return;
-    throw new Error("Upstream changed: build-21828 terminal ownership");
+    if (build22530Contracts.slice(0, 3).every(contract => count(value, contract) === 1) &&
+        count(primary, build22530Contracts[3]) === 1 && count(shared, build22530Contracts[4]) === 1) return;
+    throw new Error("Upstream changed: build-22530 terminal ownership");
   }
   if (build21421Contracts.every(contract => count(value, contract) === 1)) return;
   if (build11645Contracts.every(contract => count(value, contract) === 1)) return;

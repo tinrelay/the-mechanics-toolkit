@@ -96,13 +96,13 @@ try {
   assert.equal(run("apply").state, "applied");
   assert.deepEqual(fs.readFileSync(owner), build11645Once);
 
-  fs.writeFileSync(owner, build21828OwnerFixture());
+  fs.writeFileSync(owner, build22530OwnerFixture());
   assert.equal(run("check").state, "needs-apply");
   assert.equal(run("apply").state, "applied");
-  const build21828Once = fs.readFileSync(owner);
+  const build22530Once = fs.readFileSync(owner);
   const published = [];
-  const composerText = build21828Once.toString().slice(build21828Once.toString().indexOf("function Hui("));
-  const composer = Function("$ui", "T5t", "Zui", "Jke", "MTKuseModelIdentityGuard", `${composerText};return Hui`)(
+  const composerText = build22530Once.toString().slice(build22530Once.toString().indexOf("function Tdi("));
+  const composer = Function("Idi", "D5t", "Pdi", "t6e", "MTKuseModelIdentityGuard", `${composerText};return Tdi`)(
     {c: () => []}, effort => effort, () => true, value => value === "success", (...selection) => published.push(selection));
   const models = [{model: "gpt-6.1-sol"}, {model: "gpt-6-luna"}];
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
@@ -124,12 +124,12 @@ try {
     "a loaded mismatch still activates the guard without a timeout");
   composer({conversationId: "task-1", model: "gpt-6.1-sol", reasoningEffort: "high", models});
   assert.deepEqual(published.at(-1), ["task-1", "gpt-6.1-sol", "high"]);
-  assert.match(build21828Once.toString(), /MTKuseModelIdentityGuard\(_t\?null:r,Me,Ct\)/);
-  assert.match(build21828Once.toString(), /return e9\.useEffect\(/);
-  const build21828Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
-  assert.equal(build21828Behavior.status, 0, build21828Behavior.stderr || build21828Behavior.stdout);
+  assert.match(build22530Once.toString(), /MTKuseModelIdentityGuard\(xt\?null:r,Le,Et\)/);
+  assert.match(build22530Once.toString(), /return e9\.useEffect\(/);
+  const build22530Behavior = spawnSync(process.execPath, [probe, extracted], {encoding: "utf8"});
+  assert.equal(build22530Behavior.status, 0, build22530Behavior.stderr || build22530Behavior.stdout);
   assert.equal(run("apply").state, "applied");
-  assert.deepEqual(fs.readFileSync(owner), build21828Once);
+  assert.deepEqual(fs.readFileSync(owner), build22530Once);
 
   function raw(action) {
     return spawnSync(process.execPath, [toolkit, "patch", "model-identity-guard", action, extracted], {encoding: "utf8"});
@@ -206,13 +206,13 @@ function build11645OwnerFixture() {
   ].join("");
 }
 
-function build21828OwnerFixture() {
+function build22530OwnerFixture() {
   return [
-    'const e9={useEffect:e=>e()},T5t=e=>e,Zui=()=>true,Jke=e=>e===`success`;',
+    'const e9={useEffect:e=>e()},D5t=e=>e,Pdi=()=>true,t6e=e=>e===`success`;',
     'const selector={"data-codex-intelligence-trigger":true};',
-    'function Hui(e){let t=(0,$ui.c)(329),r=e.conversationId,me=e.locked,le={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},De=e.catalogStatus??`success`,it=e.threadStatus??`idle`,yt=[],ye=e.reserve===true,je=e.reserveModel,A=e.defaultModel,he=e.model,ve=e.filter===true,Ae=e.models,_e=e.lockedCatalog===true;',
-    'let Me=ye?je?.model??A:he,Ne=ve?Ae?.filter(Zui):Ae;_e&&(Ne=je==null?[]:[je]);',
-    'let ht=me?.isLoading===!0||!Jke(De)||le.isLoading||it===`pending`;let _t=ht,vt=false;',
-    'let Ct=me?.lockedReasoningEffort??T5t(le.reasoningEffort,yt),wt=true;return{t,r,Me,Ae,le,Ct,wt}}'
+    'function Tdi(e){let t=(0,Idi.c)(350),r=e.conversationId,ve=e.locked,fe={reasoningEffort:e.reasoningEffort,isLoading:e.isLoading===true},Me=e.catalogStatus??`success`,st=e.threadStatus??`idle`,Ct=[],we=e.reserve===true,Ie=e.reserveModel,N=e.defaultModel,ye=e.model,Ce=e.filter===true,Fe=e.models,Se=e.lockedCatalog===true;',
+    'let Le=we?Ie?.model??N:ye,Re=Ce?Fe?.filter(Pdi):Fe;Se&&(Re=Ie==null?[]:[Ie]);',
+    'let bt=ve?.isLoading===!0||!t6e(Me)||fe.isLoading||st===`pending`;let xt=bt,St=false;',
+    'let Et=ve?.lockedReasoningEffort??D5t(fe.reasoningEffort,Ct),Dt=true;return{t,r,Le,Fe,fe,Et,Dt}}'
   ].join("");
 }

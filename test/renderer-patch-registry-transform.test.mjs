@@ -12,6 +12,14 @@ const behavioralProbe = path.join(repository, "test/renderer-patch-registry.test
 const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-registry-test-"));
 
 try {
+  const registrySource = fs.readFileSync(path.join(repository, "patches/renderer-patch-registry/patch.mjs"), "utf8");
+  const checkWithFailedSpawn = Function("spawnSync", "fs", "path", "root",
+    `${registrySource.slice(registrySource.indexOf("function syntaxCheck(file) {"))};return syntaxCheck`)(
+    () => ({status: null, error: new Error("spawnSync node EAGAIN")}),
+    {readFileSync: () => Buffer.from("export const fixture=true;")}, path, scratch);
+  assert.throws(() => checkWithFailedSpawn(path.join(scratch, "fixture.js")),
+    /module syntax check failed for fixture\.js: spawnSync node EAGAIN/,
+    "a failed syntax-check process reports its cause and still rejects the candidate");
   const extracted = path.join(scratch, "extracted");
   const assets = path.join(extracted, "webview/assets");
   const build = path.join(extracted, ".vite/build");

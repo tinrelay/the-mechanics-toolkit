@@ -15,7 +15,80 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 21828 — supervised task return
+## Current frontier build 22530 — supervised task return
+
+The newest official macOS ARM64 feed offer selected on 2026-10-28 is Desktop `26.1023.51421`
+/ build `22530`. The 748,022,821-byte full ZIP passed Sparkle Ed25519 verification, and the
+vendor bundle signature, notarization staple, and ASAR seal verified. ZIP SHA-256:
+`7642b2ac2a7a0742f9a1800abba15eef83f77e69d893be79d6467cf21e5e1110`.
+Pristine ASAR SHA-256:
+`1c8ef1bef66e5fc416ae66eff8e6529972aa3601e27a1c7b5f61d6a292b957d3`.
+The feed publishes no attached release notes. The selection is the newest feed item, not a
+claim about which older item the running application's update badge had cached.
+
+Stock CLI `0.165.0-alpha.1.2` has SHA-256
+`d84a54b031085f01e3ad915ea7c72ebea4dcf69e90f0d1e0e4a637e8280991d2`.
+Exact upstream source: `720fec862a608ae1e5878d1eecb04fb93192e93c`, tag
+`rust-v0.165.0-alpha.1.2`. All three compaction repair files have the exact same before/after
+hashes as build `21828`; that predecessor's stock-red evidence is carried by file identity,
+not claimed as a new stock run. The catalog applied the exact three-file diff, and both focused
+repaired-source tests passed on this revision (2 passed, 2,801 skipped). No experimental retention
+feature was enabled. A new same-version release binary is required; the earlier binary is not reused.
+
+Current profiles track the new native terminal dispatcher and simplified sidebar unread state,
+shifted archive owners/caches, current readable-family title hook, and actual host-bus singleton.
+The Dot guards preserve upstream's new deletion-target revalidation before the request. The
+TinRelay classifier preserves upstream's `followsInterruptedFinalAnswer` and history-preview
+rules while adding only accepted radio sends. Final readiness still comes from mounted primary
+routes, not initialization-only events or overlays. Shared attribution and receipt alignment,
+runtime roster policy, and radio scroll anchoring remain unchanged.
+
+The matching stable-Rust `1.95.0` ARM64 release build passed through `bin/tmtk-build-codex`
+with LTO off and `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP` unset.
+It reports `0.165.0-alpha.1.2`. Replacement CLI SHA-256:
+`658128d1d1d7c5d880d0c00bd29cf77b5b0602ec22ccdad2037bcf4029951a32`.
+Cargo.lock changed only 167 workspace version substitutions, with no dependency-resolution change.
+All three repaired-source hashes and reverse application verified against the exact upstream commit.
+
+On 2026-10-28, the complete signed 18-patch stage passed composition, changed-module syntax,
+byte-identical second application, native payload preservation, executable terminal-helper checks,
+signature and ASAR-seal verification, and all probes rerun after repacking. Candidate ASAR SHA-256:
+`c0e46dae7711d0ae56abee0ea8fe9ba87bf68c1c6896cb0138a88a623e0d79fe`.
+The copied CLI matches the release-build hash. `npm run check`, `npm test`, and `git diff --check`
+passed; Linux production package-stage fixtures are platform-skipped on macOS. The source app
+stayed unchanged. An earlier stage stopped at a syntax-check subprocess and discarded its partial
+candidate. Its Node executable path disappeared during the attempt; the original spawn error was
+masked, so that is a likely explanation rather than a captured error code. A focused red/green
+regression now requires the actual subprocess error to remain visible. The complete retry passed.
+
+The first supervised `22530` adoption reached renderer readiness and this real task, but sidebar
+and room colors failed. Its roster loader incorrectly read imported `pq as Bh`, an initializer,
+as the manager atom. Runtime observation showed a null roster and `load-failed` with an undefined
+`id` error. The corrected loader uses `mor as qm`, which resolves to stock `mg=Ua(Q,()=>null)`.
+The earlier permissive fake store hid the wrong symbol; the new probe follows actual module
+imports/exports and enforces manager-atom identity. It failed against the first real bundle and
+passes against the corrected, repacked candidate above. The focused transform suite and complete
+repository checks/tests passed again. The matching native binary is unchanged.
+
+On 2026-10-28, the corrective `bin/tmtk-restart --candidate` adoption reached primary renderer
+readiness at 22:54:17 UTC without rescue. The supervisor finished in `ready` state and removed
+its transaction-only rollback. Fresh installed ASAR and CLI hashes match the corrected candidate
+and release build above; the installed signature and ASAR seal verify.
+
+The operator returned to this actual chat and confirmed restored roster colors, then accepted the
+task-message/wait and TinRelay smoke checks. The recipient returned the requested task-message ACK
+after the native wait; an accepted TinRelay self-ping returned through the normal bridge into this
+chat. Runtime inspection found 19 roster entries, a null roster diagnostic, room palette backgrounds,
+and no model-mismatch indicator present. Transport acceptance alone was not counted as receipt.
+This is the current narrow live-accepted macOS target. It is not a new full live feature tour,
+terminal-shortcut exercise, scroll stress test, live compaction reproduction, destructive Dot action,
+secondary-platform qualification, or provider-acceptance run.
+
+The original source/build and extracted trees were removed after proof (about 12 GiB); the pristine
+app restored for this correction and its small owner fixture were also removed. One authenticated
+ZIP, one current candidate, the replacement binary input, and compact receipts remain.
+
+## Previous live-accepted build 21828 — supervised task return
 
 The selected official offer is Desktop `26.1021.31345` / build `21828`, macOS ARM64.
 The 750,413,801-byte full ZIP passed Sparkle Ed25519 verification. The vendor bundle signature,
@@ -35,8 +108,8 @@ No experimental retention feature was enabled. The catalog checks all three exac
 hashes. Cargo.lock changed only 166 workspace version substitutions, not dependency resolution.
 
 This refresh moves roster/palette/attention bootstrap and hotkey dispatch to `app-runtime`,
-sidebar actions to `app-primary`, and app-control constants to a dedicated module. Current
-profiles are named `build21828`; older secondary-platform owners remain separate. Dot deletion
+sidebar actions to `app-primary`, and app-control constants to a dedicated module. That port's
+profiles were named `build21828`; older secondary-platform owners remained separate. Dot deletion
 and request-time reboot guards retain their behavior; the reboot menu now calls the same policy
 across a module boundary. Archive subscriptions use the stock React factory in the sidebar's
 actual owner. The registry discovers runtime-owned capabilities rather than silently omitting

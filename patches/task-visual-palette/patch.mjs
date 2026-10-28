@@ -6,7 +6,7 @@ import { applyBuild9647ArchiveRuntime, inspectBuild9647ArchiveRuntime } from "./
 import { build9922, applyBuild9922ArchiveRuntime, inspectBuild9922ArchiveRuntime } from "./profiles/build9922.mjs";
 import { build10789, applyBuild10789ArchiveRuntime, inspectBuild10789ArchiveRuntime } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build21828 } from "./profiles/build21828.mjs";
+import { build22530 } from "./profiles/build22530.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -19,7 +19,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 const assets = path.join(root, "webview/assets");
 const appInitial = uniqueFile(/^app-initial-.*\.js$/);
 const runtimeOwners = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("function DW(){"));
+  fs.readFileSync(path.join(assets, name), "utf8").includes("function ZW(){"));
 if (runtimeOwners.length > 1) throw new Error("ambiguous palette bootstrap runtime");
 const bootstrapTarget = runtimeOwners.length === 1 ? path.join(assets, runtimeOwners[0]) : appInitial;
 const appPrimary = uniqueFile(/^app-primary-.*\.js$/);
@@ -181,15 +181,15 @@ function inspectArchiveIdentity(source) {
 function inspectSidebarArchiveProtection(source, primarySource) {
   if (primarySource == null) throw new Error("sidebar archive owner is missing");
 
-  if (build21828.archive.applied.every(contract => primarySource.includes(contract))) {
-    if (!build21828.archive.runtimeApplied.every(contract => primarySource.includes(contract))) {
-      throw new Error("Unrecognized build-21828 archive runtime reload");
+  if (build22530.archive.applied.every(contract => primarySource.includes(contract))) {
+    if (!build22530.archive.runtimeApplied.every(contract => primarySource.includes(contract))) {
+      throw new Error("Unrecognized build-22530 archive runtime reload");
     }
     return "applied";
   }
-  if (build21828.archive.pristine.every(contract => primarySource.includes(contract))) {
-    if (!build21828.archive.runtimePristine.every(contract => primarySource.includes(contract))) {
-      throw new Error("Unrecognized build-21828 archive runtime owner");
+  if (build22530.archive.pristine.every(contract => primarySource.includes(contract))) {
+    if (!build22530.archive.runtimePristine.every(contract => primarySource.includes(contract))) {
+      throw new Error("Unrecognized build-22530 archive runtime owner");
     }
     return "needs-apply";
   }
@@ -278,7 +278,7 @@ function inspectSidebarArchiveProtection(source, primarySource) {
 }
 function appProfile(source) {
   const profiles = [
-    build21828.app,
+    build22530.app,
     build11645.app,
     build10789.app,
     build9922.app,
@@ -305,7 +305,7 @@ function appProfile(source) {
 }
 function bottomFadeProfile(appSource, primarySource) {
   const profiles = [
-    build21828.bottomFade,
+    build22530.bottomFade,
     build11645.bottomFade,
     build9922.bottomFade,
     linuxBuild10954.bottomFade,
@@ -321,7 +321,7 @@ function bottomFadeProfile(appSource, primarySource) {
 }
 function localProfile(source) {
   const profiles = [
-    build21828.local,
+    build22530.local,
     build11645.local,
     build10789.local,
     build9922.local,
@@ -662,12 +662,12 @@ function addArchiveReloadNotification(source, prefix) {
 function patchSidebarArchiveAffordances(file, primaryFile) {
   let source = fs.readFileSync(file, "utf8");
   let currentPrimary = fs.readFileSync(primaryFile, "utf8");
-  if (build21828.archive.pristine.every(contract => currentPrimary.includes(contract))) {
+  if (build22530.archive.pristine.every(contract => currentPrimary.includes(contract))) {
     for (const replacement of [
-      ...build21828.archive.replacements,
-      ...build21828.archive.runtimeReplacements
+      ...build22530.archive.replacements,
+      ...build22530.archive.runtimeReplacements
     ]) {
-      currentPrimary = replaceOnce(currentPrimary, ...replacement, "build-21828 archive owner");
+      currentPrimary = replaceOnce(currentPrimary, ...replacement, "build-22530 archive owner");
     }
     fs.writeFileSync(primaryFile, currentPrimary);
     return;
@@ -775,7 +775,7 @@ function patchLocalPage(file) {
 function patchDelegation(file) {
   let source = fs.readFileSync(file, "utf8");
   if (source.includes("data-mtk-palette-source-id")) throw new Error("delegation palette prototype already applied");
-  const profile = [build21828.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
+  const profile = [build22530.delegation, build11645.delegation, build10789.delegation, build9922.delegation].find(profile => source.includes(profile.owner));
   if (profile != null) {
     for (const replacement of profile.replacements) {
       source = replaceOnce(source, ...replacement);

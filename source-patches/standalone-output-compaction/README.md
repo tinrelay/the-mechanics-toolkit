@@ -44,10 +44,12 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.164.0-alpha.11.1.patch) targets macOS Desktop
-`26.1021.31345` / build `21828`, which bundles `codex-cli 0.164.0-alpha.11.1` at upstream commit
-`6905ecede7816e91373e9eabda3f6b0368fc747b`. Both focused tests failed against this exact stock
-source and passed after the repair. Upstream annotated-message handling remains unchanged. The experimental
+[The current source diff](codex-0.165.0-alpha.1.2.patch) targets macOS Desktop
+`26.1023.51421` / build `22530`, which bundles `codex-cli 0.165.0-alpha.1.2` at upstream commit
+`720fec862a608ae1e5878d1eecb04fb93192e93c`. All three repair files are byte-identical to build
+`21828`'s stock source; that predecessor's stock-red evidence carries by exact hashes, not a new
+stock run. Both repaired-source tests passed on this revision. Upstream annotated-message handling
+remains unchanged. The experimental
 `retain_client_tool_outputs` feature only retains explicitly annotated inputs; it does not
 replace this fallback for ordinary unmarked standalone external inputs. It was not enabled.
 The current CLI requires its own matching binary; do not reuse a prior version's executable.
@@ -62,8 +64,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-21828 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-21828 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-22530 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-22530 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

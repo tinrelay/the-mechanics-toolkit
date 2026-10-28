@@ -6,7 +6,7 @@ import { build9922Contracts } from "../patches/terminal-toggle/profiles/build992
 import { build10789Contracts } from "../patches/terminal-toggle/profiles/build10789.mjs";
 import { build11645Contracts } from "../patches/terminal-toggle/profiles/build11645.mjs";
 import { build21421Contracts } from "../patches/terminal-toggle/profiles/build21421.mjs";
-import { build21828Contracts } from "../patches/terminal-toggle/profiles/build21828.mjs";
+import { build22530Contracts } from "../patches/terminal-toggle/profiles/build22530.mjs";
 import {
   linuxBuild9647Contracts,
   linuxBuild9771Contracts,
@@ -19,7 +19,7 @@ if (!process.argv[2]) throw new Error("usage: terminal-toggle.test.mjs EXTRACTED
 const assets = path.join(root, "webview/assets");
 const names = fs.readdirSync(assets);
 const runtime = names.filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes(build21828Contracts[0]));
+  fs.readFileSync(path.join(assets, name), "utf8").includes(build22530Contracts[0]));
 assert.ok(runtime.length <= 1, "one terminal runtime owner");
 const matches = runtime.length === 1 ? runtime : names.filter(name => /^app-initial-.*\.js$/.test(name));
 assert.equal(matches.length, 1, "unique app-initial asset");
@@ -44,10 +44,10 @@ for (const catalog of catalogs) {
 }
 const build11645 = source.includes(build11645Contracts[3]);
 const build21421 = source.includes(build21421Contracts[3]);
-const build21828 = source.includes(build21828Contracts[0]);
+const build22530 = source.includes(build22530Contracts[0]);
 assert.equal(
-  count(source, build21828
-    ? "h=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),g="
+  count(source, build22530
+    ? "f=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"
     : build21421
     ? "f=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),p;"
     : build11645
@@ -61,9 +61,9 @@ const build9647Linux = source.includes(linuxBuild9647Contracts[2]);
 const build9922 = source.includes(build9922Contracts[3]);
 const build10789 = source.includes(build10789Contracts[3]);
 const build10954Linux = source.includes(linuxBuild10954Contracts[3]);
-assert.ok(build21828 || build21421 || build11645 || build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
+assert.ok(build22530 || build21421 || build11645 || build10954Linux || build10789 || build9922 || build9771Linux || build9647Linux,
   "the qualified terminal owner is present");
-const contracts = build21828 ? build21828Contracts : build21421 ? build21421Contracts : build11645 ? build11645Contracts : build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
+const contracts = build22530 ? build22530Contracts : build21421 ? build21421Contracts : build11645 ? build11645Contracts : build10954Linux ? linuxBuild10954Contracts : build10789 ? build10789Contracts :
   build9922 ? build9922Contracts : build9771Linux ? linuxBuild9771Contracts : linuxBuild9647Contracts;
 assert.equal(
   count(source, contracts[1]),
@@ -71,13 +71,13 @@ assert.equal(
   "the configured accelerators feed the existing hotkey dispatcher"
 );
 assert.equal(
-  count(source, build21828 ? "allowWithinEditable:h,prioritizeOverEditor:s,enabled:g,onKeyDown:_" :
+  count(source, build22530 ? "allowWithinEditable:f,enabled:o,onKeyDown:p" :
     build21421 ? "allowWithinEditable:f,enabled:o,onKeyDown:p" :
     build11645 ? "allowWithinEditable:i,enabled:a,onKeyDown:o" : "allowWithinEditable:c,enabled:a,onKeyDown:l"),
   1,
   "editable permission reaches the existing hotkey hook"
 );
-if (build21828) {
+if (build22530) {
   const primary = names.filter(name => /^app-primary-.*\.js$/.test(name));
   assert.equal(primary.length, 1, "unique terminal action module");
   assert.equal(count(fs.readFileSync(path.join(assets, primary[0]), "utf8"), contracts[3]), 1,

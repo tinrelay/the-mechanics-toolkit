@@ -7,7 +7,7 @@ import {spawnSync} from "node:child_process";
 import {fileURLToPath} from "node:url";
 import {build9922} from "../patches/task-attention-policy/profiles/build9922.mjs";
 import {build11645} from "../patches/task-attention-policy/profiles/build11645.mjs";
-import {build21828} from "../patches/task-attention-policy/profiles/build21828.mjs";
+import {build22530} from "../patches/task-attention-policy/profiles/build22530.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771,
@@ -23,7 +23,7 @@ verifyProfile(linuxBuild9771, linux9771InitialFixture(), primaryFixture(), "Linu
 verifyProfile(linuxBuild9647, linux9647InitialFixture(), linux9647PrimaryFixture(), "Linux build 9647");
 verifyProfile(linuxBuild10954, linux10954InitialFixture(), "export const fixture=true;", "Linux build 10954");
 verifyProfile(build11645, build11645InitialFixture(), "export const fixture=true;", "macOS build 11645");
-verifyProfile(build21828, build21828InitialFixture(), build21828PrimaryFixture(), "macOS build 21828");
+verifyProfile(build22530, build22530InitialFixture(), build22530PrimaryFixture(), "macOS build 22530");
 process.stdout.write("task attention policy current-build transform probe passed\n");
 
 function verifyProfile(profile, initialFixture, primarySource, label) {
@@ -31,9 +31,9 @@ function verifyProfile(profile, initialFixture, primarySource, label) {
   try {
     const assets = path.join(scratch, "webview/assets");
     fs.mkdirSync(assets, {recursive: true});
-    const initial = path.join(assets, profile.suffix === "21828" ? "app-runtime-fixture.js" : "app-initial-fixture.js");
-    if (profile.suffix === "21828") fs.writeFileSync(path.join(assets, "app-initial-fixture.js"),
-      'function Bk(e){if(e==null)return null;return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}export{Bk as Dkn};');
+    const initial = path.join(assets, profile.suffix === "22530" ? "app-runtime-fixture.js" : "app-initial-fixture.js");
+    if (profile.suffix === "22530") fs.writeFileSync(path.join(assets, "app-initial-fixture.js"),
+      'function Ix(e){if(e==null)return null;return e.startsWith(`local:`)?{kind:`local`,threadId:e.slice(6)}:{kind:`remote`,taskId:e.slice(7)}}export{Ix as I0n};');
     const primary = path.join(assets, "app-primary-fixture.js");
     fs.writeFileSync(initial, initialFixture);
     fs.writeFileSync(primary, primarySource);
@@ -138,24 +138,24 @@ function build11645InitialFixture() {
   ].join("");
 }
 
-function build21828InitialFixture() {
+function build22530InitialFixture() {
   return [
-    'import{Dkn as nativeDecoder}from"./app-initial-fixture.js";',
+    'import{I0n as nativeDecoder}from"./app-initial-fixture.js";',
     "globalThis.__MTK_AGENT_ROSTER__=Object.freeze({});",
-    "const f=Symbol(`scope`),NW={useEffect(){}};function K(e){return e}",
-    "function ze(e,t){return t}const uk=ze(f,!1);",
-    "function DW(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,jW.c)(12),t=K(f),n=0;return t}",
-    "function EV(e,t){U.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){U.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
-    "var pV;function dock(){pV=y(f,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?gp({cloudThreadsAllowed:i,localThreadsAllowed:Js(e(wc)),threadKeys:o}):o;return r+s})}"
+    "const q=Symbol(`scope`),rG={useEffect(){}};function R(e){return e}",
+    "function kt(e,t){return t}const Tk=kt(q,!1);",
+    "function ZW(){MTKuseAgentRoster();MTKusePaletteBootstrap();let e=(0,tG.c)(12),t=R(q),n=0;return t}",
+    "function XV(e,t){G.info(`[desktop-notifications] service starting`);let n=t.scope;const listener=(t,r)=>{if(f(t,r)){G.debug(`[desktop-notifications] suppressed turn-complete`);return}return t}}",
+    "var LV;function dock(){LV=xn(q,({get:e})=>{let t=e(YA),i=true,o=[];let s=t===`work`?kd({cloudThreadsAllowed:i,localThreadsAllowed:cf(e(Ys)),threadKeys:o}):o;return r+s})}"
   ].join("");
 }
 
-function build21828PrimaryFixture() {
+function build22530PrimaryFixture() {
   return [
-    "const BJn={useSyncExternalStore(){return!1}};",
-    "function LJn(e){let t=(0,zJn.c)(176),r=e.conversationId,$e={formatMessage(){return `New chat`}},Ft=`Tamsin`,H=null,Oe=false,ft=false,Yt=!1,he=!1,xt=!1,Be=!1,bt=null,St=0,Dt=null,He=!1,Nt=!1,Xt=`idle`;",
-    "let Zt=RJn({title:Ft,titleOverride:H})??(Oe&&ft?$e.formatMessage({id:`codex.taskRow.pinnedTitleFallback`,defaultMessage:`Pinned chat`,description:`Sidebar title for a pinned chat whose title is unavailable`}):$e.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`})),Qt=Nt?`loading`:Xt,$t=Yt?!1:(he??xt===!0)||Be&&(bt==null&&(St??0)>0||Dt!=null||He),en=Yt||Be||bt!=null?0:St??0;",
-    "return{hasUnreadTurn:!Yt&&xt===!0}}"
+    "const bJn={useSyncExternalStore(){return!1}};",
+    "function gJn(e){let t=(0,yJn.c)(189),r=e.conversationId,Ye={formatMessage(){return `New chat`}},kt=`Tamsin`,B=null,Ee=false,ot=false,Ht=!1,fe=!1,ht=!1,mt=null,gt=0,Dt=!1,Ut=`idle`;",
+    "let Wt=vJn({title:kt,titleOverride:B})??(Ee&&ot?Ye.formatMessage({id:`codex.taskRow.pinnedTitleFallback`,defaultMessage:`Pinned chat`,description:`Sidebar title for a pinned chat whose title is unavailable`}):Ye.formatMessage({id:`codex.taskRow.title`,defaultMessage:`New chat`,description:`Default title for a Codex task that doesn't have a title`})),Gt=Dt?`loading`:Ut,Kt=Ht?!1:fe??ht===!0,qt=Ht||mt!=null?0:gt??0;",
+    "return{hasUnreadTurn:!Ht&&ht===!0}}"
   ].join("");
 }
 
