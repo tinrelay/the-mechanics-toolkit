@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { mainMessageBinding } from "./main-message-binding.mjs";
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
-import { incomingBuild22530 } from "./profiles/build22530.mjs";
+import { incomingBuild22943 } from "./profiles/build22943.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -19,7 +20,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const activity = uniqueFile(/^agent-activity-item-(?!row-).*\.js$/);
-const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
+const main = mainProcessAsset(root);
 const turnRenderer = optionalUniqueFile(/^local-conversation-turn-.*\.js$/);
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let activitySource = fs.readFileSync(activity, "utf8");
@@ -144,7 +145,7 @@ function inspectPristineActivity(source) {
 function inspectPristineMain(source) {
   mainMessageBinding(source);
   mainStartup(source);
-  if (count(source, "case`electron-add-new-workspace-root-option`:") !== 1) {
+  if (count(source, mainMessageAnchor(source)) !== 1) {
     throw new Error("Upstream changed: Tinrelay outgoing main message seam is not unique");
   }
   mainHelperOwner(source);
@@ -329,6 +330,8 @@ function patchRenderer(value, turnValue) {
 }
 
 function persistentClassifier(source) {
+  const bootstrap = [...source.matchAll(/function rM\(\{unit:e,hasFollowingFinalAnswer:t,keepMcpAppEntriesPersistent:n,mcpServerStatuses:r,renderMcpApps:i\}\)\{if\(e\.kind!==`standalone`\)return!1;let (?<item>a)=e\.item\.item;return a\.type===`user-input-response`\?!a\.completed:a\.type===`mcp-tool-call`&&nv\(a\)\|\|a\.type===`assistant-message`&&Ai\(a\)\|\|(?:a\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(a\)!=null\|\|)?a\.type===`dynamic-tool-call`&&th\(a\)\|\|n&&i&&a\.type===`mcp-tool-call`&&iM\(\{item:a,mcpServerStatuses:r\}\)\?!0:a\.type===`user-message`&&\(a\.steeringStatus===`pending`\|\|a\.followsInterruptedFinalAnswer===!0\|\|a\.wasInHistoryPreview===!0\|\|a\.deliveryStatus===`not-sent`\|\|a\.hookFeedback===!0\|\|!t\)\}/g)];
+  if (bootstrap.length === 1) return bootstrap[0];
   const frontier = [...source.matchAll(/function Tj\(\{unit:e,hasFollowingFinalAnswer:t,keepMcpAppEntriesPersistent:n,mcpServerStatuses:r,renderMcpApps:i\}\)\{if\(e\.kind!==`standalone`\)return!1;let (?<item>a)=e\.item\.item;return a\.type===`user-input-response`\?!a\.completed:a\.type===`mcp-tool-call`&&O_\(a\)\|\|a\.type===`assistant-message`&&Zi\(a\)\|\|(?:a\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(a\)!=null\|\|)?a\.type===`dynamic-tool-call`&&ym\(a\)\|\|n&&i&&a\.type===`mcp-tool-call`&&Ej\(\{item:a,mcpServerStatuses:r\}\)\?!0:a\.type===`user-message`&&\(a\.steeringStatus===`pending`\|\|a\.followsInterruptedFinalAnswer===!0\|\|a\.wasInHistoryPreview===!0\|\|a\.deliveryStatus===`not-sent`\|\|a\.hookFeedback===!0\|\|!t\)\}/g)];
   if (frontier.length === 1) return frontier[0];
   const current = [...source.matchAll(/function yO\(\{unit:e,keepMcpAppEntriesPersistent:t,mcpServerStatuses:n,renderMcpApps:r\}\)\{if\(e\.kind!==`standalone`\)return!1;let i=e\.item\.item;return i\.type===`assistant-message`&&qn\(i\)\|\|(?:i\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(i\)!=null\|\|)?i\.type===`dynamic-tool-call`&&Gh\(i\)\|\|t&&r&&i\.type===`mcp-tool-call`&&bO\(\{item:i,mcpServerStatuses:n\}\)\?!0:i\.type===`user-message`&&\(i\.steeringStatus!=null\|\|i\.hookFeedback===!0\)\}/g)];
@@ -388,8 +391,8 @@ function patchMain(value) {
   let patched = replaceOnce(value, helperOwner, `${mainHelpers()}${helperOwner}`, "Tinrelay outgoing main helper owner");
   patched = replaceOnce(
     patched,
-    "case`electron-add-new-workspace-root-option`:",
-    `${currentMainHandlers(mainMessageBinding(value))}case\`electron-add-new-workspace-root-option\`:`,
+    mainMessageAnchor(value),
+    `${currentMainHandlers(mainMessageBinding(value))}${mainMessageAnchor(value)}`,
     "Tinrelay outgoing main message handler"
   );
   const startup = mainStartup(patched);
@@ -694,15 +697,11 @@ function mainHelperSlice(source) {
 }
 
 function mainHelperOwner(source) {
-  return uniqueMatch(
-    source,
-    /var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/g,
-    "Tinrelay outgoing main helper owner"
-  )[0];
+  return mainLoggerOwner(source)[0];
 }
 
 function resolveHostBus(source) {
-  const profile = [incomingBuild22530, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
+  const profile = [incomingBuild22943, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9922, incomingBuild9771]
     .find(candidate => source.includes(candidate.moduleAfter));
   if (profile != null) {
     const imported = uniqueMatch(
@@ -710,7 +709,7 @@ function resolveHostBus(source) {
       new RegExp(`import\\{(?<specifiers>[^}]+)\\}from"(?<relative>\\./${escapeRegExp(profile.hostBus.module)}[^"]+\\.js)";`, "g"),
       "current host-bus import"
     );
-    if ((profile === incomingBuild11645 || profile === incomingBuild22530) &&
+    if ((profile === incomingBuild11645 || profile === incomingBuild22943) &&
         imported.groups.specifiers.includes(`${profile.hostBus.exported} as MTKtinrelayBus`)) {
       return "MTKtinrelayBus";
     }
@@ -740,7 +739,7 @@ function rendererProfile(source) {
       source.includes(incomingBuild9922.moduleAfter)) {
     return {jsx: incomingBuild9922.helperJsx, boundary: `function ${incomingBuild9922.delegation}(`, splitTurn: turnRenderer != null};
   }
-  for (const profile of [incomingBuild22530, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
+  for (const profile of [incomingBuild22943, incomingBuild11645, incomingBuild10954, incomingBuild10789, incomingBuild9771, incomingBuild9647]) {
     if (source.includes(`function ${profile.message}(`) &&
         source.includes(`function ${profile.delegation}(`) &&
         source.includes(profile.moduleAfter)) {
@@ -763,6 +762,16 @@ function jsxDialect(value, jsx) {
 }
 
 function mainStartup(source) {
+  if (source.startsWith("exports.ids=[916],exports.modules={")) {
+    if (count(source, 'ex=new em.kec;ex.add(G),ex.add(eu),ex.add(eh)') !== 1) {
+      throw new Error("Upstream changed: bootstrap outgoing disposer owner is not unique");
+    }
+    const match = uniqueMatch(source,
+      /(?<prefix>await (?<electron>ea)\.app\.whenReady\(\),)(?:(?<observer>(?<observerDisposers>ex)\.add\(await MTKtinrelayStartOutgoingObserver\((?<observerElectron>ea)\.app\.getPath\("userData"\)\)\),))?(?<log>ew\("main app\.whenReady resolved",eT\))/g,
+      "bootstrap outgoing app-ready owner");
+    match.groups.disposers = "ex";
+    return match;
+  }
   const startup = uniqueMatch(
     source,
     new RegExp("(?<prefix>await (?<electron>" + id + ")\\.app\\.whenReady\\(\\),)(?:(?<observer>(?<observerDisposers>" + id + ")\\.add\\(await MTKtinrelayStartOutgoingObserver\\((?<observerElectron>" + id + ")\\.app\\.getPath\\(\\\"userData\\\"\\)\\)\\),))?(?<log>" + id + "\\(`main app\\.whenReady resolved`," + id + "\\))", "g"),

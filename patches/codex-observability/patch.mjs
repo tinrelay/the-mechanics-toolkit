@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
 
@@ -9,8 +10,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: codex-observability/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-const build = path.join(root, ".vite", "build");
-const target = uniqueAsset(build, /^main-.*\.js$/);
+const target = mainProcessAsset(root);
 let source = fs.readFileSync(target, "utf8");
 let state = inspectState(source);
 
@@ -60,6 +60,16 @@ function patchMain(value) {
 }
 
 function mainProfile(value) {
+  if (value.startsWith("exports.ids=[916],exports.modules={")) {
+    for (const contract of ['ex=new em.kec;ex.add(G),ex.add(eu),ex.add(eh)',
+      'ew("main app.whenReady resolved",eT)']) {
+      if (count(value, contract) !== 1) throw new Error("Upstream changed: bootstrap app-ready owner is not unique");
+    }
+    if ([...value.matchAll(/await ea\.app\.whenReady\(\),(?:ex\.add\(await MTKtinrelayStartOutgoingObserver\(ea\.app\.getPath\("userData"\)\)\),)?ew\("main app\.whenReady resolved",eT\)/g)].length !== 1) {
+      throw new Error("Upstream changed: bootstrap app-ready startup is not recognized");
+    }
+    return {helperOwner: mainLoggerOwner(value)[0], startup: 'ew("main app.whenReady resolved",eT)', electron: "ea", disposers: "ex"};
+  }
   const id = "[$A-Z_a-z][$\\w]*";
   const helperOwner = uniqueMatch(
     value,
@@ -111,15 +121,6 @@ function MTKobserveConnection(e,t){e.setEncoding("utf8");let n="",r=false,i=asyn
 function MTKobserveProbe(e){return new Promise(t=>{let n=MTKobserveNet.createConnection(e),r=false,i=e=>{if(r)return;r=true,n.destroy(),t(e)};n.once("connect",()=>i("live")),n.once("error",()=>i("stale")),n.setTimeout(250,()=>i("stale"))})}
 async function MTKobserveStart(e){let t=MTKobserveEndpoint();if(t==null)return()=>{};let n;if(process.platform!=="win32"){try{n=MTKobserveFs.lstatSync(t)}catch(e){if(e?.code!=="ENOENT")return()=>{}}if(n!=null){if(!n.isSocket()||typeof process.getuid==="function"&&n.uid!==process.getuid()||await MTKobserveProbe(t)!=="stale")return()=>{};try{MTKobserveFs.unlinkSync(t)}catch{return()=>{}}}}return new Promise(n=>{let r=MTKobserveNet.createServer(n=>MTKobserveConnection(n,e)),i=false,o=null,a=()=>{if(i)return;i=true,r.close(()=>{});if(process.platform==="win32")return;if(o!=null)try{let e=MTKobserveFs.lstatSync(t);e.isSocket()&&e.dev===o.dev&&e.ino===o.ino&&MTKobserveFs.unlinkSync(t)}catch{}};r.on("error",()=>n(()=>{})),r.listen(t,()=>{if(process.platform!=="win32")try{MTKobserveFs.chmodSync(t,384);let e=MTKobserveFs.lstatSync(t);if(!e.isSocket()||!MTKobservePrivate(e)){r.close(()=>{}),n(()=>{});return}o={dev:e.dev,ino:e.ino}}catch{r.close(()=>{}),n(()=>{});return}r.unref(),n(a)})})}
 `;
-}
-
-function uniqueAsset(directory, pattern) {
-  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
-    throw new Error(`Missing extracted asset directory: ${directory}`);
-  }
-  const matches = fs.readdirSync(directory).filter(name => pattern.test(name));
-  if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} assets matching ${pattern}`);
-  return path.join(directory, matches[0]);
 }
 
 function uniqueMatch(value, pattern, label) {

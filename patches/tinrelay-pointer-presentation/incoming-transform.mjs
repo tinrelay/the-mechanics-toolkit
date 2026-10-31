@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { mainMessageBinding } from "./main-message-binding.mjs";
@@ -7,7 +8,7 @@ import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./prof
 import { incomingBuild9922 } from "./profiles/build9922.mjs";
 import { incomingBuild10789 } from "./profiles/build10789.mjs";
 import { incomingBuild11645 } from "./profiles/build11645.mjs";
-import { incomingBuild22530 } from "./profiles/build22530.mjs";
+import { incomingBuild22943 } from "./profiles/build22943.mjs";
 
 const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity:0}15%{opacity:.28}50%{opacity:.52}85%{opacity:.28}100%{transform:scale(1.12);opacity:0}}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal{width:100%}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>.group{align-items:flex-start}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{position:relative;overflow:hidden;isolation:isolate;background:#050607!important;box-shadow:inset 0 0 0 1px #34383D;color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:#F1F3F5!important}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{content:"";position:absolute;z-index:0;inset:-38%;transform-origin:14% 82%;pointer-events:none;background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(190,196,204,.34) 35px 37px,transparent 37px 78px);animation:mtk-tinrelay-signal 6s linear infinite;will-change:transform,opacity}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#303438!important;box-shadow:inset 0 0 0 1px #626971}[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{inset:0;transform-origin:7% 72%;background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(11,12,14,.52) 35px 37px,transparent 37px 78px)}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{animation-delay:-3s}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]>*{position:relative;z-index:1}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal .whitespace-pre-wrap{white-space:normal}@media (prefers-reduced-motion:reduce){[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before{animation:none;transform:scale(1);opacity:.58}[data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{display:none}}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]{background:#F7F8FA!important;box-shadow:inset 0 0 0 1px #C9D0D7;color:#1B1F23!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble] *{color:inherit!important}html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 14% 82%,transparent 0 35px,rgba(69,78,88,.24) 35px 37px,transparent 37px 78px)}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]{background:#E3E7EB!important;box-shadow:inset 0 0 0 1px #B5BEC7;color:#171B1F!important}html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::before,html.electron-light [data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal [data-user-message-bubble]::after{background:repeating-radial-gradient(circle at 7% 72%,transparent 0 35px,rgba(52,62,72,.28) 35px 37px,transparent 37px 78px)}';
 
@@ -22,7 +23,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
-const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
+const main = mainProcessAsset(root);
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();
@@ -88,21 +89,21 @@ function inspectPristineRenderer(source) {
   const profile = incomingRendererProfile(source);
   const message = functionAt(source, source.indexOf(`function ${profile.message}(`));
   const delegation = functionAt(source, source.indexOf(`function ${profile.delegation}(`));
-  if (profile === incomingBuild22530) {
+  if (profile === incomingBuild22943) {
     const paletteProps = "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e";
     const composedPalette = message.text.includes(paletteProps);
     const props = composedPalette ? paletteProps : "compactActions:u,onLabelClick:d}=e";
-    const cache = composedPalette ? "function Eb(e){let t=(0,Db.c)(23)," : "function Eb(e){let t=(0,Db.c)(21),";
-    for (const contract of [cache, "collapsedLineCount:kb", props, "threadId:a", "t[15]!==h?(y=h?"]) {
-      if (!message.text.includes(contract)) throw new Error(`Upstream changed: build-22530 delegated bubble ${contract}`);
+    const cache = composedPalette ? "function rx(e){let t=(0,ix.c)(23)," : "function rx(e){let t=(0,ix.c)(21),";
+    for (const contract of [cache, "collapsedLineCount:ox", props, "threadId:a", "t[15]!==h?(y=h?"]) {
+      if (!message.text.includes(contract)) throw new Error(`Upstream changed: build-22943 delegated bubble ${contract}`);
     }
     if (composedPalette && !message.text.includes("t[21]!==MTKsourceTitle||t[22]!==MTKsourceId?")) {
-      throw new Error("Upstream changed: build-22530 palette cache owner is missing");
+      throw new Error("Upstream changed: build-22943 palette cache owner is missing");
     }
-    for (const contract of ["sourceThreadId:r", "message:i", "(0,sw.jsx)(Eb,"]) {
-      if (!delegation.text.includes(contract)) throw new Error(`Upstream changed: build-22530 delegation ${contract}`);
+    for (const contract of ["sourceThreadId:r", "message:i", "(0,zw.jsx)(rx,"]) {
+      if (!delegation.text.includes(contract)) throw new Error(`Upstream changed: build-22943 delegation ${contract}`);
     }
-    if (!source.includes(profile.moduleBefore)) throw new Error("Upstream changed: build-22530 delegated module");
+    if (!source.includes(profile.moduleBefore)) throw new Error("Upstream changed: build-22943 delegated module");
     resolveHostBus(source);
     return;
   }
@@ -209,15 +210,15 @@ function inspectAppliedRendererBase(source) {
   const profile = incomingRendererProfile(source);
   const message = functionAt(source, source.indexOf(`function ${profile.message}(`));
   const delegation = functionAt(source, source.indexOf(`function ${profile.delegation}(`));
-  if (profile === incomingBuild22530) {
+  if (profile === incomingBuild22943) {
     const composedPalette = message.text.includes("paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId");
     const cache = composedPalette ? [23, 24] : [21, 22];
     for (const contract of ["messageNode:MTKmessageNode}=e", "MTKmessageNode??(h?", "MTKmessageNode?null:d?",
       `t[${cache[0]}]=MTKmessageNode`, `t[${cache[1]}]=MTKmessageNode`]) {
-      if (!message.text.includes(contract)) throw new Error(`Tinrelay build-22530 postcondition missing: ${contract}`);
+      if (!message.text.includes(contract)) throw new Error(`Tinrelay build-22943 postcondition missing: ${contract}`);
     }
     if (!delegation.text.includes("messageNode:MTKtinrelayPointerNode(i,a)")) {
-      throw new Error("Tinrelay build-22530 pointer presentation is missing");
+      throw new Error("Tinrelay build-22943 pointer presentation is missing");
     }
     resolveHostBus(source);
     return;
@@ -237,8 +238,8 @@ function inspectPristineMain(source) {
   mainMessageBinding(source);
   mainProcessProfile(source);
   for (const contract of [
-    "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
-    "case`electron-add-new-workspace-root-option`:"
+    source.startsWith("exports.ids=[916],exports.modules={") ? 'case"show-plan-summary":case"update-diff-if-open":case"view-focused":case"quit-app":case"tray-menu-threads-changed":case"worker-request":case"worker-request-cancel":break;' : "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
+    mainMessageAnchor(source)
   ]) {
     if (count(source, contract) !== 1) {
       throw new Error(`Upstream changed: Tinrelay main-process contract is not unique: ${contract}`);
@@ -291,10 +292,10 @@ function inspectAppliedMainBase(source) {
 }
 
 function incomingRendererProfile(value) {
-  if (value.includes(`function ${incomingBuild22530.delegation}(`) &&
-      value.includes(`function ${incomingBuild22530.message}(`) &&
-      (value.includes(incomingBuild22530.moduleBefore) || value.includes(incomingBuild22530.moduleAfter))) {
-    return incomingBuild22530;
+  if (value.includes(`function ${incomingBuild22943.delegation}(`) &&
+      value.includes(`function ${incomingBuild22943.message}(`) &&
+      (value.includes(incomingBuild22943.moduleBefore) || value.includes(incomingBuild22943.moduleAfter))) {
+    return incomingBuild22943;
   }
   if (value.includes(`function ${incomingBuild11645.delegation}(`) &&
       value.includes(`function ${incomingBuild11645.message}(`) &&
@@ -333,7 +334,7 @@ function patchRenderer(value) {
       `import{${imported.groups.specifiers},${profile.hostBus.exported} as ${hostBus}}from"${imported.groups.relative}";`,
       "Tinrelay host-bus import");
   }
-  if (profile === incomingBuild22530) return patch22530Renderer(patched, hostBus, profile);
+  if (profile === incomingBuild22943) return patch22943Renderer(patched, hostBus, profile);
 
   const messageStart = patched.indexOf(`function ${profile.message}(`);
   const message = functionAt(patched, messageStart);
@@ -384,33 +385,33 @@ function patchRenderer(value) {
   return patched;
 }
 
-function patch22530Renderer(value, hostBus, profile) {
+function patch22943Renderer(value, hostBus, profile) {
   let patched = value;
-  const start = patched.indexOf("function Eb(e){");
+  const start = patched.indexOf("function rx(e){");
   const message = functionAt(patched, start);
   const composedPalette = message.text.includes("compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,");
   const cache = composedPalette ? [23, 24] : [21, 22];
-  let after = replaceOnce(message.text, `function Eb(e){let t=(0,Db.c)(${cache[0]}),`,
-    `function Eb(e){let t=(0,Db.c)(${cache[0] + 2}),`, "build-22530 delegated cache size");
+  let after = replaceOnce(message.text, `function rx(e){let t=(0,ix.c)(${cache[0]}),`,
+    `function rx(e){let t=(0,ix.c)(${cache[0] + 2}),`, "build-22943 delegated cache size");
   after = replaceOnce(after, composedPalette
     ? "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,"
     : "compactActions:u,onLabelClick:d}=e,",
     composedPalette
       ? "compactActions:u,onLabelClick:d,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId,messageNode:MTKmessageNode}=e,"
-      : "compactActions:u,onLabelClick:d,messageNode:MTKmessageNode}=e,", "build-22530 delegated message node");
-  after = replaceOnce(after, "t[15]!==h?(y=h?(0,Ob.jsx)(lv,",
-    `t[15]!==h||t[${cache[0]}]!==MTKmessageNode?(y=MTKmessageNode??(h?(0,Ob.jsx)(lv,`, "build-22530 bubble cache dependency");
+      : "compactActions:u,onLabelClick:d,messageNode:MTKmessageNode}=e,", "build-22943 delegated message node");
+  after = replaceOnce(after, "t[15]!==h?(y=h?(0,ax.jsx)(Pv,",
+    `t[15]!==h||t[${cache[0]}]!==MTKmessageNode?(y=MTKmessageNode??(h?(0,ax.jsx)(Pv,`, "build-22943 bubble cache dependency");
   after = replaceOnce(after, "):null,t[7]=i,t[8]=f,t[9]=p,t[10]=a,t[11]=c,t[12]=l,t[13]=o,t[14]=s,t[15]=h,t[16]=y):y=t[16]",
-    `):null),t[7]=i,t[8]=f,t[9]=p,t[10]=a,t[11]=c,t[12]=l,t[13]=o,t[14]=s,t[15]=h,t[${cache[0]}]=MTKmessageNode,t[16]=y):y=t[16]`, "build-22530 bubble cache storage");
+    `):null),t[7]=i,t[8]=f,t[9]=p,t[10]=a,t[11]=c,t[12]=l,t[13]=o,t[14]=s,t[15]=h,t[${cache[0]}]=MTKmessageNode,t[16]=y):y=t[16]`, "build-22943 bubble cache storage");
   after = replaceOnce(after, "t[4]!==n||t[5]!==d?(v=d?",
-    `t[4]!==n||t[5]!==d||t[${cache[1]}]!==MTKmessageNode?(v=MTKmessageNode?null:d?`, "build-22530 label cache dependency");
+    `t[4]!==n||t[5]!==d||t[${cache[1]}]!==MTKmessageNode?(v=MTKmessageNode?null:d?`, "build-22943 label cache dependency");
   after = replaceOnce(after, "t[4]=n,t[5]=d,t[6]=v):v=t[6]",
-    `t[4]=n,t[5]=d,t[${cache[1]}]=MTKmessageNode,t[6]=v):v=t[6]`, "build-22530 label cache storage");
+    `t[4]=n,t[5]=d,t[${cache[1]}]=MTKmessageNode,t[6]=v):v=t[6]`, "build-22943 label cache storage");
   patched = patched.slice(0, message.start) + after + patched.slice(message.end);
-  const delegation = functionAt(patched, patched.indexOf("function aw(e){"));
-  const delegated = replaceOnce(delegation.text, "(Eb,{conversationId:n,label:p,message:i,",
-    "(Eb,{conversationId:n,label:p,message:i,messageNode:MTKtinrelayPointerNode(i,a),",
-    "build-22530 pointer presentation");
+  const delegation = functionAt(patched, patched.indexOf("function Lw(e){"));
+  const delegated = replaceOnce(delegation.text, "(rx,{conversationId:n,label:p,message:i,",
+    "(rx,{conversationId:n,label:p,message:i,messageNode:MTKtinrelayPointerNode(i,a),",
+    "build-22943 pointer presentation");
   patched = patched.slice(0, delegation.start) + rendererHelpers(hostBus, profile) + delegated + patched.slice(delegation.end);
   return patched;
 }
@@ -444,8 +445,8 @@ function patchMain(value, config) {
   );
   patched = replaceOnce(
     patched,
-    "case`electron-add-new-workspace-root-option`:",
-    `${mainPointerHandler(mainMessageBinding(value))}case\`electron-add-new-workspace-root-option\`:`,
+    mainMessageAnchor(value),
+    `${mainPointerHandler(mainMessageBinding(value))}${mainMessageAnchor(value)}`,
     "Tinrelay main message handler"
   );
   return patched;
@@ -460,6 +461,14 @@ function mainHelpers(config, childProcess) {
 }
 
 function mainProcessProfile(source) {
+  if (source.startsWith("exports.ids=[916],exports.modules={")) {
+    const entry = fs.readFileSync(path.join(root, ".vite/build/early-bootstrap.js"), "utf8");
+    if (count(source, 'var ty=r(50596),tv=r(95398),tb=r(78335)') !== 1 ||
+        count(entry, '95398(e){"use strict";e.exports=require("node:child_process")}') !== 1) {
+      throw new Error("Upstream changed: bootstrap child-process binding is unknown");
+    }
+    return {childProcess: "tv", helperOwner: mainLoggerOwner(source)[0]};
+  }
   const child = uniqueMatch(
     source,
     /(?:let |,)(?<child>[$A-Z_a-z][$\w]*)=require\("node:child_process"\)/g,

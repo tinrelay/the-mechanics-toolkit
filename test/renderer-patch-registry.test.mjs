@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -10,10 +11,7 @@ const assets = path.join(root, "webview/assets");
 const files = fs.readdirSync(assets).filter(name => name.endsWith(".js")).map(name => path.join(assets, name));
 const appInitial = unique(files.filter(file => /^app-initial-.*\.js$/.test(path.basename(file))), "app-initial asset");
 const appSource = fs.readFileSync(appInitial, "utf8");
-const mainFiles = fs.readdirSync(path.join(root, ".vite/build"))
-  .filter(name => /^main-.*\.js$/.test(name))
-  .map(name => path.join(root, ".vite/build", name));
-const mainSource = fs.readFileSync(unique(mainFiles, "main-process asset"), "utf8");
+const mainSource = fs.readFileSync(mainProcessAsset(root), "utf8");
 const bootstrapStart = appSource.indexOf('const MTKpatchRegistryKey="__MTK_PATCH_REGISTRY__"');
 const bootstrapEnd = appSource.indexOf("})();", bootstrapStart) + 5;
 assert.ok(bootstrapStart >= 0 && bootstrapEnd > bootstrapStart, "registry bootstrap seam");

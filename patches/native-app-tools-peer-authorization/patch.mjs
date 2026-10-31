@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -9,8 +10,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: native-app-tools-peer-authorization/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-const build = path.join(root, ".vite/build");
-const target = uniqueAsset(/^main-.*\.js$/);
+const target = mainProcessAsset(root);
 let source = fs.readFileSync(target, "utf8");
 let state = inspectState(source);
 
@@ -50,7 +50,7 @@ function inspectState(value) {
 
 function verifyStockAuthorization(value) {
   const profile = ownershipProfile(value);
-  const contracts = [
+  const contracts = profile.contracts ?? [
     `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``,
     `${profile.addonConst}=\`browser-use-peer-authorization.node\``,
     `${profile.addon}.authorizeSocketPeer(t,${profile.devVar ?? "n"})`,
@@ -91,6 +91,17 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
+      owner: "c$", authorizer: "cF",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,pipePath:a,socketPeerAuthorizer:o=",
+      contracts: [
+        'n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION',
+        'e=cO((0,en.join)(i,"native","browser-use-peer-authorization.node"))',
+        'e.authorizeSocketPeer(s,n)',
+        'dynamic_app_tools_peer_rejected',
+        'missing-socket-file-descriptor'
+      ]
+    },
+    {
       owner: "Zue", authorizer: "od", envConst: "Bue", addonConst: "Vue", addon: "a", devVar: "r",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:n,prepareTaskWorkspace:r,assignTaskProject:i,listTaskProjects:a,pipePath:o,socketPeerAuthorizer:s="
     },
@@ -112,27 +123,16 @@ function ownershipProfile(value) {
     }
   ];
   const pristine = profiles.filter(profile =>
-    value.includes(`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
+    value.includes(profile.contracts?.[0] ?? `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
     value.includes(ownerFor(profile, `${profile.authorizer}()`))
   );
   const applied = profiles.filter(profile =>
-    value.includes(`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
+    value.includes(profile.contracts?.[0] ?? `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
     value.includes(ownerFor(profile, "MTKnativeAppToolsPeerAuthorizer()"))
   );
   if (pristine.length === 1 && applied.length === 0) return pristine[0];
   if (applied.length === 1 && pristine.length === 0) return applied[0];
   throw new Error(`Upstream changed: found ${pristine.length} pristine and ${applied.length} applied native app-tools owners`);
-}
-
-function uniqueAsset(pattern) {
-  if (!fs.existsSync(build) || !fs.statSync(build).isDirectory()) {
-    throw new Error(`Missing extracted main-process build directory: ${build}`);
-  }
-  const matches = fs.readdirSync(build).filter(name => pattern.test(name));
-  if (matches.length !== 1) {
-    throw new Error(`Upstream changed: found ${matches.length} assets matching ${pattern}`);
-  }
-  return path.join(build, matches[0]);
 }
 
 function count(value, needle) {

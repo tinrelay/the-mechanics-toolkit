@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -11,8 +12,7 @@ const renderer = unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
 const build = path.join(root, ".vite/build");
-const main = unique(fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name))
-  .map(name => path.join(build, name)), "main-process asset");
+const main = mainProcessAsset(root);
 const rendererSource = fs.readFileSync(renderer, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
 const stringLiteral = '"(?:\\\\.|[^"\\\\])*"';

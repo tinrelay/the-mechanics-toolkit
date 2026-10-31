@@ -1,5 +1,7 @@
+import {mainMessageAnchor} from "../../src/main-process-asset.mjs";
+
 export function mainMessageBinding(source) {
-  const anchor = "case`electron-add-new-workspace-root-option`:";
+  const anchor = mainMessageAnchor(source);
   const index = source.indexOf(anchor);
   if (index < 0 || source.indexOf(anchor, index + 1) !== -1) {
     throw new Error("Upstream changed: Tinrelay main message anchor is not unique");

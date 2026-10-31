@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -9,10 +10,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: safe-start-readiness/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-const mainTarget = uniqueAsset(path.join(root, ".vite/build"), /^main-.*\.js$/);
+const mainTarget = mainProcessAsset(root);
 let mainSource = fs.readFileSync(mainTarget, "utf8");
 const rendererTarget = uniqueAsset(path.join(root, "webview/assets"),
-  mainSource.includes('v=require("./bootstrap-BLyztc2V.js")') ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/);
+  mainSource.includes('v=require("./bootstrap-BLyztc2V.js")') || mainSource.startsWith("exports.ids=[916],exports.modules={") ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/);
 const rendererSource = fs.readFileSync(rendererTarget, "utf8");
 let state = inspectState(mainSource, rendererSource);
 
@@ -41,7 +42,9 @@ function inspectState(mainValue, rendererValue) {
 
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
-  const contractFamilies = profile.splitBootstrap ? [
+  const contractFamilies = profile.webpackBootstrap ? [
+    ["bootstrap writer import", ['lG=r(33136)']]
+  ] : profile.splitBootstrap ? [
     ["bootstrap writer import", ['v=require("./bootstrap-BLyztc2V.js")']]
   ] : [
     ["relaunch marker environment", [`${profile.marker}=\`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH\``]],
@@ -71,6 +74,20 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
+  if (value.startsWith("exports.ids=[916],exports.modules={")) {
+    const bootstrap = fs.readFileSync(path.join(root, ".vite/build/early-bootstrap-339-aea964a206c655e4.js"), "utf8");
+    for (const contract of ['33136(e,t,n){"use strict"',
+      'function o({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split("=",1)[0]===`--${a.w4}`),markerPath:t=process.env.CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH?.trim(),writeMarker:n=',
+      'n.d(t,{$5:()=>u,Bo:()=>c,Ey:()=>o})']) {
+      if (count(bootstrap, contract) !== 1) throw new Error("Upstream changed: bootstrap relaunch writer is not unique");
+    }
+    const marker = '"CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH"', writer = "lG.Ey";
+    const action = readinessAction(marker, writer);
+    return {marker, writer, webpackBootstrap: true,
+      before: 'case"ready":{t.initializationOnly||(this.windowManager.markWebContentsReady(e),',
+      applied: 'case"ready":{t.initializationOnly||(this.windowManager.getRendererWindowLogFields(e).rendererWindowAppearance===`primary`&&' + action + ',this.windowManager.markWebContentsReady(e),',
+      rendererReady: 'hp.dispatchMessage(`ready`,{})'};
+  }
   if (value.includes('v=require("./bootstrap-BLyztc2V.js")')) {
     const bootstrap = fs.readFileSync(path.join(root, ".vite/build/bootstrap-BLyztc2V.js"), "utf8");
     for (const contract of [

@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -13,7 +14,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);
-const mainProcess = uniqueMainAsset(/^main-.*\.js$/);
+const mainProcess = mainProcessAsset(root);
 const taskAttentionPolicyMarkers = [
   "const MTKattentionRosterBridge=1",
   'const MTKattentionRelativePath=".codex/task-attention-policy.json"'
@@ -232,15 +233,6 @@ function uniqueAsset(pattern) {
   const matches = assetFiles().filter(file => pattern.test(path.basename(file)));
   if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} assets matching ${pattern}`);
   return matches[0];
-}
-
-function uniqueMainAsset(pattern) {
-  if (!fs.existsSync(build) || !fs.statSync(build).isDirectory()) {
-    throw new Error(`Missing extracted main-process directory: ${build}`);
-  }
-  const matches = fs.readdirSync(build).filter(name => pattern.test(name));
-  if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} main-process assets matching ${pattern}`);
-  return path.join(build, matches[0]);
 }
 
 function replaceOnce(value, before, after, label) {

@@ -1,34 +1,38 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.18` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.19` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.18
+## 0.2.19
 
-The macOS target is Desktop `26.1023.51421` / build `22530`, with bundled CLI
-`0.165.0-alpha.1.2`. Apply `standalone-output-compaction-22530` to exact upstream commit
-`720fec862a608ae1e5878d1eecb04fb93192e93c`, then build with stable Rust `1.95.0` through
-`bin/tmtk-build-codex` and its default LTO-off setting. Do not reuse the prior version's binary.
+The macOS target is Desktop `26.1027.30824` / build `22943`, with bundled CLI
+`0.166.0-alpha.5.1`. Apply `standalone-output-compaction-22943` to exact upstream commit
+`f79b26ccbb3116b052544666a181012fb45dc49b`, then build with stable Rust `1.95.0` through
+`bin/tmtk-build-codex` and its default LTO-off setting. Do not reuse an older binary.
 
-Exact build-`22530` profiles refresh the current generated owners, including the simplified
-terminal dispatcher, sidebar unread/archive controls, family-aware title subscription, host bus,
-and split bootstrap readiness writer. Shared attribution, alignment, and radio scroll anchoring
-remain unchanged. The Dot guard preserves upstream request-time deletion-target revalidation;
-TinRelay preserves the new native `followsInterruptedFinalAnswer` persistence rule.
-The roster loader resolves the current manager atom through its actual stock export; its probe
-checks that identity rather than accepting any requested symbol as a manager.
-Syntax-check subprocess failures now report their underlying error instead of masking it.
+This build moves the main process into split Webpack bootstrap chunks. Exact package/loader
+ownership now selects the handler chunk; the readiness writer, native peer authorizer, terminal
+catalogs, observability startup, and radio/receipt hooks follow their new owners. Renderer
+profiles refresh the roster manager, title subscriptions, memo caches, archive guards, and
+reasoning hooks. BAD MODEL uses the complete settings-loading state, including reserve-model
+loading, before publishing a mismatch. Attribution, alignment, and radio scroll anchoring keep
+their existing behavior.
 
-All three compaction repair files are byte-identical to build `21828`'s stock source, so its
-stock-red evidence carries by exact hashes, not by a new stock run. Both repaired-source tests
-passed on this exact new revision. No experimental retention feature is enabled. The matching
-release build and complete signed 18-patch stage passed. The corrected candidate returned to a
-real task through the supervisor; roster colors, task-message ACK/wait, and two-way TinRelay
-passed. The [macOS receipt](qualification/macos.md) records the exact hashes and smoke-test limits;
-this is not a new full live feature tour or live compaction test.
+Both focused tests failed on the exact stock CLI at their intended assertions, then passed with
+the three-file repair. This independently revalidates the local and remote-v2 repair paths;
+it is not a claim that every upstream replay symptom or alternate rollover path is fixed.
+No experimental retention feature was enabled.
+
+The complete 16-patch ASAR composition, behavior probes, and byte-identical reapplication passed.
+The matching native release build and signed 18-patch package stage passed, including post-repack
+probes, signatures/seal, and native payload preservation. Supervised adoption returned to a real
+task with an editable composer and matching installed hashes. The roster loaded all 19 entries
+without a diagnostic; task-message ACK/wait and two-way TinRelay passed. The
+[macOS receipt](qualification/macos.md) records the exact gates and limits; this is a narrow
+live smoke result, not a new full feature tour, live compaction test, or rescue-capability test.
 Windows/Linux qualification boundaries and TinRelay transport/configuration are unchanged.
 
 ## Existing installations
@@ -53,7 +57,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.18` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.19` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

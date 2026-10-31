@@ -12,7 +12,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("function ZW(){"));
+  ["function ZW(){", "function PK(){"].some(owner => fs.readFileSync(path.join(assets, name), "utf8").includes(owner)));
 if (runtime.length > 1) throw new Error("Upstream changed: ambiguous agent roster runtime");
 const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueFile(/^app-initial-.*\.js$/, assets);
 let source = fs.readFileSync(target, "utf8");
@@ -65,18 +65,18 @@ function inspectState(value) {
 }
 
 function currentProfile(value) {
-  const build22530Seam = "function ZW(){let e=(0,tG.c)(12),t=R(q),";
-  if (value.includes(build22530Seam)) {
-    for (const contract of [build22530Seam,
-      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(ym)", "mor as qm"]) {
-      if (count(value, contract) !== 1) throw new Error(`Upstream changed: build-22530 agent roster ${contract}`);
+  const build22943Seam = "function PK(){let e=(0,RK.c)(12),t=G(U),";
+  if (value.includes(build22943Seam)) {
+    for (const contract of [build22943Seam,
+      "{groups:f,isWorkspaceRootOptionsLoading:p}=o(ol)", "mpr as Th"]) {
+      if (count(value, contract) !== 1) throw new Error(`Upstream changed: build-22943 agent roster ${contract}`);
     }
     const initial = fs.readFileSync(uniqueFile(/^app-initial-.*\.js$/, assets), "utf8");
-    for (const contract of ["mg=Ua(Q,()=>null)", "mg as mor"]) {
-      if (count(initial, contract) !== 1) throw new Error(`Upstream changed: build-22530 manager atom ${contract}`);
+    for (const contract of ["ng=sr(Q,()=>null)", "ng as mpr", "i=e.get(ng);if(i!=null", "return i.forHost(t)"]) {
+      if (count(initial, contract) !== 1) throw new Error(`Upstream changed: build-22943 manager atom ${contract}`);
     }
-    return {seam: build22530Seam, scope: "R(q)", react: "rG", projectsAtom: "ym",
-      readyAtom: "qm", client: "((e,t)=>e.get(qm).forHost(t))"};
+    return {seam: build22943Seam, scope: "G(U)", react: "BK", projectsAtom: "ol",
+      readyAtom: "Th", client: "((e,t)=>e.get(Th).forHost(t))"};
   }
   const build21421Seam = "function Dbu(){let e=(0,Abu.c)(12),t=E(J),";
   if (value.includes(build21421Seam)) {

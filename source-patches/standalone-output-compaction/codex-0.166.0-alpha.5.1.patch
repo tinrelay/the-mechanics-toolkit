@@ -1,5 +1,5 @@
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index 163e7d5..70b496c 100644
+index 3c66423..d249646 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
 @@ -61,6 +61,7 @@ use tracing::error;
@@ -10,7 +10,7 @@ index 163e7d5..70b496c 100644
  
  /// Thread-local policy that preserves inherited context without changing model or skill budgets.
  /// Insert into `StartThreadOptions::thread_extension_init` to disable automatic compaction.
-@@ -651,6 +652,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -655,6 +656,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      let mut last_real_user_index = None;
      for (i, item) in compacted_history.iter().enumerate().rev() {
          if crate::compact_retained_tool_outputs::is_retained_tool_output(item)
@@ -18,7 +18,7 @@ index 163e7d5..70b496c 100644
              || is_real_user_or_agent_message(&item.item)
          {
              last_real_user_index = Some(i);
-@@ -694,6 +696,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -698,6 +700,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      compacted_history
  }
  
@@ -99,10 +99,10 @@ index bacf8c3..f6aec2a 100644
      fn build_v2_compacted_history_preserves_retained_metadata_sidecar() {
          let retained = message("user", "keep", /*phase*/ None);
 diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
-index cc80b04..7d6f68d 100644
+index 790f0d7..c4193b1 100644
 --- a/codex-rs/core/src/compact_tests.rs
 +++ b/codex-rs/core/src/compact_tests.rs
-@@ -812,6 +812,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
+@@ -861,6 +861,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
      assert_eq!(refreshed, expected);
  }
  

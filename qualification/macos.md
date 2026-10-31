@@ -15,7 +15,69 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 22530 — supervised task return
+## Current frontier build 22943 — supervised task return
+
+On 2026-10-30, the newest official feed item was Desktop `26.1027.30824` / build `22943`,
+published 2026-10-29 18:03:26 UTC. One official ARM64 ZIP was downloaded; its exact advertised
+length and Sparkle Ed25519 signature verified against the trusted vendor key. Vendor application
+signature, ASAR seal, and notarization staple also verified. ZIP SHA-256:
+`79018bcdcc141902d9a0e61950ec207f71951941db4165f8a0dc2dc8f0dcc883`.
+Pristine ASAR: `36bf3d2b35e95e11852074b9ca9459b89efbecd6b8311345d060cf66de8f0ba6`.
+The feed attaches no release notes.
+
+Bundled CLI `0.166.0-alpha.5.1` SHA-256:
+`58a91f6ea19bea477ae3a2ec48d619f0039afe75d3476260747e11d201fa7cea`.
+Exact upstream source is tag `rust-v0.166.0-alpha.5.1`, commit
+`f79b26ccbb3116b052544666a181012fb45dc49b`. The two test-only regressions failed on stock
+at the intended output-retention/context-ordering assertions (0 passed, 2 failed). The catalog's
+three-file repair then passed both tests (2 passed, 2,869 skipped). No provider or live model run
+was performed and no experimental retention feature was enabled. Cargo.lock changed only 170
+workspace version substitutions, with no dependency-resolution change. The packaged Desktop
+`turnToolOutput` builder still omits `retain` on its `codex_app` tool output; the optional
+marked-output route therefore does not replace this unmarked-input repair. No feature state changed.
+
+The main process now uses the Webpack early-bootstrap entry and chunks 339/916. The port traces
+package identity and loader linkage, the native child-process binding, peer authorization,
+app-ready disposers, and the separately exported relaunch writer. Readiness remains a mounted
+primary renderer event, excluding initialization-only events and overlays. Renderer profiles
+trace the actual roster manager export, task/title families, React owners, memo caches, and
+native archive revalidation. Model mismatch publication waits for the complete loading state.
+
+The complete 16-patch ASAR composition, behavior probes, changed-module syntax, and byte-identical
+second application passed from pristine. An earlier disposable composition exposed a profile
+conversion that dropped the palette's roster-consumer flag; it was discarded and composed afresh
+after correction. No candidate from that failed probe was adopted or retained.
+
+Stable Rust `1.95.0`, LTO off, and unset `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and
+`RUSTC_BOOTSTRAP` produced the matching ARM64 release binary through `bin/tmtk-build-codex`.
+It reports `0.166.0-alpha.5.1`. Replacement CLI SHA-256:
+`c04e16a44de5d110d29006108549ab577f8d6747112d087897baeb348591bbf4`.
+The exact repaired-source hashes remain applied after the build.
+
+The complete signed 18-patch stage passed from pristine: changed-module syntax, complete-fleet
+composition, byte-identical second application, executable terminal helper, original native
+payloads and unpacked paths/modes, signature and ASAR-seal verification, and all probes repeated
+after repacking. Candidate ASAR SHA-256:
+`7dd0937ab3c5c63d0fa1819df684ae134b6925a7e42050a0e196414229c9e3fc`.
+The candidate CLI matches the release hash above. Repository checks/tests passed; Linux production
+DEB/RPM stage fixtures were platform-skipped on macOS. Superseded frontier profiles/source diff
+were removed after replacing their current use; Git history preserves their exact earlier recipe.
+
+The source application and accepted build `22530` stayed unchanged through staging. After explicit
+operator authorization, `bin/tmtk-restart --candidate` adopted the candidate and reached renderer
+readiness on 2026-10-31 without rescue. The operator returned to this real task; read-only renderer
+inspection confirmed an editable composer, the mounted patch descriptors, and all 19 roster
+entries with no roster diagnostic. Installed Desktop identity, ASAR, and CLI hashes match the
+candidate above. The supervisor removed its transaction-only rollback after readiness.
+
+A native task-message test received its requested ACK, and the wait path returned progress before
+the ACK arrived. A TinRelay self-send was accepted, independently reported routed, and returned as
+an incoming delivery in the same task. This qualifies the task/radio round trip; no new full live
+feature tour, separate visual color inspection, live compaction run, or secondary-platform run is
+claimed. Supervisor implementation is unchanged; no new destructive rescue-capability run was
+performed. The earlier static-stage receipt remains a record of staging, not live adoption.
+
+## Previous live-accepted build 22530 — supervised task return
 
 The newest official macOS ARM64 feed offer selected on 2026-10-28 is Desktop `26.1023.51421`
 / build `22530`. The 748,022,821-byte full ZIP passed Sparkle Ed25519 verification, and the

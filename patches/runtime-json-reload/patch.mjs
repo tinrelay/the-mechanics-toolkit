@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
@@ -11,11 +12,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const renderer = rendererFile(assets);
-const main = uniqueFile(/^main-.*\.js$/, path.join(root, ".vite/build"));
+const main = mainProcessAsset(root);
 const runtimeFiles = Object.freeze([
   "agent-roster.json"
 ]);
-const mainOwnerPattern = /var [$\w]+=[$\w]+\.(?:i|Lt|a)\(`electron-message-handler`\)/g;
 let rendererSource = fs.readFileSync(renderer, "utf8");
 let mainSource = fs.readFileSync(main, "utf8");
 let state = inspectState();
@@ -100,13 +100,15 @@ function inspectPristineRenderer() {
 }
 
 function inspectPristineMain() {
-  const owner = mainSource.match(mainOwnerPattern) ?? [];
+  const owner = [mainLoggerOwner(mainSource)[0]];
   if (owner.length !== 1) {
     throw new Error("Upstream changed: runtime JSON main-process owner is not unique");
   }
   for (const contract of [
-    "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
-    "case`electron-add-new-workspace-root-option`:"
+    mainSource.startsWith("exports.ids=[916],exports.modules={")
+      ? 'case"show-plan-summary":case"update-diff-if-open":case"view-focused":case"quit-app":case"tray-menu-threads-changed":case"worker-request":case"worker-request-cancel":break;'
+      : "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
+    mainMessageAnchor(mainSource)
   ]) {
     if (count(mainSource, contract) !== 1) {
       throw new Error(`Upstream changed: runtime JSON main-process contract is not unique: ${contract}`);
@@ -158,14 +160,14 @@ function rendererProfile(value) {
 }
 
 function patchMain(value) {
-  const owners = value.match(mainOwnerPattern) ?? [];
+  const owners = [mainLoggerOwner(value)[0]];
   if (owners.length !== 1) throw new Error("Upstream changed: main-process runtime JSON helper owner is not unique");
   let patched = replaceOnce(value, owners[0], mainHelper() + owners[0],
     "main-process runtime JSON helper owner");
   patched = replaceOnce(
     patched,
-    "case`electron-add-new-workspace-root-option`:",
-    "case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break;case`electron-add-new-workspace-root-option`:",
+    mainMessageAnchor(value),
+    "case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break;" + mainMessageAnchor(value),
     "main-process runtime JSON message handler"
   );
   return patched;

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset, mainLoggerOwner, mainMessageAnchor} from "../src/main-process-asset.mjs";
 import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -63,11 +64,11 @@ const currentTitleOwner = fs.readdirSync(assets).some(name => {
   if (!/^app-initial-.*\.js$/.test(name)) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
   return source.includes("zA=to(Q,") && source.includes("l2i=to(Q,(e,{get:t})=>{") ||
-    source.includes("sq=U(Q,") && source.includes("kfs=U(Q,(e,{get:t})=>{if(e==null)return null;");
+    source.includes("NW=K(Q,") && source.includes("bVs=K(Q,(e,{get:t})=>{if(e==null)return null;");
 });
 const readableTitleFamily = fs.readdirSync(assets).some(name =>
   /^app-initial-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes("kfs=U(Q,"));
+  fs.readFileSync(path.join(assets, name), "utf8").includes("bVs=K(Q,"));
 const reactiveTitleExport = currentTitleOwner ? unique(owner,
   /import\{[^}]*\b(?<exported>[$\w]+) as MTKoutboundUseTitle(?:,|\})/g,
   "reactive title reader").groups.exported : null;
@@ -165,7 +166,7 @@ if (directSummaryOwner) values.splice(names.indexOf("MTKoutboundThreadSummaryAto
 if (currentTitleOwner) values.push((atom, key) => {
   // The current title is a readable-family. The plain signal hook returns that
   // descriptor unchanged; only the family-aware hook reads its current value.
-  if (readableTitleFamily && reactiveTitleExport !== "FCt") return atom;
+  if (readableTitleFamily && reactiveTitleExport !== "lTt") return atom;
   return atom === titleAtom ? liveTitles.get(key?.threadId) ?? null : null;
 });
 const api = Function(...names, `${helper};return {MTKoutboundArguments,MTKoutboundLabel,MTKoutboundPreview,MTKoutboundTaskColor,MTKoutboundContrast,MTKoutboundLabelColor,MTKOutboundMessageReceipt,MTKrenderOutboundMessage}`)(...values);
@@ -363,7 +364,7 @@ if (registeredReceipt) {
   const userPresentation = presentation.indexOf(`${turnRegistrar}(\`user-item-`);
   const taskPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-outbound-turn-receipts\``);
   const tinrelayPresentation = presentation.indexOf(`${turnRegistrar}(\`mtk-tinrelay-outgoing-turn\``);
-  const activityBoundary = ["let Ya=qa.length,Xa={", "let ro=Qa.length,io={", "let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
+  const activityBoundary = ["let Ga=Ua.length,Ka={", "let ro=Qa.length,io={", "let qa=za.length,Ya={", "let Ha=za.length", "let Ra=Fa.length", "let to=Qa.length", "let ea=Xi.length", "let $a=Za.length,to={"]
     .map(marker => presentation.indexOf(marker, taskPresentation))
     .find(index => index >= 0) ?? -1;
   assert.ok(userPresentation >= 0 && taskPresentation > userPresentation && taskPresentation < activityBoundary,
@@ -446,16 +447,13 @@ assert.equal(
 receiptEffects.length = 0;
 
 const mainDirectory = path.join(root, ".vite/build");
-const mainOwners = fs.readdirSync(mainDirectory).filter(name => {
-  const source = /^main-.*\.js$/.test(name) ? fs.readFileSync(path.join(mainDirectory, name), "utf8") : "";
-  return source.includes("function MTKoutboundReceiptWrite(") && source.includes("function MTKoutboundReceiptList(");
-});
+const mainOwners = [path.basename(mainProcessAsset(root))];
 assert.equal(mainOwners.length, 1, "unique durable receipt cache owner");
 const main = fs.readFileSync(path.join(mainDirectory, mainOwners[0]), "utf8");
 const mainStart = main.indexOf('const MTKoutboundReceiptContract=');
-const mainOwner = main.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/);
+const mainOwner = mainLoggerOwner(main);
 assert.ok(mainOwner != null && mainOwner.index > 0, "localized durable receipt main helper");
-const mainHelper = main.slice(mainStart, mainStart + mainOwner.index);
+const mainHelper = main.slice(mainStart, mainOwner.index);
 assert.ok(mainHelper.includes('process.platform==="win32"||(e.mode&63)===0'),
   "Windows relies on its inherited user-data ACL instead of unavailable POSIX mode bits");
 const mainHandlerStart = main.indexOf("case`mtk-outbound-receipt-remember`:");

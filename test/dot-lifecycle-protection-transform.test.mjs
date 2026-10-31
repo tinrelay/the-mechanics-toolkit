@@ -15,14 +15,14 @@ try {
   const primary = path.join(assets, "app-primary-fixture.js");
   const fixture = [
     'globalThis.__MTK_AGENT_ROSTER__=Object.freeze({current:()=>null});',
-    'function cw(e,t){let n=e.query.getData(uw,t);return n}',
-    'function Wra(e,t,n,r){let i={accountId:e.get(Mg),userId:e.get(Ng),hostId:n.hostId},d=()=>true;return f();async function f(){if(!d()||e.get(zC,i).has(n.threadId))return;let c=Symbol();try{if(cw(e,n.threadId)?.id!==t)throw Error(`The Dot deletion target is no longer current`);await pMe(t,i.accountId);r?.()}catch(e){throw e}}}',
-    'async function bps(e,t,n=e.get(Kw,t)){if(cw(e,t)==null)return;return yf(e,null,{orbitId:cw(e,t).id,thread:{hostId:n,threadId:t}})}',
-    'function xps(e,t,n){return cw(e,t)==null?null:{id:`delete-orbit`,onSelect:()=>bps(e,t,n)}}',
+    'function DGt(e,t){let n=e.query.getData(UC,t);return n}',
+    'function Una(e,t,n,r){let i={accountId:e.get(Mg),userId:e.get(Ng),hostId:n.hostId},d=()=>true;return f();async function f(){if(!d()||e.get(EC,i).has(n.threadId))return;let c=Symbol();try{if(DGt(e,n.threadId)?.id!==t)throw Error(`The Dot deletion target is no longer current`);await pMe(t,i.accountId);r?.()}catch(e){throw e}}}',
+    'async function FVs(e,t,n=e.get($S,t)){if(DGt(e,t)==null)return;return yf(e,null,{orbitId:DGt(e,t).id,thread:{hostId:n,threadId:t}})}',
+    'function IVs(e,t,n){return DGt(e,t)==null?null:{id:`delete-orbit`,onSelect:()=>FVs(e,t,n)}}',
   ].join("");
-  const rebootFixture = 'function N(c,i){let u;u=async()=>{await(await k.postResponse(`/cloud-aeons/primary/reboot`,{expectedIdentity:{accountId:n,userId:r},assertRequestCurrent:()=>{if(!c.get(D,`970190263`)||c.get(M)||c.get(j)!==i)throw Error(`The selected dot cannot be rebooted`)},retry:!1})).body?.cancel()};return u}';
+  const rebootFixture = 'function N(d,o){let f;f=async()=>{await(await j.postResponse(`/cloud-aeons/primary/reboot`,{expectedIdentity:{accountId:n,userId:i},assertRequestCurrent:()=>{if(!d.get(O,`970190263`)||d.get(E)||d.get(M)!==o)throw Error(`The selected dot cannot be rebooted`)},retry:!1})).body?.cancel()};return f}';
   fs.writeFileSync(initial, fixture);
-  fs.writeFileSync(primary, 'function VJn(e,t){if(!e.get(z_,`970190263`))return null;return {id:`reboot-orbit`}}');
+  fs.writeFileSync(primary, 'function Mkn(e,t){if(!e.get(p_,`970190263`))return null;return {id:`reboot-orbit`}}');
   fs.writeFileSync(reboot, rebootFixture);
   function run(command, success=true) {
     const r=spawnSync(process.execPath,[path.join(repo,"patches/dot-lifecycle-protection/patch.mjs"),command,scratch],{encoding:"utf8"});
@@ -36,12 +36,12 @@ try {
   assert.equal(probe.status,0,probe.stderr||probe.stdout);
   assert.equal(run("apply").state,"applied");
   assert.deepEqual([fs.readFileSync(initial),fs.readFileSync(reboot)],before,"idempotent complete application");
-  fs.writeFileSync(reboot,fs.readFileSync(reboot,"utf8").replace('assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(c,i);','assertRequestCurrent:()=>{'));
+  fs.writeFileSync(reboot,fs.readFileSync(reboot,"utf8").replace('assertRequestCurrent:()=>{globalThis.__MTK_DOT_POLICY__.assertReboot(d,o);','assertRequestCurrent:()=>{'));
   run("apply",false);
   assert.deepEqual(fs.readFileSync(initial),before[0],"partial state rejected without mutation");
-  fs.writeFileSync(initial,fixture.replace('e.query.getData(uw,t)','e.query.getData(Other,t)'));
+  fs.writeFileSync(initial,fixture.replace('e.query.getData(UC,t)','e.query.getData(Other,t)'));
   fs.writeFileSync(reboot,rebootFixture);
   run("apply",false);
-  assert.equal(fs.readFileSync(initial,"utf8"),fixture.replace('e.query.getData(uw,t)','e.query.getData(Other,t)'),"unknown owner fails before writes");
+  assert.equal(fs.readFileSync(initial,"utf8"),fixture.replace('e.query.getData(UC,t)','e.query.getData(Other,t)'),"unknown owner fails before writes");
   console.log("dot lifecycle transform probe passed");
 } finally {fs.rmSync(scratch,{recursive:true,force:true})}

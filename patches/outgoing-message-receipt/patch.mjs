@@ -1,11 +1,12 @@
 #!/usr/bin/env node
 import fs from "node:fs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { build9922 } from "./profiles/build9922.mjs";
 import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
-import { build22530 } from "./profiles/build22530.mjs";
+import { build22943 } from "./profiles/build22943.mjs";
 import { build10954, windowsBuild10954 } from "./profiles/build10954.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
@@ -134,7 +135,7 @@ function inspectState() {
     (conversationSource.includes(profile.before) || conversationSource.includes(profile.after)) &&
       conversationSource.includes(profile.parentTurn)
   );
-  const currentBuild = [build22530, build11645, build10789, build9922].find(build =>
+  const currentBuild = [build22943, build11645, build10789, build9922].find(build =>
     conversationSource.includes(build.dynamic.before) || conversationSource.includes(build.dynamic.after));
   const current = currentBuild?.dynamic ?? build9922.dynamic;
   const currentConversation = (conversationSource.includes(current.before) || conversationSource.includes(current.after)) &&
@@ -282,7 +283,7 @@ function inspectPristineConversation(value, turnValue = conversationTurnSource) 
 }
 
 function inspectPristineMain(value) {
-  if (count(value, "case`electron-add-new-workspace-root-option`:") !== 1) {
+  if (count(value, mainMessageAnchor(value)) !== 1) {
     throw new Error("Upstream changed: outgoing receipt main message seam is not unique");
   }
   mainHelperOwner(value);
@@ -304,9 +305,9 @@ function patchConversation(value, turnValue) {
     patched = addImportSpecifier(patched, `./${path.basename(build11645.taskImports.sharedModule)}`,
       `${build11645.hostBus.exported} as MTKoutboundHostBus`, "build-11645 host bus import");
   }
-  if (value.includes(build22530.dynamic.before)) {
-    patched = addImportSpecifier(patched, build22530.sharedModule,
-      "eLt as MTKoutboundHostBus", "build-22530 host bus import");
+  if (value.includes(build22943.dynamic.before)) {
+    patched = addImportSpecifier(patched, build22943.sharedModule,
+      "zRt as MTKoutboundHostBus", "build-22943 host bus import");
   }
   patched = replaceOnce(patched, dynamic.functionText, dynamic.patchedFunction, "dynamic renderer context");
   patched = replaceOnce(
@@ -362,7 +363,7 @@ function ownerImportProfile(value) {
 }
 
 function dynamicRendererProfile(value) {
-  for (const [label, build] of [["22530", build22530], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
+  for (const [label, build] of [["22943", build22943], ["11645", build11645], ["10789", build10789], ["9922", build9922]]) {
   const current9922 = build.dynamic;
   if (value.includes(current9922.before) && value.includes(current9922.call) &&
       value.includes(current9922.parentBefore)) {
@@ -558,7 +559,7 @@ function nativeActionsProfile(value) {
 }
 
 function conversationHelperBoundary(value) {
-  if (value.includes("function Dw(e){let t=(0,Ow.c)(")) return "function Dw(";
+  if (value.includes("function aT(e){let t=(0,oT.c)(")) return "function aT(";
   if (value.includes("function aS(")) return "function aS(";
   if (value.includes("function zy(")) return "function zy(";
   if (value.includes("function Lv(")) return "function Lv(";
@@ -583,9 +584,9 @@ function resolveHostBus(value) {
   if (currentShared.length === 1) {
     const source = fs.readFileSync(path.resolve(path.dirname(conversationTarget), currentShared[0].groups.relative), "utf8");
     const exportList = uniqueMatch(source, /export\{(?<specifiers>[^}]+)\}/g, "app-shared export list").groups.specifiers;
-    if (value.includes(build22530.dynamic.before) &&
-        currentShared[0].groups.relative === build22530.sharedModule &&
-        exportedAs(source, "l_") === "eLt" && source.includes("l_=c_.getInstance()") &&
+    if (value.includes(build22943.dynamic.before) &&
+        currentShared[0].groups.relative === build22943.sharedModule &&
+        exportedAs(source, "Vg") === "zRt" && source.includes("Vg=Bg.getInstance()") &&
         source.includes("dispatchMessage(e,t)") && source.includes("subscribe(e,t)")) {
       return "MTKoutboundHostBus";
     }
@@ -661,18 +662,14 @@ function patchMain(value) {
   let patched = replaceOnce(value, helperOwner, `${mainHelpers(electron)}${helperOwner}`, "outgoing receipt main helper owner");
   return replaceOnce(
     patched,
-    "case`electron-add-new-workspace-root-option`:",
-    `${currentMainHandlers()}case\`electron-add-new-workspace-root-option\`:`,
+    mainMessageAnchor(value),
+    `${currentMainHandlers()}${mainMessageAnchor(value)}`,
     "outgoing receipt main message handler"
   );
 }
 
 function mainHelperOwner(value) {
-  return uniqueMatch(
-    value,
-    new RegExp("var (?<helper>" + id + ")=" + id + "\\.(?:i|Lt|a)\\(`electron-message-handler`\\)", "g"),
-    "outgoing receipt main helper owner"
-  );
+  return mainLoggerOwner(value);
 }
 
 function currentMainHandlers() {
@@ -858,7 +855,9 @@ function sendProfile(value) {
     new RegExp(`function (?<genericRender>${id})\\(${id},${id},${id},${id}=!0\\)\\{`, "g"),
     "generic app-control renderer"
   ).groups;
-  const render = header.genericRender === "X" && owner.text.includes("let e=r(l);ae.dispatchHostMessage({type:`navigate-to-route`,path:Ee()?A(e):p(e)})")
+  const render = header.genericRender === "W" && owner.text.includes("let e=fe(s);Pe.dispatchHostMessage({type:`navigate-to-route`,path:st()?Me(e):ee(e)})") && owner.text.includes("d=(0,G.jsxs)(P,")
+    ? {jsx: "G", normalize: "fe", hostBridge: "Pe", routeFlag: "st", newRoute: "Me", oldRoute: "ee"}
+    : header.genericRender === "X" && owner.text.includes("let e=r(l);ae.dispatchHostMessage({type:`navigate-to-route`,path:Ee()?A(e):p(e)})")
     ? {jsx: "Z", normalize: "r", hostBridge: "ae", routeFlag: "Ee", newRoute: "A", oldRoute: "p"}
     : header.genericRender === "Y" && owner.text.includes("let e=v(s);l.dispatchHostMessage({type:`navigate-to-route`,path:f()?xe(e):h(e)})")
     ? {jsx: "X", normalize: "v", hostBridge: "l", routeFlag: "f", newRoute: "xe", oldRoute: "h"}
@@ -950,12 +949,12 @@ function assertPersistentActivityContract(activitySource) {
     "let ce=se,le;",
     "children:[oe,de,fe,pe,ce,he]"
   ];
-  const build22530Contracts = [
-    "V=z!=null&&L.isCollapsed?z.persistentUnits:[]",
-    "persistentContent:ae,children:se",
-    "children:[re,ce,fe]"
+  const build22943Contracts = [
+    "B=z!=null&&L.isCollapsed?z.persistentUnits:[]",
+    "persistentContent:ce,children:K",
+    "children:[oe,ue,me]"
   ];
-  if (build22530Contracts.every(contract => value.includes(contract))) return owner;
+  if (build22943Contracts.every(contract => value.includes(contract))) return owner;
   if (build11645.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (build10789.persistentActivity.every(contract => value.includes(contract))) return owner;
   if (linuxBuild10954.persistentActivity.every(contract => value.includes(contract))) return owner;
@@ -990,22 +989,22 @@ function resolveTaskImports(ownerSource) {
   const appInitialFile = path.resolve(path.dirname(target), importMatch.groups.relative);
   if (!appInitialFile.startsWith(path.resolve(root) + path.sep)) throw new Error("App import escaped extraction root");
   const appInitial = fs.readFileSync(appInitialFile, "utf8");
-  if (appInitial.includes("sq=U(Q,(e,{get:t})=>{let n=Ix(e);") &&
-      appInitial.includes("kfs=U(Q,(e,{get:t})=>{if(e==null)return null;") &&
-      appInitial.includes("function Px(e){return") && appInitial.includes("function Fx(e){return") &&
-      ["MCt as Or", "uct as Q"].every(binding => appInitial.includes(binding))) {
-    const shared = fs.readFileSync(path.resolve(path.dirname(target), build22530.sharedModule), "utf8");
-    if (exportedAs(shared, "Q1e") !== "FCt" || !shared.includes("function Q1e(e,t,n){") ||
-        !shared.includes("tq(cK(l,n))}")) {
+  if (appInitial.includes("NW=K(Q,(e,{get:t})=>{let n=lx(e);") &&
+      appInitial.includes("bVs=K(Q,(e,{get:t})=>{if(e==null)return null;") &&
+      appInitial.includes("function sx(e){return") && appInitial.includes("function cx(e){return") &&
+      ["oTt as Is", "klt as Q"].every(binding => appInitial.includes(binding))) {
+    const shared = fs.readFileSync(path.resolve(path.dirname(target), build22943.sharedModule), "utf8");
+    if (exportedAs(shared, "K2e") !== "lTt" || !shared.includes("function K2e(e,t,n){") ||
+        !shared.includes("RK(GG(l,n))}")) {
       throw new Error("Upstream changed: readable-family title hook owner is missing");
     }
     return {
       before: importMatch[0],
-      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "sq")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "kfs")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "Px")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "Fx")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
-      sharedModule: build22530.sharedModule,
-      sharedHookExport: "MCt",
-      sharedScopeExport: "uct",
-      sharedTitleHookExport: "FCt",
+      after: `import{${importMatch.groups.specifiers},${exportedAs(appInitial, "NW")} as MTKoutboundTaskAtom,${exportedAs(appInitial, "bVs")} as MTKoutboundTitleAtom,${exportedAs(appInitial, "sx")} as MTKoutboundLocalThreadKey,${exportedAs(appInitial, "cx")} as MTKoutboundRemoteThreadKey}from"${importMatch.groups.relative}";`,
+      sharedModule: build22943.sharedModule,
+      sharedHookExport: "oTt",
+      sharedScopeExport: "klt",
+      sharedTitleHookExport: "lTt",
       reactiveTitle: true
     };
   }
@@ -1403,7 +1402,7 @@ function uniqueConversationOwner() {
       (value.includes("function zC(") && value.includes("let e=Hf(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function Ow(") && value.includes("let e=Cp(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       (value.includes("function cO(") && value.includes("let e=bh(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
-      (value.includes("function Dw(e){") && value.includes("let e=Cm(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
+      (value.includes("function aT(e){") && value.includes("let e=ah(o)") && value.includes("u=e?.render?.(o,l,i,c)")) ||
       value.includes("function MTKOutboundTurnReceipts(");
     return split && value.includes("toolActivityTurnKey") &&
       value.includes(`from"./${path.basename(target)}"`);
@@ -1417,8 +1416,8 @@ function uniqueConversationTurnOwner(owner) {
   const matches = fs.readdirSync(assets).filter(name => {
     if (!name.endsWith(".js") || name === basename) return false;
     const value = fs.readFileSync(path.join(assets, name), "utf8");
-    return (value.includes(build22530.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
-      (value.includes(build22530.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
+    return (value.includes(build22943.turn.owner) || value.includes("function gc(e){let t=(0,Uc.c)(188),") || value.includes("function rl(e){let t=(0,kl.c)(189),") || value.includes("function Uc(e){let t=(0,hl.c)(189),") || value.includes("function Lc(e){let t=(0,ml.c)(244),") || value.includes("function Z(e){let t=(0,")) &&
+      (value.includes(build22943.turn.boundary) || value.includes("let Zi=Ki.length,$i={") || value.includes("let ea=Xi.length,ta={") || value.includes("let to=Qa.length,no={") || value.includes("let $a=Ka.length,eo={") ||
        value.includes("MTKOutboundTurnReceipts,{conversationId:u,turnId:") || value.includes("MTKOutboundTurnReceipts,{conversationId:l,turnId:")) &&
       value.includes(`from"./${basename}"`);
   });
@@ -1427,13 +1426,7 @@ function uniqueConversationTurnOwner(owner) {
 }
 
 function uniqueMainOwner() {
-  const directory = path.join(root, ".vite/build");
-  if (!fs.existsSync(directory) || !fs.statSync(directory).isDirectory()) {
-    throw new Error(`Missing extracted main directory: ${directory}`);
-  }
-  const matches = fs.readdirSync(directory).filter(name => /^main-.*\.js$/.test(name));
-  if (matches.length !== 1) throw new Error(`Upstream changed: found ${matches.length} main owners`);
-  return path.join(directory, matches[0]);
+  return mainProcessAsset(root);
 }
 
 function assertStockStyles() {

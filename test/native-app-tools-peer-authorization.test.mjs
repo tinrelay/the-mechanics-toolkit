@@ -1,19 +1,19 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: native-app-tools-peer-authorization.test.mjs EXTRACTED_ASAR_ROOT");
 
 const build = path.join(root, ".vite/build");
-const matches = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name));
-assert.equal(matches.length, 1, "unique main-process asset");
-const source = fs.readFileSync(path.join(build, matches[0]), "utf8");
+const source = fs.readFileSync(mainProcessAsset(root), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
 const end = source.indexOf("async function ", start);
 const owner = source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
 const profiles = {
+  c$: {authorizer: "cF", addon: "e", socketVar: "s", authParam: "o"},
   $ce: {authorizer: "kl", addon: "i"},
   _ce: {authorizer: "pu", addon: "i"},
   Hse: {authorizer: "Ql", addon: "i"},
@@ -57,7 +57,7 @@ assert.equal(
   1,
   "only the native app-tools pipe uses the mixed-signature fallback"
 );
-assert.equal(count(source, `${profile.addon}.authorizeSocketPeer(t,${profile.devVar ?? "n"})`), 1, "the native stock authorizer remains installed");
+assert.equal(count(source, `${profile.addon}.authorizeSocketPeer(${profile.socketVar ?? "t"},${profile.devVar ?? "n"})`), 1, "the native stock authorizer remains installed");
 
 process.stdout.write(`${JSON.stringify({
   state: "green",

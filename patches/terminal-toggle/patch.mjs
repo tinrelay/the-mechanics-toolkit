@@ -6,7 +6,7 @@ import { build9922Contracts } from "./profiles/build9922.mjs";
 import { build10789Contracts } from "./profiles/build10789.mjs";
 import { build11645Contracts } from "./profiles/build11645.mjs";
 import { build21421Contracts } from "./profiles/build21421.mjs";
-import { build22530Contracts } from "./profiles/build22530.mjs";
+import { build22943Contracts } from "./profiles/build22943.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
 const command = process.argv[2];
@@ -17,7 +17,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
-  fs.readFileSync(path.join(assets, name), "utf8").includes(build22530Contracts[0]));
+  fs.readFileSync(path.join(assets, name), "utf8").includes(build22943Contracts[0]));
 if (runtime.length > 1) throw new Error("Upstream changed: ambiguous terminal runtime");
 const target = runtime.length === 1 ? path.join(assets, runtime[0]) : uniqueAsset(assets, /^app-initial-.*\.js$/);
 const commandBefore =
@@ -37,7 +37,7 @@ let state = inspectState(source, commandSources);
 
 if (command === "apply" && state === "needs-apply") {
   commandSources = commandSources.map(value =>
-    replaceOnce(value, commandBefore, commandAfter, "terminal command scope"));
+    replaceOnce(value, commandVariant(value, commandBefore), commandVariant(value, commandAfter), "terminal command scope"));
   const sharedIndex = commandTargets.indexOf(target);
   source = replaceOnce(sharedIndex < 0 ? source : commandSources[sharedIndex],
     editableBefore, editableAfter, "editable terminal shortcut permission");
@@ -61,8 +61,8 @@ process.stdout.write(`${JSON.stringify({
 }, null, 2)}\n`);
 
 function inspectState(value, commands) {
-  const commandRed = commands.map(source => count(source, commandBefore));
-  const commandGreen = commands.map(source => count(source, commandAfter));
+  const commandRed = commands.map(source => count(source, commandVariant(source, commandBefore)));
+  const commandGreen = commands.map(source => count(source, commandVariant(source, commandAfter)));
   const editableRed = count(value, editableBefore);
   const editableGreen = count(value, editableAfter);
   verifyOwnedBehavior(value);
@@ -81,12 +81,12 @@ function inspectState(value, commands) {
 }
 
 function verifyOwnedBehavior(value) {
-  if (value.includes(build22530Contracts[0])) {
+  if (value.includes(build22943Contracts[0])) {
     const primary = fs.readFileSync(uniqueAsset(assets, /^app-primary-.*\.js$/), "utf8");
     const shared = fs.readFileSync(uniqueAsset(assets, /^app-shared-.*\.js$/), "utf8");
-    if (build22530Contracts.slice(0, 3).every(contract => count(value, contract) === 1) &&
-        count(primary, build22530Contracts[3]) === 1 && count(shared, build22530Contracts[4]) === 1) return;
-    throw new Error("Upstream changed: build-22530 terminal ownership");
+    if (build22943Contracts.slice(0, 3).every(contract => count(value, contract) === 1) &&
+        count(primary, build22943Contracts[3]) === 1 && count(shared, build22943Contracts[4]) === 1) return;
+    throw new Error("Upstream changed: build-22943 terminal ownership");
   }
   if (build21421Contracts.every(contract => count(value, contract) === 1)) return;
   if (build11645Contracts.every(contract => count(value, contract) === 1)) return;
@@ -101,6 +101,8 @@ function verifyOwnedBehavior(value) {
 
 function editableSeam(value) {
   const variants = [
+    ["p=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),m=",
+      "p=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),m="],
     ["h=n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),g=",
       "h=n===`toggleTerminal`||n===`focusPageBlockControls`||n===`copyPageLink`||n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),g="],
     ["c=n===`clearAllUnreads`&&(r===`Shift+Escape`||r===`Shift+Esc`),l;",
@@ -114,12 +116,18 @@ function editableSeam(value) {
   return {editableBefore: variants[0][0], editableAfter: variants[0][1]};
 }
 
+function commandVariant(source, seam) {
+  return source.startsWith("exports.ids=[339],exports.modules={") ||
+    source.startsWith("(()=>{") && source.includes('titleIntlId:"codex.command.toggleTerminal"')
+    ? seam.replaceAll("`", '"') : seam;
+}
+
 function commandOwners() {
   if (count(fs.readFileSync(target, "utf8"), commandBefore) === 1 ||
       count(fs.readFileSync(target, "utf8"), commandAfter) === 1) return [target];
   const build = path.join(root, ".vite/build");
-  const srcMatches = fs.readdirSync(build).filter(name => /^src-.*\.js$/.test(name) &&
-    [commandBefore, commandAfter].some(seam => fs.readFileSync(path.join(build, name), "utf8").includes(seam)));
+  const srcMatches = fs.readdirSync(build).filter(name => (/^src-.*\.js$/.test(name) || name === "early-bootstrap-339-aea964a206c655e4.js") &&
+    [commandBefore, commandAfter].some(seam => fs.readFileSync(path.join(build, name), "utf8").includes(commandVariant(fs.readFileSync(path.join(build, name), "utf8"), seam))));
   if (srcMatches.length !== 1) {
     throw new Error(`Upstream changed: found ${srcMatches.length} terminal command source chunks`);
   }

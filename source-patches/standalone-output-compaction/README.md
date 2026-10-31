@@ -20,8 +20,8 @@ not infer its job from whichever older user-shaped message happened to remain vi
 
 ## Known upstream reports
 
-- [`openai/codex#42695`](https://github.com/openai/codex/issues/42695) documents the directly
-  repaired path: a `send_message_to_thread` instruction begins executing, compaction drops that
+- [`openai/codex#42695`](https://github.com/openai/codex/issues/42695) includes reports of this
+  failure shape: a `send_message_to_thread` instruction begins executing, compaction drops that
   current instruction, and the agent resumes an obsolete completed task and produces an incorrect
   execution report.
 - [`openai/codex#42611`](https://github.com/openai/codex/issues/42611) documents a related but
@@ -31,6 +31,9 @@ not infer its job from whichever older user-shaped message happened to remain vi
   cross-thread failure in which a delegation card appears but the prompt body never enters the
   receiving model's context. That is a pre-execution delivery failure, not the mid-turn compaction
   loss fixed here.
+
+These reports are user evidence; the toolkit independently proves its narrow repair with exact-source
+regressions, without assigning every reported occurrence the same cause.
 
 The three reports can look similar to a person because each may surface as irrelevant or repeated
 work. Their event shapes differ, so the toolkit keeps the patch claim narrow.
@@ -44,14 +47,15 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.165.0-alpha.1.2.patch) targets macOS Desktop
-`26.1023.51421` / build `22530`, which bundles `codex-cli 0.165.0-alpha.1.2` at upstream commit
-`720fec862a608ae1e5878d1eecb04fb93192e93c`. All three repair files are byte-identical to build
-`21828`'s stock source; that predecessor's stock-red evidence carries by exact hashes, not a new
-stock run. Both repaired-source tests passed on this revision. Upstream annotated-message handling
-remains unchanged. The experimental
-`retain_client_tool_outputs` feature only retains explicitly annotated inputs; it does not
-replace this fallback for ordinary unmarked standalone external inputs. It was not enabled.
+[The current source diff](codex-0.166.0-alpha.5.1.patch) targets macOS Desktop
+`26.1027.30824` / build `22943`, which bundles `codex-cli 0.166.0-alpha.5.1` at upstream commit
+`f79b26ccbb3116b052544666a181012fb45dc49b`. Both focused tests failed on this exact stock
+revision, then passed after applying the repair. Those tests cover local and remote-v2
+compaction; they do not qualify every alternate rollover path or every reported replay symptom.
+Upstream annotated-message handling remains unchanged. App Server callers can explicitly request
+`toolOutput.retain`, and the experimental `retain_client_tool_outputs` feature can preserve those
+marked inputs when enabled. That opt-in route is not a fallback for ordinary unmarked external
+inputs. No experimental feature was enabled for this qualification.
 The current CLI requires its own matching binary; do not reuse a prior version's executable.
 The macOS runbook records release-build and signed-stage evidence as each gate completes; live acceptance is a
 separate gate. The catalog
@@ -64,8 +68,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-22530 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-22530 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-22943 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-22943 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

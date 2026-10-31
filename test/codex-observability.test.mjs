@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -18,9 +19,7 @@ const main = path.join(build, "main-current.js");
 try {
   if (suppliedRoot != null) {
     const suppliedBuild = path.join(suppliedRoot, ".vite", "build");
-    const suppliedMains = fs.readdirSync(suppliedBuild).filter(name => /^main-.*\.js$/.test(name));
-    assert.equal(suppliedMains.length, 1, "production probe has one main-process owner");
-    const suppliedSource = fs.readFileSync(path.join(suppliedBuild, suppliedMains[0]), "utf8");
+    const suppliedSource = fs.readFileSync(mainProcessAsset(suppliedRoot), "utf8");
     assert.equal(suppliedSource.split('const MTKobserveContract="tmtk-codex-observability-v1"').length - 1, 1,
       "production main process contains one observability bridge");
     assert.equal(suppliedSource.split(".add(await MTKobserveStart(").length - 1, 1,

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset, mainLoggerOwner} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
 const root = path.resolve(process.argv[2] ?? "");
@@ -8,7 +9,7 @@ if (!process.argv[2]) throw new Error("usage: runtime-json-reload.test.mjs EXTRA
 const assets = path.join(root, "webview/assets");
 const mainDirectory = path.join(root, ".vite/build");
 const renderer = rendererFile(assets);
-const main = uniqueFile(/^main-.*\.js$/, mainDirectory);
+const main = mainProcessAsset(root);
 const rendererSource = fs.readFileSync(renderer, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
 
@@ -94,8 +95,8 @@ assert.deepEqual(serialized, [{ initial: true }, { initial: false }],
   "changes during validation coalesce into one later acceptance pass");
 
 const mainStart = mainSource.indexOf('const MTKruntimeJsonFs=');
-const mainOwner = mainSource.slice(mainStart).match(/var [$\w]+=[$\w]+\.(?:i|Lt|a)\(`electron-message-handler`\)/);
-const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
+const mainOwner = mainLoggerOwner(mainSource);
+const mainEnd = mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "main helper boundary");
 const mainHelper = mainSource.slice(mainStart, mainEnd);
 const watchCallbacks = new Map();

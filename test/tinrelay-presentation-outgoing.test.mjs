@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import {mainProcessAsset, mainLoggerOwner, mainMessageAnchor} from "../src/main-process-asset.mjs";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
@@ -15,8 +16,7 @@ const renderer = unique(fs.readdirSync(assets).filter(name =>
 ).map(name => path.join(assets, name)), "conversation renderer");
 const activity = unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-(?!row-).*\.js$/.test(name))
   .map(name => path.join(assets, name)), "activity classifier");
-const main = unique(fs.readdirSync(path.join(root, ".vite/build")).filter(name => /^main-.*\.js$/.test(name))
-  .map(name => path.join(root, ".vite/build", name)), "main process");
+const main = mainProcessAsset(root);
 const rendererSource = fs.readFileSync(renderer, "utf8");
 const activitySource = fs.readFileSync(activity, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
@@ -338,8 +338,8 @@ for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "markdown", "ev
   assert.ok(!helper.includes(forbidden), `renderer omits ${forbidden}`);
 
 const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
-const mainOwner = mainSource.slice(mainStart).match(/var [$A-Z_a-z][$\w]*=[$A-Z_a-z][$\w]*\.(?:i|Lt|a)\(`electron-message-handler`\)/);
-const mainEnd = mainOwner == null ? -1 : mainStart + mainOwner.index;
+const mainOwner = mainLoggerOwner(mainSource);
+const mainEnd = mainOwner == null ? -1 : mainOwner.index;
 assert.ok(mainStart >= 0 && mainEnd > mainStart, "outgoing main helpers are localized");
 assert.ok(mainSource.slice(mainStart, mainEnd).includes('process.platform==="win32"'),
   "the outgoing observer carries its explicit Windows transport and ACL boundary");
@@ -347,7 +347,7 @@ const localRequire = await import("node:module").then(({createRequire}) => creat
 const mainApiFactory = () => Function("require", `${mainSource.slice(mainStart, mainEnd)};return {event:MTKtinrelayOutgoingEvent,remember:MTKtinrelayRememberOutgoing,read:MTKtinrelayReadOutgoing,lookup:MTKtinrelayOutgoingLookup,anchorRemember:MTKtinrelayOutgoingAnchorRemember,anchorsList:MTKtinrelayOutgoingAnchorsList,start:MTKtinrelayStartOutgoingObserver}`)(localRequire);
 const mainApi = mainApiFactory();
 const mainHandlerStart = mainSource.indexOf("case`mtk-tinrelay-outgoing-lookup`:");
-const mainHandlerEnd = mainSource.indexOf("case`electron-add-new-workspace-root-option`:", mainHandlerStart);
+const mainHandlerEnd = mainSource.indexOf(mainMessageAnchor(mainSource), mainHandlerStart);
 assert.ok(mainHandlerStart >= 0 && mainHandlerEnd > mainHandlerStart,
   "outgoing main request handlers are localized");
 const mainHandlerFactory = api => Function(

@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1023.51421` / `22530` | 18 selected | Exact-source repaired compaction tests, matching release build, signed static stage, supervised task return, roster colors, task-message ACK/wait, and two-way TinRelay |
+| macOS ARM64 application | `26.1027.30824` / `22943` | 18 selected | Stock-red/repaired-green source tests, matching native release build, signed 18-patch stage, supervised task return, loaded roster, task-message ACK/wait, and two-way TinRelay |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,29 +27,31 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-Build `22530` refreshes exact generated owners and the stock terminal dispatch, unread/archive,
-host-bus, title-family, and split readiness-writer contracts. The Dot guard preserves native
-request-time target revalidation; radio persistence retains the new interrupted-final-answer rule.
-These current owners are not live-accepted by inheritance from `21828`.
-The first `22530` adoption opened a real task but failed roster loading and therefore colors.
-Its corrected manager binding passed a new actual-export regression and complete signed restaging;
-the corrective supervised adoption returned to the real task with restored roster colors, a
-task-message ACK and wait, and two-way TinRelay. No real dot was deleted or rebooted during qualification.
-Stock React bindings, effective selected model, locked reasoning effort, and neutral loading gates
-remain covered by causal probes. This does not claim a new full live feature tour.
+Build `22943` moves main-process owners into split Webpack bootstrap chunks and refreshes the
+renderer owners. Loader linkage, child-process imports, native peer authorization, readiness,
+observability disposal, terminal catalogs, and radio/receipt composition are checked explicitly.
+The roster loader still follows the actual nullable manager atom export. The model guard waits
+for the full settings-loading state, including reserve-model loading. Existing attribution,
+alignment, archive protection, and radio scroll anchoring keep their behavior.
+
+Both focused compaction regressions failed on the exact stock CLI and passed with the repair.
+The complete extracted-ASAR fleet passed its probes and byte-identical reapplication. The matching native
+release build and complete signed package stage also passed. Supervised adoption then returned
+to the real task with matching installed hashes, an editable composer, and a loaded roster.
+Task-message ACK/wait and two-way TinRelay passed. This is a narrow live smoke result.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact `build22530` profiles target the macOS refresh; prior Windows/Ubuntu build `10954` and Fedora build `9647` owners remain. Shared feature implementations are not forked per OS. Renderer turn-window and retired sidebar collapse remain unselected on macOS. |
-| Package integrity | The build-`22530` vendor ZIP, signature, notarization staple, and ASAR seal authenticated. The matching release binary and signed 18-patch candidate passed complete composition, byte-identical reapplication, native preservation, and post-repack probes. Secondary platforms retain their named earlier receipts. |
-| Live adoption | Corrected macOS build `22530` returned to the real task through the supervisor without rescue, with matching installed hashes, restored roster colors, a task-message ACK and wait, and two-way TinRelay. No new full live feature tour is claimed. Windows build `10954` retains supervised task-return evidence; Ubuntu build `10954` opened a usable task after direct installation; Fedora build `9647` retains earlier supervisor evidence. |
+| Generated JavaScript | Exact `build22943` profiles target the macOS refresh; prior Windows/Ubuntu build `10954` and Fedora build `9647` owners remain. Shared feature implementations are not forked per OS. Renderer turn-window and retired sidebar collapse remain unselected on macOS. |
+| Package integrity | Build-`22943` vendor ZIP, signature, notarization staple, and ASAR seal authenticated. Complete ASAR composition passed. Matching native release build and signed 18-patch stage passed, including post-repack probes, byte-identical reapplication, signatures/seal, and native payload preservation; see the macOS receipt. Secondary platforms retain their named earlier receipts. |
+| Live adoption | Build `22943` returned through the supervisor to a real task with an editable composer and matching installed hashes. The roster loaded 19 entries without a diagnostic; task-message ACK/wait and two-way TinRelay passed. No new full live feature tour or live compaction run is claimed. Windows `10954` retains supervised task-return evidence; Ubuntu `10954` retains direct-install/open evidence; Fedora `9647` retains its earlier supervisor evidence. |
 | Shared behavior | Current generated-owner fixtures cover exact imports, model loading, reasoning, archive protection, attribution, receipts, waits, radio, and readiness. Composition and package gates are recorded in the macOS runbook; a green static gate does not imply live acceptance. Windows and Ubuntu retain their earlier package/open receipts. |
 | Open limits | Dot guards outside the patched desktop, Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for the macOS build-`22530` candidate but
+same-version Codex CLI source patch selected for the macOS build-`22943` candidate but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

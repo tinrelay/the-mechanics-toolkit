@@ -6,7 +6,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { build9922 } from "../patches/outgoing-message-receipt/profiles/build9922.mjs";
-import { build22530 } from "../patches/outgoing-message-receipt/profiles/build22530.mjs";
+import { build22943 } from "../patches/outgoing-message-receipt/profiles/build22943.mjs";
 import {
   linuxBuild9647,
   linuxBuild9771
@@ -45,14 +45,14 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-outgoin
   const offeredProfile = select(offered);
   assert.deepEqual([offeredProfile.jsx, offeredProfile.normalize, offeredProfile.hostBridge,
     offeredProfile.routeFlag, offeredProfile.newRoute, offeredProfile.oldRoute],
-  ["W", "Re", "g", "mt", "Ne", "ke"], "build-22530 receipts preserve the actual stock navigation owner");
+  ["W", "Re", "g", "mt", "Ne", "ke"], "build-22943 receipts preserve the actual stock navigation owner");
 }
 
 // Exercise the native frontier renderer's memoized publication, not only the receipt policy.
 {
   const cache = Array(19).fill(Symbol.for("react.memo_cache_sentinel"));
-  const renderer = Function("Ow", "G", "pd", "Cm",
-    `${build22530.dynamic.after};return u}return Dw`)(
+  const renderer = Function("oT", "er", "Ni", "ah",
+    `${build22943.dynamic.after};return u}return aT`)(
     {c: () => cache}, () => "idle", Symbol("subscription"),
     () => ({render: (_item, _variant, _icon, _leading, context) => context}));
   const item = {completed: true};
@@ -146,19 +146,19 @@ try {
   fs.rmSync(path.join(build11645Pristine, "webview/assets/app-shared-70a4f71efb70.js"));
   fs.writeFileSync(path.join(build11645Pristine, "webview/assets/app-shared-36eae88777f2.js"),
     "function u8(e){return e}function pFr(e){return e}const gk=()=>{},u8Key=0,pFrKey=0;export{gk as dUt,u8 as Tk,pFr as Ek,gk as cUt,u8Key as tSt};");
-  const build22530Pristine = path.join(scratch, "build-22530-pristine");
-  fs.cpSync(extracted, build22530Pristine, {recursive: true});
-  fs.writeFileSync(path.join(build22530Pristine, "webview/assets/app-initial-fixture.js"),
+  const build22943Pristine = path.join(scratch, "build-22943-pristine");
+  fs.cpSync(extracted, build22943Pristine, {recursive: true});
+  fs.writeFileSync(path.join(build22943Pristine, "webview/assets/app-initial-fixture.js"),
     initialFixture().replace("const Q={subscribe(){return()=>{}},dispatchMessage(){}};", "")
       .replace("function xyl(){}", [
-        'function xyl(){}function DW(){let e=(0,jW.c)(12),t=Or(Q),n=0;return t}',
-        'const U=(...e)=>e,Ix=e=>e,sq=U(Q,(e,{get:t})=>{let n=Ix(e);return n}),kfs=U(Q,(e,{get:t})=>{if(e==null)return null;return t(e)});',
-        'function Px(e){return e}function Fx(e){return e}'
+        'function xyl(){}function DW(){let e=(0,jW.c)(12),t=Is(Q),n=0;return t}',
+        'const K=(...e)=>e,lx=e=>e,NW=K(Q,(e,{get:t})=>{let n=lx(e);return n}),bVs=K(Q,(e,{get:t})=>{if(e==null)return null;return t(e)});',
+        'function sx(e){return e}function cx(e){return e}'
       ].join(""))
-      .replace("export{", "export{sq as task22530,kfs as title22530,Px as local22530,Fx as remote22530,")
-      .replace("const x=0,", 'import{MCt as Or,uct as Q,iCt as Eu}from"./app-shared-e9f258fd3588.js";const x=0,'));
-  fs.writeFileSync(path.join(build22530Pristine, "webview/assets/app-shared-e9f258fd3588.js"),
-    'function tq(e){return e}function cK(e){return e}function Q1e(e,t,n){let l=e;return tq(cK(l,n))}const MCt=()=>{},uct=Symbol();export{MCt,uct,tq as LCt,Q1e as FCt};');
+      .replace("export{", "export{NW as task22943,bVs as title22943,sx as local22943,cx as remote22943,")
+      .replace("const x=0,", 'import{oTt as Is,klt as Q,iCt as Eu}from"./app-shared-7815d5a1a42a.js";const x=0,'));
+  fs.writeFileSync(path.join(build22943Pristine, "webview/assets/app-shared-7815d5a1a42a.js"),
+    'function RK(e){return e}function GG(e){return e}function K2e(e,t,n){let l=e;return RK(GG(l,n))}const oTt=()=>{},klt=Symbol();export{oTt,klt,RK as LCt,K2e as lTt};');
   const linux9647Pristine = path.join(scratch, "linux-9647-pristine");
   fs.cpSync(extracted, linux9647Pristine, { recursive: true });
   fs.writeFileSync(path.join(linux9647Pristine, "webview/assets/app-initial-fixture.js"),
@@ -220,19 +220,19 @@ try {
   assertBuild10789TitleInspection(build10954Pristine);
   assertBuild10789TitleInspection(windows10954Pristine);
   assertBuild11645TitleInspection(build11645Pristine);
-  assert.equal(runToolkit(build22530Pristine, "apply").state, "applied");
-  const frontierBehavior = spawnSync(process.execPath, [behavioralProbe, build22530Pristine], {encoding: "utf8"});
+  assert.equal(runToolkit(build22943Pristine, "apply").state, "applied");
+  const frontierBehavior = spawnSync(process.execPath, [behavioralProbe, build22943Pristine], {encoding: "utf8"});
   assert.equal(frontierBehavior.status, 0, frontierBehavior.stderr || frontierBehavior.stdout);
-  const frontierOwnerFile = path.join(build22530Pristine, "webview/assets/app-control-fixture.js");
+  const frontierOwnerFile = path.join(build22943Pristine, "webview/assets/app-control-fixture.js");
   const frontierOwner = fs.readFileSync(frontierOwnerFile, "utf8");
-  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",FCt as MTKoutboundUseTitle", ",LCt as MTKoutboundUseTitle"));
-  assert.match(runToolkit(build22530Pristine, "check", 1).stderr, /owner=false/,
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",lTt as MTKoutboundUseTitle", ",LCt as MTKoutboundUseTitle"));
+  assert.match(runToolkit(build22943Pristine, "check", 1).stderr, /owner=false/,
     "applied inspection requires the family-aware title reader");
-  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",FCt as MTKoutboundUseTitle", ""));
-  assert.match(runToolkit(build22530Pristine, "check", 1).stderr, /owner=false/,
+  fs.writeFileSync(frontierOwnerFile, frontierOwner.replace(",lTt as MTKoutboundUseTitle", ""));
+  assert.match(runToolkit(build22943Pristine, "check", 1).stderr, /owner=false/,
     "applied inspection rejects the missing live-title hook before staging");
   fs.writeFileSync(frontierOwnerFile, frontierOwner);
-  assert.equal(runToolkit(build22530Pristine, "apply").state, "applied");
+  assert.equal(runToolkit(build22943Pristine, "apply").state, "applied");
   assert.equal(fs.readFileSync(frontierOwnerFile, "utf8"), frontierOwner);
 
   const registry = spawnSync(process.execPath, [toolkit, "patch", "renderer-patch-registry", "apply", extracted], { encoding: "utf8" });
