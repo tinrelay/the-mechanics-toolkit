@@ -8,7 +8,6 @@ import { diagnoseApp } from "../src/diagnose-app.mjs";
 import {
   ancestorProcessPid,
   applicationLayout,
-  applicationIsRunning,
   confirmApplicationRestart,
   confirmTaskHandoff,
   finishRescueTerminalClosure,
@@ -30,6 +29,7 @@ import {
   rescueConfiguration,
   rescuePrompt,
   writePrivateJson,
+  waitForApplicationQuiescence,
   waitForCodexStateQuiescence,
   waitForReadiness
 } from "../src/safe-start.mjs";
@@ -212,12 +212,21 @@ async function supervise(stateFile, {
       save({phase: "cancelled", cancelledAt: new Date().toISOString(), cancellation: "codex-quit-dialog"});
       return true;
     }
-    const stopped = await waitUntil(() => !applicationIsRunning(configuration.executable, {
-      platform: configuration.platform
-    }), 30_000);
+    const stopped = await waitForApplicationQuiescence({
+      executable: configuration.executable,
+      platform: configuration.platform,
+      continueWaiting: configuration.platform === "darwin" ? () => {
+        save({phase: "waiting-for-app-quit"});
+        return confirmApplicationRestart({platform: configuration.platform, waitingForQuit: true});
+      } : null
+    });
     if (!stopped) {
       discardUnusedKnownGood(configuration, state);
-      const failure = "existing Codex process did not quit after its shutdown dialog completed";
+      if (configuration.platform === "darwin") {
+        save({phase: "cancelled", cancelledAt: new Date().toISOString(), cancellation: "waiting-for-app-quit"});
+        return true;
+      }
+      const failure = "existing Codex process did not quit";
       process.stderr.write(`TMTK restart stopped: ${failure}.\n`);
       save({phase: "quit-not-completed", failedAt: new Date().toISOString(), failure});
       return false;
@@ -329,11 +338,16 @@ async function supervise(stateFile, {
         timeoutReason += "; Codex shutdown was cancelled";
         return rescue(timeoutReason, state, save, {openTerminal: false});
       }
-      const stoppedAfterTimeout = await waitUntil(() => !applicationIsRunning(configuration.executable, {
-        platform: configuration.platform
-      }), 30_000);
+      const stoppedAfterTimeout = await waitForApplicationQuiescence({
+        executable: configuration.executable,
+        platform: configuration.platform,
+        continueWaiting: configuration.platform === "darwin" ? () => {
+          save({phase: "waiting-for-app-quit"});
+          return confirmApplicationRestart({platform: configuration.platform, waitingForQuit: true});
+        } : null
+      });
       if (!stoppedAfterTimeout) {
-        timeoutReason += "; the exact application process remained alive after its shutdown dialog completed";
+        timeoutReason += "; the exact application process remained alive (shutdown wait ended)";
         return rescue(timeoutReason, state, save, {openTerminal: false});
       }
     } catch (error) {

@@ -1,39 +1,41 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.19` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.20` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
 
-## 0.2.19
+## 0.2.20
 
-The macOS target is Desktop `26.1027.30824` / build `22943`, with bundled CLI
-`0.166.0-alpha.5.1`. Apply `standalone-output-compaction-22943` to exact upstream commit
-`f79b26ccbb3116b052544666a181012fb45dc49b`, then build with stable Rust `1.95.0` through
-`bin/tmtk-build-codex` and its default LTO-off setting. Do not reuse an older binary.
+The macOS port target is Desktop `26.1029.61003` / build `24614`, bundling CLI
+`0.166.0-alpha.6`. Apply `standalone-output-compaction-24614` to exact upstream commit
+`4f093f2748667f3b0e6a07e3d4055121cbd3ce64`, then build with stable Rust `1.95.0` through
+`bin/tmtk-build-codex` and its default LTO-off setting. Use the matching binary.
 
-This build moves the main process into split Webpack bootstrap chunks. Exact package/loader
-ownership now selects the handler chunk; the readiness writer, native peer authorizer, terminal
-catalogs, observability startup, and radio/receipt hooks follow their new owners. Renderer
-profiles refresh the roster manager, title subscriptions, memo caches, archive guards, and
-reasoning hooks. BAD MODEL uses the complete settings-loading state, including reserve-model
-loading, before publishing a mismatch. Attribution, alignment, and radio scroll anchoring keep
-their existing behavior.
+The renderer now ships Rspack module registries rather than the former named ESM owners.
+This port traces the actual runtime entry, module factories, imported selectors, React hooks,
+and memo caches. It handles both known lazy tool-renderer copies and both timeline paths.
+Receipt persistence, source-project attribution, right-aligned incoming bubbles, radio scroll
+anchoring, roster colors, model-loading gates, and lifecycle protection retain their behavior.
+The native main process remains split Webpack; its handler and readiness-writer imports moved.
+The ASAR fleet still has 16 patches; the macOS package selection has 18.
 
-Both focused tests failed on the exact stock CLI at their intended assertions, then passed with
-the three-file repair. This independently revalidates the local and remote-v2 repair paths;
-it is not a claim that every upstream replay symptom or alternate rollover path is fixed.
-No experimental retention feature was enabled.
+The macOS restart supervisor also keeps a delayed native quit confirmation pending instead of
+failing shutdown after 30 seconds. **Continue Waiting** extends the wait; **Cancel Restart** leaves
+the installed app untouched. Candidate replacement still requires actual application termination.
 
-The complete 16-patch ASAR composition, behavior probes, and byte-identical reapplication passed.
-The matching native release build and signed 18-patch package stage passed, including post-repack
-probes, signatures/seal, and native payload preservation. Supervised adoption returned to a real
-task with an editable composer and matching installed hashes. The roster loaded all 19 entries
-without a diagnostic; task-message ACK/wait and two-way TinRelay passed. The
-[macOS receipt](qualification/macos.md) records the exact gates and limits; this is a narrow
-live smoke result, not a new full feature tour, live compaction test, or rescue-capability test.
-Windows/Linux qualification boundaries and TinRelay transport/configuration are unchanged.
+Both focused compaction tests failed on exact stock source and passed after the three-file repair.
+The stable-Rust native release build passed with LTO off and compiler override flags unset.
+No experimental retention feature, provider call, or live compaction test was used.
+
+The complete 16-patch composition and signed 18-patch stage passed, including post-repack probes,
+byte-identical reapplication, signatures/seal, and native payload preservation. Supervised adoption
+returned to the real chat; task-message ACK/wait and TinRelay self-send/return passed. The operator
+accepted the visible result. Installed app and CLI hashes match the candidate. This is bounded live
+smoke, not a new full feature tour or live compaction test. See the
+[current macOS receipt](qualification/macos.md) for exact hashes and limits.
+Windows/Ubuntu build `10954` and Fedora build `9647` are unchanged.
 
 ## Existing installations
 
@@ -57,7 +59,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.19` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.20` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.

@@ -66,12 +66,13 @@ export function defaultTerminal(platform = process.platform, options = {}) {
 }
 
 export function confirmApplicationRestart({
+  waitingForQuit = false,
   platform = process.platform,
   processRunner = undefined,
   iconFile = undefined,
   environment = undefined
 } = {}) {
-  return implementation(platform).confirmApplicationRestart({processRunner, iconFile, environment});
+  return implementation(platform).confirmApplicationRestart({processRunner, iconFile, environment, waitingForQuit});
 }
 
 export function confirmRepairFallback({

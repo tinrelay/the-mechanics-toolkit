@@ -4,16 +4,21 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
+import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
+import {tinrelayOwners24614} from "../patches/tinrelay-pointer-presentation/profiles/build24614.mjs";
+import {readRendererModule} from "../src/renderer-module.mjs";
+import {parse} from "acorn";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const renderer = unique(fs.readdirSync(assets).filter(name =>
+const current=matchesBuild24614(root), moduleOwners=current?tinrelayOwners24614(root):null;
+const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
 const build = path.join(root, ".vite/build");
 const main = mainProcessAsset(root);
-const rendererSource = fs.readFileSync(renderer, "utf8");
+const rendererSource = current?readRendererModule(moduleOwners.renderer):fs.readFileSync(renderer, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
 const stringLiteral = '"(?:\\\\.|[^"\\\\])*"';
 const mainConfig = uniqueMatch(
@@ -292,7 +297,7 @@ executorResult = missing;
 await assert.rejects(mainHelpers.inspect(request), {message: "Tinrelay client is unavailable."});
 
 const outgoingViewStart = rendererSource.indexOf("function MTKtinrelayOutgoingView(", rendererStart);
-const rendererHelpersEnd = rendererSource.indexOf("function ", outgoingViewStart + "function ".length);
+const rendererHelpersEnd = current?parse(rendererSource,{ecmaVersion:"latest",sourceType:"module"}).body.find(x=>x.type==="FunctionDeclaration"&&x.id.name==="MTKtinrelayOutgoingView").end:rendererSource.indexOf("function ", outgoingViewStart + "function ".length);
 assert.ok(outgoingViewStart > rendererStart && rendererHelpersEnd > outgoingViewStart,
   "localized Tinrelay presentation helpers");
 const rendererHelpers = rendererSource.slice(rendererStart, rendererHelpersEnd);
@@ -388,7 +393,7 @@ assert.match(rendererHelpers,
   "incoming and outgoing bodies reuse Codex's stock user-message hover actions");
 assert.ok(!rendererHelpers.includes('maxWidth:"min(38rem,86%)"'),
   "Tinrelay does not maintain a competing message-width rule");
-assert.equal((rendererSource.match(/messageNode:MTKtinrelayPointerNode\(i,a\)/g) ?? []).length, 1,
+assert.equal((rendererSource.match(current?/messageNode:MTKtinrelayPointerNode\(d,p\)/g:/messageNode:MTKtinrelayPointerNode\(i,a\)/g) ?? []).length, 1,
   "only delegated messages receive the pointer presentation seam and native event time");
 assert.ok(rendererHelpers.includes("function MTKtinrelayPointerNode(e,t)") &&
   rendererHelpers.includes("MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}"),

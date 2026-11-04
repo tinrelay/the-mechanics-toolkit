@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1027.30824` / `22943` | 18 selected | Stock-red/repaired-green source tests, matching native release build, signed 18-patch stage, supervised task return, loaded roster, task-message ACK/wait, and two-way TinRelay |
+| macOS ARM64 application | `26.1029.61003` / `24614` | 18 selected | Signed stage and supervised adoption passed; real task return, task-message ACK/wait, TinRelay self-send/return, and operator visual acceptance. Exact-source red/green, native release build, full fleet, post-repack probes and byte-identical reapplication passed. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,31 +27,27 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-Build `22943` moves main-process owners into split Webpack bootstrap chunks and refreshes the
-renderer owners. Loader linkage, child-process imports, native peer authorization, readiness,
-observability disposal, terminal catalogs, and radio/receipt composition are checked explicitly.
-The roster loader still follows the actual nullable manager atom export. The model guard waits
-for the full settings-loading state, including reserve-model loading. Existing attribution,
-alignment, archive protection, and radio scroll anchoring keep their behavior.
-
-Both focused compaction regressions failed on the exact stock CLI and passed with the repair.
-The complete extracted-ASAR fleet passed its probes and byte-identical reapplication. The matching native
-release build and complete signed package stage also passed. Supervised adoption then returned
-to the real task with matching installed hashes, an editable composer, and a loaded roster.
-Task-message ACK/wait and two-way TinRelay passed. This is a narrow live smoke result.
+Build `24614` changes the renderer to Rspack module registries. The port uses Acorn to edit exact
+module-factory bodies while preserving sibling bytes, checks module IDs and parameters, and
+captures imports outside component-local bindings. Both lazy tool-renderer copies are covered.
+The native Webpack handler and relaunch-writer import are traced through the package loader.
+The roster uses the stock RPC factory's ready/deferred path; model publication waits for loading.
+Receipts and radio presentations cover both timeline paths without taking latest-response follow
+ownership. Stock source still fails both local/remote-v2 compaction tests; the exact repair passes.
+No experimental feature or live compaction run is part of this proof.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact `build22943` profiles target the macOS refresh; prior Windows/Ubuntu build `10954` and Fedora build `9647` owners remain. Shared feature implementations are not forked per OS. Renderer turn-window and retired sidebar collapse remain unselected on macOS. |
-| Package integrity | Build-`22943` vendor ZIP, signature, notarization staple, and ASAR seal authenticated. Complete ASAR composition passed. Matching native release build and signed 18-patch stage passed, including post-repack probes, byte-identical reapplication, signatures/seal, and native payload preservation; see the macOS receipt. Secondary platforms retain their named earlier receipts. |
-| Live adoption | Build `22943` returned through the supervisor to a real task with an editable composer and matching installed hashes. The roster loaded 19 entries without a diagnostic; task-message ACK/wait and two-way TinRelay passed. No new full live feature tour or live compaction run is claimed. Windows `10954` retains supervised task-return evidence; Ubuntu `10954` retains direct-install/open evidence; Fedora `9647` retains its earlier supervisor evidence. |
-| Shared behavior | Current generated-owner fixtures cover exact imports, model loading, reasoning, archive protection, attribution, receipts, waits, radio, and readiness. Composition and package gates are recorded in the macOS runbook; a green static gate does not imply live acceptance. Windows and Ubuntu retain their earlier package/open receipts. |
-| Open limits | Dot guards outside the patched desktop, Ubuntu build-`10954` supervisor replacement, Fedora build-`10954` RPM stage/open, x86-family package/live paths, a live greater-than-200-turn fixture, and a task-message-triggered compaction boundary remain unqualified. An earlier macOS Oops incident showed that `renderer.ready` can precede a usable task; confirm actual task UI after adoption. |
+| Generated JavaScript | Exact `build24614` module profiles target the installed renderer. Legacy ESM transform regression fixtures remain covered while Windows/Ubuntu `10954` and Fedora `9647` use those readers. |
+| Package integrity | Vendor ZIP signature, app signature, notarization staple, and ASAR seal authenticated. Complete signed 18-patch stage, post-repack probes, byte-identical reapplication, and native payload preservation passed; see the macOS receipt. |
+| Live adoption | Build `24614` adopted through the supervisor, reached renderer readiness, and returned to the real task. Installed app/CLI hashes match; task-message ACK/wait, TinRelay round trip, and operator visual acceptance passed. |
+| Shared behavior | Focused probes cover source identity, compiled component bindings, title hydration, acknowledgement/persistence, right alignment, scroll settling, policy reloads, and readiness. Static proof does not imply a usable live task. |
+| Open limits | Full live feature tour, live compaction, deliberately delayed native quit confirmation, dot guards outside the patched desktop, Ubuntu `10954` supervisor replacement, Fedora `10954` RPM stage/open, and x86-family live paths remain unqualified. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for the macOS build-`22943` candidate but
+same-version Codex CLI source patch installed with macOS build `24614` but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

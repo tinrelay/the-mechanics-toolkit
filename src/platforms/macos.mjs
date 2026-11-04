@@ -32,8 +32,19 @@ export function defaultTerminal() {
   return "Terminal";
 }
 
-export function confirmApplicationRestart({processRunner = spawnSync, iconFile = toolkitIcon} = {}) {
-  const script = String.raw`
+export function confirmApplicationRestart({
+  processRunner = spawnSync, iconFile = toolkitIcon, waitingForQuit = false
+} = {}) {
+  const script = waitingForQuit ? String.raw`
+on run arguments
+  set dialogMessage to "Waiting for Codex to quit." & return & return & "Finish any active work or compaction and answer Codex's quit confirmation. The restart will not proceed while Codex is running." & return & return & "Continue waiting, or cancel this restart and leave Codex untouched."
+try
+  set answer to display dialog dialogMessage with title "The Mechanic's Toolkit" buttons {"Cancel Restart", "Continue Waiting"} default button "Continue Waiting" cancel button "Cancel Restart" with icon caution
+  return button returned of answer
+on error number -128
+  return "Cancel Restart"
+end try
+end run` : String.raw`
 on run arguments
   set dialogMessage to "Codex restart is armed." & return & return & "Wait for all active agents to reach a safe stopping point, then click Relaunch Codex."
 try
@@ -58,8 +69,8 @@ end run`;
     throw new Error((result.stderr || result.stdout).trim() || "macOS restart confirmation failed");
   }
   const choice = result.stdout.trim();
-  if (choice === "Relaunch Codex") return true;
-  if (choice === "Don't Restart") return false;
+  if (choice === (waitingForQuit ? "Continue Waiting" : "Relaunch Codex")) return true;
+  if (choice === (waitingForQuit ? "Cancel Restart" : "Don't Restart")) return false;
   throw new Error(`macOS restart confirmation returned an unknown choice: ${choice || "<empty>"}`);
 }
 

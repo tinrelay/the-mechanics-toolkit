@@ -7,6 +7,8 @@ import { build10789 } from "./profiles/build10789.mjs";
 import { build11645 } from "./profiles/build11645.mjs";
 import { build22943 } from "./profiles/build22943.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
+import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
+import {runBuild24614} from "./profiles/build24614.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -14,6 +16,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: model-identity-guard.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
+if (matchesBuild24614(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild24614({root, command, modelGuardHelper}), null, 2)}\n`);
+  process.exit(0);
+}
 const assets = path.join(root, "webview/assets");
 const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];
 const owner = uniqueOwner(source =>

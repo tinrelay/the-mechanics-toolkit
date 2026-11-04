@@ -4,6 +4,8 @@ import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
+import {runBuild24614} from "./profiles/build24614.mjs";
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const bootstrap = String.raw`const MTKpatchRegistryKey="__MTK_PATCH_REGISTRY__",MTKpatchRegistry=(()=>{let e=globalThis[MTKpatchRegistryKey];if(e===void 0){let t={};e={apiVersion:1,packages:t,register(e,n){if(typeof e!=="string"||!/^[a-z][A-Za-z0-9]*$/.test(e)||n==null||typeof n!=="object"||Array.isArray(n)||!Number.isInteger(n.version)||n.version<1)return!1;let r=t[e];return r!=null&&r.version!==n.version?!1:(t[e]=Object.freeze({...n}),!0)}};globalThis[MTKpatchRegistryKey]=e}return e?.apiVersion===1&&e.packages!=null&&typeof e.packages==="object"&&!Array.isArray(e.packages)&&typeof e.register==="function"?e:null})();`;
@@ -11,6 +13,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: renderer-patch-registry/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
+if(matchesBuild24614(root)){console.log(JSON.stringify(runBuild24614({root,command,bootstrap})));process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
 const appInitial = uniqueAsset(/^app-initial-.*\.js$/);

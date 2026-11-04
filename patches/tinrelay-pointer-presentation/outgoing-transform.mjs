@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { mainMessageBinding } from "./main-message-binding.mjs";
@@ -10,6 +10,8 @@ import { incomingBuild11645 } from "./profiles/build11645.mjs";
 import { incomingBuild22943 } from "./profiles/build22943.mjs";
 import { incomingBuild9647, incomingBuild9771, incomingBuild10954 } from "./profiles/linux.mjs";
 
+import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
+import {runOutgoing24614} from "./profiles/build24614.mjs";
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const id = "[$A-Z_a-z][$\\w]*";
@@ -17,6 +19,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/outgoing-transform.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
+if(matchesBuild24614(root)){console.log(JSON.stringify(runOutgoing24614({root,command,rendererHelpers,acceptanceParser,patchMain})));process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const activity = uniqueFile(/^agent-activity-item-(?!row-).*\.js$/);
@@ -762,7 +765,7 @@ function jsxDialect(value, jsx) {
 }
 
 function mainStartup(source) {
-  if (source.startsWith("exports.ids=[916],exports.modules={")) {
+  if (isWebpackMain(source)) {
     if (count(source, 'ex=new em.kec;ex.add(G),ex.add(eu),ex.add(eh)') !== 1) {
       throw new Error("Upstream changed: bootstrap outgoing disposer owner is not unique");
     }

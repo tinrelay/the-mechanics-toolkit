@@ -110,9 +110,14 @@ The invoking agent must not poll the supervisor or wait for the application life
 `tmtk-restart` prints that the supervisor is armed, the agent finishes its current response and
 tells the person to click **Relaunch Codex** when ready. The detached supervisor remains blocked at
 the dialog until that click. **Don't Restart** records a cancelled attempt and exits without asking
-Codex to quit. The supervisor sends a normal application quit request and waits without an
-artificial shell timeout for it to complete. Cancelling either dialog leaves the app open and does
-not start rescue. Automatic repair retries do not show the toolkit confirmation again.
+Codex to quit. The supervisor sends a normal application quit request. On macOS, acceptance of
+that request does not prove the native quit confirmation has finished. If the exact application
+is still running after 30 seconds, the supervisor offers **Continue Waiting** or **Cancel Restart**;
+that interval is a waiting reminder, not a shutdown failure or permission to replace the app.
+Compaction and time spent answering the native confirmation may span multiple intervals.
+Cancellation leaves the installed app untouched and does not start automatic repair. Replacement
+waits for actual process termination and the invoking CLI handoff; the renderer-readiness deadline
+starts only after launch. Automatic repair retries do not show the initial toolkit confirmation again.
 
 On macOS the progress notification reads **Preparing the verified candidate for relaunch…** under
 **The Mechanics Toolkit**. It is intentionally implemented through the stock AppleScript

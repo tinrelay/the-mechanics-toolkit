@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';import{parse}from'acorn';import{readRendererModule}from '../src/renderer-module.mjs';import{dotOwners24614}from '../patches/dot-lifecycle-protection/profiles/build24614.mjs';
+export async function probeDot24614(root){
+ const o=dotOwners24614(root),source=readRendererModule(o.policy),start=source.indexOf('const MTKdotLifecyclePolicy=1;'),end=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.find(x=>x.type==='ExpressionStatement'&&source.slice(x.start,x.end).startsWith('globalThis.__MTK_DOT_POLICY__=Object.freeze(')).end;
+ assert.ok(start>=0&&end>start);const helper=source.slice(start,end),id='11111111-2222-4333-8444-555555555555',dot='opaque-dot';let entries=[{kind:'agent',taskId:id,data:{name:'Example',orbitId:dot,protectDeletion:true,protectReboot:true}}];
+ const realm={__MTK_AGENT_ROSTER__:{current:()=>({entries})}},metadata={},scope={query:{getData:(q,t)=>q===metadata&&t===id?{id:dot}:null},get(key){return key==='enabled'?true:key==='selected'?id:false}};
+ Function('globalThis','MTKdotMetadata','MTKdotNormalize',helper)(realm,metadata,x=>x);const policy=realm.__MTK_DOT_POLICY__;
+ assert.equal(policy.protected('delete',dot),true);assert.equal(policy.protected('delete','other',id),false);assert.equal(policy.protected('delete',null,id),true);assert.equal(policy.nameForThread(id,'Native Name'),'Native Name');assert.equal(policy.nameForThread(id,null),'Example');assert.throws(()=>policy.assertReboot(scope,id),/protected/);
+ const deletion=readRendererModule(o.deletion);assert.ok(deletion.includes('function E(e,t,n,E){if(globalThis.__MTK_DOT_POLICY__.protected("delete",t))return;'));assert.ok(deletion.includes('if(globalThis.__MTK_DOT_POLICY__.protected("delete",t)||!O()'));assert.ok(deletion.includes('if((0,m.rf)(e,n.threadId)?.id!==t)throw Error("The Dot deletion target is no longer current")'));
+ let effects=0;const guard=deletion.slice(deletion.indexOf('function E(e,t,n,E){'),deletion.indexOf('let I=',deletion.indexOf('function E(e,t,n,E){')));const invoke=Function('globalThis','effect',guard+'effect();}return E;')(realm,()=>effects++);invoke(scope,dot,{threadId:id});assert.equal(effects,0);invoke(scope,'other',{threadId:id});assert.equal(effects,1);
+ const reboot=readRendererModule(o.reboot),a=reboot.indexOf('t=async()=>{')+2,b=reboot.indexOf('.body?.cancel()}',a)+'.body?.cancel()}'.length;let requests=0;const transport={Request:{async postResponse(route,options){requests++;assert.equal(route,'/cloud-aeons/primary/reboot');options.assertRequestCurrent();return{body:{cancel(){}}}}}};
+ const run=Function('globalThis','z','v','D','M','c','b','h','return ('+reboot.slice(a,b)+')')(realm,scope,id,'account','user',transport,{JW:'enabled'},{f:'disabled',NW:'selected'});
+ await assert.rejects(run(),/protected/);assert.equal(requests,0);entries=[];await run();assert.equal(requests,1);
+ transport.Request.postResponse=async(_,options)=>{entries=[{kind:'agent',taskId:id,data:{orbitId:dot,protectReboot:true}}];options.assertRequestCurrent();assert.fail('request should reject')};await assert.rejects(run(),/protected/);
+ for(const target of o.menus)assert.ok(readRendererModule(target).includes('__MTK_DOT_POLICY__.protected("delete",'));
+ for(const target of o.rebootMenus)assert.ok(readRendererModule(target).includes('__MTK_DOT_POLICY__.rebootProtected(e,t)'));
+ console.log('dot lifecycle 24614 behavior probe passed');
+}

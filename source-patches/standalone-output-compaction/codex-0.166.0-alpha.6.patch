@@ -1,5 +1,5 @@
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index 3c66423..d249646 100644
+index 2f6a91d..34d3a9b 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
 @@ -61,6 +61,7 @@ use tracing::error;
@@ -30,7 +30,7 @@ index 3c66423..d249646 100644
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage<'_>],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index bacf8c3..f6aec2a 100644
+index 85a3e6c..e1665f1 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
 @@ -8,6 +8,8 @@ use crate::ResponseStream;
@@ -69,7 +69,7 @@ index bacf8c3..f6aec2a 100644
      }
  
      let ResponseItem::Message { role, .. } = item else {
-@@ -885,6 +889,28 @@ mod tests {
+@@ -886,6 +890,28 @@ mod tests {
          );
      }
  

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
+import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { mainMessageBinding } from "./main-message-binding.mjs";
@@ -14,6 +14,8 @@ const VISUAL_CSS = '@keyframes mtk-tinrelay-signal{0%{transform:scale(1);opacity
 
 const OUTGOING_ALIGNMENT_CSS = '[data-mtk-tinrelay-pointer][data-mtk-tinrelay-outgoing].mtk-tinrelay-signal>[class~="group/user-message"]{align-items:flex-start}';
 
+import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
+import {runIncoming24614} from "./profiles/build24614.mjs";
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const configPath = readOption("--config");
@@ -21,6 +23,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/incoming-transform.mjs check|apply EXTRACTED_ASAR_ROOT [--config TOOLKIT_CONFIG]");
 }
 
+if(matchesBuild24614(root)){console.log(JSON.stringify(runIncoming24614({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
 const main = mainProcessAsset(root);
@@ -238,7 +241,7 @@ function inspectPristineMain(source) {
   mainMessageBinding(source);
   mainProcessProfile(source);
   for (const contract of [
-    source.startsWith("exports.ids=[916],exports.modules={") ? 'case"show-plan-summary":case"update-diff-if-open":case"view-focused":case"quit-app":case"tray-menu-threads-changed":case"worker-request":case"worker-request-cancel":break;' : "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
+    isWebpackMain(source) ? 'case"show-plan-summary":case"update-diff-if-open":case"view-focused":case"quit-app":case"tray-menu-threads-changed":case"worker-request":case"worker-request-cancel":break;' : "case`show-plan-summary`:break;case`update-diff-if-open`:break;",
     mainMessageAnchor(source)
   ]) {
     if (count(source, contract) !== 1) {
@@ -461,7 +464,7 @@ function mainHelpers(config, childProcess) {
 }
 
 function mainProcessProfile(source) {
-  if (source.startsWith("exports.ids=[916],exports.modules={")) {
+  if (isWebpackMain(source)) {
     const entry = fs.readFileSync(path.join(root, ".vite/build/early-bootstrap.js"), "utf8");
     if (count(source, 'var ty=r(50596),tv=r(95398),tb=r(78335)') !== 1 ||
         count(entry, '95398(e){"use strict";e.exports=require("node:child_process")}') !== 1) {

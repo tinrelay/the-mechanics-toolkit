@@ -9,12 +9,15 @@ import { build21421Contracts } from "./profiles/build21421.mjs";
 import { build22943Contracts } from "./profiles/build22943.mjs";
 import { linuxBuild9647Contracts, linuxBuild9771Contracts, linuxBuild10954Contracts } from "./profiles/linux.mjs";
 
+import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
+import {runBuild24614} from "./profiles/build24614.mjs";
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: terminal-toggle.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
+if(matchesBuild24614(root)){console.log(JSON.stringify(runBuild24614({root,command})));process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&
   fs.readFileSync(path.join(assets, name), "utf8").includes(build22943Contracts[0]));

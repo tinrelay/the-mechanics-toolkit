@@ -414,14 +414,18 @@ export async function waitForApplicationQuiescence({
   platform = process.platform,
   timeoutMs = 30_000,
   intervalMs = 100,
-  processLookup = () => applicationIsRunning(executable, {platform}) ? [true] : []
+  processLookup = () => applicationIsRunning(executable, {platform}) ? [true] : [],
+  continueWaiting = null
 }) {
-  const deadline = Date.now() + timeoutMs;
-  while (Date.now() < deadline) {
+  do {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (processLookup().length === 0) return true;
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
     if (processLookup().length === 0) return true;
-    await new Promise(resolve => setTimeout(resolve, intervalMs));
-  }
-  return processLookup().length === 0;
+  } while (continueWaiting != null && await continueWaiting());
+  return false;
 }
 
 export function codexRuntimeDatabaseFiles(codexHome) {

@@ -91,6 +91,13 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
+      owner: "cB", authorizer: "cR",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,pipePath:a,socketPeerAuthorizer:o=",
+      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION',
+        'e=cP((0,en.join)(i,"native","browser-use-peer-authorization.node"))',
+        'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor']
+    },
+    {
       owner: "c$", authorizer: "cF",
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,pipePath:a,socketPeerAuthorizer:o=",
       contracts: [

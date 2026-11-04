@@ -7,20 +7,26 @@ import os from "node:os";
 import path from "node:path";
 
 const windows = process.platform === "win32";
+import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
+import {tinrelayOwners24614} from "../patches/tinrelay-pointer-presentation/profiles/build24614.mjs";
+import {readRendererModule} from "../src/renderer-module.mjs";
+import {parse} from "acorn";
+import {probeClassification24614} from "./tinrelay-classification-24614.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-presentation-outgoing.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const renderer = unique(fs.readdirSync(assets).filter(name =>
+const current=matchesBuild24614(root), moduleOwners=current?tinrelayOwners24614(root):null;
+const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
-const activity = unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-(?!row-).*\.js$/.test(name))
+const activity = current?moduleOwners.classifiers[0].file:unique(fs.readdirSync(assets).filter(name => /^agent-activity-item-(?!row-).*\.js$/.test(name))
   .map(name => path.join(assets, name)), "activity classifier");
 const main = mainProcessAsset(root);
-const rendererSource = fs.readFileSync(renderer, "utf8");
-const activitySource = fs.readFileSync(activity, "utf8");
+const rendererSource = current?readRendererModule(moduleOwners.renderer):fs.readFileSync(renderer, "utf8");
+const activitySource = current?readRendererModule(moduleOwners.classifiers[0]):fs.readFileSync(activity, "utf8");
 const mainSource = fs.readFileSync(main, "utf8");
-const turnCallSources = fs.readdirSync(assets).filter(name => name.endsWith(".js")).map(name =>
+const turnCallSources = current?[readRendererModule(moduleOwners.turn)]: fs.readdirSync(assets).filter(name => name.endsWith(".js")).map(name =>
   fs.readFileSync(path.join(assets, name), "utf8")
 ).filter(value => value.includes("(MTKtinrelayOutgoingTurnPresentations,{conversationId:"));
 assert.equal(turnCallSources.length, 1, "one turn renderer owns outgoing TinRelay promotion");
@@ -30,7 +36,7 @@ assert.ok(!rendererSource.includes("MTKtinrelayLocalShip"), "renderer contains n
 
 const rendererStart = rendererSource.indexOf("function MTKtinrelayOutgoingAcceptance(");
 const outgoingViewStart = rendererSource.indexOf("function MTKtinrelayOutgoingView(", rendererStart);
-const rendererEnd = rendererSource.indexOf("function ", outgoingViewStart + "function ".length);
+const rendererEnd = current?parse(rendererSource,{ecmaVersion:"latest",sourceType:"module"}).body.find(x=>x.type==="FunctionDeclaration"&&x.id.name==="MTKtinrelayOutgoingView").end:rendererSource.indexOf("function ", outgoingViewStart + "function ".length);
 assert.ok(rendererStart >= 0 && rendererEnd > rendererStart, "outgoing renderer helpers are localized");
 const helper = rendererSource.slice(rendererStart, rendererEnd);
 const jsxName = uniqueMatch(helper, /\(0,(?<jsx>[$A-Z_a-z][$\w]*)\.jsx\)\("div",\{"data-mtk-tinrelay-outgoing-turn":!0/g,
@@ -245,8 +251,8 @@ assert.equal(reconstructed.props.children[0].props.sentAtMs, rendererAnchor.reco
   "a fresh renderer reconstructs the persisted event time");
 assert.match(turnCallSource, /MTKtinrelayOutgoingTurnPresentations,\{conversationId:[$A-Z_a-z][$\w]*,turnId:[$A-Z_a-z][$\w]*,turnFinished:/,
   "the turn renderer passes an explicit source-turn completion decision to outgoing hoisting");
-assert.ok(turnCallSource.includes("?.completed===!0") && turnCallSource.includes("?.phase===`final_answer`") &&
-  turnCallSource.includes(".status===`cancelled`"),
+assert.ok(turnCallSource.includes("?.completed===!0") && (turnCallSource.includes("?.phase===`final_answer`")||current&&turnCallSource.includes('?.phase==="final_answer"')) &&
+  (turnCallSource.includes(".status===`cancelled`")||current&&turnCallSource.includes('.status==="cancelled"')),
 "the source-turn completion decision waits for a completed final answer or terminal cancellation");
 assert.equal(rendered.props.className, "flex w-full flex-col items-start justify-start gap-1",
   "outgoing card mirrors the incoming card across the conversation");
@@ -295,17 +301,18 @@ assert.deepEqual(rendererApi.acceptance(execItem({...acceptance, sender_ship: "o
   {...acceptance, sender_ship: "other-ship"}, "accepted-send identity comes from Tinrelay stdout");
 
 const activityStart = activitySource.indexOf("function MTKtinrelayOutgoingAcceptance(");
-const activityEnd = Math.min(...["function dr(", "function an(", "function ln("]
+const activityEnd = current?activitySource.length:Math.min(...["function dr(", "function an(", "function ln("]
   .map(marker => activitySource.indexOf(marker, activityStart))
   .filter(index => index >= 0));
 assert.ok(activityStart >= 0 && activityEnd > activityStart, "outgoing activity parser is localized");
 const activityApi = Function(`${activitySource.slice(activityStart, activityEnd)};return MTKtinrelayOutgoingAcceptance`)();
 assert.deepEqual(activityApi(item), acceptance, "activity classifier recognizes ordinary Tinrelay acceptance");
-assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?`standalone`/g) ?? []).length, 1,
+assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?[`"]standalone[`"]/g) ?? []).length, 1,
   "recognized sends are first-class standalone conversation items");
 assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
+if(current){probeClassification24614(root,item,activityApi);}else{
 const collapseMarker = rendererSource.search(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/);
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);
@@ -337,6 +344,7 @@ assert.deepEqual(collapsed.collapsibleUnits, [],
 for (const forbidden of ["dangerouslySetInnerHTML", "innerHTML", "markdown", "eval(", "window.open", "TINRELAY OUTGOING RECEIPT"])
   assert.ok(!helper.includes(forbidden), `renderer omits ${forbidden}`);
 
+}
 const mainStart = mainSource.indexOf("const MTKtinrelayOutgoingContract=");
 const mainOwner = mainLoggerOwner(mainSource);
 const mainEnd = mainOwner == null ? -1 : mainOwner.index;

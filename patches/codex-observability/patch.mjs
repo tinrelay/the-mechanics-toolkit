@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs";
-import {mainProcessAsset, mainLoggerOwner} from "../../src/main-process-asset.mjs";
+import {mainProcessAsset, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
 
@@ -60,7 +60,7 @@ function patchMain(value) {
 }
 
 function mainProfile(value) {
-  if (value.startsWith("exports.ids=[916],exports.modules={")) {
+  if (isWebpackMain(value)) {
     for (const contract of ['ex=new em.kec;ex.add(G),ex.add(eu),ex.add(eh)',
       'ew("main app.whenReady resolved",eT)']) {
       if (count(value, contract) !== 1) throw new Error("Upstream changed: bootstrap app-ready owner is not unique");

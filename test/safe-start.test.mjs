@@ -156,6 +156,28 @@ try {
   assert.equal(confirmRepairFallback({platform: "darwin", processRunner() {
     return {status: 0, stdout: "Open Terminal Line with Agent\n", stderr: "", error: null};
   }}), "interactive");
+  const quitWaitDialogCalls = [];
+  assert.equal(confirmApplicationRestart({platform: "darwin", waitingForQuit: true,
+    processRunner(command, arguments_, options) {
+      quitWaitDialogCalls.push({command, arguments_, options});
+      return {status: 0, stdout: "Continue Waiting\n", stderr: "", error: null};
+    }
+  }), true);
+  assert.match(quitWaitDialogCalls[0].options.input, /Waiting for Codex to quit/);
+  assert.match(quitWaitDialogCalls[0].options.input, /Finish any active work or compaction/);
+  assert.match(quitWaitDialogCalls[0].options.input,
+    /buttons \{"Cancel Restart", "Continue Waiting"\}/);
+  assert.equal(confirmApplicationRestart({platform: "darwin", waitingForQuit: true,
+    processRunner() {
+      return {status: 0, stdout: "Cancel Restart\n", stderr: "", error: null};
+    }
+  }), false);
+  if (process.platform === "darwin") {
+    const compiledWaitDialog = spawnSync("/usr/bin/osacompile", [
+      "-o", path.join(scratch, "quit-wait.scpt")
+    ], {encoding: "utf8", input: quitWaitDialogCalls[0].options.input});
+    assert.equal(compiledWaitDialog.status, 0, compiledWaitDialog.stderr);
+  }
   const handoffCalls = [];
   assert.equal(confirmTaskHandoff({platform: "darwin", processRunner(command, arguments_, options) {
     handoffCalls.push({command, arguments_, options});
@@ -815,6 +837,33 @@ try {
     intervalMs: 1,
     processLookup: () => [101]
   }), false);
+  let shutdownWaitPrompts = 0;
+  assert.equal(await waitForApplicationQuiescence({
+    executable: applicationExecutable,
+    timeoutMs: 2,
+    intervalMs: 1,
+    processLookup: () => shutdownWaitPrompts < 2 ? [101] : [],
+    continueWaiting: () => { shutdownWaitPrompts += 1; return true; }
+  }), true, "a delayed native quit may span multiple wait intervals before the app terminates");
+  assert.equal(shutdownWaitPrompts, 2);
+  let cancelledWaitPrompts = 0;
+  assert.equal(await waitForApplicationQuiescence({
+    executable: applicationExecutable,
+    timeoutMs: 2,
+    intervalMs: 1,
+    processLookup: () => [101],
+    continueWaiting: () => { cancelledWaitPrompts += 1; return false; }
+  }), false, "the operator can cancel a pending shutdown without terminating the app");
+  assert.equal(cancelledWaitPrompts, 1);
+  let stoppedWaitPrompts = 0;
+  assert.equal(await waitForApplicationQuiescence({
+    executable: applicationExecutable,
+    timeoutMs: 2,
+    intervalMs: 1,
+    processLookup: () => [],
+    continueWaiting: () => { stoppedWaitPrompts += 1; return false; }
+  }), true);
+  assert.equal(stoppedWaitPrompts, 0, "an exited app proceeds without another confirmation");
   const databaseHome = path.join(scratch, "database-quiescence");
   fs.mkdirSync(databaseHome);
   const runtimeDatabases = codexRuntimeDatabaseFiles(databaseHome);

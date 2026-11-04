@@ -3,11 +3,17 @@ import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import {matchesBuild24614, runBuild24614} from "./profiles/build24614.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: runtime-json-reload/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
+}
+
+if (matchesBuild24614(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild24614({root, command, rendererHelper, mainHelper}), null, 2)}\n`);
+  process.exit(0);
 }
 
 const assets = path.join(root, "webview/assets");

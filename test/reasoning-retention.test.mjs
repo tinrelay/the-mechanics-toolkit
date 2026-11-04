@@ -8,14 +8,18 @@ import { build11645 } from "../patches/reasoning-retention/profiles/build11645.m
 import { build22943 } from "../patches/reasoning-retention/profiles/build22943.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
+import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
+import {reasoningOwners24614,build24614} from "../patches/reasoning-retention/profiles/build24614.mjs";
+import {readRendererModule} from "../src/renderer-module.mjs";
+
 const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extracted, "webview/assets");
 
-const turn = uniqueSource(source => source.includes("function MTKuseReasoningRetention("), "reasoning turn owner");
-const thread = uniqueSource(source => source.includes("function MTKuseReasoningThreadRetention("), "reasoning thread owner");
-const activity = uniqueSource(source => source.includes("isCollapsed:!r&&(a??!i)") ||
-  source.includes("isCollapsed:!i&&(o??!a)"), "stock collapse owner");
+const current=matchesBuild24614(extracted), owners=current?reasoningOwners24614(extracted):null;
+const turn = current?{source:readRendererModule(owners.turn)}:uniqueSource(source=>source.includes("function MTKuseReasoningRetention("),"reasoning turn owner");
+const thread = current?{source:readRendererModule(owners.thread)}:uniqueSource(source=>source.includes("function MTKuseReasoningThreadRetention("),"reasoning thread owner");
+const activity = current?{source:readRendererModule(owners.activity)}:uniqueSource(source=>source.includes("isCollapsed:!r&&(a??!i)")||source.includes("isCollapsed:!i&&(o??!a)"),"stock collapse owner");
 const rosterPolicy = turn.source.includes("function MTKreasoningRosterValue(");
 assert.equal(rosterPolicy, true, "build-9771 reasoning retention uses the shared agent roster");
 const policyOwner = turn;
@@ -96,7 +100,7 @@ assert.equal(
     thread.source.includes(build9922.thread.appliedCollapse) ||
     thread.source.includes(build10789.thread.appliedCollapse) ||
     thread.source.includes(build11645.thread.appliedCollapse) ||
-    thread.source.includes(build22943.thread.appliedCollapse),
+    thread.source.includes(build22943.thread.appliedCollapse) || current && thread.source.includes(build24614.thread.appliedCollapse),
   true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
@@ -107,11 +111,11 @@ assert.ok(
     thread.source.includes(build9922.thread.appliedDependencies) ||
     thread.source.includes(build10789.thread.appliedDependencies) ||
     thread.source.includes(build11645.thread.appliedDependencies) ||
-    thread.source.includes(build22943.thread.appliedDependencies),
+    thread.source.includes(build22943.thread.appliedDependencies) || current && thread.source.includes(build24614.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
-const collapseMarker = activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
+const collapseMarker = current?build24614.collapseMarker:activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
 const collapseText = functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf(collapseMarker)));
 const collapse = Function(`${collapseText};return ${functionName(collapseText)}`)();
 const base = {hasFinalAssistantStarted: true, isTurnCancelled: false, hasRenderableAgentItems: true};
@@ -126,7 +130,7 @@ assert.equal(
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner) ||
     turn.source.includes(build11645.turn.appliedOwner) ||
-    turn.source.includes(build22943.turn.appliedOwner),
+    turn.source.includes(build22943.turn.appliedOwner) || current && turn.source.includes(build24614.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

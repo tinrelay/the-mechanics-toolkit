@@ -3,18 +3,19 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
+import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
+import {paletteOwners24614} from "../patches/task-visual-palette/profiles/build24614.mjs";
+import {readRendererModule} from "../src/renderer-module.mjs";
+import {parse} from "acorn";
 const extractedRoot = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-visual-palette.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
-const appInitial = uniqueAsset(/^app-(?:initial|runtime)-.*\.js$/, "function MTKusePaletteBootstrap(");
-const localPage = uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
-const delegation = uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
-const source = readAsset(appInitial);
-if (source.includes("function pWs(e){let MTKsidebarArchiveEpoch=")) {
-  assert.equal(count(source, "function MTKuseSidebarArchivePolicy("), 1,
-    "build-10789 mounted archive rows have their subscription hook");
-}
+const current=matchesBuild24614(extractedRoot),moduleOwners=current?paletteOwners24614(extractedRoot):null;
+const appInitial = current?null:uniqueAsset(/^app-(?:initial|runtime)-.*\.js$/, "function MTKusePaletteBootstrap(");
+const localPage = current?null:uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
+const delegation = current?null:uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
+const source = current?readRendererModule(moduleOwners.app):readAsset(appInitial);
 const rosterConsumer = source.includes("const MTKpaletteRosterConsumer=1");
 const helperStart = source.indexOf("const MTKpaletteRelativePath=");
 const rootProfiles = [
@@ -24,9 +25,10 @@ const rootProfiles = [
   {start: "function Vvl(){", owner: "let e=(0,Wvl.c)(12),"},
   {start: "function _0a(){", owner: "let e=(0,b0a.c)(12),"},
   {start: "function Dbu(){", owner: "let e=(0,Abu.c)(12),"},
-  {start: "function PK(){", owner: "let e=(0,RK.c)(12),"}
+  {start: "function PK(){", owner: "let e=(0,RK.c)(12),"},
+  {start: "function mD(){", owner: "let e,t,n,a,i=(0,c.c)(12),"}
 ].map(profile => {
-  const index = source.indexOf(profile.start, helperStart);
+  const index = source.indexOf(profile.start, current?0:helperStart);
   const ownerIndex = index < 0 ? -1 : source.indexOf(profile.owner, index + profile.start.length);
   const nextFunction = index < 0 ? -1 : source.indexOf("function ", index + profile.start.length);
   return {...profile, index, ownerIndex, nextFunction};
@@ -46,7 +48,7 @@ const attentionBoundaries = [
   source.indexOf("const MTKattentionRosterBridge=1", helperStart)
 ].filter(index => index >= 0);
 const attentionBoundary = attentionBoundaries.length === 0 ? -1 : Math.min(...attentionBoundaries);
-const helperEnd = attentionBoundary >= 0 && attentionBoundary < rootBoundary ? attentionBoundary : rootBoundary;
+const helperEnd = current?parse(source,{ecmaVersion:"latest",sourceType:"module"}).body.find(x=>x.type==="FunctionDeclaration"&&x.id.name==="MTKusePaletteBootstrap").end:attentionBoundary >= 0 && attentionBoundary < rootBoundary ? attentionBoundary : rootBoundary;
 assert.ok(helperStart >= 0 && helperEnd > helperStart, "palette helper seam");
 const helper = source.slice(helperStart, helperEnd);
 assert.equal(rosterConsumer, true, "palette uses the shared agent roster");
@@ -94,10 +96,13 @@ async function testRosterConsumer(helperSource, appSource) {
       diagnose: (code, detail) => { diagnostics.push({code, detail}); return null; }
     }
   };
-  const api = Function("globalThis", `${helperSource};return {load:MTKloadPalette,match:MTKmatchPalette,archive:MTKsidebarArchiveProtected}`)(realm);
+  const row={attributes:new Map([["data-app-action-sidebar-thread-title","Tamsin — Coordinator"],["data-app-action-sidebar-thread-id",`local:${exactId}`]]),style:{values:new Map,setProperty(k,v){this.values.set(k,v)},removeProperty(k){this.values.delete(k)}},getAttribute(k){return this.attributes.get(k)},setAttribute(k,v){this.attributes.set(k,v)},removeAttribute(k){this.attributes.delete(k)},closest(){return null}};
+  const document={querySelectorAll:()=>[row]};
+  const api = Function("globalThis","document","MTKpaletteKeyDecode", `${helperSource};return {load:MTKloadPalette,match:MTKmatchPalette,archive:MTKsidebarArchiveProtected,sidebar:MTKapplySidebar}`)(realm,document,key=>typeof key==="string"&&key.startsWith("local:")?{kind:"local",threadId:key.slice(6)}:null);
   const loaded = await api.load();
   assert.ok(loaded, "roster visual entries load");
   assert.equal(loaded.rules.length, 2);
+  if(current){api.sidebar(loaded);assert.equal(row.style.values.get("--mtk-sidebar-chip"),"#55AA77","native encoded row IDs retain exact-identity color priority");}
   assert.equal(api.match(loaded,"Example Dot","22222222-2222-4222-8222-222222222222"),null,
     "dot continuity flags do not opt into TMTK native appearance overrides");
   assert.equal(api.match(loaded, "Tamsin — Portfolio Secretary", exactId).color, "#55AA77",

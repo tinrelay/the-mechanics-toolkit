@@ -47,9 +47,9 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.166.0-alpha.5.1.patch) targets macOS Desktop
-`26.1027.30824` / build `22943`, which bundles `codex-cli 0.166.0-alpha.5.1` at upstream commit
-`f79b26ccbb3116b052544666a181012fb45dc49b`. Both focused tests failed on this exact stock
+[The current source diff](codex-0.166.0-alpha.6.patch) targets macOS Desktop
+`26.1029.61003` / build `24614`, which bundles `codex-cli 0.166.0-alpha.6` at upstream commit
+`4f093f2748667f3b0e6a07e3d4055121cbd3ce64`. Both focused tests failed on this exact stock
 revision, then passed after applying the repair. Those tests cover local and remote-v2
 compaction; they do not qualify every alternate rollover path or every reported replay symptom.
 Upstream annotated-message handling remains unchanged. App Server callers can explicitly request
@@ -68,8 +68,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-22943 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-22943 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-24614 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-24614 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the
@@ -89,8 +89,7 @@ bin/tmtk-build-codex /path/to/codex
 
 For the current qualified macOS recipe, prefix the tests and build with
 `env -u RUSTFLAGS -u CARGO_ENCODED_RUSTFLAGS -u RUSTC_BOOTSTRAP RUSTUP_TOOLCHAIN=1.95.0`.
-This explicitly selects the existing stable compiler instead of installing the newer version
-named by upstream's toolchain file.
+This explicitly selects the existing stable compiler named by the current source toolchain file.
 
 The focused release tests and build use the same LTO setting so they can reuse compiled
 dependencies. The TMTK wrapper builds the ordinary release binary with

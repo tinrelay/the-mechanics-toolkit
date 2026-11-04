@@ -13,6 +13,7 @@ const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
 const end = source.indexOf("async function ", start);
 const owner = source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
 const profiles = {
+  cB: {authorizer: "cR", addon: "e", socketVar: "s", authParam: "o"},
   c$: {authorizer: "cF", addon: "e", socketVar: "s", authParam: "o"},
   $ce: {authorizer: "kl", addon: "i"},
   _ce: {authorizer: "pu", addon: "i"},

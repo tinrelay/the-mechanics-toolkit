@@ -15,7 +15,77 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Current frontier build 22943 — supervised task return
+## Installed build 24614 — supervised return and message smoke
+
+On 2026-11-04, the newest official macOS ARM64 offer was Desktop `26.1029.61003` / build `24614`,
+published 2026-11-03 20:37:06 UTC. Official ZIP length: `813396380` bytes; SHA-256:
+`43def98099e94837f07b976be98138251859ae58831d057d5483e8b20906a9a4`.
+Sparkle Ed25519 signature, vendor code signature, notarization staple, and ASAR seal verified.
+Pristine ASAR SHA-256:
+`0c951258b7ab381ec601045ffb02159e53f424548dda18e6a4dcfd126557383b`.
+The feed includes no release notes.
+
+Bundled CLI `0.166.0-alpha.6` SHA-256:
+`508388df35319042107560d095b271a98a512f59a542848c908b23ed1bad4b44`.
+Exact upstream tag `rust-v0.166.0-alpha.6`, commit
+`4f093f2748667f3b0e6a07e3d4055121cbd3ce64`. Both focused `standalone_external_input`
+tests failed on stock at the intended assertions, then passed with the cataloged three-file repair
+(2 passed; 2,871 filtered). No provider call, feature toggle, or live compaction was used.
+Stable Rust `1.95.0`, LTO off, with `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP`
+unset built the matching ARM64 release binary through `bin/tmtk-build-codex`. SHA-256:
+`2d1cd892a2fe36d6a6ce3969d9dd5e310ac01e358aab0a3b6bff69f3959ee8e5`.
+Cargo.lock changed only 170 workspace version lines; exact repaired-source hashes still match.
+The packaged `turnToolOutput` builder still omits `retain`.
+
+The renderer changed to Rspack factory registries. Exact module edits preserve sibling bytes and
+validate syntax; imported bindings are captured outside component locals. Both lazy tool renderer
+copies and both timeline paths are covered. The main handler now lives in chunk 45; its loader,
+child-process import, readiness writer, peer authorization, app-ready disposal, and observer hooks
+are inspected. Readiness still requires the native primary renderer mount, excluding overlays and
+initialization-only events.
+
+The complete 16-patch ASAR composition and all production probes passed from pristine, with
+byte-identical second application. A probe caught encoded sidebar task keys losing exact-color
+priority to a title rule; the port now uses the native key decoder, and that causal probe passed.
+The roster's actual native RPC factory passed loading, deferred hydration, manager-ready,
+connected-client fallback, replacement, and unavailable-host probes. Receipt acknowledgement,
+private persistence, title hydration, radio incoming/outgoing rendering, scroll settling, and
+bounded native observer/anchor tests passed.
+
+The complete signed 18-patch stage passed, including probes repeated after repacking, changed-module
+syntax, byte-identical second application, original native/unpacked payloads, terminal-helper mode,
+code signatures, and ASAR seal. Candidate ASAR SHA-256:
+`218de273d121c8155a9972a753a3a0cdf6c88833692232ec6de770560d021ab5`.
+The candidate CLI matches the release hash above. Repository checks/tests passed; Linux production
+DEB/RPM stage fixtures were skipped on macOS. Completed compiler output and transient extracted
+material were disposed of after preserving compact evidence.
+
+On 2026-11-04, the first authorized supervisor attempt stopped before replacement: the native
+quit request returned while Codex's own quit confirmation was still pending. The supervisor
+incorrectly treated a 30-second process-exit interval as a shutdown failure. The operator reported
+waiting for the invoking task's compaction before answering that confirmation, then force-quit and
+reopened the still-unchanged accepted build `22943`.
+
+The macOS shutdown wait now offers **Continue Waiting** or **Cancel Restart** instead of abandoning
+the transaction. Exact process termination and invoking-CLI exit still gate replacement; the
+renderer-readiness deadline starts after launch. Focused regression work failed before the repair
+and passed afterward, covering delayed quit across multiple intervals, explicit cancellation, and
+already-stopped behavior. The waiting-dialog AppleScript compiles. Repository check/test and
+diff-check passed; Linux/Windows shutdown policy is unchanged.
+
+The corrected `bin/tmtk-restart --candidate` adopted build `24614` and reported native renderer
+readiness at 2026-11-04 22:44:23 UTC without rescue. The operator returned to this actual chat.
+Installed ASAR and CLI hashes match the candidate above; no transaction-only rollback bundle remains.
+A native task-message test reached the recipient's actual chat and its requested ACK arrived while
+the wait was active. A TinRelay self-send was accepted, independently reported routed, and actually
+returned into the same chat. The operator accepted the visible result.
+
+This is healthy supervised adoption and bounded message smoke. The newly added delayed-quit dialog
+has not been independently exercised live; no new full feature tour, live compaction, destructive
+rescue-capability exercise, or secondary-platform qualification is claimed. Legacy ESM synthetic
+transform regressions remain useful coverage for the secondary-platform readers.
+
+## Previous live-accepted build 22943 — supervised task return
 
 On 2026-10-30, the newest official feed item was Desktop `26.1027.30824` / build `22943`,
 published 2026-10-29 18:03:26 UTC. One official ARM64 ZIP was downloaded; its exact advertised

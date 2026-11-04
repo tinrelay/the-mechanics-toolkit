@@ -2,15 +2,23 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
+import {build24614, modelOwner24614} from "../patches/model-identity-guard/profiles/build24614.mjs";
+import {readRendererModule} from "../src/renderer-module.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: model-identity-guard.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
-const owner = uniqueOwner(source => source.includes("function MTKinstallModelIdentityGuard("));
+const moduleOwner = matchesBuild24614(root) ? modelOwner24614(root) : null;
+const owner = moduleOwner == null ? uniqueOwner(source => source.includes("function MTKinstallModelIdentityGuard(")) : {file: moduleOwner.file, source: readRendererModule(moduleOwner)};
 const rosterPolicy = owner.source.includes("function MTKmodelPinForTask(");
 const start = owner.source.indexOf(rosterPolicy ? "function MTKmodelPinForTask(" : 'const MTKmodelGuardStyleId=');
 const componentBoundary = owner.source.slice(start).match(/function [A-Za-z_$][\w$]*\(e\)\{let t=\(0,[A-Za-z_$][\w$]*\.c\)\(/);
-const end = componentBoundary == null ? -1 : start + componentBoundary.index;
+const end = moduleOwner != null ? owner.source.indexOf(build24614.ownerFunction, start) : componentBoundary == null ? -1 : start + componentBoundary.index;
+if (moduleOwner != null) {
+  assert.ok(owner.source.includes(build24614.appliedPublication), "loading clears the task publication until the effective model and effort are ready");
+  assert.ok(owner.source.includes(build24614.selectionOwner) && owner.source.includes(build24614.loadingGateOwner), "publication follows the effective selection and complete stock loading state");
+}
 assert.ok(start >= 0 && end > start, "model guard helper seam");
 const helper = owner.source.slice(start, end);
 
