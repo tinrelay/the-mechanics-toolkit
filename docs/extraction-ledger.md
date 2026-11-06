@@ -27,6 +27,26 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
+The opt-in `macos-computer-use-service` repair recognizes helper `26.1027.1001730` / `1001730`
+bundled in Desktop `24614`. Vendor executable SHA-256:
+`b64e219f30c655407e485d5fab47d354ea6398842fc49a6bad917810df54c862`.
+The native helper's authorization metadata identified the replacement CLI as `untrusted_parent`.
+A disposable signed helper rejected the vendor Node client with stock parent policy, answered
+the version ping after repair, and still rejected an unsigned Python client. The real Computer
+Use tool then listed native apps. The browser-side pipe remains a separate JavaScript owner.
+The signed 19-patch opt-in candidate passed complete staging, post-repack probes and byte-identical
+reapplication. Its ASAR is
+`ea0d633fea9c94b58d8488dd784b2f8034f3f89dcf83409c3adec42fda8ce664`.
+The initial repair reached Desktop readiness but could not open the protected group-container socket lock.
+The corrected candidate uses a dedicated mode-`0700` directory under `CODEX_HOME/computer-use/tmtk-ipc`.
+The corrected candidate was adopted through the supervisor. After binding fresh consent to the
+local certificate, TCC reported both Screen Recording and Accessibility Allowed, and a real
+Chrome accessibility read through native Computer Use returned in under a second. The matrix
+above retains the default 18-patch receipt; this is a separately qualified opt-in repair.
+Same-certificate permission preservation has source tests and an actual identity comparison;
+a post-consent update/restart preservation test has not been run. The separate Chrome browser
+provider remains unqualified.
+
 Build `24614` changes the renderer to Rspack module registries. The port uses Acorn to edit exact
 module-factory bodies while preserving sibling bytes, checks module IDs and parameters, and
 captures imports outside component-local bindings. Both lazy tool-renderer copies are covered.

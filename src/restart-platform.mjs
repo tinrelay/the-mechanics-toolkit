@@ -110,6 +110,7 @@ export function diagnosticLocations(home, platform = process.platform, app = und
 
 export function launchApplication({
   app,
+  codexHome,
   marker,
   appLog,
   taskId,
@@ -119,7 +120,7 @@ export function launchApplication({
   environment = undefined
 }) {
   return implementation(platform).launchApplication({
-    app, marker, appLog, taskId, processRunner, processLauncher, environment
+    app, codexHome, marker, appLog, taskId, processRunner, processLauncher, environment
   });
 }
 

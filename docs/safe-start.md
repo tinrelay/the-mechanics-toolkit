@@ -138,8 +138,9 @@ On macOS, enable OpenAI's existing vendor preference once for the current user:
 defaults write com.openai.sky.CUAService ComputerUseAllowForbiddenTargets -bool YES
 ```
 
-This is an explicit opt-in at the Computer Use service's own policy seam. TMTK does not modify,
-patch, inject into, or re-sign `Codex Computer Use.app`. The restoration removes only the special
+This preference is an explicit opt-in at the Computer Use service's own policy seam. The
+preference itself does not patch or re-sign `Codex Computer Use.app`; the separate optional
+[service authorization repair](../patches/macos-computer-use-service/) does. The preference removes only the special
 blanket prohibition on Codex as a target. It does not bypass Accessibility or Screen Recording
 permission, organization or per-app authorization, the person's stop control, URL restrictions,
 or any other Computer Use safety check.
@@ -149,6 +150,13 @@ restart. Remove it with
 `defaults delete com.openai.sky.CUAService ComputerUseAllowForbiddenTargets` to restore the stock
 prohibition. Successful qualification must use Computer Use to make a harmless read-only
 observation of Codex itself and must not infer that unrelated Computer Use policy was weakened.
+
+The optional service repair requires a persistent local signing certificate. Before launch,
+the supervisor clears only that helper's stale Screen Recording/Accessibility grants if its
+designated signing requirement changed; matching requirements preserve the grants. Users approve
+fresh macOS access themselves. Permission preparation failure is logged without blocking Desktop
+launch. A restart-ready marker does not prove Computer Use readiness; qualify an actual read after
+the permissions are granted.
 
 The rollback source is not inferred from filenames, neighboring applications, or version order.
 On macOS it is the exact canonical application inspected and copied before candidate adoption. On

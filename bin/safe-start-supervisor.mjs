@@ -294,6 +294,7 @@ async function supervise(stateFile, {
     save({phase: "launching"});
     const child = launchApplication({
       app: configuration.app,
+      codexHome: configuration.codexHome,
       marker: state.marker,
       appLog: path.join(state.incidentDirectory, "app-stdio.log"),
       taskId: configuration.taskId,

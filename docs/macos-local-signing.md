@@ -25,7 +25,18 @@ Put that name in the ignored configuration:
 }
 ```
 
-The setting is optional. Omitting it or using `"-"` preserves the zero-setup ad-hoc behavior.
+For the default fleet, the setting is optional. Omitting it or using `"-"` preserves ad-hoc signing.
+The optional `macos-computer-use-service` repair requires a persistent certificate and rejects
+ad-hoc signing. Reuse the same certificate on that machine for successive builds; do not generate
+a new identity for each update. Screen Recording/Accessibility permissions then remain bound to
+the same designated requirement.
+
+On the first vendor-to-local helper transition, `tmtk-restart` resets only that helper's stale
+Screen Recording and Accessibility grants before launch, allowing macOS to bind new consent to
+the current certificate. Same-signer updates and ordinary restarts preserve those grants. Users
+still grant macOS access themselves; TMTK neither writes the TCC database nor fabricates consent.
+If macOS refuses the targeted reset, TMTK records that Computer Use remains unready and still
+launches Desktop; an optional permission repair must not become a Desktop startup outage.
 
 ## Trust boundary
 
@@ -37,6 +48,7 @@ vendor Team ID.
 
 Anyone holding the private key could sign another `com.openai.codex` bundle that satisfies the same
 local designated requirement. Keep the key non-exportable when practical and protected by the
-login Keychain. To retire the identity, return `signingIdentity` to `"-"`, stage a fresh candidate,
-and remove the certificate and private key from Keychain Access after replacing any applications
-that depend on it.
+login Keychain. To retire the identity, first remove the optional Computer Use service repair
+from the selection, return `signingIdentity` to `"-"`, and stage/adopt a fresh candidate. Remove the
+certificate and private key only after replacing applications that use them. Restoring the vendor
+helper changes its identity again and may require fresh macOS consent.

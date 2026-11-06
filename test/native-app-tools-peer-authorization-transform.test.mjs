@@ -13,6 +13,7 @@ const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "mechanics-toolkit-native-
 
 try {
   for (const profile of [
+    {owner: "cB", authorizer: "cR", addon: "e", authParam: "o", current: true},
     {owner: "$ce", authorizer: "kl", envConst: "Kce", addonConst: "qce"},
     {owner: "zie", authorizer: "nd", envConst: "Mie", addonConst: "Nie"},
     {owner: "mie", authorizer: "Tf", envConst: "sie", addonConst: "cie"},
@@ -40,7 +41,7 @@ try {
     assert.deepEqual(applied.fallback, {
       stockReason: "missing-code-signing-identity",
       immediatePeerTeamId: "2DC432GLL2",
-      immediatePeerSigningIdentifier: "node"
+      immediatePeerSigningIdentifiers: ["node", "node_repl"]
     });
     const once = fs.readFileSync(target);
     const probe = spawnSync(process.execPath, [behavioralProbe, extracted], {encoding: "utf8"});
@@ -65,6 +66,16 @@ function runToolkit(action, extracted) {
 }
 
 function fixture(profile) {
+  if (profile.current) return [
+    'function cR(){let n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION;let e=cP((0,en.join)(i,"native","browser-use-peer-authorization.node"));return s=>e.authorizeSocketPeer(s,n)}',
+    "async function cB({callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,pipePath:a,socketPeerAuthorizer:o=cR()}){return o}",
+    "async function ZC({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=cR()}){return i}",
+    "async function uv({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tb.randomUUID)()}.sock`,socketPeerAuthorizer:r=cR()}){return r}",
+    "async function apps(){let y=await cy({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:cR()});return y}",
+    "async function lD({sourceServiceAppPath:e,codexHome:t}){if(\"darwin\"!==process.platform||process.env.CODEX_ELECTRON_SKIP_COMPUTER_USE_CANONICAL_REFRESH?.trim()===\"1\"||null==e)return;}async function lM(){}",
+    "function runtime(){return true?function({nativePipeDirectory:e,nativePipeEnabled:t=!1,serviceAppPath:r,serviceNativePipePath:n}={}){return{...null==r?{}:{[rW]:r},...null==n?{}:{[rN]:n},...t?{SKY_CUA_NATIVE_PIPE: \"1\",SKY_CUA_NATIVE_PIPE_DIRECTORY:e??rq}:{}}}({nativePipeDirectory:l,nativePipeEnabled:\"win32\"===h.platform,serviceAppPath:\"darwin\"===h.platform?c.serviceAppPath:null,serviceNativePipePath:\"darwin\"===h.platform&&u?eq().env[rN]:null}):{}}",
+    "const reasons=[`dynamic_app_tools_peer_rejected`,`missing-socket-file-descriptor`];"
+  ].join("");
   return [
     `const ${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\`,${profile.addonConst}=\`browser-use-peer-authorization.node\`;`,
     `const ${profile.addon ?? "i"}={authorizeSocketPeer(){}};function ${profile.authorizer}(){return()=>({authorized:false})}`,

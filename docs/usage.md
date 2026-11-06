@@ -172,7 +172,9 @@ Configuration-backed patches use these values:
   default `-` uses ad-hoc signing. A stable identity keeps the designated requirement consistent for
   permissions macOS tracks that way, but some application items add their own exact-hash or
   partition policy. Keep the certificate and private key local—only the identity name belongs in the
-  ignored configuration. See [stable macOS local signing](macos-local-signing.md) for the trust boundary;
+  ignored configuration. The optional `macos-computer-use-service` repair requires this persistent
+  certificate and rejects ad-hoc signing. See [stable macOS local signing](macos-local-signing.md)
+  for setup, first-transition consent, and the trust boundary;
 - `codexBinary` names a separately built App Server/Core executable when a source repair must be
   integrated into a macOS or Linux staged desktop package. Windows instead uses
   `windows.codexBinaries.native` and `windows.codexBinaries.wsl` because the package contains both

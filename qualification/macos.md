@@ -17,6 +17,43 @@ proof of the supervisor's Terminal rescue path.
 
 ## Installed build 24614 — supervised return and message smoke
 
+### Computer Use repair — native Chrome read accepted
+
+The optional `macos-computer-use-service` repair adds a nineteenth macOS patch. Exact helper
+identity and vendor executable hash are recorded in the [extraction ledger](../docs/extraction-ledger.md).
+It removes the parent/ancestor signature gate that rejected the replacement CLI, while keeping
+vendor-signature authentication on the immediate socket client. Browser, MCP Apps and host-service
+JavaScript owners use the exact vendor Node/Node REPL fallback.
+
+A locally signed helper could not open the original vendor-protected group-container socket lock
+(`errno=1`). Both client and managed service now use the supported socket override in a dedicated
+mode-`0700` directory under `CODEX_HOME/computer-use/tmtk-ipc`. A live probe through the installed
+native spawner proved current-environment inheritance on two consecutive private-socket spawns.
+An isolated version ping passed after the native repair; an unsigned Python client remained rejected.
+
+The complete signed 19-patch stage passed post-repack probes, native payload preservation and
+byte-identical reapplication. Its ASAR SHA-256 is
+`ea0d633fea9c94b58d8488dd784b2f8034f3f89dcf83409c3adec42fda8ce664`.
+Supervised adoption returned to the real chat and native app inventory worked. Initial Chrome
+reads exposed stale TCC bindings to the vendor signature despite checked Settings entries.
+Only the helper's Screen Recording and Accessibility grants were reset through `tccutil`.
+After fresh operator consent on 2026-11-05, TCC reported both permissions **Allowed** for the
+running locally signed helper, and `cua.getApp("com.google.Chrome")` returned its real accessibility
+tree in approximately 0.85 seconds. No browser input was sent.
+
+The portable workflow requires a persistent signing certificate, compares canonical/incoming
+helper requirements before launch, and resets only those two grants when identity changes.
+Tests cover vendor, older ad-hoc and missing-helper transitions, preserving same-identity updates,
+and logging permission preparation failures without blocking Desktop launch. An actual installed/
+bundled requirement comparison returned `preserved` without resetting permissions. The external
+supervisor changes do not alter the candidate ASAR.
+
+This qualifies Chrome reads through native Computer Use. The separate Chrome browser provider
+was absent from discovery and is not qualified. A live update/restart after the fresh grant remains
+unrun; source tests and actual identity comparison cover preservation until that next install.
+
+### Accepted 18-patch receipt
+
 On 2026-11-04, the newest official macOS ARM64 offer was Desktop `26.1029.61003` / build `24614`,
 published 2026-11-03 20:37:06 UTC. Official ZIP length: `813396380` bytes; SHA-256:
 `43def98099e94837f07b976be98138251859ae58831d057d5483e8b20906a9a4`.
@@ -589,7 +626,7 @@ marked `not selected`, never passed.
 | Codex observability | Run `tmtk-observe list`, capture a short CPU profile and timeline trace from the active renderer while interacting with a real task, then run one read-only CDP command. | Target metadata is current, both output files open in Chrome DevTools, the interaction appears in the captures, and every capture detaches without leaving profiling active. |
 | Renderer patch registry | Inspect the packed registry bootstrap and run its composition probe after all selected publishers/consumers. | Exactly one registry exists, known optional capabilities are callable, and cross-task/wait/Tinrelay surfaces above compose without requiring one another. |
 | Safe-start readiness | Complete the healthy case in section 3. Re-run section 2 only when its boundary is repaired and deliberately qualified. | This exact patchset writes readiness through LaunchServices without prompting for Terminal Computer Use or network privacy access. On build `10789`, readiness can precede a usable task and living-Oops recovery is not qualified. |
-| Computer Use self-target restoration | Record the exact `ComputerUseAllowForbiddenTargets` preference value, bind Computer Use to Codex, and make one harmless read-only accessibility observation. | The stock Computer Use path observes Codex without modifying the signed service. The agent records this as restoration of previously available functionality and verifies no unrelated permission or safety policy was bypassed. |
+| Computer Use self-target restoration | Record the exact `ComputerUseAllowForbiddenTargets` preference value, bind Computer Use to Codex, and make one harmless read-only accessibility observation. | The preference restores only the Codex target policy. Record whether the separate service authorization repair is selected; neither result substitutes for this self-target observation or for macOS consent. |
 | Renderer turn window | Run its bounded-turn probe against the packed candidate, then switch into a long-lived real task that previously stalled. | The mounted UI projection keeps only the newest 200 complete turns, transport pagination and transcript export remain intact, and task switching no longer stalls. |
 
 ## 5. Close the receipt

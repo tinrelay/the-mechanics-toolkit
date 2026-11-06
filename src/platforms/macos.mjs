@@ -4,6 +4,7 @@ import path from "node:path";
 import { spawn, spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { inspectAppBundle } from "../app-bundle.mjs";
+import {prepareComputerUsePermissions} from "./macos-computer-use.mjs";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const toolkitIcon = path.resolve(directory, "../../assets/TheMechanicsToolkit.icns");
@@ -162,7 +163,17 @@ export function diagnosticLocations(home) {
   };
 }
 
-export function launchApplication({app, marker, appLog, processLauncher = spawn}) {
+export function launchApplication({app, marker, appLog, codexHome, processLauncher = spawn, processRunner = spawnSync,
+  preparePermissions = prepareComputerUsePermissions}) {
+  try {
+    const permissions = preparePermissions({app, codexHome, processRunner});
+    if (permissions.state === "reset") {
+      fs.appendFileSync(appLog, "TMTK: Computer Use signer changed; cleared only its stale Screen Recording/Accessibility grants. Approve the current helper once.\n");
+    }
+  } catch (error) {
+    // Permission migration is optional feature readiness, not Desktop launch readiness.
+    fs.appendFileSync(appLog, `TMTK: Computer Use permission preparation failed: ${String(error.message).slice(0,1000)}\n`);
+  }
   const child = processLauncher("/usr/bin/open", [
     "-W", "-n",
     "--env", `CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH=${marker}`,

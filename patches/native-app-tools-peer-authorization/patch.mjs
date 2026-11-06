@@ -27,7 +27,7 @@ process.stdout.write(`${JSON.stringify({
   fallback: {
     stockReason: "missing-code-signing-identity",
     immediatePeerTeamId: "2DC432GLL2",
-    immediatePeerSigningIdentifier: "node"
+    immediatePeerSigningIdentifiers: ["node", "node_repl"]
   },
   target: path.relative(root, target)
 }, null, 2)}\n`);
@@ -41,8 +41,11 @@ function inspectState(value) {
   const redCount = count(value, ownerBefore);
   const greenCount = count(value, ownerAfter);
   verifyStockAuthorization(value);
-  if (helperCount === 1 && greenCount === 1 && redCount === 0) return "applied";
-  if (helperCount === 0 && greenCount === 0 && redCount === 1) return "needs-apply";
+  const computerUse = computerUseReplacements(profile);
+  const computerUseRed = computerUse.every(([before, after]) => count(value, before) === 1 && count(value, after) === 0);
+  const computerUseGreen = computerUse.every(([before, after]) => count(value, before) === 0 && count(value, after) === 1);
+  if (helperCount === 1 && greenCount === 1 && redCount === 0 && computerUseGreen) return "applied";
+  if (helperCount === 0 && greenCount === 0 && redCount === 1 && computerUseRed) return "needs-apply";
   throw new Error(
     `Upstream changed: native app-tools peer seams helper=${helperCount} red=${redCount} green=${greenCount}`
   );
@@ -73,13 +76,26 @@ function patchSource(value) {
   if (ownerAt < 0 || value.indexOf(ownerBefore, ownerAt + ownerBefore.length) >= 0) {
     throw new Error("Upstream changed: native app-tools server owner is not unique");
   }
-  return value.slice(0, ownerAt) + helper + ownerAfter + value.slice(ownerAt + ownerBefore.length);
+  let result = value.slice(0, ownerAt) + helper + ownerAfter + value.slice(ownerAt + ownerBefore.length);
+  for (const [before, after] of computerUseReplacements(profile)) result = result.replace(before, after);
+  return result;
+}
+
+function patchedOwner(owner) {
+  return owner.replace("cR()", "MTKnativeAppToolsPeerAuthorizer()");
+}
+
+function computerUseReplacements(profile) {
+  return [
+    ...(profile.computerUseOwners ?? []).map(before => [before, patchedOwner(before)]),
+    ...(profile.computerUseSocket ?? [])
+  ];
 }
 
 function helperFor(authorizer) {
   return "function MTKnativeAppToolsPeerAuthorizer(){let e=" + authorizer + "();return t=>{let n=e(t);" +
     "return n.authorized?n:n.reason===`missing-code-signing-identity`&&" +
-    "n.teamId===`2DC432GLL2`&&n.signingIdentifier===`node`?" +
+    "n.teamId===`2DC432GLL2`&&(n.signingIdentifier===`node`||n.signingIdentifier===`node_repl`)?" +
     "{...n,authorized:!0,reason:void 0}:n}}";
 }
 
@@ -92,6 +108,21 @@ function ownershipProfile(value) {
   const profiles = [
     {
       owner: "cB", authorizer: "cR",
+      computerUseOwners: [
+        "async function ZC({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=cR()})",
+        "async function uv({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tb.randomUUID)()}.sock`,socketPeerAuthorizer:r=cR()})",
+        "y=await cy({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:cR()})"
+      ],
+      computerUseSocket: [
+        [
+          'async function lD({sourceServiceAppPath:e,codexHome:t}){if("darwin"!==process.platform||',
+          'async function lD({sourceServiceAppPath:e,codexHome:t}){if("darwin"===process.platform&&!process.env[rN]?.trim()){let r=ei().join(t,"computer-use","tmtk-ipc");await ek().mkdir(r,{recursive:!0,mode:448}),await ek().chmod(r,448),process.env[rN]=ei().join(r,"computeruse.sock")}if("darwin"!==process.platform||'
+        ],
+        [
+          'serviceNativePipePath:"darwin"===h.platform&&u?eq().env[rN]:null',
+          'serviceNativePipePath:"darwin"===h.platform?(eq().env[rN]?.trim()||ei().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null'
+        ]
+      ],
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,pipePath:a,socketPeerAuthorizer:o=",
       contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION',
         'e=cP((0,en.join)(i,"native","browser-use-peer-authorization.node"))',

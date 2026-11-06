@@ -14,17 +14,29 @@ the immediate helper still does.
 
 This patch leaves the stock result authoritative. It adds one fallback only to the native app-tools
 server: a stock `missing-code-signing-identity` rejection becomes authorized when the immediate
-peer has OpenAI Team ID `2DC432GLL2` and signing identifier `node`. A stock success passes through
+peer has OpenAI Team ID `2DC432GLL2` and signing identifier `node` or `node_repl`. A stock success passes through
 unchanged. An untrusted identity, another team, another executable, another rejection reason, or a
-different native pipe remains rejected.
+different native pipe remains rejected unless its exact owner is included below.
 
 ## Owned seam
 
 The transform recognizes one main-process native app-tools server owner, its stock authorizer
 default, the packaged `browser-use-peer-authorization.node` testimony, and the current rejection
-contracts. It wraps only that server's default authorizer. The native module, its full-chain check,
-browser/computer-use authorization, all other native pipes, and explicit caller-supplied
-authorizers remain stock owners.
+contracts. In the current main-process profile it also wraps the exact browser, MCP Apps browser,
+and Computer Use host-service pipe owners. These use the same native authorizer and otherwise
+reject the vendor-signed runtime under a locally signed Codex parent. The native module, stock
+successes, app access policy, and explicit caller-supplied authorizers remain stock owners.
+
+The separately packaged macOS Computer Use service has its own signature gate. Its optional
+[service repair](../macos-computer-use-service/README.md) is independent of this JavaScript wrapper.
+
+The current macOS profile also gives the service and packaged Computer Use client the same
+`SKY_CUA_SERVICE_NATIVE_PIPE_PATH`. Its default is
+`CODEX_HOME/computer-use/tmtk-ipc/computeruse.sock`, in a dedicated directory kept at mode `0700`.
+A locally signed service cannot open the original lock file in the vendor's protected group
+container. Both sides derive the same default even if runtime configuration precedes helper
+startup; an explicit socket override remains authoritative. No group-container data is moved or
+made accessible.
 
 If the server owner, native module, Team ID, signing identifier, reason vocabulary, or surrounding
 authorization testimony changes, the transform fails with `Upstream changed`. Those are security
@@ -48,7 +60,7 @@ native message to a known local task after a separately authorized rebuild and r
 `test/native-app-tools-peer-authorization-transform.test.mjs` constructs both recognized pristine
 main-process profiles. It proves red/green transformation, stock-success preservation, the exact
 mixed-signature exception, retained negative cases, unchanged stock native-module ownership,
-single-pipe scope, syntax validity, and byte-identical second application.
+exact pipe-owner scope, syntax validity, and byte-identical second application.
 
 The private implementation was separately accepted after the app-tools migration: native
 task-to-task ping/pong and browser control both worked under the locally signed application. That
@@ -59,7 +71,7 @@ transform is installed.
 
 - accepting an unsigned, ad-hoc-signed, differently signed, or differently named immediate peer;
 - bypassing the native module or replacing its stock success path;
-- relaxing browser/computer-use or another pipe's authorization;
+- granting browser/app access, disabling macOS privacy controls, or changing another pipe's authorization;
 - trusting a task, prompt, environment variable, or local config to choose an allowed signer;
 - claiming delivery, hydration, or app-server correctness after authorization succeeds;
 - accepting an approximately matching future main process.

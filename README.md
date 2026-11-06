@@ -43,6 +43,11 @@ An `active` patch is maintained on the current branch. That does not mean it is 
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
 before porting or adopting a candidate.
 
+The optional macOS Computer Use repair has a separate signed 19-patch stage/adoption receipt and
+a successful native Chrome accessibility read. It requires a persistent local signing certificate
+and first-transition macOS consent; ordinary same-identity updates preserve those grants.
+The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0221).
+
 ## Ordinary use
 
 Inspect the checkout before updating it; preserve local work rather than discarding a dirty tree.
@@ -106,7 +111,8 @@ evidence, configuration, and non-goals.
 | [Terminal toggle](patches/terminal-toggle/) | Makes the configured terminal shortcut work from both the composer and focused terminal. |
 | [TinRelay presentation](patches/tinrelay-pointer-presentation/) | Renders verified incoming and accepted outgoing TinRelay correspondence in the conversation. |
 | [macOS menu title](patches/macos-menu-title/) | Restores `Codex` as the leading macOS application-menu label. |
-| [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Preserves native task tools after a narrow local repair and re-signing. |
+| [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Preserves native task tools and current browser/host-service pipes after local re-signing. |
+| [macOS Computer Use service](patches/macos-computer-use-service/) | Optional repair for the vendor-signed runtime under a locally signed Codex parent; keeps immediate-peer signature checks. |
 | [Codex observability](patches/codex-observability/) | Exposes bounded local CDP, renderer metrics, CPU profiles, and timeline traces. |
 | [Renderer turn window](patches/renderer-turn-window/) | Bounds mounted completed turns without truncating transcript storage or export. |
 | [Patched Codex binary integration](patches/standalone-output-compaction/) | Verifies and installs a separately built, same-version `codex` executable into a staged package. |

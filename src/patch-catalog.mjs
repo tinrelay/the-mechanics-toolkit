@@ -85,6 +85,14 @@ const definitions = [
     probe: "test/native-app-tools-peer-authorization.test.mjs"
   },
   {
+    name: "macos-computer-use-service",
+    script: "patches/macos-computer-use-service/patch.mjs",
+    probe: "test/macos-computer-use-service.test.mjs",
+    scope: "app",
+    config: true,
+    requires: ["native-app-tools-peer-authorization"]
+  },
+  {
     name: "codex-observability",
     script: "patches/codex-observability/patch.mjs",
     probe: "test/codex-observability.test.mjs"

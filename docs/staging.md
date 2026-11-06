@@ -28,7 +28,8 @@ metadata.
 The staging command does not apply Rust source patches or build Codex. Follow the selected entry in
 [`source-patches/`](../source-patches/) first. Its compiled result becomes a package input only
 through the explicit `codexBinary` configuration; the integration transform places it at
-`Contents/Resources/codex` before the candidate is signed.
+the exact recognized CLI layout, including nested `CodexCLI.app` on the current macOS target,
+before the candidate is signed.
 
 For an offered update, prefer the untouched application from the official vendor installer as the
 source. The running installed application may remain open throughout staging. A staged candidate
@@ -49,7 +50,8 @@ signature. Inside the new candidate, the command:
 6. requires the exact recognized native-package set, preserves its complete tree, repacks it, and
    verifies the node-pty helper is executable;
 7. on macOS, updates Electron's raw ASAR-header SHA-256 value and signs the candidate with the
-   configured identity (ad-hoc by default); on Linux, writes explicit local-rebuild control fields
+   configured identity (ad-hoc by default, but a persistent certificate is required for the optional
+   Computer Use service repair); on Linux, writes explicit local-rebuild control fields
    and a receipt without claiming the vendor signature;
 8. verifies the platform package identity and version/build preservation, plus the macOS integrity
    seal and signature where applicable;
