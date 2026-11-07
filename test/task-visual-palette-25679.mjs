@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {paletteOwners25471} from "../patches/task-visual-palette/profiles/build25471.mjs";
+import {paletteOwners25679} from "../patches/task-visual-palette/profiles/build25679.mjs";
 
-export function probePendingChatArchive25471(root) {
-  const source=readRendererModule(paletteOwners25471(root).localMenu);
+export function probePendingChatArchive25679(root) {
+  const source=readRendererModule(paletteOwners25679(root).localMenu);
   const nodes=[];
   walk(parse(source,{ecmaVersion:"latest",sourceType:"module"}),node=>nodes.push(node));
   const menu=nodes.find(node=>node.type==="ArrowFunctionExpression"&&source.slice(node.start,node.end).includes('MTKsidebarArchiveProtected(J)'));

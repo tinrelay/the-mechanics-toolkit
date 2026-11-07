@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
-import {runIncoming25471} from "./profiles/build25471.mjs";
+import {matchesBuild25679} from "../runtime-json-reload/profiles/build25679.mjs";
+import {runIncoming25679} from "./profiles/build25679.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -25,7 +25,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/incoming-transform.mjs check|apply EXTRACTED_ASAR_ROOT [--config TOOLKIT_CONFIG]");
 }
 
-if(matchesBuild25471(root)){console.log(JSON.stringify(runIncoming25471({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
+if(matchesBuild25679(root)){console.log(JSON.stringify(runIncoming25679({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -467,9 +467,9 @@ function mainHelpers(config, childProcess) {
 }
 
 function mainProcessProfile(source) {
-  if(source.startsWith("exports.ids=[920],exports.modules={")) {
+  if(source.startsWith("exports.ids=[854],exports.modules={")) {
     const entry=fs.readFileSync(path.join(root,".vite/build/early-bootstrap.js"),"utf8");
-    if(count(source,'var th=r(50596),tp=r(95398),tm=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-25471 child-process binding");
+    if(count(source,'var th=r(50596),tp=r(95398),tm=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-25679 child-process binding");
     return {childProcess:"tp",helperOwner:mainLoggerOwner(source)[0]};
   }
   if (isWebpackMain(source)) {

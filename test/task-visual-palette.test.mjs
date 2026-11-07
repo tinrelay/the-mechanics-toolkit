@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-import {probePendingChatArchive25471} from "./task-visual-palette-25471.mjs";
+import {probePendingChatArchive25679} from "./task-visual-palette-25679.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
-import {paletteOwners25471} from "../patches/task-visual-palette/profiles/build25471.mjs";
+import {matchesBuild25679} from "../patches/runtime-json-reload/profiles/build25679.mjs";
+import {paletteOwners25679} from "../patches/task-visual-palette/profiles/build25679.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const extractedRoot = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-visual-palette.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
-const current=matchesBuild25471(extractedRoot),moduleOwners=current?paletteOwners25471(extractedRoot):null;
+const current=matchesBuild25679(extractedRoot),moduleOwners=current?paletteOwners25679(extractedRoot):null;
 const appInitial = current?null:uniqueAsset(/^app-(?:initial|runtime)-.*\.js$/, "function MTKusePaletteBootstrap(");
 const localPage = current?null:uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
 const delegation = current?null:uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -54,7 +54,7 @@ assert.ok(helperStart >= 0 && helperEnd > helperStart, "palette helper seam");
 const helper = source.slice(helperStart, helperEnd);
 assert.equal(rosterConsumer, true, "palette uses the shared agent roster");
 await testRosterConsumer(helper, source);
-if(current)probePendingChatArchive25471(extractedRoot);
+if(current)probePendingChatArchive25679(extractedRoot);
 process.stdout.write("task visual palette roster behavioral probe passed\n");
 function uniqueAsset(pattern, marker = null) {
   const matches = assetNames.filter(name => pattern.test(name) &&

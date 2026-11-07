@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
-import {runBuild25471} from "./profiles/build25471.mjs";
+import {matchesBuild25679} from "../runtime-json-reload/profiles/build25679.mjs";
+import {runBuild25679} from "./profiles/build25679.mjs";
 import fs from "node:fs";
 import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -15,7 +15,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: renderer-patch-registry/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild25471(root)){console.log(JSON.stringify(runBuild25471({root,command,bootstrap})));process.exit(0);}
+if(matchesBuild25679(root)){console.log(JSON.stringify(runBuild25679({root,command,bootstrap})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");

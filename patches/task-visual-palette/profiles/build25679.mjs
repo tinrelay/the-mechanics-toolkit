@@ -1,8 +1,8 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25471}from '../../agent-roster/profiles/build25471.mjs';import{attributionOwner25471}from '../../cross-task-attribution/profiles/build25471.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25679}from '../../agent-roster/profiles/build25679.mjs';import{attributionOwner25679}from '../../cross-task-attribution/profiles/build25679.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export const paletteOwners25471=root=>({app:rosterOwner25471(root),room:owner(root,'596785.beac9065c9.js','xzfb'),fade:owner(root,'182735.bb2cb0d2af.js','KkZX'),delegation:attributionOwner25471(root),group:owner(root,'86296.6305cfdd6d.js','eQ5p',['e','t','a']),local:owner(root,'86296.6305cfdd6d.js','oprL',['e','t','a']),remote:owner(root,'86296.6305cfdd6d.js','ypQm',['e','t','a']),localMenu:owner(root,'86296.6305cfdd6d.js','JbIn',['e','t','a']),remoteActions:owner(root,'927552.2a3666383e.js','qK2L'),menus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI'))});
-export function runBuild25471({root,command,buildPaletteHelper}){
- const o=paletteOwners25471(root);let helper=buildPaletteHelper({name:'build-25471',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
+export const paletteOwners25679=root=>({app:rosterOwner25679(root),room:owner(root,'596785.beac9065c9.js','xzfb'),fade:owner(root,'182735.d1916dd704.js','KkZX'),delegation:attributionOwner25679(root),group:owner(root,'86296.6305cfdd6d.js','eQ5p',['e','t','a']),local:owner(root,'86296.6305cfdd6d.js','oprL',['e','t','a']),remote:owner(root,'86296.6305cfdd6d.js','ypQm',['e','t','a']),localMenu:owner(root,'86296.6305cfdd6d.js','JbIn',['e','t','a']),remoteActions:owner(root,'927552.2a3666383e.js','qK2L'),menus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI'))});
+export function runBuild25679({root,command,buildPaletteHelper}){
+ const o=paletteOwners25679(root);let helper=buildPaletteHelper({name:'build-25679',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
  helper=helper.replace('t.getAttribute("data-app-action-sidebar-thread-id")', 'MTKpaletteNativeTaskId(t.getAttribute("data-app-action-sidebar-thread-id"))').replace('function MTKusePaletteBootstrap(', 'function MTKpaletteNativeTaskId(e){let t=MTKpaletteKeyDecode(e);return t?.kind==="local"?t.threadId:t?.kind==="remote"?t.taskId:e}function MTKusePaletteBootstrap(');
  const entries=[],add=(target,pairs)=>entries.push({owner:target,pairs,source:readRendererModule(target)});
  add(o.app,[["function mq(){MTKuseAgentRoster();","function mq(){MTKuseAgentRoster();MTKusePaletteBootstrap();"],[null,';const MTKpaletteKeyDecode=n("d6Ff").Pc;'+helper]]);
@@ -42,7 +42,7 @@ function count(s,v){return s.split(v).length-1}
 
 // Incoming TinRelay owns the optional replacement bubble on this same wrapper.
 function paletteCanonical(source){
- source=source.replace("function mq(){MTKuseAttentionBootstrap25471();","function mq(){");
+ source=source.replace("function mq(){MTKuseAttentionBootstrap25679();","function mq(){");
  if(!source.includes('messageNode:MTKmessageNode}=e,y='))return source;
  return source.replace("r=(0,s.c)(25),{label:c,alignment:d","r=(0,s.c)(23),{label:c,alignment:d").replace('paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId,messageNode:MTKmessageNode}=e,y=','paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,y=');
 }

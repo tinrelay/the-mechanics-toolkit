@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 
-export function probeAttribution25471(source, helper) {
+export function probeAttribution25679(source, helper) {
   assert.ok(source.includes('c=n("zTeN")') && source.includes('eh=n("tl5a")'), "state bindings refer to the actual stock modules");
   assert.ok(source.includes('const MTKtitleAtom=eh.HX,MTKsourceThreadAtom=eh.ok,MTKcrossTaskState=c;'), "title and source metadata use their stock exports");
   const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "e5");
@@ -34,5 +34,5 @@ export function probeAttribution25471(source, helper) {
   summary = null;
   result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, title, "missing source metadata does not borrow the receiver's project");
-  console.log("build-25471 cross-task attribution behavior probe passed");
+  console.log("build-25679 cross-task attribution behavior probe passed");
 }

@@ -15,74 +15,52 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Build 25471 — port qualification
+## Build 25679 — bounded live acceptance
 
-On 2026-11-06 the newest official macOS ARM64 feed offered Desktop `26.1103.32239` / build
-`25471`, published at 18:13:12 UTC. Full ZIP: `815384629` bytes, SHA-256
-`68dabcb2dfee91d245e570c5cc45552c96f3eb719dedc98c907efa64197fa40d`.
-Sparkle Ed25519 signature, vendor app signature and ASAR seal verified. Pristine ASAR SHA-256:
-`8e55cbc7f0b7797ca1972cbf6d8b37f26dd8b79d0613235bc7448905a3bc7a2b`.
-The feed supplies no release notes.
+On 2026-11-07 the newest official macOS ARM64 feed offered Desktop `26.1103.41825` / build
+`25679`, published at 03:53:39 UTC. Full ZIP: `815395836` bytes, SHA-256
+`0b30ce5cac787893bf574b549b1d32cf363f21302935538acd369c668df2fd1f`.
+Sparkle Ed25519 signature, vendor app signature, ASAR seal and notarization staple verified.
+Pristine ASAR SHA-256: `766faa8a3da8f6d6902c751d5b6b29395a6c5bf3c966ef7f8ca3f629d931df85`.
+The feed supplies no release notes. The installed accepted app is build `25679`.
 
-Bundled CLI `0.167.0-alpha.3.2` maps to exact tag `rust-v0.167.0-alpha.3.2`, commit
-`c40729ea5cf8e947481b130c59807273eda2f8e9`. Both focused standalone-input compaction tests
-failed on stock and passed after the cataloged three-file repair (2 passed; 2,899 filtered).
-Stable Rust `1.95.0`, LTO off, and unset `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
-`RUSTC_BOOTSTRAP` are used for qualification. No provider/model call or feature toggle is needed.
-The Desktop adapter still omits `toolOutput.retain`.
-
-The native release build passed with that recipe and reports `codex-cli 0.167.0-alpha.3.2`.
-Replacement executable SHA-256:
+Bundled CLI `0.167.0-alpha.3.2` has stock executable SHA-256
+`a636331ed87605efc4cf84028ac2884a75363f9d10ead63cffb57ea0016d486e`, byte-identical to the
+preceding authenticated package. Reused replacement executable SHA-256:
 `666439515315e28edf8b2ee4bd173f20cc29d16095b575bf7a7a8b5413783ef8`.
-The lockfile changed only 171 workspace-local version values, from `0.0.0` to the source version;
-dependency resolution is unchanged. The temporary source/build tree was removed after preserving
-the executable, exact source-patch state, and compact test/build receipts.
+Exact upstream commit remains `c40729ea5cf8e947481b130c59807273eda2f8e9`; the cataloged
+three-file source repair and target hashes are unchanged. The preceding stock-red/repaired-green
+local and remote-v2 tests and stable-Rust `1.95.0`, LTO-off native release build remain its source
+proof. Rust tests/build were not rerun for this identical binary. No experimental flag was enabled.
+The packaged delegation adapter still omits `retain` in its tool-output branch.
 
-Exact Rspack profiles trace three lazy tool-renderer/classifier copies, both transcript paths,
-inline exports, current selector factories, and memo-cache invalidation. Sidebar pending-chat
-menus have a new owner and retain the archive guard. The old thread-completion auto-collapse
-effect is absent; the remaining `preventAutoCollapse` policy and manual persisted choices are
-qualified separately. Native readiness uses the actual primary AppRoutes mount, not overlays.
+Computer Use helper vendor executable SHA-256 remains
+`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`; the normalized image
+is unchanged. Its preceding causal private-socket vendor-Node acceptance and unsigned-Python
+rejection apply unchanged. The persistent per-machine signing identity is reused. A current
+post-update native Chrome accessibility read passed without fresh consent, as recorded below.
 
-Computer Use helper `26.1102.1001824` / `1001824` vendor executable SHA-256:
-`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`.
-The exact unsigned-image hashes and authorization offsets are pinned in its transform. A private
-socket probe rejected vendor Node under stock parent policy; the repaired persistent-certificate
-helper answered `CodexComputerUseIPC-5` while rejecting unsigned Python. The helper probe was
-removed after collecting compact evidence. No OS grant or TCC database was changed.
+The renderer runtime, shared chunk, terminal chunk and native bootstrap changed. Exact profiles
+were traced to current filenames/entry ownership and all 16 pristine ASAR preflight checks passed.
+Unchanged chat/tool chunks retain the actual TinRelay bubble-binding regression and both timeline
+paths. The complete signed 19-patch stage passed: composed and post-repack behavior probes,
+byte-identical reapplication, signatures/seal, native payloads/modes and CLI byte equality.
+Candidate ASAR SHA-256: `33a273f47d2d21e377379c8b57cdb367523bd341edf50a313529a68b0c23df1d`.
+`npm run check` and `npm test` passed; production DEB/RPM staging fixtures were platform-skipped.
+Actual canonical/incoming helper signing requirements match; permission preparation previews
+`preserved` without invoking `tccutil`. This is an identity comparison, not a current live-use test.
 
-The complete signed 19-patch stage passed: all 16 ASAR patches plus menu title, same-version CLI
-replacement and native helper repair; behavior probes passed again after repack, reapplication
-was byte-identical, signatures/seal verified, and native payloads/modes were preserved. Candidate
-ASAR SHA-256: `32acfe08595a3fe630c0b713013d4b3c1b43043b77fffb254c974eef4820e3cf`.
-Its embedded CLI bytes match the replacement hash above. `npm run check`, `npm test` and
-`git diff --check` passed; production DEB/RPM staging fixtures were platform-skipped.
+Supervised adoption reached readiness and returned to the real chat. Installed ASAR and CLI bytes
+match the candidate above; installed signature and ASAR seal are valid. Task-message ACK/wait and
+TinRelay self-send/return passed, and the operator accepted the visible result. Transaction rollback
+material was removed. The native helper in the canonical user-local location matches the installed
+helper. A native Chrome accessibility read returned in under three seconds without another
+consent flow. This is current permission-use evidence distinct from the signing comparison.
 
-The actual canonical and incoming helper designated requirements match. A non-mutating preview
-of supervisor permission preparation returns `preserved` and never invokes `tccutil`. This proves
-the identity comparison separately from live access. After the corrected supervised adoption,
-Desktop returned to the real task. Installed ASAR and CLI hashes match the candidate above,
-the invoking escape-line CLI exited before replacement, and transaction rollback material was
-removed. Task-message ACK/wait and TinRelay self-send/return passed; the operator accepted the
-visible result. These are bounded live checks, not a new full feature tour.
-
-A native Chrome accessibility read through `cua.getApp("com.google.Chrome")` then returned in
-under two seconds without a fresh consent flow. The canonical helper bytes match the new installed
-helper, so this is current post-update access with the persistent signer, rather than reuse of the
-older helper. Screenshot/control and the separate browser-provider path were not requalified.
-No live compaction, provider/model call, full live feature tour or secondary-platform adoption
-was run. One authenticated ZIP, one signed candidate and its replacement CLI remain; disposable
-source/build and extraction trees and the superseded loose CLI were removed. The previous helper
-image profile was retired after adoption; previous-signer inspection does not require it.
-
-The first supervised adoption reached startup renderer readiness, but activating a real chat
-failed with `Cannot read properties of undefined (reading 'call')`. Its incoming TinRelay binding
-still required the removed `LYcW` module. The narrow correction captures `_.R`, the stock
-delegated-message bubble already imported from `y5H2`. A new probe initializes the actual binding:
-it fails on the first candidate and passes with the correction. The failed candidate was removed.
-The corrected complete signed stage passed again, including this actual-binding probe after repack;
-the corrected live return and messaging checks above passed. Startup readiness alone did not
-establish usable-chat acceptance.
+These are bounded live checks. No current screenshot/control, separate browser-provider, full
+feature tour, live compaction or secondary-platform run was performed. One authenticated ZIP,
+one signed candidate, its matching CLI and compact receipts remain; superseded package/candidate
+and disposable extraction trees were removed. No profile, permission or provider state was changed.
 
 ## 1. Prove the complete candidate statically
 

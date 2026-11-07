@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1103.32239` / `25471` | 18 default; 19 with Computer Use | Signed 19-patch stage, source red/green, supervised usable-task return, task-message ACK/wait, TinRelay self-return and native Chrome read without fresh consent. |
+| macOS ARM64 application | `26.1103.41825` / `25679` | 18 default; 19 with Computer Use | Signed 19-patch stage, supervised usable-task return, task-message ACK/wait, TinRelay self-return and native Chrome read without fresh consent. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,31 +27,31 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-The current opt-in helper is `26.1102.1001824` / `1001824`. Its entire unsigned Mach-O
-image is pinned, and a private-socket probe proves repaired vendor-Node acceptance with unsigned
-Python rejection. The superseded helper profile is removed; incoming helper recognition does not
-require recognizing the prior helper image to compare signing requirements. Persistent certificate
-identity, dedicated mode-`0700` socket and per-machine consent remain unchanged. The same-signer
-upgrade preserved native Chrome accessibility access without another permission flow.
+The CLI and native Computer Use helper are byte-identical to the preceding authenticated package.
+The exact qualified source repair/binary and helper authorization policy are reused; no new Rust
+build, feature toggle or private-socket helper experiment was needed. Persistent certificate
+identity and the private mode-`0700` socket remain unchanged. A current post-update native Chrome
+accessibility read passed without another consent flow; screenshots/control and the separate
+browser-provider path remain unqualified.
 
-Exact `build25471` Rspack profiles cover all three lazy tool-renderer/classifier copies, both
-transcript paths, current RPC factories and native main/bootstrap ownership. The old thread-level
-auto-collapse effect is absent upstream; the remaining reasoning collapse policy stays active.
+Exact `build25679` Rspack profiles cover the changed runtime/shared/terminal/bootstrap chunks,
+three lazy tool-renderer/classifier copies and both transcript paths. The absent thread-level
+collapse effect stays unpatched; manual choices and the remaining turn policy retain their owners.
 Legacy ESM regression fixtures remain for the separately supported Windows/Linux builds.
 
 | Boundary | Current result |
 | --- | --- |
-| Source repair | Exact `.167.0-alpha.3.2` stock-red/repaired-green local and remote-v2 tests; no experimental flag or live compaction run. |
-| Package integrity | Complete signed 19-patch stage; post-repack probes, byte-identical reapplication, signatures/seal and native payload preservation passed. |
-| Permission identity | Actual helper requirements match; preview preserves grants without `tccutil`. Native Chrome accessibility read passed after upgrade without fresh consent. |
-| Live adoption | Corrected build `25471` installed through the supervisor; real chat, task-message ACK/wait, TinRelay self-return and operator visual acceptance passed. |
-| Shared behavior | Probes cover identity, native RPC readiness, title hydration, persistence, right alignment, scroll ownership, live policy reload and readiness. |
-| Open limits | Screenshot/control, separate browser-provider path, full live feature tour, live compaction, secondary-platform and x86-family live paths remain separately unqualified. |
+| Source repair | Same `.167.0-alpha.3.2` stock binary and source; prior stock-red/repaired-green and release build reused. No new Rust test/build or live compaction run. |
+| Package integrity | Complete signed 19-patch stage; post-repack probes, byte-identical reapplication, signatures/seal and native payload/mode preservation passed. |
+| Permission identity | Actual requirements match and preview preserves grants without `tccutil`. Current native Chrome accessibility read passed without fresh consent. |
+| Live adoption | Build `25679` adopted through the supervisor; real chat, task-message ACK/wait, TinRelay self-return and operator visual acceptance passed. |
+| Shared behavior | Exact-owner preflight, composed and post-repack probes passed, including actual lazy bubble bindings and both transcript paths. |
+| Open limits | Screenshots/control, separate browser provider, full feature tour, live compaction and other-platform live paths remain separately unqualified. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch installed with macOS build `25471` but
+same-version Codex CLI source patch installed with macOS build `25679` but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

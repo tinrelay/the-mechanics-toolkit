@@ -5,7 +5,7 @@ export function mainProcessAsset(root) {
   const build = path.join(root, ".vite/build");
   const legacy = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name));
   const profiles = [
-    {version: "26.1103.32239", build: "25471", chunk: 920, hash: "a204a41244c4b913", bootstrap: "dd3f3328d53d7b14", module: 26307, logger: "ze", logging: "ed"},
+    {version: "26.1103.41825", build: "25679", chunk: 854, hash: "5239e17d5abd99b3", bootstrap: "8cdc01c6be3ea2a7", module: 60357, logger: "ze", logging: "ed"},
     {version: "26.1027.30824", build: "22943", chunk: 916, hash: "2f6483d5bfd826f1", bootstrap: "aea964a206c655e4", module: 61071, logger: "eeC"}
   ];
   if (legacy.length === 1 && !profiles.some(profile => fs.existsSync(path.join(build, `early-bootstrap-${profile.chunk}-${profile.hash}.js`)))) return path.join(build, legacy[0]);
@@ -43,5 +43,5 @@ export function mainLoggerOwner(source) {
 }
 
 export function isWebpackMain(source) {
-  return source.startsWith("exports.ids=[920],exports.modules={") || source.startsWith("exports.ids=[916],exports.modules={");
+  return source.startsWith("exports.ids=[854],exports.modules={") || source.startsWith("exports.ids=[916],exports.modules={");
 }

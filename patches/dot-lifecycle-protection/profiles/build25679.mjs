@@ -1,9 +1,9 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25471}from '../../agent-roster/profiles/build25471.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25679}from '../../agent-roster/profiles/build25679.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export function dotOwners25471(root){return{policy:rosterOwner25471(root),deletion:owner(root,'182735.bb2cb0d2af.js','tLki'),menus:['209376.a537101e3b.js','8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'SeWp')),rebootMenus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI')),reboot:owner(root,'775336.2821fcd293.js','PSog',['e','t','r'])}}
-export function dotHelper25471(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
-export function runBuild25471({root,command,helper}){
- const o=dotOwners25471(root),h=dotHelper25471(helper),entries=[];
+export function dotOwners25679(root){return{policy:rosterOwner25679(root),deletion:owner(root,'182735.d1916dd704.js','tLki'),menus:['209376.a537101e3b.js','8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'SeWp')),rebootMenus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI')),reboot:owner(root,'775336.2821fcd293.js','PSog',['e','t','r'])}}
+export function dotHelper25679(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
+export function runBuild25679({root,command,helper}){
+ const o=dotOwners25679(root),h=dotHelper25679(helper),entries=[];
  const policy=readRendererModule(o.policy),binding=';const MTKdotMetadata=n("TYK1").cloudAeonByThreadId$,MTKdotNormalize=n("DBCl").JXB;';
  if(command==='apply'&&!policy.includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze('))throw Error('Dot protection requires roster');
  entries.push({owner:o.policy,source:policy,pairs:[[null,binding+h]]});

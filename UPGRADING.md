@@ -1,10 +1,38 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.22` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.23` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.23
+
+The macOS target is Desktop `26.1103.41825` / build `25679`, bundling CLI
+`0.167.0-alpha.3.2`. The stock CLI bytes are identical to build `25471`, so its exact qualified
+source repair and replacement binary can be reused. The source catalog entry is now
+`standalone-output-compaction-25679`, targeting unchanged commit
+`c40729ea5cf8e947481b130c59807273eda2f8e9` and the same three-file diff. The prior stock-red and
+repaired-green local/remote-v2 evidence applies to that unchanged source; Rust tests/build were
+not rerun for this package. A fresh build uses stable Rust `1.95.0`, LTO off, override flags unset,
+and `bin/tmtk-build-codex` as before.
+
+The exact profiles follow the changed renderer runtime, shared chunk, terminal chunk and native
+bootstrap. Most lazy chat/tool chunks are unchanged; the actual incoming TinRelay bubble binding
+regression remains active. The Computer Use helper is byte-identical, so its bounded repair,
+persistent per-machine certificate and existing consent policy remain unchanged. The default
+selection is 18 patches; native Computer Use is the optional nineteenth.
+
+The complete signed 19-patch stage passed: post-repack behavior probes, byte-identical
+reapplication, signatures/seal, native payload/mode preservation and same-version CLI integration.
+Actual helper signing requirements match and permission preparation previews `preserved` without
+`tccutil`. Supervised adoption returned to the real chat; installed ASAR/CLI hashes match the
+candidate. Task-message ACK/wait and TinRelay self-send/return passed, followed by operator visual
+acceptance. A native Chrome accessibility read also succeeded without another consent flow.
+This is bounded live smoke, not a full feature tour, live compaction, screenshot/control or
+separate browser-provider qualification. See the [macOS receipt](qualification/macos.md).
+Windows/Ubuntu `10954` and Fedora `9647` are unchanged. No task data or permission migration is
+required for a matching signer.
 
 ## 0.2.22
 
@@ -130,7 +158,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.22` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.23` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.
@@ -140,7 +168,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
    Windows staging also requires a separately verified same-inner-build known-good source.
 3. Adopt through the documented platform procedure after explicit operator confirmation. Verify a
    real task and editable composer, not only a renderer-ready marker: a previous macOS candidate
-   reached that marker while displaying Codex's Oops screen. macOS build `25471` and Windows
+   reached that marker while displaying Codex's Oops screen. macOS build `25679` and Windows
    build `10954` have supervised task-return evidence; Ubuntu build `10954` has only
    direct-install/open evidence.
 4. Retain compact receipts and hashes, one pristine package and one current candidate. Remove

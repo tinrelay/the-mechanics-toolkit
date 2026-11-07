@@ -4,15 +4,15 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
-import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
-import {tinrelayOwners25471} from "../patches/tinrelay-pointer-presentation/profiles/build25471.mjs";
+import {matchesBuild25679} from "../patches/runtime-json-reload/profiles/build25679.mjs";
+import {tinrelayOwners25679} from "../patches/tinrelay-pointer-presentation/profiles/build25679.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild25471(root), moduleOwners=current?tinrelayOwners25471(root):null;
+const current=matchesBuild25679(root), moduleOwners=current?tinrelayOwners25679(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
