@@ -1,10 +1,48 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.21` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.22` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.22
+
+The macOS target is Desktop `26.1103.32239` / build `25471`, bundling CLI
+`0.167.0-alpha.3.2`. Apply `standalone-output-compaction-25471` to exact upstream commit
+`c40729ea5cf8e947481b130c59807273eda2f8e9`, then build with stable Rust `1.95.0` through
+`bin/tmtk-build-codex`, LTO off and compiler override flags unset. Both focused local/remote-v2
+compaction tests failed on stock and passed after the exact three-file repair. The packaged
+send-message adapter still omits `toolOutput.retain`; no experimental feature was enabled.
+
+The port follows the new Rspack factories and inline exports, including all three lazy tool
+renderers and both timeline paths. It updates model-loading publication, roster RPC readiness,
+source attribution, receipt persistence, TinRelay scroll ownership, terminal commands, and the
+current sidebar archive/delete/reboot owners. The former thread-completion auto-collapse effect
+is absent upstream; this version only adds the reasoning policy to the remaining stock collapse
+prop. Manual collapse/reopen remains authoritative. Superseded macOS renderer profiles and the
+previous CLI diff are removed; Windows/Ubuntu `10954` and Fedora `9647` are unchanged.
+
+Incoming TinRelay presentation captures the stock delegated-message bubble already imported by
+the current renderer. Its actual initializer is covered by a regression probe: the removed module
+ID used by the first candidate caused a chat-activation snag despite startup renderer readiness.
+
+The default example remains 18 patches; native Computer Use is the optional nineteenth patch.
+The new helper's exact image is ported with the same bounded authorization policy. On a private
+socket, stock rejected the vendor Node client; the repaired helper answered its ping while
+rejecting unsigned Python. Reuse the persistent local signing certificate from the preceding
+installation. The supervisor compares helper signing requirements and preserves matching privacy
+grants. First-time vendor/ad-hoc transitions still use the scoped macOS consent workflow.
+
+The native release build and complete signed 19-patch stage passed, including post-repack probes,
+byte-identical reapplication, signatures/seal and native payload preservation. The actual incoming
+and canonical helper signing requirements match; the permission preview returns `preserved`
+without calling `tccutil`. Supervised adoption returned to the real chat; installed app/CLI hashes
+match the candidate. Task-message ACK/wait and TinRelay self-send/return passed, and the operator
+accepted the visible result. A native Chrome accessibility read then succeeded without another
+consent flow. This is bounded live smoke, not a full feature tour, screenshot-access test or
+separate browser-provider qualification. See the [macOS receipt](qualification/macos.md) for hashes
+and limits.
 
 ## 0.2.21
 
@@ -36,8 +74,8 @@ If preparation fails, Desktop still launches and the Computer Use residual is lo
 The complete signed 19-patch stage and supervised adoption passed. After fresh consent, macOS
 reported both permissions Allowed and a native Chrome accessibility read returned in under a
 second. This qualifies native Computer Use reads of Chrome, not the separate Chrome browser
-provider. A live update/restart after that fresh grant remains unrun; preservation has source tests
-and an actual signing-requirement comparison, and will be checked on the next install.
+provider. The subsequent same-certificate upgrade and native Chrome accessibility read are recorded
+under 0.2.22 above.
 
 ## 0.2.20
 
@@ -92,7 +130,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
 
 ## Operator path
 
-1. Preserve any local checkout changes; use an immutable `0.2.21` revision and install dependencies.
+1. Preserve any local checkout changes; use an immutable `0.2.22` revision and install dependencies.
    Run `npm run check` and `npm test` before staging. Copy the relevant
    `examples/toolkit.<platform>.example.json` to ignored `toolkit.local.json`, replacing its
    fictional paths and retaining only still-applicable private policy.
@@ -102,7 +140,7 @@ of an x86-family lab receipt is not a prohibition or permission to substitute AR
    Windows staging also requires a separately verified same-inner-build known-good source.
 3. Adopt through the documented platform procedure after explicit operator confirmation. Verify a
    real task and editable composer, not only a renderer-ready marker: a previous macOS candidate
-   reached that marker while displaying Codex's Oops screen. macOS build `24614` and Windows
+   reached that marker while displaying Codex's Oops screen. macOS build `25471` and Windows
    build `10954` have supervised task-return evidence; Ubuntu build `10954` has only
    direct-install/open evidence.
 4. Retain compact receipts and hashes, one pristine package and one current candidate. Remove

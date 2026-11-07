@@ -7,16 +7,16 @@ import os from "node:os";
 import path from "node:path";
 
 const windows = process.platform === "win32";
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {tinrelayOwners24614} from "../patches/tinrelay-pointer-presentation/profiles/build24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {tinrelayOwners25471} from "../patches/tinrelay-pointer-presentation/profiles/build25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
-import {probeClassification24614} from "./tinrelay-classification-24614.mjs";
+import {probeClassification25471} from "./tinrelay-classification-25471.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-presentation-outgoing.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild24614(root), moduleOwners=current?tinrelayOwners24614(root):null;
+const current=matchesBuild25471(root), moduleOwners=current?tinrelayOwners25471(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
@@ -312,7 +312,7 @@ assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?[`
 assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
-if(current){probeClassification24614(root,item,activityApi);}else{
+if(current){probeClassification25471(root,item,activityApi);}else{
 const collapseMarker = rendererSource.search(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/);
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);

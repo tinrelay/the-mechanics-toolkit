@@ -3,27 +3,27 @@ import path from "node:path";
 import {mainProcessAsset, mainLoggerOwner, mainMessageAnchor} from "../../../src/main-process-asset.mjs";
 import {readRendererModule, writeRendererModule} from "../../../src/renderer-module.mjs";
 
-export function matchesBuild24614(root) {
+export function matchesBuild25471(root) {
   if (!fs.existsSync(path.join(root, "package.json"))) return false;
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-  return manifest.version === "26.1029.61003" && String(manifest.codexBuildNumber) === "24614";
+  return manifest.version === "26.1103.32239" && String(manifest.codexBuildNumber) === "25471";
 }
 
-export function runtimeOwner24614(root) {
-  const entry = path.join(root, "webview/assets/348410.ae8bb87271.js");
+export function runtimeOwner25471(root) {
+  const entry = path.join(root, "webview/assets/348410.792d1c9584.js");
   const html = fs.readFileSync(path.join(root, "webview/index.html"), "utf8");
-  if (!html.includes('src="/assets/348410.ae8bb87271.js"')) throw new Error("Upstream changed: renderer runtime entry is not selected");
+  if (!html.includes('src="/assets/348410.792d1c9584.js"')) throw new Error("Upstream changed: renderer runtime entry is not selected");
   return {file: entry, id: "TL6G", parameters: ["e", "a", "c"], registry: "u"};
 }
 
-export function runBuild24614({root, command, rendererHelper, mainHelper}) {
-  const owner = runtimeOwner24614(root), main = mainProcessAsset(root);
+export function runBuild25471({root, command, rendererHelper, mainHelper}) {
+  const owner = runtimeOwner25471(root), main = mainProcessAsset(root);
   let renderer = readRendererModule(owner), native = fs.readFileSync(main, "utf8");
-  const before = 'let i=o.getInstance();i.initialize(),c.d(a,{JX:()=>s,QY:()=>o},{O1:i})';
-  const after = before.replace("i.initialize(),", "i.initialize(),MTKinstallRuntimeJsonReload(),");
+  const before = 'let s=o.getInstance();s.initialize(),c.d(a,{},{JX:function(e,a,c){';
+  const after = before.replace("s.initialize(),", "s.initialize(),MTKinstallRuntimeJsonReload(),");
   const logger = mainLoggerOwner(native)[0], anchor = mainMessageAnchor(native);
   const watchCase = 'case`mtk-runtime-json-watch`:MTKstartRuntimeJsonWatch(e,this.windowManager,t.roots);break;';
-  const helper = rendererHelper("i"), nativeHelper = mainHelper();
+  const helper = rendererHelper("s"), nativeHelper = mainHelper();
   const applied = renderer.includes(helper) && renderer.includes(after) && native.includes(nativeHelper) && native.includes(watchCase);
   if (!applied) {
     if (["MTKruntimeJson", "MTKinstallRuntimeJsonReload"].some(marker => renderer.includes(marker) || native.includes(marker))) throw new Error("Upstream changed: partial runtime JSON module patch");

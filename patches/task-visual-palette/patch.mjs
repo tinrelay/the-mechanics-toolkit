@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
+import {runBuild25471} from "./profiles/build25471.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -9,8 +11,8 @@ import { build11645 } from "./profiles/build11645.mjs";
 import { build22943 } from "./profiles/build22943.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
-import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
-import {runBuild24614} from "./profiles/build24614.mjs";
+
+
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 const configPath = readOption("--config");
@@ -27,7 +29,8 @@ const neutralLabelExpression = "label:MTKcontrast(m,l)>=4.5?m:s";
 const readableLabelExpression = "label:MTKreadableLabel(e,l,n)";
 const canonicalArchiveClassifier = 'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}const MTKsidebarArchiveListeners=new Set;let MTKsidebarArchiveEpoch=0;function MTKsidebarArchiveSubscribe(e){return MTKsidebarArchiveListeners.add(e),()=>MTKsidebarArchiveListeners.delete(e)}function MTKsidebarArchiveSnapshot(){return MTKsidebarArchiveEpoch}function MTKsidebarArchiveNotify(){MTKsidebarArchiveEpoch++;for(let e of MTKsidebarArchiveListeners)e()}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;globalThis.__MTKsidebarArchiveSubscribe=MTKsidebarArchiveSubscribe;globalThis.__MTKsidebarArchiveSnapshot=MTKsidebarArchiveSnapshot;';
 
-if(matchesBuild24614(root)){console.log(JSON.stringify(runBuild24614({root,command,buildPaletteHelper})));process.exit(0);}
+if(matchesBuild25471(root)){console.log(JSON.stringify(runBuild25471({root,command,buildPaletteHelper})));process.exit(0);}
+
 const assets = path.join(root, "webview/assets");
 const appInitial = uniqueFile(/^app-initial-.*\.js$/);
 const runtimeOwners = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&

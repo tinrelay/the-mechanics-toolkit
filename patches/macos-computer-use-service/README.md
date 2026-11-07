@@ -62,3 +62,6 @@ socket: stock parent authorization rejects the vendor Node client under local an
 answers its version ping, while an unsigned Python client still cannot connect. A real Computer
 Use inventory has also succeeded with the repaired service. Browser acceptance and macOS privacy
 access remain distinct live checks.
+The current [macOS receipt](../../qualification/macos.md) records a same-certificate Desktop/helper
+upgrade followed by a native Chrome accessibility read without another consent flow. This does
+not qualify screenshots or the separate browser-provider path.

@@ -2,16 +2,16 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {rosterOwner24614, rosterClient24614} from "../patches/agent-roster/profiles/build24614.mjs";
-import {probeRosterFactory24614} from "./agent-roster-24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {rosterOwner25471, rosterClient25471} from "../patches/agent-roster/profiles/build25471.mjs";
+import {probeRosterFactory25471} from "./agent-roster-25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: agent-roster.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild24614(root) ? rosterOwner24614(root) : null;
-if(moduleOwner) await probeRosterFactory24614(root);
+const moduleOwner = matchesBuild25471(root) ? rosterOwner25471(root) : null;
+if(moduleOwner) await probeRosterFactory25471(root);
 const targets = moduleOwner != null ? [path.relative(assets, moduleOwner.file)] : fs.readdirSync(assets).filter(name => /^app-(?:initial|runtime)-.*\.js$/.test(name) &&
   fs.readFileSync(path.join(assets, name), "utf8").includes('const MTKagentRosterRelativePath='));
 assert.equal(targets.length, 1, "one agent roster helper owner");
@@ -26,9 +26,9 @@ const loaderBindings = moduleOwner != null ? {groups: {ready: "MTKunusedReady", 
 );
 assert.ok(loaderBindings?.groups, "agent roster loader bindings");
 if (moduleOwner != null) {
-  assert.ok(source.includes('iu=n("Dgwo")') && source.includes('const MTKrosterRpc=iu.V;'), "roster uses the actual native RPC factory");
-  const factory = readRendererModule(rosterClient24614(root));
-  assert.ok(factory.includes('n.d(t,{V:()=>p},{p:d})'), "the selected factory export resolves to the stock client accessor");
+  assert.ok(source.includes('ih=n("Dgwo")') && source.includes('const MTKrosterRpc=ih.V;'), "roster uses the actual native RPC factory");
+  const factory = readRendererModule(rosterClient25471(root));
+  assert.ok(factory.includes('n.d(t,{},{V:function(e,t){'), "the selected factory export resolves to the stock client accessor");
   assert.ok(helper.includes('try{let n=MTKrosterRpc(e,"local")'), "the native factory owns client readiness");
 }
 let readyAtom = Symbol("ready");

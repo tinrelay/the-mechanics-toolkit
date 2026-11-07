@@ -85,6 +85,11 @@ mv ChatGPT-update.zip.part ChatGPT-update.zip
 ditto -x -k ChatGPT-update.zip pristine-update
 ```
 
+When the operator requests the newest available release, select the newest architecture-matched
+full enclosure in the official feed and state its version/build, even if the local Sparkle offer
+lags. That request authorizes assessing or porting the newer package; it does not make an older
+profile applicable to it.
+
 The public feed may know about a release before a particular installation offers it. The app's
 update surface establishes that the release is offered to this user; the feed supplies the official
 artifact. Do not silently substitute another feed item.

@@ -4,21 +4,37 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {tinrelayOwners24614} from "../patches/tinrelay-pointer-presentation/profiles/build24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {tinrelayOwners25471} from "../patches/tinrelay-pointer-presentation/profiles/build25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild24614(root), moduleOwners=current?tinrelayOwners24614(root):null;
+const current=matchesBuild25471(root), moduleOwners=current?tinrelayOwners25471(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
 const build = path.join(root, ".vite/build");
 const main = mainProcessAsset(root);
 const rendererSource = current?readRendererModule(moduleOwners.renderer):fs.readFileSync(renderer, "utf8");
+if(current){
+  // Initialize the actual injected bindings; helper-only probes otherwise hide missing modules.
+  const tree=parse(rendererSource,{ecmaVersion:"latest",sourceType:"module"});
+  const imports=tree.body.filter(node=>node.type==="VariableDeclaration").flatMap(node=>node.declarations);
+  const nativeBubble=imports.find(node=>node.id.name==="_");
+  assert.equal(rendererSource.slice(nativeBubble.init.start,nativeBubble.init.end),'n("y5H2")');
+  assert.ok(rendererSource.includes('(0,a.jsx)(_.R,{alignment:y,accentColor:u,message:p,'));
+  function NativeMessageBubble(){}
+  const modules={zd8w:{},ABep:{},TL6G:{O1:{}},y5H2:{R:NativeMessageBubble}};
+  const declaration=tree.body.find(node=>node.type==="VariableDeclaration"&&node.declarations.some(d=>d.id.name==="MTKtinrelayMessageComponent"));
+  assert.ok(declaration,"incoming renderer binding declaration");
+  const component=Function("n","_",rendererSource.slice(declaration.start,declaration.end)+";return MTKtinrelayMessageComponent;")(
+    id=>{assert.ok(modules[id],"injected binding resolves a current native module: "+id);return modules[id]},modules.y5H2
+  );
+  assert.equal(component,NativeMessageBubble,"radio uses the stock delegated-message bubble");
+}
 const mainSource = fs.readFileSync(main, "utf8");
 const stringLiteral = '"(?:\\\\.|[^"\\\\])*"';
 const mainConfig = uniqueMatch(
@@ -393,7 +409,7 @@ assert.match(rendererHelpers,
   "incoming and outgoing bodies reuse Codex's stock user-message hover actions");
 assert.ok(!rendererHelpers.includes('maxWidth:"min(38rem,86%)"'),
   "Tinrelay does not maintain a competing message-width rule");
-assert.equal((rendererSource.match(current?/messageNode:MTKtinrelayPointerNode\(d,p\)/g:/messageNode:MTKtinrelayPointerNode\(i,a\)/g) ?? []).length, 1,
+assert.equal((rendererSource.match(current?/messageNode:MTKtinrelayPointerNode\(d,u\)/g:/messageNode:MTKtinrelayPointerNode\(i,a\)/g) ?? []).length, 1,
   "only delegated messages receive the pointer presentation seam and native event time");
 assert.ok(rendererHelpers.includes("function MTKtinrelayPointerNode(e,t)") &&
   rendererHelpers.includes("MTKtinrelayPointerView,{pointerText:e,sentAtMs:t}"),

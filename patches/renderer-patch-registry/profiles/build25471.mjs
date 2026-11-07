@@ -1,16 +1,16 @@
-import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner24614}from '../../runtime-json-reload/profiles/build24614.mjs';import{rosterOwner24614}from '../../agent-roster/profiles/build24614.mjs';import{modelOwner24614}from '../../model-identity-guard/profiles/build24614.mjs';import{attributionOwner24614}from '../../cross-task-attribution/profiles/build24614.mjs';import{reasoningOwners24614}from '../../reasoning-retention/profiles/build24614.mjs';import{waitOwners24614}from '../../wait-thread-roster/profiles/build24614.mjs';
-export function registryOwners24614(root){return{runtime:runtimeOwner24614(root),app:rosterOwner24614(root),model:modelOwner24614(root),conversation:attributionOwner24614(root),turn:reasoningOwners24614(root).turn,tools:waitOwners24614(root)}}
-export function runBuild24614({root,command,bootstrap}){
- const o=registryOwners24614(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
+import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner25471}from '../../runtime-json-reload/profiles/build25471.mjs';import{rosterOwner25471}from '../../agent-roster/profiles/build25471.mjs';import{modelOwner25471}from '../../model-identity-guard/profiles/build25471.mjs';import{attributionOwner25471}from '../../cross-task-attribution/profiles/build25471.mjs';import{reasoningOwners25471}from '../../reasoning-retention/profiles/build25471.mjs';import{waitOwners25471}from '../../wait-thread-roster/profiles/build25471.mjs';
+export function registryOwners25471(root){return{runtime:runtimeOwner25471(root),app:rosterOwner25471(root),model:modelOwner25471(root),conversation:attributionOwner25471(root),turn:reasoningOwners25471(root).turn,tools:waitOwners25471(root)}}
+export function runBuild25471({root,command,bootstrap}){
+ const o=registryOwners25471(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
  if(command==='check'&&!readRendererModule(o.runtime).includes('function MTKinstallRuntimeJsonReload(')){
-  const source=readRendererModule(o.runtime);if(!source.includes('let i=o.getInstance();i.initialize(),c.d(a,{JX:()=>s,QY:()=>o},{O1:i})'))throw Error('Unknown pristine registry runtime');
+  const source=readRendererModule(o.runtime);if(!source.includes('let s=o.getInstance();s.initialize(),c.d(a,{},{JX:function(e,a,c){'))throw Error('Unknown pristine registry runtime');
   for(const owner of[o.app,o.model,o.conversation,o.turn,...o.tools])readRendererModule(owner);
   return{state:'needs-apply',apiVersion:1,packages:[],targets:[path.relative(root,o.runtime.file)]};
  }
  const reg=(name,descriptor)=>`globalThis.__MTK_PATCH_REGISTRY__?.register?.("${name}",${descriptor});`;
  const add=(owner,markers,registrations)=>{const source=readRendererModule(owner);for(const marker of markers)if(!source.includes(marker))throw Error('Registry requires composed module '+marker);entries.push({owner,source,registrations})};
  add(o.runtime,['function MTKinstallRuntimeJsonReload('],[reg('runtimeJsonReload','{version:2,files:["agent-roster.json"]}')]);
- add(o.app,['globalThis.__MTK_AGENT_ROSTER__=Object.freeze(','const MTKdotLifecyclePolicy=1;','function MTKusePaletteBootstrap(','const MTKattentionRosterBridge=1','allowWithinEditable:g,enabled:y,onKeyDown:n'],[
+ add(o.app,['globalThis.__MTK_AGENT_ROSTER__=Object.freeze(','const MTKdotLifecyclePolicy=1;','function MTKusePaletteBootstrap(','const MTKattentionRosterBridge=1','allowWithinEditable:v,enabled:y,onKeyDown:n'],[
  reg('agentRoster','{version:1,file:"agent-roster.json",discovery:"registered-local-project-roots"}'),reg('dotLifecycleProtection','{version:1,policy:"exact-cloud-dot-opt-in"}'),reg('taskVisualPalette','{version:1,resolveTaskColor(e){try{let t=MTKmatchPalette(MTKsidebarPalette,e?.title,e?.taskId);return t?.color??null}catch{return null}}}'),reg('taskAttentionPolicy','{version:1}'),reg('terminalToggle','{version:1}')]);
  add(o.model,['function MTKinstallModelIdentityGuard('],[reg('modelIdentityGuard','{version:1,policy:"exact-task-model-and-effort-pin",mismatch:"red-selector-and-locked-composer"}')]);
  add(o.turn,['function MTKreasoningRosterValue('],[reg('reasoningRetention','{version:1,policy:"exact-task-opt-in"}')]);

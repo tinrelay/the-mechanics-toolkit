@@ -1,10 +1,12 @@
 #!/usr/bin/env node
+import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
+import {runBuild25471} from "./profiles/build25471.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
-import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
-import {runBuild24614} from "./profiles/build24614.mjs";
+
+
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -82,10 +84,11 @@ const build11645Component = {
   ],
   labelVar: "m", iconVar: "p", clickVar: "h", resultVar: "g"
 };
-if (matchesBuild24614(root)) {
-  process.stdout.write(`${JSON.stringify(runBuild24614({root, command, currentHelper, attributionLabel}), null, 2)}\n`);
+if (matchesBuild25471(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild25471({root, command, currentHelper, attributionLabel}), null, 2)}\n`);
   process.exit(0);
 }
+
 const assets = path.join(root, "webview/assets");
 const owner = findOwner();
 let state = inspectState(owner);

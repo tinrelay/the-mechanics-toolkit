@@ -30,7 +30,7 @@ index 2f6a91d..34d3a9b 100644
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage<'_>],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index 85a3e6c..e1665f1 100644
+index f84dc6e..0385757 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
 @@ -8,6 +8,8 @@ use crate::ResponseStream;
@@ -99,10 +99,10 @@ index 85a3e6c..e1665f1 100644
      fn build_v2_compacted_history_preserves_retained_metadata_sidecar() {
          let retained = message("user", "keep", /*phase*/ None);
 diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
-index 790f0d7..c4193b1 100644
+index a57d2f0..db96441 100644
 --- a/codex-rs/core/src/compact_tests.rs
 +++ b/codex-rs/core/src/compact_tests.rs
-@@ -861,6 +861,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
+@@ -862,6 +862,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
      assert_eq!(refreshed, expected);
  }
  

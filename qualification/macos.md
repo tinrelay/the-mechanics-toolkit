@@ -15,396 +15,74 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Installed build 24614 — supervised return and message smoke
+## Build 25471 — port qualification
 
-### Computer Use repair — native Chrome read accepted
+On 2026-11-06 the newest official macOS ARM64 feed offered Desktop `26.1103.32239` / build
+`25471`, published at 18:13:12 UTC. Full ZIP: `815384629` bytes, SHA-256
+`68dabcb2dfee91d245e570c5cc45552c96f3eb719dedc98c907efa64197fa40d`.
+Sparkle Ed25519 signature, vendor app signature and ASAR seal verified. Pristine ASAR SHA-256:
+`8e55cbc7f0b7797ca1972cbf6d8b37f26dd8b79d0613235bc7448905a3bc7a2b`.
+The feed supplies no release notes.
 
-The optional `macos-computer-use-service` repair adds a nineteenth macOS patch. Exact helper
-identity and vendor executable hash are recorded in the [extraction ledger](../docs/extraction-ledger.md).
-It removes the parent/ancestor signature gate that rejected the replacement CLI, while keeping
-vendor-signature authentication on the immediate socket client. Browser, MCP Apps and host-service
-JavaScript owners use the exact vendor Node/Node REPL fallback.
+Bundled CLI `0.167.0-alpha.3.2` maps to exact tag `rust-v0.167.0-alpha.3.2`, commit
+`c40729ea5cf8e947481b130c59807273eda2f8e9`. Both focused standalone-input compaction tests
+failed on stock and passed after the cataloged three-file repair (2 passed; 2,899 filtered).
+Stable Rust `1.95.0`, LTO off, and unset `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`,
+`RUSTC_BOOTSTRAP` are used for qualification. No provider/model call or feature toggle is needed.
+The Desktop adapter still omits `toolOutput.retain`.
 
-A locally signed helper could not open the original vendor-protected group-container socket lock
-(`errno=1`). Both client and managed service now use the supported socket override in a dedicated
-mode-`0700` directory under `CODEX_HOME/computer-use/tmtk-ipc`. A live probe through the installed
-native spawner proved current-environment inheritance on two consecutive private-socket spawns.
-An isolated version ping passed after the native repair; an unsigned Python client remained rejected.
+The native release build passed with that recipe and reports `codex-cli 0.167.0-alpha.3.2`.
+Replacement executable SHA-256:
+`666439515315e28edf8b2ee4bd173f20cc29d16095b575bf7a7a8b5413783ef8`.
+The lockfile changed only 171 workspace-local version values, from `0.0.0` to the source version;
+dependency resolution is unchanged. The temporary source/build tree was removed after preserving
+the executable, exact source-patch state, and compact test/build receipts.
 
-The complete signed 19-patch stage passed post-repack probes, native payload preservation and
-byte-identical reapplication. Its ASAR SHA-256 is
-`ea0d633fea9c94b58d8488dd784b2f8034f3f89dcf83409c3adec42fda8ce664`.
-Supervised adoption returned to the real chat and native app inventory worked. Initial Chrome
-reads exposed stale TCC bindings to the vendor signature despite checked Settings entries.
-Only the helper's Screen Recording and Accessibility grants were reset through `tccutil`.
-After fresh operator consent on 2026-11-05, TCC reported both permissions **Allowed** for the
-running locally signed helper, and `cua.getApp("com.google.Chrome")` returned its real accessibility
-tree in approximately 0.85 seconds. No browser input was sent.
+Exact Rspack profiles trace three lazy tool-renderer/classifier copies, both transcript paths,
+inline exports, current selector factories, and memo-cache invalidation. Sidebar pending-chat
+menus have a new owner and retain the archive guard. The old thread-completion auto-collapse
+effect is absent; the remaining `preventAutoCollapse` policy and manual persisted choices are
+qualified separately. Native readiness uses the actual primary AppRoutes mount, not overlays.
 
-The portable workflow requires a persistent signing certificate, compares canonical/incoming
-helper requirements before launch, and resets only those two grants when identity changes.
-Tests cover vendor, older ad-hoc and missing-helper transitions, preserving same-identity updates,
-and logging permission preparation failures without blocking Desktop launch. An actual installed/
-bundled requirement comparison returned `preserved` without resetting permissions. The external
-supervisor changes do not alter the candidate ASAR.
+Computer Use helper `26.1102.1001824` / `1001824` vendor executable SHA-256:
+`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`.
+The exact unsigned-image hashes and authorization offsets are pinned in its transform. A private
+socket probe rejected vendor Node under stock parent policy; the repaired persistent-certificate
+helper answered `CodexComputerUseIPC-5` while rejecting unsigned Python. The helper probe was
+removed after collecting compact evidence. No OS grant or TCC database was changed.
 
-This qualifies Chrome reads through native Computer Use. The separate Chrome browser provider
-was absent from discovery and is not qualified. A live update/restart after the fresh grant remains
-unrun; source tests and actual identity comparison cover preservation until that next install.
+The complete signed 19-patch stage passed: all 16 ASAR patches plus menu title, same-version CLI
+replacement and native helper repair; behavior probes passed again after repack, reapplication
+was byte-identical, signatures/seal verified, and native payloads/modes were preserved. Candidate
+ASAR SHA-256: `32acfe08595a3fe630c0b713013d4b3c1b43043b77fffb254c974eef4820e3cf`.
+Its embedded CLI bytes match the replacement hash above. `npm run check`, `npm test` and
+`git diff --check` passed; production DEB/RPM staging fixtures were platform-skipped.
 
-### Accepted 18-patch receipt
+The actual canonical and incoming helper designated requirements match. A non-mutating preview
+of supervisor permission preparation returns `preserved` and never invokes `tccutil`. This proves
+the identity comparison separately from live access. After the corrected supervised adoption,
+Desktop returned to the real task. Installed ASAR and CLI hashes match the candidate above,
+the invoking escape-line CLI exited before replacement, and transaction rollback material was
+removed. Task-message ACK/wait and TinRelay self-send/return passed; the operator accepted the
+visible result. These are bounded live checks, not a new full feature tour.
 
-On 2026-11-04, the newest official macOS ARM64 offer was Desktop `26.1029.61003` / build `24614`,
-published 2026-11-03 20:37:06 UTC. Official ZIP length: `813396380` bytes; SHA-256:
-`43def98099e94837f07b976be98138251859ae58831d057d5483e8b20906a9a4`.
-Sparkle Ed25519 signature, vendor code signature, notarization staple, and ASAR seal verified.
-Pristine ASAR SHA-256:
-`0c951258b7ab381ec601045ffb02159e53f424548dda18e6a4dcfd126557383b`.
-The feed includes no release notes.
+A native Chrome accessibility read through `cua.getApp("com.google.Chrome")` then returned in
+under two seconds without a fresh consent flow. The canonical helper bytes match the new installed
+helper, so this is current post-update access with the persistent signer, rather than reuse of the
+older helper. Screenshot/control and the separate browser-provider path were not requalified.
+No live compaction, provider/model call, full live feature tour or secondary-platform adoption
+was run. One authenticated ZIP, one signed candidate and its replacement CLI remain; disposable
+source/build and extraction trees and the superseded loose CLI were removed. The previous helper
+image profile was retired after adoption; previous-signer inspection does not require it.
 
-Bundled CLI `0.166.0-alpha.6` SHA-256:
-`508388df35319042107560d095b271a98a512f59a542848c908b23ed1bad4b44`.
-Exact upstream tag `rust-v0.166.0-alpha.6`, commit
-`4f093f2748667f3b0e6a07e3d4055121cbd3ce64`. Both focused `standalone_external_input`
-tests failed on stock at the intended assertions, then passed with the cataloged three-file repair
-(2 passed; 2,871 filtered). No provider call, feature toggle, or live compaction was used.
-Stable Rust `1.95.0`, LTO off, with `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP`
-unset built the matching ARM64 release binary through `bin/tmtk-build-codex`. SHA-256:
-`2d1cd892a2fe36d6a6ce3969d9dd5e310ac01e358aab0a3b6bff69f3959ee8e5`.
-Cargo.lock changed only 170 workspace version lines; exact repaired-source hashes still match.
-The packaged `turnToolOutput` builder still omits `retain`.
-
-The renderer changed to Rspack factory registries. Exact module edits preserve sibling bytes and
-validate syntax; imported bindings are captured outside component locals. Both lazy tool renderer
-copies and both timeline paths are covered. The main handler now lives in chunk 45; its loader,
-child-process import, readiness writer, peer authorization, app-ready disposal, and observer hooks
-are inspected. Readiness still requires the native primary renderer mount, excluding overlays and
-initialization-only events.
-
-The complete 16-patch ASAR composition and all production probes passed from pristine, with
-byte-identical second application. A probe caught encoded sidebar task keys losing exact-color
-priority to a title rule; the port now uses the native key decoder, and that causal probe passed.
-The roster's actual native RPC factory passed loading, deferred hydration, manager-ready,
-connected-client fallback, replacement, and unavailable-host probes. Receipt acknowledgement,
-private persistence, title hydration, radio incoming/outgoing rendering, scroll settling, and
-bounded native observer/anchor tests passed.
-
-The complete signed 18-patch stage passed, including probes repeated after repacking, changed-module
-syntax, byte-identical second application, original native/unpacked payloads, terminal-helper mode,
-code signatures, and ASAR seal. Candidate ASAR SHA-256:
-`218de273d121c8155a9972a753a3a0cdf6c88833692232ec6de770560d021ab5`.
-The candidate CLI matches the release hash above. Repository checks/tests passed; Linux production
-DEB/RPM stage fixtures were skipped on macOS. Completed compiler output and transient extracted
-material were disposed of after preserving compact evidence.
-
-On 2026-11-04, the first authorized supervisor attempt stopped before replacement: the native
-quit request returned while Codex's own quit confirmation was still pending. The supervisor
-incorrectly treated a 30-second process-exit interval as a shutdown failure. The operator reported
-waiting for the invoking task's compaction before answering that confirmation, then force-quit and
-reopened the still-unchanged accepted build `22943`.
-
-The macOS shutdown wait now offers **Continue Waiting** or **Cancel Restart** instead of abandoning
-the transaction. Exact process termination and invoking-CLI exit still gate replacement; the
-renderer-readiness deadline starts after launch. Focused regression work failed before the repair
-and passed afterward, covering delayed quit across multiple intervals, explicit cancellation, and
-already-stopped behavior. The waiting-dialog AppleScript compiles. Repository check/test and
-diff-check passed; Linux/Windows shutdown policy is unchanged.
-
-The corrected `bin/tmtk-restart --candidate` adopted build `24614` and reported native renderer
-readiness at 2026-11-04 22:44:23 UTC without rescue. The operator returned to this actual chat.
-Installed ASAR and CLI hashes match the candidate above; no transaction-only rollback bundle remains.
-A native task-message test reached the recipient's actual chat and its requested ACK arrived while
-the wait was active. A TinRelay self-send was accepted, independently reported routed, and actually
-returned into the same chat. The operator accepted the visible result.
-
-This is healthy supervised adoption and bounded message smoke. The newly added delayed-quit dialog
-has not been independently exercised live; no new full feature tour, live compaction, destructive
-rescue-capability exercise, or secondary-platform qualification is claimed. Legacy ESM synthetic
-transform regressions remain useful coverage for the secondary-platform readers.
-
-## Previous live-accepted build 22943 — supervised task return
-
-On 2026-10-30, the newest official feed item was Desktop `26.1027.30824` / build `22943`,
-published 2026-10-29 18:03:26 UTC. One official ARM64 ZIP was downloaded; its exact advertised
-length and Sparkle Ed25519 signature verified against the trusted vendor key. Vendor application
-signature, ASAR seal, and notarization staple also verified. ZIP SHA-256:
-`79018bcdcc141902d9a0e61950ec207f71951941db4165f8a0dc2dc8f0dcc883`.
-Pristine ASAR: `36bf3d2b35e95e11852074b9ca9459b89efbecd6b8311345d060cf66de8f0ba6`.
-The feed attaches no release notes.
-
-Bundled CLI `0.166.0-alpha.5.1` SHA-256:
-`58a91f6ea19bea477ae3a2ec48d619f0039afe75d3476260747e11d201fa7cea`.
-Exact upstream source is tag `rust-v0.166.0-alpha.5.1`, commit
-`f79b26ccbb3116b052544666a181012fb45dc49b`. The two test-only regressions failed on stock
-at the intended output-retention/context-ordering assertions (0 passed, 2 failed). The catalog's
-three-file repair then passed both tests (2 passed, 2,869 skipped). No provider or live model run
-was performed and no experimental retention feature was enabled. Cargo.lock changed only 170
-workspace version substitutions, with no dependency-resolution change. The packaged Desktop
-`turnToolOutput` builder still omits `retain` on its `codex_app` tool output; the optional
-marked-output route therefore does not replace this unmarked-input repair. No feature state changed.
-
-The main process now uses the Webpack early-bootstrap entry and chunks 339/916. The port traces
-package identity and loader linkage, the native child-process binding, peer authorization,
-app-ready disposers, and the separately exported relaunch writer. Readiness remains a mounted
-primary renderer event, excluding initialization-only events and overlays. Renderer profiles
-trace the actual roster manager export, task/title families, React owners, memo caches, and
-native archive revalidation. Model mismatch publication waits for the complete loading state.
-
-The complete 16-patch ASAR composition, behavior probes, changed-module syntax, and byte-identical
-second application passed from pristine. An earlier disposable composition exposed a profile
-conversion that dropped the palette's roster-consumer flag; it was discarded and composed afresh
-after correction. No candidate from that failed probe was adopted or retained.
-
-Stable Rust `1.95.0`, LTO off, and unset `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and
-`RUSTC_BOOTSTRAP` produced the matching ARM64 release binary through `bin/tmtk-build-codex`.
-It reports `0.166.0-alpha.5.1`. Replacement CLI SHA-256:
-`c04e16a44de5d110d29006108549ab577f8d6747112d087897baeb348591bbf4`.
-The exact repaired-source hashes remain applied after the build.
-
-The complete signed 18-patch stage passed from pristine: changed-module syntax, complete-fleet
-composition, byte-identical second application, executable terminal helper, original native
-payloads and unpacked paths/modes, signature and ASAR-seal verification, and all probes repeated
-after repacking. Candidate ASAR SHA-256:
-`7dd0937ab3c5c63d0fa1819df684ae134b6925a7e42050a0e196414229c9e3fc`.
-The candidate CLI matches the release hash above. Repository checks/tests passed; Linux production
-DEB/RPM stage fixtures were platform-skipped on macOS. Superseded frontier profiles/source diff
-were removed after replacing their current use; Git history preserves their exact earlier recipe.
-
-The source application and accepted build `22530` stayed unchanged through staging. After explicit
-operator authorization, `bin/tmtk-restart --candidate` adopted the candidate and reached renderer
-readiness on 2026-10-31 without rescue. The operator returned to this real task; read-only renderer
-inspection confirmed an editable composer, the mounted patch descriptors, and all 19 roster
-entries with no roster diagnostic. Installed Desktop identity, ASAR, and CLI hashes match the
-candidate above. The supervisor removed its transaction-only rollback after readiness.
-
-A native task-message test received its requested ACK, and the wait path returned progress before
-the ACK arrived. A TinRelay self-send was accepted, independently reported routed, and returned as
-an incoming delivery in the same task. This qualifies the task/radio round trip; no new full live
-feature tour, separate visual color inspection, live compaction run, or secondary-platform run is
-claimed. Supervisor implementation is unchanged; no new destructive rescue-capability run was
-performed. The earlier static-stage receipt remains a record of staging, not live adoption.
-
-## Previous live-accepted build 22530 — supervised task return
-
-The newest official macOS ARM64 feed offer selected on 2026-10-28 is Desktop `26.1023.51421`
-/ build `22530`. The 748,022,821-byte full ZIP passed Sparkle Ed25519 verification, and the
-vendor bundle signature, notarization staple, and ASAR seal verified. ZIP SHA-256:
-`7642b2ac2a7a0742f9a1800abba15eef83f77e69d893be79d6467cf21e5e1110`.
-Pristine ASAR SHA-256:
-`1c8ef1bef66e5fc416ae66eff8e6529972aa3601e27a1c7b5f61d6a292b957d3`.
-The feed publishes no attached release notes. The selection is the newest feed item, not a
-claim about which older item the running application's update badge had cached.
-
-Stock CLI `0.165.0-alpha.1.2` has SHA-256
-`d84a54b031085f01e3ad915ea7c72ebea4dcf69e90f0d1e0e4a637e8280991d2`.
-Exact upstream source: `720fec862a608ae1e5878d1eecb04fb93192e93c`, tag
-`rust-v0.165.0-alpha.1.2`. All three compaction repair files have the exact same before/after
-hashes as build `21828`; that predecessor's stock-red evidence is carried by file identity,
-not claimed as a new stock run. The catalog applied the exact three-file diff, and both focused
-repaired-source tests passed on this revision (2 passed, 2,801 skipped). No experimental retention
-feature was enabled. A new same-version release binary is required; the earlier binary is not reused.
-
-Current profiles track the new native terminal dispatcher and simplified sidebar unread state,
-shifted archive owners/caches, current readable-family title hook, and actual host-bus singleton.
-The Dot guards preserve upstream's new deletion-target revalidation before the request. The
-TinRelay classifier preserves upstream's `followsInterruptedFinalAnswer` and history-preview
-rules while adding only accepted radio sends. Final readiness still comes from mounted primary
-routes, not initialization-only events or overlays. Shared attribution and receipt alignment,
-runtime roster policy, and radio scroll anchoring remain unchanged.
-
-The matching stable-Rust `1.95.0` ARM64 release build passed through `bin/tmtk-build-codex`
-with LTO off and `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP` unset.
-It reports `0.165.0-alpha.1.2`. Replacement CLI SHA-256:
-`658128d1d1d7c5d880d0c00bd29cf77b5b0602ec22ccdad2037bcf4029951a32`.
-Cargo.lock changed only 167 workspace version substitutions, with no dependency-resolution change.
-All three repaired-source hashes and reverse application verified against the exact upstream commit.
-
-On 2026-10-28, the complete signed 18-patch stage passed composition, changed-module syntax,
-byte-identical second application, native payload preservation, executable terminal-helper checks,
-signature and ASAR-seal verification, and all probes rerun after repacking. Candidate ASAR SHA-256:
-`c0e46dae7711d0ae56abee0ea8fe9ba87bf68c1c6896cb0138a88a623e0d79fe`.
-The copied CLI matches the release-build hash. `npm run check`, `npm test`, and `git diff --check`
-passed; Linux production package-stage fixtures are platform-skipped on macOS. The source app
-stayed unchanged. An earlier stage stopped at a syntax-check subprocess and discarded its partial
-candidate. Its Node executable path disappeared during the attempt; the original spawn error was
-masked, so that is a likely explanation rather than a captured error code. A focused red/green
-regression now requires the actual subprocess error to remain visible. The complete retry passed.
-
-The first supervised `22530` adoption reached renderer readiness and this real task, but sidebar
-and room colors failed. Its roster loader incorrectly read imported `pq as Bh`, an initializer,
-as the manager atom. Runtime observation showed a null roster and `load-failed` with an undefined
-`id` error. The corrected loader uses `mor as qm`, which resolves to stock `mg=Ua(Q,()=>null)`.
-The earlier permissive fake store hid the wrong symbol; the new probe follows actual module
-imports/exports and enforces manager-atom identity. It failed against the first real bundle and
-passes against the corrected, repacked candidate above. The focused transform suite and complete
-repository checks/tests passed again. The matching native binary is unchanged.
-
-On 2026-10-28, the corrective `bin/tmtk-restart --candidate` adoption reached primary renderer
-readiness at 22:54:17 UTC without rescue. The supervisor finished in `ready` state and removed
-its transaction-only rollback. Fresh installed ASAR and CLI hashes match the corrected candidate
-and release build above; the installed signature and ASAR seal verify.
-
-The operator returned to this actual chat and confirmed restored roster colors, then accepted the
-task-message/wait and TinRelay smoke checks. The recipient returned the requested task-message ACK
-after the native wait; an accepted TinRelay self-ping returned through the normal bridge into this
-chat. Runtime inspection found 19 roster entries, a null roster diagnostic, room palette backgrounds,
-and no model-mismatch indicator present. Transport acceptance alone was not counted as receipt.
-This is the current narrow live-accepted macOS target. It is not a new full live feature tour,
-terminal-shortcut exercise, scroll stress test, live compaction reproduction, destructive Dot action,
-secondary-platform qualification, or provider-acceptance run.
-
-The original source/build and extracted trees were removed after proof (about 12 GiB); the pristine
-app restored for this correction and its small owner fixture were also removed. One authenticated
-ZIP, one current candidate, the replacement binary input, and compact receipts remain.
-
-## Previous live-accepted build 21828 — supervised task return
-
-The selected official offer is Desktop `26.1021.31345` / build `21828`, macOS ARM64.
-The 750,413,801-byte full ZIP passed Sparkle Ed25519 verification. The vendor bundle signature,
-notarization staple, and ASAR seal verified. ZIP SHA-256:
-`2afcd58e0484a76479cca23174e085127a9d9e63466b75739eb6825a5ff613f4`.
-Pristine ASAR SHA-256:
-`130145706a912db74e4d260ad7538f10f1e05e88af955f9afba42cdf01e64606`.
-The feed publishes no attached release notes. Only Sparkle deltas were cached; none was modified.
-
-Stock CLI `0.164.0-alpha.11.1` has SHA-256
-`a04752e4d46a4d89e53e6f61c59c5349a638c8ce172ffbf391fd482b4d902a4e`.
-Exact upstream source: `6905ecede7816e91373e9eabda3f6b0368fc747b`, tag
-`rust-v0.164.0-alpha.11.1`. Both focused standalone-input tests failed on that stock source,
-then passed after the three-file repair (2 passed, 2,798 skipped). The remote-v2 source is
-unchanged from the predecessor; local compaction's new annotated-message handling is preserved.
-No experimental retention feature was enabled. The catalog checks all three exact before/after
-hashes. Cargo.lock changed only 166 workspace version substitutions, not dependency resolution.
-
-This refresh moves roster/palette/attention bootstrap and hotkey dispatch to `app-runtime`,
-sidebar actions to `app-primary`, and app-control constants to a dedicated module. That port's
-profiles were named `build21828`; older secondary-platform owners remained separate. Dot deletion
-and request-time reboot guards retain their behavior; the reboot menu now calls the same policy
-across a module boundary. Archive subscriptions use the stock React factory in the sidebar's
-actual owner. The registry discovers runtime-owned capabilities rather than silently omitting
-them. Receipt names use the current stock readable-family hook. TinRelay preserves the native
-history-preview persistence rule and existing finished-turn scroll anchoring. The trusted final
-readiness event now comes from mounted routes in `app-primary`, not initialization or an overlay.
-
-The complete stable Rust `1.95.0` ARM64 release build passed through `bin/tmtk-build-codex`
-with LTO off and `RUSTFLAGS`, `CARGO_ENCODED_RUSTFLAGS`, and `RUSTC_BOOTSTRAP` unset.
-It reports `0.164.0-alpha.11.1`. Replacement CLI SHA-256:
-`e53f98b902f1162b799d99b0b181d6144aae0fd95d7872621828b543b49bea88`.
-
-On 2026-10-26 the signed 18-patch stage passed complete composition, changed-module syntax,
-byte-identical second application, native payload preservation, executable terminal-helper checks,
-signature and ASAR-seal verification, and all probes rerun after repacking. Candidate ASAR SHA-256:
-`65579973a74f24a121f7aa4f65b2464fac1954ed919c3744c36eba640ab33431`.
-The copied CLI matches the release-build hash. `npm run check`, `npm test`, and `git diff --check`
-passed; Linux production package-stage fixtures are platform-skipped on macOS. The three source
-before hashes were checked against the exact upstream commit, and reverse application checked cleanly.
-The source app stayed unchanged during staging. After proof, its expanded copy, source/build tree,
-and extracted ASAR were removed; the authenticated ZIP, one candidate, one current replacement
-binary input, and compact receipts remain. No superseded candidate or transaction rollback is retained.
-
-On 2026-10-26, operator-confirmed `bin/tmtk-restart --candidate` installed this candidate at the
-canonical application path and reached renderer readiness at 21:51:53 UTC without rescue.
-The supervisor finished in `ready` state and removed its transaction-only rollback. Read-only
-inspection of the installed application confirms the exact version/build above, a valid signature
-and ASAR seal, and the staged ASAR and replacement CLI hashes.
-
-The operator returned to this real conversation and sent fresh requests. A native task-message
-test reached the recipient, who returned the requested ACK. The native wait ran and ended when
-that reply arrived. An accepted TinRelay self-ping returned through normal bridge delivery to this
-conversation. These are current task-return and messaging results, not just a readiness marker.
-The legacy dynamic-tool entry point reports that task tools moved to the Codex app MCP server;
-the successful send and wait used that current server. No transport or client configuration was changed.
-
-No new full live feature tour, live compaction reproduction, destructive dot action, secondary-platform
-qualification, or separate provider-acceptance test was performed. Changed roster/palette, keyboard,
-model-loading, archive, and dot seams have the composed causal probes above; this receipt does not
-claim they were each independently exercised live.
-
-## Previous live-accepted build 21477
-
-The selected official macOS ARM64 offer is Desktop `26.1016.62342` / build `21477`.
-The full 747,146,531-byte ZIP passed its Sparkle Ed25519 signature; vendor bundle signature,
-notarization staple, and ASAR seal also verified. ZIP SHA-256:
-`b3e8d80bb5ad4f6234216f81e615dbbf043bd9af3774e9fca8be58ee4d0df317`.
-Pristine ASAR SHA-256:
-`5b5cf52887cfd4de19cb5862155a8ef6cf58830c0a2fc592b72060cfcc3be869`.
-The feed has no attached release notes.
-
-Stock CLI `0.163.0-alpha.11.2` has SHA-256
-`248ff9873b6fb35124a86bdffa013a09e1bd17f106385124e3dda73e9eb157ad`.
-Its exact upstream source is `51f97c6bca5500edbb986f6d9fe64fa2e63cbdd4`.
-All three compaction repair targets have the same before/after hashes as the prior
-`0.163.0-alpha.11.1` source at `680c4ba93ec79c292287fb9e0b627dc7a76e3b5e`.
-The two stock-red tests from that predecessor are carried by exact source identity, not
-claimed as a new stock run. The new upstream source delta concerns Windows enterprise-policy
-registry loading and MXC sandbox integration, not compaction. No experimental retention feature
-is enabled. Both repaired-source tests passed on this exact revision (2 passed, 2,762 skipped).
-The stable Rust `1.95.0` / LTO-off release build passed and reports `0.163.0-alpha.11.2`;
-the older native binary is not reused. Replacement SHA-256:
-`19f64f247e839d455d32ac703da181a052f60d8017f2f003eff83807a74472e0`.
-Bootstrap and both Rust flag environment variables are unset.
-Cargo.lock changes are only 160 workspace version substitutions;
-dependency resolution remains unchanged from this revision's committed lock.
-
-All seventeen desktop-only pristine checks recognized their existing owners. Native integration
-correctly refused the prior-version replacement. Full ASAR composition then failed closed on
-the outgoing receipt's old shared-module filename. A focused regression reproduced that failure;
-the correction changes only the exact current module to `app-shared-fc3316d48427.js` while
-preserving its stock `MFt` bus export and store/title hooks. The unchanged generated-owner family
-keeps its `21421` profile names; no old filename fallback or new attribution/navigation behavior
-was added. All sixteen ASAR patches now pass together, with composed probes, changed-module
-syntax, and byte-identical second application.
-
-On 2026-10-23, the complete signed 18-patch stage passed composed probes, changed-module syntax,
-byte-identical second application, native payload preservation, executable terminal-helper checks,
-signature/ASAR-seal verification, and probes rerun after repacking. Candidate ASAR SHA-256:
-`2d93a79ae408bce86d181d07476ffef9bd56e63c345f5f1b3cc6fd2cb572c26c`.
-The pristine source stayed unchanged, and the copied replacement CLI hash matches the build above.
-`npm run check --silent`, `npm test --silent`, and `git diff --check` passed.
-The initial restart stopped before replacement because the existing app did not quit within
-30 seconds. A second supervised restart installed this candidate and reached readiness without
-rescue; Mike returned to this real task and exercised task messaging and two-way TinRelay.
-Outgoing task cards had the correct recipient colors but fell back to task IDs, while wait labels
-and incoming attribution resolved names correctly. The title selector is a readable family;
-the imported plain signal hook returned that selector object unchanged. The stock family-aware
-hook resolves and subscribes to its value. The causal regression now models this distinction:
-it failed with `Task bridge-k…` instead of `Bridge Keeper`, then passed after changing the import.
-Applied inspection also rejects the wrong hook even when its import exists. No supervisor
-implementation or TinRelay transport/configuration was changed.
-
-The corrected complete 18-patch candidate passed composed post-repack probes, byte-identical
-reapplication, signature/seal verification, and native payload preservation. Corrected ASAR SHA-256:
-`dbbc225ce65af8e6a807a0172c0b50b3deca7ab753b8a58aaaf13fd233ca98af`.
-The matching native CLI is unchanged. The full TMTK checks and tests passed again. After one
-operator-dismissed confirmation was re-armed, the corrected candidate returned through the
-supervisor without rescue and reached renderer readiness at 2026-10-23 08:48:08 UTC. Installed
-ASAR and native CLI hashes match the corrected candidate. Mike then verified that a fresh
-outgoing task-message card displayed its recipient's name rather than an ID.
-
-Secondary-platform qualification, destructive dot actions, provider acceptance, a live compaction
-reproduction, and a full live feature tour were not run. Windows/Ubuntu build `10954` and
-Fedora build `9647` keep their separate earlier receipts. Production Linux package-stage fixtures
-are platform-skipped on macOS.
-
-The superseded build-`21421` ZIP was removed after the new source authenticated; compact receipts
-remain. Disposable source/build/extracted scratch and the accepted loose candidate were removed
-after qualification. The supervisor removed its transaction-only rollback. The workbench retains
-one authenticated ZIP and compact receipts/logs, not duplicate applications or build trees.
-
-This is a maintainer/porter runbook. An agent installing a patchset that already has an exact
-matching qualification receipt uses sections 1, 3, 4, and the patchset portion of section 5. It
-must not run section 2 merely to reproduce the maintainer's evidence. Section 2 requires explicit
-authority to replace and deliberately break the canonical application, a verified restoration
-source, a technical operator present, and a current reason from its invalidation list.
-
-Run from the toolkit repository and record its absolute path as `TMTK_ROOT` before any restart.
-Keep an untouched vendor application as `SOURCE_APP`, stage to a new path outside `/Applications`
-as `CANDIDATE_APP`, and use the private toolkit configuration as `CONFIG`. Record the exact source
-URL or installer provenance, toolkit commit, source-patch commit, version, build, hashes, commands,
-and outputs in one dated qualification receipt under ignored `.work/qualifications/` state. After
-acceptance, summarize the qualification in the tracked
-[`extraction ledger`](../docs/extraction-ledger.md) and a qualification-bearing commit; adopters do
-not depend on the ignored raw receipt.
+The first supervised adoption reached startup renderer readiness, but activating a real chat
+failed with `Cannot read properties of undefined (reading 'call')`. Its incoming TinRelay binding
+still required the removed `LYcW` module. The narrow correction captures `_.R`, the stock
+delegated-message bubble already imported from `y5H2`. A new probe initializes the actual binding:
+it fails on the first candidate and passes with the correction. The failed candidate was removed.
+The corrected complete signed stage passed again, including this actual-binding probe after repack;
+the corrected live return and messaging checks above passed. Startup readiness alone did not
+establish usable-chat acceptance.
 
 ## 1. Prove the complete candidate statically
 

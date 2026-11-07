@@ -5,8 +5,8 @@ export function mainProcessAsset(root) {
   const build = path.join(root, ".vite/build");
   const legacy = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name));
   const profiles = [
-    {version: "26.1027.30824", build: "22943", chunk: 916, hash: "2f6483d5bfd826f1", bootstrap: "aea964a206c655e4", module: 61071, logger: "eeC"},
-    {version: "26.1029.61003", build: "24614", chunk: 45, hash: "628adb74a9c47df1", bootstrap: "a1c76730c29ac8b1", module: 82820, logger: "ee5"}
+    {version: "26.1103.32239", build: "25471", chunk: 920, hash: "a204a41244c4b913", bootstrap: "dd3f3328d53d7b14", module: 26307, logger: "ze", logging: "ed"},
+    {version: "26.1027.30824", build: "22943", chunk: 916, hash: "2f6483d5bfd826f1", bootstrap: "aea964a206c655e4", module: 61071, logger: "eeC"}
   ];
   if (legacy.length === 1 && !profiles.some(profile => fs.existsSync(path.join(build, `early-bootstrap-${profile.chunk}-${profile.hash}.js`)))) return path.join(build, legacy[0]);
   if (legacy.length !== 0) throw new Error("Upstream changed: ambiguous main-process assets");
@@ -21,7 +21,7 @@ export function mainProcessAsset(root) {
       !entry.includes(`339:"${profile.bootstrap}"`) || !entry.includes(`${profile.chunk}:"${profile.hash}"`) ||
       !bootstrap.includes(`let{runMainAppStartup:e}=await Promise.all([n.e(419),n.e(${profile.chunk})]).then(n.bind(n,${profile.module}));await e()`) ||
       !source.startsWith(`exports.ids=[${profile.chunk}],exports.modules={`) ||
-      !source.includes(`let ${profile.logger}=(0,em.vB9)("electron-message-handler")`)) {
+      !source.includes(`let ${profile.logger}=(0,${profile.logging ?? "em"}.vB9)("electron-message-handler")`)) {
     throw new Error("Upstream changed: unrecognized main-process bootstrap owner");
   }
   return currentFile;
@@ -35,7 +35,7 @@ export function mainMessageAnchor(source) {
 
 export function mainLoggerOwner(source) {
   const pattern = isWebpackMain(source)
-    ? /let (?:eeC|ee5)=\(0,em\.vB9\)\("electron-message-handler"\)/g
+    ? /let (?:eeC|ze)=\(0,(?:em|ed)\.vB9\)\("electron-message-handler"\)/g
     : /var [$\w]+=[$\w]+\.(?:i|Lt|a)\(`electron-message-handler`\)/g;
   const owners = [...source.matchAll(pattern)];
   if (owners.length !== 1) throw new Error("Upstream changed: main logger owner is not unique");
@@ -43,5 +43,5 @@ export function mainLoggerOwner(source) {
 }
 
 export function isWebpackMain(source) {
-  return source.startsWith("exports.ids=[916],exports.modules={") || source.startsWith("exports.ids=[45],exports.modules={");
+  return source.startsWith("exports.ids=[920],exports.modules={") || source.startsWith("exports.ids=[916],exports.modules={");
 }

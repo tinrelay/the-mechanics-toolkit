@@ -12,11 +12,11 @@ import {
   linuxBuild10954
 } from "../patches/task-attention-policy/profiles/linux.mjs";
 
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {probeAttention24614} from "./task-attention-policy-24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {probeAttention25471} from "./task-attention-policy-25471.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-attention-policy.test.mjs EXTRACTED_ASAR_ROOT");
-if(matchesBuild24614(root)){probeAttention24614(root);process.exit(0);}
+if(matchesBuild25471(root)){probeAttention25471(root);process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const names = fs.readdirSync(assets);
 const appName = names.filter(name => /^app-(?:initial|runtime)-.*\.js$/.test(name) &&

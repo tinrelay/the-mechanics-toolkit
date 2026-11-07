@@ -2,10 +2,11 @@ import crypto from "node:crypto";
 
 // Re-signing replaces the signature and updates its command and __LINKEDIT extent, but no
 // executable payload. Normalize those size fields when pinning the complete unsigned image.
-const stockHash = "0608406aae8c482eb87f010952c095b3ad7eee5246051d47ce4ae707203a10f6";
-const appliedHash = "cf9deca8659e207b8ad5c0be1cba21bb3581d2f2a906c2f2032e395e7dd4f8c7";
-const parentGate = 0x180b70;
-const sameTeamRequirement = 0xffd07c;
+const stockHash = "e8386f50c8ffdc8a105963054ef46f849dcabb8764d371d44ece7ed9afde2b24";
+const appliedHash = "1cbe1538a7406b9eb01559c9e6e55956faca64c37aeec2ad216e398ddf51e563";
+const parentGate = 0x180bdc;
+const sameTeamRequirement = 0xdd6c20;
+const developerTeam = 0xdd6b90;
 
 export function helperState(bytes) {
   const hash = imageHash(bytes);
@@ -35,7 +36,7 @@ export function repairHelper(bytes) {
     }
   }
   const branch = sameTeamRequirement + words.length * 4;
-  words.push((0x14000000 | ((0xffcfec - branch) / 4 & 0x3ffffff)) >>> 0);
+  words.push((0x14000000 | ((developerTeam - branch) / 4 & 0x3ffffff)) >>> 0);
   words.forEach((word, index) => result.writeUInt32LE(word, sameTeamRequirement + index * 4));
   if (helperState(result) !== "applied") throw new Error("Computer Use helper repair did not verify");
   return result;

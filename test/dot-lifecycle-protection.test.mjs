@@ -2,9 +2,9 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {probeDot24614} from "./dot-lifecycle-protection-24614.mjs";
-if(matchesBuild24614(process.argv[2])){await probeDot24614(process.argv[2]);process.exit(0);}
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {probeDot25471} from "./dot-lifecycle-protection-25471.mjs";
+if(matchesBuild25471(process.argv[2])){await probeDot25471(process.argv[2]);process.exit(0);}
 const assets=path.join(process.argv[2],"webview/assets");
 const file=fs.readdirSync(assets).find(n=>/^app-initial-.*\.js$/.test(n));
 const source=fs.readFileSync(path.join(assets,file),"utf8");

@@ -38,9 +38,9 @@ Valid roster saves update the exact-ID decision without restarting Codex.
 
 The palette loader validates and publishes the exact-ID decision through a tiny renderer-local
 subscription. The local turn renderer subscribes and adds that decision to the stock
-`preventAutoCollapse` prop on the agent-activity component. The conversation thread also subscribes
-and suppresses Codex's separate next-turn auto-collapse write for opted-in tasks. Human collapse
-and reopen actions still use the stock persisted state.
+`preventAutoCollapse` prop on the agent-activity component. On older supported platforms, the conversation thread also suppresses a separate next-turn
+auto-collapse write. The current macOS renderer has removed that effect, so its profile carries
+only the turn-level policy. Human collapse and reopen actions still use the stock persisted state.
 
 The transform also verifies the upstream collapse contract: `preventAutoCollapse` affects the
 default completed state, while an explicit persisted collapse still wins. It patches the automatic

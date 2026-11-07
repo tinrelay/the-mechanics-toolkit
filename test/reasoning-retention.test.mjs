@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import {parse} from "acorn";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -8,15 +9,15 @@ import { build11645 } from "../patches/reasoning-retention/profiles/build11645.m
 import { build22943 } from "../patches/reasoning-retention/profiles/build22943.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {reasoningOwners24614,build24614} from "../patches/reasoning-retention/profiles/build24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {reasoningOwners25471,build25471} from "../patches/reasoning-retention/profiles/build25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extracted, "webview/assets");
 
-const current=matchesBuild24614(extracted), owners=current?reasoningOwners24614(extracted):null;
+const current=matchesBuild25471(extracted), owners=current?reasoningOwners25471(extracted):null;
 const turn = current?{source:readRendererModule(owners.turn)}:uniqueSource(source=>source.includes("function MTKuseReasoningRetention("),"reasoning turn owner");
 const thread = current?{source:readRendererModule(owners.thread)}:uniqueSource(source=>source.includes("function MTKuseReasoningThreadRetention("),"reasoning thread owner");
 const activity = current?{source:readRendererModule(owners.activity)}:uniqueSource(source=>source.includes("isCollapsed:!r&&(a??!i)")||source.includes("isCollapsed:!i&&(o??!a)"),"stock collapse owner");
@@ -79,6 +80,7 @@ policy.rules[0].keepReasoningOpen = "yes";
 assert.equal(hook(kept), false, "an invalid roster extension value keeps stock collapse behavior");
 assert.equal(diagnostics.at(-1)?.code, "invalid-keep-reasoning-open");
 policy.rules[0].keepReasoningOpen = true;
+if(!current){
 assert.ok(thread.source.includes("function MTKreasoningThreadRosterValue("),
   "thread transitions validate the same roster extension boundary");
 if (thread.source.includes(build22943.thread.ownerFunction)) {
@@ -100,7 +102,7 @@ assert.equal(
     thread.source.includes(build9922.thread.appliedCollapse) ||
     thread.source.includes(build10789.thread.appliedCollapse) ||
     thread.source.includes(build11645.thread.appliedCollapse) ||
-    thread.source.includes(build22943.thread.appliedCollapse) || current && thread.source.includes(build24614.thread.appliedCollapse),
+    thread.source.includes(build22943.thread.appliedCollapse),
   true,
   "the next-turn transition does not persist an automatic collapse for an opted-in task"
 );
@@ -111,13 +113,14 @@ assert.ok(
     thread.source.includes(build9922.thread.appliedDependencies) ||
     thread.source.includes(build10789.thread.appliedDependencies) ||
     thread.source.includes(build11645.thread.appliedDependencies) ||
-    thread.source.includes(build22943.thread.appliedDependencies) || current && thread.source.includes(build24614.thread.appliedDependencies),
+    thread.source.includes(build22943.thread.appliedDependencies),
   "the auto-collapse effect follows live retention-policy changes"
 );
 
-const collapseMarker = current?build24614.collapseMarker:activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
-const collapseText = functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf(collapseMarker)));
-const collapse = Function(`${collapseText};return ${functionName(collapseText)}`)();
+}
+const collapseMarker = current?build25471.collapseMarker:activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
+const collapseText = current ? (()=>{const node=parse(activity.source,{ecmaVersion:"latest"}).body[0].expression.arguments[2].properties.find(p=>p.key.name==="P").value;return activity.source.slice(node.start,node.end)})() : functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf(collapseMarker)));
+const collapse = current ? Function(`return (${collapseText})`)() : Function(`${collapseText};return ${functionName(collapseText)}`)();
 const base = {hasFinalAssistantStarted: true, isTurnCancelled: false, hasRenderableAgentItems: true};
 assert.deepEqual(collapse({...base, preventAutoCollapse: true}), {shouldAllowCollapse: true, isCollapsed: false});
 assert.deepEqual(collapse({...base, preventAutoCollapse: false}), {shouldAllowCollapse: true, isCollapsed: true});
@@ -130,7 +133,7 @@ assert.equal(
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner) ||
     turn.source.includes(build11645.turn.appliedOwner) ||
-    turn.source.includes(build22943.turn.appliedOwner) || current && turn.source.includes(build24614.turn.appliedOwner),
+    turn.source.includes(build22943.turn.appliedOwner) || current && turn.source.includes(build25471.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

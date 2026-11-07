@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1029.61003` / `24614` | 18 selected | Signed stage and supervised adoption passed; real task return, task-message ACK/wait, TinRelay self-send/return, and operator visual acceptance. Exact-source red/green, native release build, full fleet, post-repack probes and byte-identical reapplication passed. |
+| macOS ARM64 application | `26.1103.32239` / `25471` | 18 default; 19 with Computer Use | Signed 19-patch stage, source red/green, supervised usable-task return, task-message ACK/wait, TinRelay self-return and native Chrome read without fresh consent. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,47 +27,31 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-The opt-in `macos-computer-use-service` repair recognizes helper `26.1027.1001730` / `1001730`
-bundled in Desktop `24614`. Vendor executable SHA-256:
-`b64e219f30c655407e485d5fab47d354ea6398842fc49a6bad917810df54c862`.
-The native helper's authorization metadata identified the replacement CLI as `untrusted_parent`.
-A disposable signed helper rejected the vendor Node client with stock parent policy, answered
-the version ping after repair, and still rejected an unsigned Python client. The real Computer
-Use tool then listed native apps. The browser-side pipe remains a separate JavaScript owner.
-The signed 19-patch opt-in candidate passed complete staging, post-repack probes and byte-identical
-reapplication. Its ASAR is
-`ea0d633fea9c94b58d8488dd784b2f8034f3f89dcf83409c3adec42fda8ce664`.
-The initial repair reached Desktop readiness but could not open the protected group-container socket lock.
-The corrected candidate uses a dedicated mode-`0700` directory under `CODEX_HOME/computer-use/tmtk-ipc`.
-The corrected candidate was adopted through the supervisor. After binding fresh consent to the
-local certificate, TCC reported both Screen Recording and Accessibility Allowed, and a real
-Chrome accessibility read through native Computer Use returned in under a second. The matrix
-above retains the default 18-patch receipt; this is a separately qualified opt-in repair.
-Same-certificate permission preservation has source tests and an actual identity comparison;
-a post-consent update/restart preservation test has not been run. The separate Chrome browser
-provider remains unqualified.
+The current opt-in helper is `26.1102.1001824` / `1001824`. Its entire unsigned Mach-O
+image is pinned, and a private-socket probe proves repaired vendor-Node acceptance with unsigned
+Python rejection. The superseded helper profile is removed; incoming helper recognition does not
+require recognizing the prior helper image to compare signing requirements. Persistent certificate
+identity, dedicated mode-`0700` socket and per-machine consent remain unchanged. The same-signer
+upgrade preserved native Chrome accessibility access without another permission flow.
 
-Build `24614` changes the renderer to Rspack module registries. The port uses Acorn to edit exact
-module-factory bodies while preserving sibling bytes, checks module IDs and parameters, and
-captures imports outside component-local bindings. Both lazy tool-renderer copies are covered.
-The native Webpack handler and relaunch-writer import are traced through the package loader.
-The roster uses the stock RPC factory's ready/deferred path; model publication waits for loading.
-Receipts and radio presentations cover both timeline paths without taking latest-response follow
-ownership. Stock source still fails both local/remote-v2 compaction tests; the exact repair passes.
-No experimental feature or live compaction run is part of this proof.
+Exact `build25471` Rspack profiles cover all three lazy tool-renderer/classifier copies, both
+transcript paths, current RPC factories and native main/bootstrap ownership. The old thread-level
+auto-collapse effect is absent upstream; the remaining reasoning collapse policy stays active.
+Legacy ESM regression fixtures remain for the separately supported Windows/Linux builds.
 
 | Boundary | Current result |
 | --- | --- |
-| Generated JavaScript | Exact `build24614` module profiles target the installed renderer. Legacy ESM transform regression fixtures remain covered while Windows/Ubuntu `10954` and Fedora `9647` use those readers. |
-| Package integrity | Vendor ZIP signature, app signature, notarization staple, and ASAR seal authenticated. Complete signed 18-patch stage, post-repack probes, byte-identical reapplication, and native payload preservation passed; see the macOS receipt. |
-| Live adoption | Build `24614` adopted through the supervisor, reached renderer readiness, and returned to the real task. Installed app/CLI hashes match; task-message ACK/wait, TinRelay round trip, and operator visual acceptance passed. |
-| Shared behavior | Focused probes cover source identity, compiled component bindings, title hydration, acknowledgement/persistence, right alignment, scroll settling, policy reloads, and readiness. Static proof does not imply a usable live task. |
-| Open limits | Full live feature tour, live compaction, deliberately delayed native quit confirmation, dot guards outside the patched desktop, Ubuntu `10954` supervisor replacement, Fedora `10954` RPM stage/open, and x86-family live paths remain unqualified. |
+| Source repair | Exact `.167.0-alpha.3.2` stock-red/repaired-green local and remote-v2 tests; no experimental flag or live compaction run. |
+| Package integrity | Complete signed 19-patch stage; post-repack probes, byte-identical reapplication, signatures/seal and native payload preservation passed. |
+| Permission identity | Actual helper requirements match; preview preserves grants without `tccutil`. Native Chrome accessibility read passed after upgrade without fresh consent. |
+| Live adoption | Corrected build `25471` installed through the supervisor; real chat, task-message ACK/wait, TinRelay self-return and operator visual acceptance passed. |
+| Shared behavior | Probes cover identity, native RPC readiness, title hydration, persistence, right alignment, scroll ownership, live policy reload and readiness. |
+| Open limits | Screenshot/control, separate browser-provider path, full live feature tour, live compaction, secondary-platform and x86-family live paths remain separately unqualified. |
 
 See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
 [Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
 [standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch installed with macOS build `24614` but
+same-version Codex CLI source patch installed with macOS build `25471` but
 not the Windows or Linux package fleets.
 The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
 rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to

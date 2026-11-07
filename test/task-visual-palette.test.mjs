@@ -1,17 +1,18 @@
 #!/usr/bin/env node
+import {probePendingChatArchive25471} from "./task-visual-palette-25471.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {paletteOwners24614} from "../patches/task-visual-palette/profiles/build24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {paletteOwners25471} from "../patches/task-visual-palette/profiles/build25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const extractedRoot = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: task-visual-palette.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extractedRoot, "webview/assets");
 const assetNames = fs.readdirSync(assets);
-const current=matchesBuild24614(extractedRoot),moduleOwners=current?paletteOwners24614(extractedRoot):null;
+const current=matchesBuild25471(extractedRoot),moduleOwners=current?paletteOwners25471(extractedRoot):null;
 const appInitial = current?null:uniqueAsset(/^app-(?:initial|runtime)-.*\.js$/, "function MTKusePaletteBootstrap(");
 const localPage = current?null:uniqueAsset(/^local-conversation-page-.*\.js$/, '"data-mtk-palette-room-host":!0');
 const delegation = current?null:uniqueAsset(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -26,7 +27,7 @@ const rootProfiles = [
   {start: "function _0a(){", owner: "let e=(0,b0a.c)(12),"},
   {start: "function Dbu(){", owner: "let e=(0,Abu.c)(12),"},
   {start: "function PK(){", owner: "let e=(0,RK.c)(12),"},
-  {start: "function mD(){", owner: "let e,t,n,a,i=(0,c.c)(12),"}
+  {start: "function mq(){", owner: "let e,t,n,a,i=(0,c.c)(12),"}
 ].map(profile => {
   const index = source.indexOf(profile.start, current?0:helperStart);
   const ownerIndex = index < 0 ? -1 : source.indexOf(profile.owner, index + profile.start.length);
@@ -53,6 +54,7 @@ assert.ok(helperStart >= 0 && helperEnd > helperStart, "palette helper seam");
 const helper = source.slice(helperStart, helperEnd);
 assert.equal(rosterConsumer, true, "palette uses the shared agent roster");
 await testRosterConsumer(helper, source);
+if(current)probePendingChatArchive25471(extractedRoot);
 process.stdout.write("task visual palette roster behavioral probe passed\n");
 function uniqueAsset(pattern, marker = null) {
   const matches = assetNames.filter(name => pattern.test(name) &&

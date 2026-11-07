@@ -10,8 +10,8 @@ if (!process.argv[2]) throw new Error("usage: safe-start-readiness.test.mjs EXTR
 const assets = path.join(root, "webview/assets");
 const build = path.join(root, ".vite/build");
 const main = fs.readFileSync(mainProcessAsset(root), "utf8");
-const current24614=main.startsWith("exports.ids=[45],exports.modules={");
-const renderer = current24614?readRendererModule({file:path.join(assets,"async/91641.2996c0f22f.js"),id:"janW",parameters:["e","t","n"]}):fs.readFileSync(uniqueAsset(assets,
+const current25471=main.startsWith("exports.ids=[920],exports.modules={");
+const renderer = current25471?readRendererModule({file:path.join(assets,"async/499225.6d2e47bea2.js"),id:"QJ1i",parameters:["e","t","n"]}):fs.readFileSync(uniqueAsset(assets,
   main.includes('v=require("./bootstrap-BLyztc2V.js")') || main.startsWith("exports.ids=[916],exports.modules={") ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/), "utf8");
 
 assert.ok(main.includes("--tmtk-safe-start-marker="),
@@ -20,7 +20,7 @@ assert.ok(main.includes("e.startsWith(`--tmtk-safe-start-marker=`)"),
   "Windows activation can carry its launch-only marker without an inherited environment");
 assert.ok(main.includes("i.startsWith(r)&&n.length===2&&/^[0-9a-z-]+$/.test(n[0])"),
   "the Windows marker is bounded to one of this user's TMTK rescue incidents");
-const markerOwner = current24614 ? fs.readFileSync(path.join(build,"early-bootstrap-339-a1c76730c29ac8b1.js"),"utf8") : main.startsWith("exports.ids=[916],exports.modules={")
+const markerOwner = current25471 ? fs.readFileSync(path.join(build,"early-bootstrap-339-dd3f3328d53d7b14.js"),"utf8") : main.startsWith("exports.ids=[916],exports.modules={")
   ? fs.readFileSync(path.join(build, "early-bootstrap-339-aea964a206c655e4.js"), "utf8")
   : main.includes('v=require("./bootstrap-BLyztc2V.js")')
   ? fs.readFileSync(path.join(build, "bootstrap-BLyztc2V.js"), "utf8")
@@ -38,7 +38,7 @@ assert.equal([
   "mh.dispatchMessage(`ready`,{persistedStateResponsePriority:fgc?`critical`:void 0})",
   "Lu.dispatchMessage(`ready`,{})",
   "hp.dispatchMessage(`ready`,{})",
-  'd.O1.dispatchMessage("ready",{})'
+  'c.O1.dispatchMessage("ready",{})'
 ].reduce((total, contract) => total + count(renderer, contract), 0), 1,
 "the renderer retains its unique stock AppRoutes-mount readiness event");
 assert.equal(renderer.includes("mtk-safe-start-ready"), false, "the patch does not invent a second renderer lifecycle");

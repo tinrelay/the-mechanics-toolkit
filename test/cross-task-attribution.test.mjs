@@ -3,16 +3,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/cross-task-attribution/profiles/linux.mjs";
-import {matchesBuild24614} from "../patches/runtime-json-reload/profiles/build24614.mjs";
-import {attributionOwner24614} from "../patches/cross-task-attribution/profiles/build24614.mjs";
+import {matchesBuild25471} from "../patches/runtime-json-reload/profiles/build25471.mjs";
+import {attributionOwner25471} from "../patches/cross-task-attribution/profiles/build25471.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {probeAttribution24614} from "./cross-task-attribution-24614.mjs";
+import {probeAttribution25471} from "./cross-task-attribution-25471.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild24614(root) ? attributionOwner24614(root) : null;
+const moduleOwner = matchesBuild25471(root) ? attributionOwner25471(root) : null;
 const owners = moduleOwner != null ? [path.relative(assets, moduleOwner.file)] : fs.readdirSync(assets).filter(name => {
   if (!name.endsWith(".js")) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
@@ -33,7 +33,7 @@ const completeSource = externalBubbleImport?.groups?.relative == null
 
 const helperStart = source.indexOf("var MTKdelegatedBubbleStyle=");
 const helperTail = source.slice(helperStart);
-const componentBoundary = moduleOwner == null ? helperTail.match(/function [$A-Z_a-z][$\w]*\(e\)\{let t=/) : /function eX\(e\)\{/.exec(helperTail);
+const componentBoundary = moduleOwner == null ? helperTail.match(/function [$A-Z_a-z][$\w]*\(e\)\{let t=/) : /function e5\(e\)\{/.exec(helperTail);
 assert.ok(helperStart >= 0 && componentBoundary, "attribution helper seam");
 const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
@@ -73,7 +73,7 @@ assert.ok(api.MTKdelegatedBubbleStyle.backgroundColor.includes("interactive-bg-a
   "unmapped delegation keeps the existing semantic accent fallback");
 
 if (moduleOwner != null) {
-  probeAttribution24614(source, helper);
+  probeAttribution25471(source, helper);
   process.exit(0);
 }
 

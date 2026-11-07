@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
+import {runBuild25471} from "./profiles/build25471.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -8,15 +10,16 @@ import { build11645 } from "./profiles/build11645.mjs";
 import { build22943 } from "./profiles/build22943.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
-import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
-import {runBuild24614} from "./profiles/build24614.mjs";
+
+
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
 if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: task-attention-policy.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild24614(root)){console.log(JSON.stringify(runBuild24614({root,command,patchProfile})));process.exit(0);}
+if(matchesBuild25471(root)){console.log(JSON.stringify(runBuild25471({root,command,patchProfile})));process.exit(0);}
+
 const profiles = [build22943, build11645, linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
 const assets = path.join(root, "webview/assets");
 const runtime = fs.readdirSync(assets).filter(name => /^app-runtime-.*\.js$/.test(name) &&

@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import {matchesBuild25471} from "../runtime-json-reload/profiles/build25471.mjs";
+import {runBuild25471} from "./profiles/build25471.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -8,8 +10,8 @@ import { build11645 } from "./profiles/build11645.mjs";
 import { build22943 } from "./profiles/build22943.mjs";
 import { linuxBuild9647, linuxBuild9771, linuxBuild10954 } from "./profiles/linux.mjs";
 
-import {matchesBuild24614} from "../runtime-json-reload/profiles/build24614.mjs";
-import {runBuild24614} from "./profiles/build24614.mjs";
+
+
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -17,10 +19,11 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: reasoning-retention.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if (matchesBuild24614(root)) {
-  process.stdout.write(JSON.stringify(runBuild24614({root, command, reasoningHook, reasoningThreadHook}))+"\n");
+if (matchesBuild25471(root)) {
+  process.stdout.write(JSON.stringify(runBuild25471({root, command, reasoningHook, reasoningThreadHook}))+"\n");
   process.exit(0);
 }
+
 
 const assets = path.join(root, "webview/assets");
 const linuxProfiles = [linuxBuild10954, linuxBuild9771, linuxBuild9647];

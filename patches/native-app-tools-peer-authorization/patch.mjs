@@ -76,18 +76,22 @@ function patchSource(value) {
   if (ownerAt < 0 || value.indexOf(ownerBefore, ownerAt + ownerBefore.length) >= 0) {
     throw new Error("Upstream changed: native app-tools server owner is not unique");
   }
-  let result = value.slice(0, ownerAt) + helper + ownerAfter + value.slice(ownerAt + ownerBefore.length);
+  let result = value.slice(0, ownerAt) + (profile.helperAnchor ? "" : helper) + ownerAfter + value.slice(ownerAt + ownerBefore.length);
+  if (profile.helperAnchor) {
+    if(count(result,profile.helperAnchor)!==1)throw Error("Upstream changed: native authorizer helper anchor");
+    result=result.replace(profile.helperAnchor,()=>helper+profile.helperAnchor);
+  }
   for (const [before, after] of computerUseReplacements(profile)) result = result.replace(before, after);
   return result;
 }
 
-function patchedOwner(owner) {
-  return owner.replace("cR()", "MTKnativeAppToolsPeerAuthorizer()");
+function patchedOwner(owner, authorizer) {
+  return owner.replace(`${authorizer}()`, "MTKnativeAppToolsPeerAuthorizer()");
 }
 
 function computerUseReplacements(profile) {
   return [
-    ...(profile.computerUseOwners ?? []).map(before => [before, patchedOwner(before)]),
+    ...(profile.computerUseOwners ?? []).map(before => [before, patchedOwner(before, profile.authorizer)]),
     ...(profile.computerUseSocket ?? [])
   ];
 }
@@ -101,11 +105,27 @@ function helperFor(authorizer) {
 
 function ownerFor(profile, defaultAuthorizer) {
   const prefix = profile.ownerPrefix ?? "callTool:e,listTools:t,pipePath:n,socketPeerAuthorizer:r=";
-  return `async function ${profile.owner}({${prefix}${defaultAuthorizer}})`;
+  return `async function${profile.owner ? " " + profile.owner : ""}({${prefix}${defaultAuthorizer}})`;
 }
 
 function ownershipProfile(value) {
   const profiles = [
+    {
+      owner: "", authorizer: "ld", helperAnchor: "function ld(){",
+      ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,readTaskThread:a,pipePath:o,socketPeerAuthorizer:l=",
+      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=lc((0,$.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
+      computerUseOwners: [
+        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=ld()})',
+        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tm.randomUUID)()}.sock`,socketPeerAuthorizer:r=ld()})',
+        'y=await le({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:ld()})'
+      ],
+      computerUseSocket: [
+        ['async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"!==process.platform||',
+         'async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"===process.platform&&!process.env[rx]?.trim()){let r=ee().join(t,"computer-use","tmtk-ipc");await ey().mkdir(r,{recursive:!0,mode:448}),await ey().chmod(r,448),process.env[rx]=ee().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
+        ['serviceNativePipePath:"darwin"===h.platform&&u?eN().env[rx]:null',
+         'serviceNativePipePath:"darwin"===h.platform?(eN().env[rx]?.trim()||ee().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
+      ]
+    },
     {
       owner: "cB", authorizer: "cR",
       computerUseOwners: [

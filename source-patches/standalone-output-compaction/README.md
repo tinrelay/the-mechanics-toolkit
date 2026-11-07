@@ -47,9 +47,9 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.166.0-alpha.6.patch) targets macOS Desktop
-`26.1029.61003` / build `24614`, which bundles `codex-cli 0.166.0-alpha.6` at upstream commit
-`4f093f2748667f3b0e6a07e3d4055121cbd3ce64`. Both focused tests failed on this exact stock
+[The current source diff](codex-0.167.0-alpha.3.2.patch) targets macOS Desktop
+`26.1103.32239` / build `25471`, which bundles `codex-cli 0.167.0-alpha.3.2` at upstream commit
+`c40729ea5cf8e947481b130c59807273eda2f8e9`. Both focused tests failed on this exact stock
 revision, then passed after applying the repair. Those tests cover local and remote-v2
 compaction; they do not qualify every alternate rollover path or every reported replay symptom.
 Upstream annotated-message handling remains unchanged. App Server callers can explicitly request
@@ -68,8 +68,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-24614 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-24614 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-25471 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-25471 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the
