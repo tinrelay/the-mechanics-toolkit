@@ -1,19 +1,19 @@
 import path from 'node:path';
 import {readRendererModule,writeRendererModule} from '../../../src/renderer-module.mjs';
-export const waitOwners25679=root=>[
+export const waitOwners25894=root=>[
  {file:'411497.79254b62eb.js',parameters:['e','t','n']},
  {file:'899308.f1ada0bc90.js',parameters:['e','t','n']},
  {file:'306206.c4732aab1e.js',parameters:['e','t','a']}
 ].map(({file,parameters})=>({file:path.join(root,'webview/assets/async',file),id:'acby',parameters}));
-export const waitProfiles25679=[
+export const waitProfiles25894=[
  {loader:'n',namespace:'s.PD',genericRender:'N',icon:'k',jsx:'a',container:'p.F',classNames:'(0,r.A)',spinner:'d.N',iconFunction:'k',summaryWrapper:'C.o',normalize:'(0,h.JXB)',hostBridge:'x.O1',routeFlag:'(0,A.OX)',newRoute:'(0,h.Cv$)',oldRoute:'(0,h._RT)',sendTool:'y.vN'},
  {loader:'n',namespace:'o.PD',genericRender:'_',icon:'j',jsx:'a',container:'p.F',classNames:'(0,r.A)',spinner:'d.N',iconFunction:'j',summaryWrapper:'b.o',normalize:'(0,v.JXB)',hostBridge:'w.O1',routeFlag:'(0,x.OX)',newRoute:'(0,v.Cv$)',oldRoute:'(0,v._RT)',sendTool:'y.vN'},
  {loader:'a',namespace:'r.PD',genericRender:'P',icon:'_',jsx:'n',container:'m.F',classNames:'(0,s.A)',spinner:'u.N',iconFunction:'_',summaryWrapper:'b.o',normalize:'(0,h.JXB)',hostBridge:'C.O1',routeFlag:'(0,w.OX)',newRoute:'(0,h.Cv$)',oldRoute:'(0,h._RT)',sendTool:'y.vN'}
 ];
-export function runBuild25679({root,command,buildHelper}){
- const owners=waitOwners25679(root),targets=[];let states=[];
+export function runBuild25894({root,command,buildHelper}){
+ const owners=waitOwners25894(root),targets=[];let states=[];
  for(let index=0;index<owners.length;index++){
-  const owner=owners[index],p=waitProfiles25679[index];let source=readRendererModule(owner);
+  const owner=owners[index],p=waitProfiles25894[index];let source=readRendererModule(owner);
   const entry=`{namespace:${p.namespace},render:${p.genericRender},renderAgentActivityIcon:${p.icon},tool:${p.sendTool}}`;
   const receiptEntry=`{namespace:${p.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${p.icon},standaloneInConversation:!0,tool:${p.sendTool}}`;
   const sendEntry=source.includes(entry)?entry:receiptEntry;

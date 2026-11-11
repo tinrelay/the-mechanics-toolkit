@@ -4,12 +4,12 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
-import {matchesBuild25679} from "../patches/runtime-json-reload/profiles/build25679.mjs";
-import {probeRegistry25679} from "./renderer-patch-registry-25679.mjs";
+import {matchesBuild25894} from "../patches/runtime-json-reload/profiles/build25894.mjs";
+import {probeRegistry25894} from "./renderer-patch-registry-25894.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: renderer-patch-registry.test.mjs EXTRACTED_ASAR_ROOT");
 
-if(matchesBuild25679(root)){probeRegistry25679(root);process.exit(0);}
+if(matchesBuild25894(root)){probeRegistry25894(root);process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const files = fs.readdirSync(assets).filter(name => name.endsWith(".js")).map(name => path.join(assets, name));
 const appInitial = unique(files.filter(file => /^app-initial-.*\.js$/.test(path.basename(file))), "app-initial asset");

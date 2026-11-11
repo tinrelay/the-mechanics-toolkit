@@ -1,11 +1,11 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25679}from '../../agent-roster/profiles/build25679.mjs';import{attributionOwner25679}from '../../cross-task-attribution/profiles/build25679.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner25894}from '../../agent-roster/profiles/build25894.mjs';import{attributionOwner25894}from '../../cross-task-attribution/profiles/build25894.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export const paletteOwners25679=root=>({app:rosterOwner25679(root),room:owner(root,'596785.beac9065c9.js','xzfb'),fade:owner(root,'182735.d1916dd704.js','KkZX'),delegation:attributionOwner25679(root),group:owner(root,'86296.6305cfdd6d.js','eQ5p',['e','t','a']),local:owner(root,'86296.6305cfdd6d.js','oprL',['e','t','a']),remote:owner(root,'86296.6305cfdd6d.js','ypQm',['e','t','a']),localMenu:owner(root,'86296.6305cfdd6d.js','JbIn',['e','t','a']),remoteActions:owner(root,'927552.2a3666383e.js','qK2L'),menus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI'))});
-export function runBuild25679({root,command,buildPaletteHelper}){
- const o=paletteOwners25679(root);let helper=buildPaletteHelper({name:'build-25679',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
+export const paletteOwners25894=root=>({app:rosterOwner25894(root),room:owner(root,'596785.beac9065c9.js','xzfb'),fade:owner(root,'182735.7f13786b92.js','KkZX'),delegation:attributionOwner25894(root),group:owner(root,'86296.6305cfdd6d.js','eQ5p',['e','t','a']),local:owner(root,'86296.6305cfdd6d.js','oprL',['e','t','a']),remote:owner(root,'86296.6305cfdd6d.js','ypQm',['e','t','a']),localMenu:owner(root,'86296.6305cfdd6d.js','JbIn',['e','t','a']),remoteActions:owner(root,'927552.2a3666383e.js','qK2L'),menus:['8916.ffeb3129a1.js','99588.01cccd6b1f.js'].map(f=>owner(root,f,'GgrI'))});
+export function runBuild25894({root,command,buildPaletteHelper}){
+ const o=paletteOwners25894(root);let helper=buildPaletteHelper({name:'build-25894',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
  helper=helper.replace('t.getAttribute("data-app-action-sidebar-thread-id")', 'MTKpaletteNativeTaskId(t.getAttribute("data-app-action-sidebar-thread-id"))').replace('function MTKusePaletteBootstrap(', 'function MTKpaletteNativeTaskId(e){let t=MTKpaletteKeyDecode(e);return t?.kind==="local"?t.threadId:t?.kind==="remote"?t.taskId:e}function MTKusePaletteBootstrap(');
  const entries=[],add=(target,pairs)=>entries.push({owner:target,pairs,source:readRendererModule(target)});
- add(o.app,[["function mq(){MTKuseAgentRoster();","function mq(){MTKuseAgentRoster();MTKusePaletteBootstrap();"],[null,';const MTKpaletteKeyDecode=n("d6Ff").Pc;'+helper]]);
+ add(o.app,[["function mG(){MTKuseAgentRoster();","function mG(){MTKuseAgentRoster();MTKusePaletteBootstrap();"],[null,';const MTKpaletteKeyDecode=n("d6Ff").Pc;'+helper]]);
  add(o.room,[['M=(0,r.c)(100),','M=(0,r.c)(102),'],['||M[95]!==S?(U=(0,a.jsxs)("div",{ref:eW,className:"relative h-full min-h-0",','||M[95]!==S||M[100]!==P||M[101]!==T?(U=(0,a.jsxs)("div",{ref:eW,"data-mtk-palette-room-host":!0,"data-mtk-palette-thread-id":P??T,className:"relative h-full min-h-0",'],['M[95]=S,M[96]=U','M[95]=S,M[100]=P,M[101]=T,M[96]=U']]);
  add(o.fade,[['(0,r.jsx)("div",{"aria-hidden":!0,className:t})','(0,r.jsx)("div",{"aria-hidden":!0,"data-mtk-palette-bottom-fade":!0,className:t})']]);
  add(o.delegation,[['function e5(e){let t,n,i,l,o=(0,s.c)(14),','function e5(e){let t,n,i,l,o=(0,s.c)(16),'],['o[13]!==n?(l=(0,a.jsx)(J,','o[13]!==n||o[14]!==MTKtitle||o[15]!==c?(l=(0,a.jsx)(J,'],['alignment:`end`,accentColor:MTKdelegatedAccentColor','alignment:`end`,accentColor:MTKdelegatedAccentColor,paletteSourceTitle:MTKtitle,paletteSourceId:c'],['o[13]=n,o[12]=l','o[13]=n,o[14]=MTKtitle,o[15]=c,o[12]=l'],['r=(0,s.c)(21),{label:c,alignment:d','r=(0,s.c)(23),{label:c,alignment:d'],['onLabelClick:v}=e,y=','onLabelClick:v,paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,y='],['r[19]!==l?(o=(0,a.jsxs)("div",{className:n,children:[i,l]}),','r[19]!==l||r[21]!==MTKsourceTitle||r[22]!==MTKsourceId?(o=(0,a.jsxs)("div",{"data-mtk-palette-source-title":MTKsourceTitle??void 0,"data-mtk-palette-source-id":MTKsourceId??void 0,className:n,children:[i,l]}),'],['r[19]=l,r[20]=o','r[19]=l,r[21]=MTKsourceTitle,r[22]=MTKsourceId,r[20]=o']]);
@@ -26,7 +26,7 @@ export function runBuild25679({root,command,buildPaletteHelper}){
  }
  if(command==='check'&&!entries[0].source.includes('MTKuseAgentRoster();')){
   const app=entries[0].source,delegation=readRendererModule(o.delegation);
-  for(const fragment of ['function mq(){let e,t,n,a,i=(0,c.c)(12),','u=n("zd8w")'])if(count(app,fragment)!==1)throw Error('Unknown pristine palette bootstrap');
+  for(const fragment of ['function mG(){let e,t,n,a,i=(0,c.c)(12),','u=n("zd8w")'])if(count(app,fragment)!==1)throw Error('Unknown pristine palette bootstrap');
   for(const fragment of ['function e5(e){let t,n,i,l,o=(0,s.c)(13),','function J(e){let t,n,i,l,o,r=(0,s.c)(21),','compactActions:x,onLabelClick:v}=e,y='])if(count(delegation,fragment)!==1)throw Error('Unknown pristine delegated palette owner');
   for(const e of entries.filter(e=>e.owner!==o.app&&e.owner!==o.delegation))for(const[b]of e.pairs)if(b!==null&&count(e.source,b)!==1)throw Error('Unknown pristine palette module '+e.owner.id+': '+b);
   return{state:'needs-apply',targets:[...new Set(entries.map(e=>path.relative(root,e.owner.file)))]};
@@ -42,7 +42,7 @@ function count(s,v){return s.split(v).length-1}
 
 // Incoming TinRelay owns the optional replacement bubble on this same wrapper.
 function paletteCanonical(source){
- source=source.replace("function mq(){MTKuseAttentionBootstrap25679();","function mq(){");
+ source=source.replace("function mG(){MTKuseAttentionBootstrap25894();","function mG(){");
  if(!source.includes('messageNode:MTKmessageNode}=e,y='))return source;
  return source.replace("r=(0,s.c)(25),{label:c,alignment:d","r=(0,s.c)(23),{label:c,alignment:d").replace('paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId,messageNode:MTKmessageNode}=e,y=','paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,y=');
 }

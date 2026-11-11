@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1103.41825`, build `25679` | Signed 19-patch stage, supervised real-chat return, task-message ACK/wait, TinRelay self-return and native Chrome accessibility read without fresh consent; CLI/helper reused from the byte-identical preceding package. |
+| macOS ARM64 application | `26.1103.60933`, build `25894` | Signed 19-patch stage, composed/post-repack probes and byte-identical reapplication passed; CLI/helper reused from the byte-identical accepted package. Supervised adoption and current live checks pending. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -43,10 +43,11 @@ An `active` patch is maintained on the current branch. That does not mean it is 
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
 before porting or adopting a candidate.
 
-The optional macOS Computer Use repair has prior native Chrome-read acceptance and a current
-private-socket authorization probe; current live adoption remains separate. It requires a persistent local signing certificate
-and first-transition macOS consent; ordinary same-identity updates preserve those grants.
-The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0222).
+The optional macOS Computer Use repair reuses prior native Chrome-read and private-socket
+authorization evidence for the byte-identical helper; current live adoption
+remains separate. It requires a persistent local signing certificate and first-transition macOS
+consent; ordinary same-identity updates preserve those grants.
+The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0224).
 
 ## Ordinary use
 
@@ -131,7 +132,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.167.0-alpha.3.2` / Desktop `26.1103.41825` build `25679` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.167.0-alpha.3.2` / Desktop `26.1103.60933` build `25894` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The current macOS CLI builds without it. |
 
 ## Documentation map

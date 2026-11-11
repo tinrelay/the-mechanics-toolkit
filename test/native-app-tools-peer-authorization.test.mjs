@@ -11,12 +11,12 @@ if (!process.argv[2]) throw new Error("usage: native-app-tools-peer-authorizatio
 const build = path.join(root, ".vite/build");
 const source = fs.readFileSync(mainProcessAsset(root), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
-const current=source.startsWith("exports.ids=[854],exports.modules={");
+const current=source.startsWith("exports.ids=[815],exports.modules={");
 let helperNode;const ast=parse(source,{ecmaVersion:"latest",sourceType:"module"});walk(ast,x=>{if(x.type==="FunctionDeclaration"&&x.id?.name==="MTKnativeAppToolsPeerAuthorizer")helperNode=x});
 const end = helperNode?.end??source.indexOf("async function ", start);
-const owner = current ? "25679" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
+const owner = current ? "25894" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
 const profiles = {
-  "25679": {authorizer:"ld",addon:"e",socketVar:"s",authParam:"l"},
+  "25894": {authorizer:"ld",addon:"e",socketVar:"s",authParam:"l"},
   cB: {authorizer: "cR", addon: "e", socketVar: "s", authParam: "o"},
   c$: {authorizer: "cF", addon: "e", socketVar: "s", authParam: "o"},
   $ce: {authorizer: "kl", addon: "i"},

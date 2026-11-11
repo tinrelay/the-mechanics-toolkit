@@ -48,7 +48,7 @@ results discardable.
 ## Qualified source
 
 [The current source diff](codex-0.167.0-alpha.3.2.patch) targets macOS Desktop
-`26.1103.41825` / build `25679`, which bundles `codex-cli 0.167.0-alpha.3.2` at upstream commit
+`26.1103.60933` / build `25894`, which bundles `codex-cli 0.167.0-alpha.3.2` at upstream commit
 `c40729ea5cf8e947481b130c59807273eda2f8e9`. Both focused tests failed on this exact stock
 revision, then passed after applying the repair. Those tests cover local and remote-v2
 compaction; they do not qualify every alternate rollover path or every reported replay symptom.
@@ -56,7 +56,7 @@ Upstream annotated-message handling remains unchanged. App Server callers can ex
 `toolOutput.retain`, and the experimental `retain_client_tool_outputs` feature can preserve those
 marked inputs when enabled. That opt-in route is not a fallback for ordinary unmarked external
 inputs. No experimental feature was enabled for this qualification.
-The stock CLI is byte-identical to build `25471`, so that exact matching repaired executable can
+The stock CLI is byte-identical to accepted build `25679`, so that exact matching repaired executable can
 be reused. This package reuses the prior source-test/build proof rather than rerunning Rust tests.
 A binary from a different CLI version must not be substituted.
 The macOS runbook records release-build and signed-stage evidence as each gate completes; live acceptance is a
@@ -70,8 +70,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-25679 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-25679 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-25894 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-25894 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

@@ -60,9 +60,9 @@ function patchMain(value) {
 }
 
 function mainProfile(value) {
-  if (value.startsWith("exports.ids=[854],exports.modules={")) {
+  if (value.startsWith("exports.ids=[815],exports.modules={")) {
     for(const contract of ['eA=new ed.kec;eA.add(j),eA.add(el),eA.add(ec)', 'await er.app.whenReady(),', 'ew("main app.whenReady resolved",eR)']) {
-      if(count(value,contract)!==1)throw Error("Upstream changed: build-25679 app-ready owner");
+      if(count(value,contract)!==1)throw Error("Upstream changed: build-25894 app-ready owner");
     }
     return {helperOwner:mainLoggerOwner(value)[0],startup:'ew("main app.whenReady resolved",eR)',electron:"er",disposers:"eA"};
   }

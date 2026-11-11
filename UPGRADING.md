@@ -1,10 +1,40 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.23` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.24` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.24
+
+The macOS target is Desktop `26.1103.60933` / build `25894`, bundling CLI
+`0.167.0-alpha.3.2`. The authenticated stock CLI is byte-identical to the accepted build `25679`,
+so the exact qualified source repair and replacement executable are reused. Select
+`standalone-output-compaction-25894` at unchanged upstream commit
+`c40729ea5cf8e947481b130c59807273eda2f8e9`; the three-file diff and before/after hashes are
+unchanged. Prior stock-red/repaired-green local/remote-v2 tests and the stable-Rust `1.95.0`,
+LTO-off release build remain the proof. No new Rust test/build or experimental flag is claimed.
+
+The app, shared renderer, runtime and native bootstrap chunks changed. Exact profiles follow the
+current roster project import, root bootstrap, attention atom/notification title and terminal
+keyboard owner. Chat/tool presentation owners remain unchanged, including the actual incoming
+TinRelay bubble initializer and both timeline paths. The packaged send-message adapter still
+omits `toolOutput.retain`; this port does not retire the narrow compaction repair.
+
+The native Computer Use helper is byte-identical. Reuse the persistent per-machine signing
+certificate; existing same-identity grants are preserved. First-time or different-signer installs
+still use the scoped macOS consent workflow. The default selection remains 18 patches, or 19
+with native Computer Use. Windows/Ubuntu `10954` and Fedora `9647` are unchanged.
+
+All 16 pristine ASAR preflight checks and the complete signed 19-patch stage passed, including
+composed/post-repack probes, byte-identical reapplication, signatures/seal and native payload/mode
+preservation. Actual helper requirements match; the permission preview preserves grants without
+calling `tccutil`. Repository syntax, full tests and hygiene checks passed; production DEB/RPM
+staging fixtures were platform-skipped. Supervised adoption, real-chat activation and current task/radio/Computer Use
+smoke checks are pending.
+The installed accepted app remains build `25679`. See the [macOS receipt](qualification/macos.md)
+for current gates and limits. Adopt only through `bin/tmtk-restart --candidate` when requested.
 
 ## 0.2.23
 

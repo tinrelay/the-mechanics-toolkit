@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import{createRequire}from'node:module';import{randomUUID}from'node:crypto';import{parse}from'acorn';
-import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners25679}from'../patches/outgoing-message-receipt/profiles/build25679.mjs';import{waitProfiles25679}from'../patches/wait-thread-roster/profiles/build25679.mjs';
-export async function probeReceipts25679(root){
- const o=receiptOwners25679(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
+import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners25894}from'../patches/outgoing-message-receipt/profiles/build25894.mjs';import{waitProfiles25894}from'../patches/wait-thread-roster/profiles/build25894.mjs';
+export async function probeReceipts25894(root){
+ const o=receiptOwners25894(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
  const conversation=readRendererModule(o.conversation),start=conversation.indexOf('const MTKoutboundReceiptContract='),end=conversation.indexOf('n.d(t,{MTKOutboundTurnReceipts:',start);assert.ok(end>start);
  const listeners=new Map,dispatches=[],effects=[],realm={},react={useState:x=>[typeof x==='function'?x():x,()=>{}],useEffect:f=>effects.push(f)};
  const api=Function('MTKReceiptBus','MTKOutboundReceiptReact','MTKReceiptJsx','MTKReceiptActions','MTKoutboundReceipt','globalThis','crypto',conversation.slice(start,end)+';return {remember:MTKoutboundRemember,list:MTKoutboundReceiptValues,state:MTKoutboundReceiptState,lifecycle:MTKOutboundReceiptLifecycle,view:MTKOutboundTurnReceipts};')({subscribe:(k,f)=>listeners.set(k,f),dispatchMessage:(type,payload)=>dispatches.push({type,payload})},react,jsx,Actions,Receipt,realm,{randomUUID});
- const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-25679-'));try{
+ const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-25894-'));try{
   const native=fs.readFileSync(mainProcessAsset(root),'utf8'),begin=native.indexOf('const MTKoutboundReceiptContract='),ast=parse(native,{ecmaVersion:'latest',sourceType:'module'});let last;
   walk(ast,x=>{if(x.type==='FunctionDeclaration'&&x.id?.name==='MTKoutboundReceiptList')last=x});assert.ok(last&&last.end>begin);
   const makeCache=()=>Function('require','process','Buffer','er',native.slice(begin,last.end)+';return {remember:MTKoutboundReceiptRemember,list:MTKoutboundReceiptList};')(createRequire(import.meta.url),process,Buffer,{app:{getPath:()=>scratch}});
@@ -15,7 +15,7 @@ export async function probeReceipts25679(root){
   listeners.get('mtk-outbound-receipt-remember-result')({requestId:dispatches[0].payload.requestId,ok:true,record:saved});assert.equal(api.lifecycle({item:{},record}),null);const view=api.view({conversationId:'source',turnId:'turn'});assert.equal(view.props.children.length,1);assert.equal(view.props.children[0].props.item.recordedAtMs,100);
   assert.deepEqual(cache.remember({...record,prompt:'different'}),record,'same call identity returns its first durable record');assert.deepEqual(makeCache().list('source'),[record]);
   for(const[index,target]of o.send.entries()){
-   const source=readRendererModule(target),p=waitProfiles25679[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
+   const source=readRendererModule(target),p=waitProfiles25894[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
    const helper=nodes.filter(x=>x.type==='FunctionDeclaration'&&/^MTK(?:outbound|Outbound|renderOutbound)/.test(x.id.name)).map(x=>source.slice(x.start,x.end)).join('');
    const begin=source.indexOf('const MTKoutboundStoreHook='),end=source.indexOf(`;${p.loader}.d(t,{MTKoutboundReceipt:`,begin)+1,bindings=source.slice(begin,end);assert.ok(end>begin);
    const titleAtom={},threadAtom={};let title=null;const routed=[];const imports=id=>({'zTeN':{gh:()=>({}),_U:(atom,key)=>{if(atom===titleAtom)return title;if(atom===threadAtom)return{summary:{title,cwd:'/projects/example-search'}};assert.fail('unknown title binding')}},'OWtl':{u:{}},'tl5a':{HX:titleAtom,ok:threadAtom},'CqQF':{m:'hover'},'jHtb':{J:'formatter'}}[id]??assert.fail('unknown import '+id));
@@ -27,7 +27,7 @@ export async function probeReceipts25679(root){
    title='ticket-inbox';button=collect(render({item})).find(x=>x.type==='button');assert.equal(button.props.children,'example-search/ticket-inbox','project comes from recipient summary');
   }
   const turn=readRendererModule(o.turn),dynamic=readRendererModule(o.dynamic);assert.ok(turn.includes('canOwnLatestTurnFollowContent:!1,isResponseContent:!1'));assert.ok(turn.includes('sourceTurnId:tg'));assert.ok(dynamic.includes('turnId:MTKsourceTurnId,ReceiptLifecycle:MTKReceiptLifecycle'));
-  console.log('outgoing receipts 25679 behavior and persistence probe passed');
+  console.log('outgoing receipts 25894 behavior and persistence probe passed');
  }finally{fs.rmSync(scratch,{recursive:true,force:true})}
 }
 

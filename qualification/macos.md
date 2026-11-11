@@ -15,52 +15,50 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Build 25679 — bounded live acceptance
+## Build 25894 — candidate qualification
 
-On 2026-11-07 the newest official macOS ARM64 feed offered Desktop `26.1103.41825` / build
-`25679`, published at 03:53:39 UTC. Full ZIP: `815395836` bytes, SHA-256
-`0b30ce5cac787893bf574b549b1d32cf363f21302935538acd369c668df2fd1f`.
+On 2026-11-10 the newest official macOS ARM64 feed offered Desktop `26.1103.60933` / build
+`25894`, published on November 8 at 19:18:10 UTC. Full ZIP: `815401502` bytes, SHA-256
+`1d671e7784e0e379f7293ebcfeac826c2a297524ea806cd55e994068d019e388`.
 Sparkle Ed25519 signature, vendor app signature, ASAR seal and notarization staple verified.
-Pristine ASAR SHA-256: `766faa8a3da8f6d6902c751d5b6b29395a6c5bf3c966ef7f8ca3f629d931df85`.
-The feed supplies no release notes. The installed accepted app is build `25679`.
+Pristine ASAR SHA-256: `a77588b2dcfa9b394d722dd8c2c8b13d3a09bacd49c839cc715245742dba6048`.
+The feed supplies no release notes. The installed accepted app remains build `25679`.
 
 Bundled CLI `0.167.0-alpha.3.2` has stock executable SHA-256
 `a636331ed87605efc4cf84028ac2884a75363f9d10ead63cffb57ea0016d486e`, byte-identical to the
 preceding authenticated package. Reused replacement executable SHA-256:
 `666439515315e28edf8b2ee4bd173f20cc29d16095b575bf7a7a8b5413783ef8`.
 Exact upstream commit remains `c40729ea5cf8e947481b130c59807273eda2f8e9`; the cataloged
-three-file source repair and target hashes are unchanged. The preceding stock-red/repaired-green
-local and remote-v2 tests and stable-Rust `1.95.0`, LTO-off native release build remain its source
-proof. Rust tests/build were not rerun for this identical binary. No experimental flag was enabled.
+three-file source repair and target hashes are unchanged. Prior stock-red/repaired-green local
+and remote-v2 tests and the stable-Rust `1.95.0`, LTO-off native release build remain the proof.
+Rust tests/build were not rerun for this identical binary. No experimental flag was enabled.
 The packaged delegation adapter still omits `retain` in its tool-output branch.
 
 Computer Use helper vendor executable SHA-256 remains
-`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`; the normalized image
-is unchanged. Its preceding causal private-socket vendor-Node acceptance and unsigned-Python
-rejection apply unchanged. The persistent per-machine signing identity is reused. A current
-post-update native Chrome accessibility read passed without fresh consent, as recorded below.
+`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`; its normalized image
+is unchanged. Prior causal private-socket vendor-Node acceptance and unsigned-Python rejection
+apply unchanged. The persistent per-machine signing identity is reused; no current live-use test
+is claimed.
 
-The renderer runtime, shared chunk, terminal chunk and native bootstrap changed. Exact profiles
-were traced to current filenames/entry ownership and all 16 pristine ASAR preflight checks passed.
+The app, renderer runtime, shared chunk and native bootstrap changed. All 16 pristine ASAR
+preflight checks passed after tracing the moved root, roster, attention and keyboard bindings.
 Unchanged chat/tool chunks retain the actual TinRelay bubble-binding regression and both timeline
 paths. The complete signed 19-patch stage passed: composed and post-repack behavior probes,
-byte-identical reapplication, signatures/seal, native payloads/modes and CLI byte equality.
-Candidate ASAR SHA-256: `33a273f47d2d21e377379c8b57cdb367523bd341edf50a313529a68b0c23df1d`.
-`npm run check` and `npm test` passed; production DEB/RPM staging fixtures were platform-skipped.
-Actual canonical/incoming helper signing requirements match; permission preparation previews
-`preserved` without invoking `tccutil`. This is an identity comparison, not a current live-use test.
+changed-module syntax, byte-identical reapplication, signatures/seal, native payloads/modes and
+CLI byte equality. Candidate ASAR SHA-256:
+`dbd95c33023e13120b3dd8113755086ddcf9a4e52906e351e8a33e0273dfa7a7`.
+Actual canonical/incoming helper signing requirements match. Permission preparation previews
+`preserved` without invoking `tccutil`; this is an identity comparison, not a current live-use test.
+`npm run check`, `npm test`, repository-hygiene/source-catalog and diff checks passed. Production
+DEB/RPM staging fixtures were platform-skipped. One authenticated ZIP, one signed candidate,
+the matching CLI and compact receipts remain. Superseded package/candidate and disposable source
+and ASAR extractions were removed. No source/build tree or transaction rollback was retained.
 
-Supervised adoption reached readiness and returned to the real chat. Installed ASAR and CLI bytes
-match the candidate above; installed signature and ASAR seal are valid. Task-message ACK/wait and
-TinRelay self-send/return passed, and the operator accepted the visible result. Transaction rollback
-material was removed. The native helper in the canonical user-local location matches the installed
-helper. A native Chrome accessibility read returned in under three seconds without another
-consent flow. This is current permission-use evidence distinct from the signing comparison.
-
-These are bounded live checks. No current screenshot/control, separate browser-provider, full
-feature tour, live compaction or secondary-platform run was performed. One authenticated ZIP,
-one signed candidate, its matching CLI and compact receipts remain; superseded package/candidate
-and disposable extraction trees were removed. No profile, permission or provider state was changed.
+Supervised adoption, real-chat activation, task-message ACK/wait, TinRelay self-send/return and
+current Computer Use checks are pending. The preceding accepted build `25679` passed those bounded
+live checks, including a native Chrome accessibility read without fresh consent; that is earlier
+evidence, not live acceptance of `25894`. Screenshots/control, separate browser-provider, full
+feature tour, live compaction and secondary-platform runs remain unqualified for this port.
 
 ## 1. Prove the complete candidate statically
 

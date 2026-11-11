@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild25679} from "../runtime-json-reload/profiles/build25679.mjs";
-import {runBuild25679} from "./profiles/build25679.mjs";
+import {matchesBuild25894} from "../runtime-json-reload/profiles/build25894.mjs";
+import {runBuild25894} from "./profiles/build25894.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -18,8 +18,8 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: model-identity-guard.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if (matchesBuild25679(root)) {
-  process.stdout.write(`${JSON.stringify(runBuild25679({root, command, modelGuardHelper}), null, 2)}\n`);
+if (matchesBuild25894(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild25894({root, command, modelGuardHelper}), null, 2)}\n`);
   process.exit(0);
 }
 

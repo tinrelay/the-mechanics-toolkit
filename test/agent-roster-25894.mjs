@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';import{parse}from'acorn';import{readRendererModule}from'../src/renderer-module.mjs';import{rosterClient25679}from'../patches/agent-roster/profiles/build25679.mjs';
-export async function probeRosterFactory25679(root){
- const source=readRendererModule(rosterClient25679(root)),node=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.flatMap(x=>x.type==='ExpressionStatement'&&x.expression.type==='CallExpression'?x.expression.arguments.flatMap(a=>a.properties??[]):[]).find(x=>x.key?.name==='V')?.value;assert.ok(node);
+import assert from 'node:assert/strict';import{parse}from'acorn';import{readRendererModule}from'../src/renderer-module.mjs';import{rosterClient25894}from'../patches/agent-roster/profiles/build25894.mjs';
+export async function probeRosterFactory25894(root){
+ const source=readRendererModule(rosterClient25894(root)),node=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.flatMap(x=>x.type==='ExpressionStatement'&&x.expression.type==='CallExpression'?x.expression.arguments.flatMap(a=>a.properties??[]):[]).find(x=>x.key?.name==='V')?.value;assert.ok(node);
  const managerAtom={},cacheAtom={},connectionAtom={},hostsAtom={},cached=new Map;let manager=null,connection={status:'connecting',client:null},hosts=['local'],watcher,unsubscribed=0;
  const scope={get(atom,key){if(atom===managerAtom)return manager;if(atom===cacheAtom)return cached.get(key)??null;if(atom===connectionAtom){assert.equal(key,'local');return connection;}if(atom===hostsAtom)return hosts;assert.fail('unknown RPC selector')},set(atom,key,value){assert.equal(atom,cacheAtom);cached.set(key,typeof value==='function'?value():value)},watch(fn){watcher=fn;fn({get:this.get.bind(this)});return()=>unsubscribed++}};
  const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}};
