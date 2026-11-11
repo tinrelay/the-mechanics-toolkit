@@ -3,14 +3,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import {mainProcessAsset, mainLoggerOwner} from "../src/main-process-asset.mjs";
 import path from "node:path";
-import {matchesBuild25894, runtimeOwner25894} from "../patches/runtime-json-reload/profiles/build25894.mjs";
+import {matchesBuild26605, runtimeOwner26605} from "../patches/runtime-json-reload/profiles/build26605.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: runtime-json-reload.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
 const mainDirectory = path.join(root, ".vite/build");
-const moduleOwner = matchesBuild25894(root) ? runtimeOwner25894(root) : null;
+const moduleOwner = matchesBuild26605(root) ? runtimeOwner26605(root) : null;
 const renderer = moduleOwner?.file ?? rendererFile(assets);
 const main = mainProcessAsset(root);
 const rendererSource = moduleOwner == null ? fs.readFileSync(renderer, "utf8") : readRendererModule(moduleOwner);

@@ -1,5 +1,17 @@
+diff --git a/codex-rs/core/src/client_runtime_auth_tests.rs b/codex-rs/core/src/client_runtime_auth_tests.rs
+index 35a41b6..432db16 100644
+--- a/codex-rs/core/src/client_runtime_auth_tests.rs
++++ b/codex-rs/core/src/client_runtime_auth_tests.rs
+@@ -118,6 +118,7 @@ async fn selected_runtime_transport_stays_revoked(mode: RuntimeAuthMode) {
+             RequestRouteTelemetry::for_endpoint("/responses"),
+             &http::HeaderMap::new(),
+             /*parent_routing_affinity*/ None,
++            /*reauth*/ false,
+         )
+         .await;
+     assert!(matches!(
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index 2f6a91d..34d3a9b 100644
+index bb563ab..530854f 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
 @@ -61,6 +61,7 @@ use tracing::error;
@@ -10,7 +22,7 @@ index 2f6a91d..34d3a9b 100644
  
  /// Thread-local policy that preserves inherited context without changing model or skill budgets.
  /// Insert into `StartThreadOptions::thread_extension_init` to disable automatic compaction.
-@@ -655,6 +656,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -656,6 +657,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      let mut last_real_user_index = None;
      for (i, item) in compacted_history.iter().enumerate().rev() {
          if crate::compact_retained_tool_outputs::is_retained_tool_output(item)
@@ -18,7 +30,7 @@ index 2f6a91d..34d3a9b 100644
              || is_real_user_or_agent_message(&item.item)
          {
              last_real_user_index = Some(i);
-@@ -698,6 +700,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -699,6 +701,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      compacted_history
  }
  
@@ -30,7 +42,7 @@ index 2f6a91d..34d3a9b 100644
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage<'_>],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index f84dc6e..0385757 100644
+index 0b47a57..99dc34a 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
 @@ -8,6 +8,8 @@ use crate::ResponseStream;
@@ -50,7 +62,7 @@ index f84dc6e..0385757 100644
  // Compact attempts can run much longer than normal turns, so keep the per-transport
  // retry budget smaller than the general Responses stream retry budget.
  const MAX_REMOTE_COMPACTION_V2_STREAM_RETRIES: u64 = 2;
-@@ -534,6 +535,9 @@ fn is_retained_for_remote_compaction_v2(
+@@ -537,6 +538,9 @@ fn is_retained_for_remote_compaction_v2(
          return true;
      }
      let item = &envelope.item;
@@ -60,7 +72,7 @@ index f84dc6e..0385757 100644
      if let ResponseItem::AgentMessage {
          author,
          recipient,
-@@ -557,7 +561,7 @@ fn is_retained_for_remote_compaction_v2(
+@@ -560,7 +564,7 @@ fn is_retained_for_remote_compaction_v2(
          );
          return !is_descendant_progress
              && !is_completion
@@ -69,7 +81,7 @@ index f84dc6e..0385757 100644
      }
  
      let ResponseItem::Message { role, .. } = item else {
-@@ -886,6 +890,28 @@ mod tests {
+@@ -929,6 +933,28 @@ mod tests {
          );
      }
  

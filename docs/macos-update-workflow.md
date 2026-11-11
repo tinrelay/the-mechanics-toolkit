@@ -165,8 +165,8 @@ Use these roles instead:
    matter. For a [`source-patches/`](../source-patches/) repair, use the exact matching upstream
    Codex revision, run its focused tests, and build the `codex` executable before desktop staging.
 6. Put the verified build's absolute path in `codexBinary` when its integration patch is selected.
-   The macOS stage copies it into `Contents/Resources/codex` and signs it as part of the candidate;
-   do not hand-edit the vendor app after signing.
+   The macOS stage places it at the exact package-selected CLI path and signs it as part of the
+   candidate; do not hand-edit the vendor app after signing.
 7. Stage the complete selected fleet as `ChatGPT-MechanicsToolkit.app` outside `/Applications` and
    require the toolkit's complete static proof.
 8. Do all work that can be completed in the current Codex first. Keep the staged candidate outside

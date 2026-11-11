@@ -47,18 +47,20 @@ results discardable.
 
 ## Qualified source
 
-[The current source diff](codex-0.167.0-alpha.3.2.patch) targets macOS Desktop
-`26.1103.60933` / build `25894`, which bundles `codex-cli 0.167.0-alpha.3.2` at upstream commit
-`c40729ea5cf8e947481b130c59807273eda2f8e9`. Both focused tests failed on this exact stock
-revision, then passed after applying the repair. Those tests cover local and remote-v2
+[The current source diff](codex-0.167.0-alpha.4.1.patch) targets macOS Desktop
+`26.1106.51428` / build `26605`, which bundles `codex-cli 0.167.0-alpha.4.1` at upstream commit
+`d2c035639366e0bf2c316aa2065c24aabc12bcdc`. Both focused tests failed on this exact stock
+revision with the test harness correction described below, then passed after the repair. Those tests cover local and remote-v2
 compaction; they do not qualify every alternate rollover path or every reported replay symptom.
 Upstream annotated-message handling remains unchanged. App Server callers can explicitly request
 `toolOutput.retain`, and the experimental `retain_client_tool_outputs` feature can preserve those
 marked inputs when enabled. That opt-in route is not a fallback for ordinary unmarked external
 inputs. No experimental feature was enabled for this qualification.
-The stock CLI is byte-identical to accepted build `25679`, so that exact matching repaired executable can
-be reused. This package reuses the prior source-test/build proof rather than rerunning Rust tests.
-A binary from a different CLI version must not be substituted.
+The source diff includes one test-only compilation correction: a runtime-auth fixture omitted the
+new `reauth` argument to `connect_websocket`; supplying `false` matches an ordinary initial
+connection. Stock and repaired regression runs use that same harness correction, which does not
+change production authentication. Build a matching new CLI; a binary from a different version
+must not be substituted.
 The macOS runbook records release-build and signed-stage evidence as each gate completes; live acceptance is a
 separate gate. The catalog
 also retains exact entries for earlier supported builds. The source-patch command verifies the
@@ -70,8 +72,8 @@ The current CLI does not need the separate
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 
 ```sh
-node bin/toolkit.mjs source-patch standalone-output-compaction-25894 check /path/to/codex
-node bin/toolkit.mjs source-patch standalone-output-compaction-25894 apply /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-26605 check /path/to/codex
+node bin/toolkit.mjs source-patch standalone-output-compaction-26605 apply /path/to/codex
 ```
 
 For another Codex revision, port the behavior and tests deliberately. Do not widen or force the

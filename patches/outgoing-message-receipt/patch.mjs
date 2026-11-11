@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild25894} from "../runtime-json-reload/profiles/build25894.mjs";
-import {runBuild25894} from "./profiles/build25894.mjs";
+import {matchesBuild26605} from "../runtime-json-reload/profiles/build26605.mjs";
+import {runBuild26605} from "./profiles/build26605.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -25,7 +25,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: outgoing-message-receipt/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild25894(root)){console.log(JSON.stringify(runBuild25894({root,command,buildHelper,conversationHelpers,mainHelpers,currentMainHandlers})));process.exit(0);}
+if(matchesBuild26605(root)){console.log(JSON.stringify(runBuild26605({root,command,buildHelper,conversationHelpers,mainHelpers,currentMainHandlers})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 assertStockStyles();

@@ -3,6 +3,7 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../../src/main-process-asset.mjs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
+import {browserRuntimeReplacements} from "./browser-runtime-parent.mjs";
 
 const command = process.argv[2];
 const root = path.resolve(process.argv[3] ?? "");
@@ -43,7 +44,9 @@ function inspectState(value) {
   verifyStockAuthorization(value);
   const computerUse = computerUseReplacements(profile);
   const computerUseRed = computerUse.every(([before, after]) => count(value, before) === 1 && count(value, after) === 0);
-  const computerUseGreen = computerUse.every(([before, after]) => count(value, before) === 0 && count(value, after) === 1);
+  // A prefixed helper retains its original function anchor inside the replacement.
+  const computerUseGreen = computerUse.every(([before, after]) =>
+    count(value, after) === 1 && count(value.replace(after, ""), before) === 0);
   if (helperCount === 1 && greenCount === 1 && redCount === 0 && computerUseGreen) return "applied";
   if (helperCount === 0 && greenCount === 0 && redCount === 1 && computerUseRed) return "needs-apply";
   throw new Error(
@@ -92,7 +95,8 @@ function patchedOwner(owner, authorizer) {
 function computerUseReplacements(profile) {
   return [
     ...(profile.computerUseOwners ?? []).map(before => [before, patchedOwner(before, profile.authorizer)]),
-    ...(profile.computerUseSocket ?? [])
+    ...(profile.computerUseSocket ?? []),
+    ...(profile.browserRuntimeParent ? browserRuntimeReplacements() : [])
   ];
 }
 
@@ -111,19 +115,19 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
-      owner: "", authorizer: "ld", helperAnchor: "function ld(){",
+      owner: "", authorizer: "lV", helperAnchor: "function lV(){", browserRuntimeParent: true,
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,readTaskThread:a,pipePath:o,socketPeerAuthorizer:l=",
-      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=lc((0,$.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
+      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=lB((0,ee.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
       computerUseOwners: [
-        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=ld()})',
-        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tm.randomUUID)()}.sock`,socketPeerAuthorizer:r=ld()})',
-        'y=await le({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:ld()})'
+        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=lV()})',
+        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tf.randomUUID)()}.sock`,socketPeerAuthorizer:r=lV()})',
+        'y=await lA({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:lV()})'
       ],
       computerUseSocket: [
         ['async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"!==process.platform||',
-         'async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"===process.platform&&!process.env[rx]?.trim()){let r=ee().join(t,"computer-use","tmtk-ipc");await ey().mkdir(r,{recursive:!0,mode:448}),await ey().chmod(r,448),process.env[rx]=ee().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
-        ['serviceNativePipePath:"darwin"===h.platform&&u?eN().env[rx]:null',
-         'serviceNativePipePath:"darwin"===h.platform?(eN().env[rx]?.trim()||ee().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
+         'async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"===process.platform&&!process.env[rz]?.trim()){let r=et().join(t,"computer-use","tmtk-ipc");await ew().mkdir(r,{recursive:!0,mode:448}),await ew().chmod(r,448),process.env[rz]=et().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
+        ['serviceNativePipePath:"darwin"===h.platform&&u?eM().env[rz]:null',
+         'serviceNativePipePath:"darwin"===h.platform?(eM().env[rz]?.trim()||et().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
       ]
     },
     {

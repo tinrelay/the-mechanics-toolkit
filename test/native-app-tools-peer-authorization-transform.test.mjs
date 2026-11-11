@@ -5,6 +5,8 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {browserRuntimeReplacements} from "../patches/native-app-tools-peer-authorization/browser-runtime-parent.mjs";
+import {probeBrowserRuntimeParent} from "./browser-runtime-parent.mjs";
 
 const repository = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const toolkit = path.join(repository, "bin/toolkit.mjs");
@@ -50,6 +52,32 @@ try {
     assert.equal(runToolkit("apply", extracted).state, "applied");
     assert.deepEqual(fs.readFileSync(target), once, `${profile.owner} second application is byte-identical`);
   }
+  const launchPairs = browserRuntimeReplacements();
+  let launcher = launchPairs[0][0] + "return{" + launchPairs[1][0] + "(){return{}}}}";
+  await assert.rejects(probeBrowserRuntimeParent(launcher), /vendor runtime parent/);
+  for (const [before, after] of launchPairs) launcher = launcher.replace(before, () => after);
+  await probeBrowserRuntimeParent(launcher);
+  const latestRoot = path.join(scratch, "browser-parent");
+  const latestBuild = path.join(latestRoot, ".vite/build");
+  fs.mkdirSync(latestBuild, {recursive: true});
+  const latestTarget = path.join(latestBuild, "main-fixture.js");
+  fs.writeFileSync(latestTarget, [
+    'function lV(){let n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION;let e=lB((0,ee.join)(i,"native","browser-use-peer-authorization.node"));return s=>e.authorizeSocketPeer(s,n)}',
+    'const server=async function({callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,readTaskThread:a,pipePath:o,socketPeerAuthorizer:l=lV()}){};',
+    'const browser=async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=lV()}){};',
+    'const services=async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tf.randomUUID)()}.sock`,socketPeerAuthorizer:r=lV()}){};',
+    'async function apps(){let y=await lA({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:lV()});}',
+    'const setup=async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"!==process.platform||!e)return;};',
+    'const forwarding={serviceNativePipePath:"darwin"===h.platform&&u?eM().env[rz]:null};',
+    'const reasons=["dynamic_app_tools_peer_rejected","missing-socket-file-descriptor"];',
+    launchPairs[0][0] + "return{" + launchPairs[1][0] + "(){return{}}}}"
+  ].join(""));
+  assert.equal(runToolkit("check", latestRoot).state, "needs-apply");
+  assert.equal(runToolkit("apply", latestRoot).state, "applied");
+  const latestOnce = fs.readFileSync(latestTarget);
+  await probeBrowserRuntimeParent(latestOnce.toString());
+  assert.equal(runToolkit("apply", latestRoot).state, "applied");
+  assert.deepEqual(fs.readFileSync(latestTarget), latestOnce);
   process.stdout.write("native app-tools peer authorization transform probe passed\n");
 } finally {
   fs.rmSync(scratch, {recursive: true, force: true});

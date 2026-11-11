@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild25894} from "../runtime-json-reload/profiles/build25894.mjs";
-import {runBuild25894} from "./profiles/build25894.mjs";
+import {matchesBuild26605} from "../runtime-json-reload/profiles/build26605.mjs";
+import {runBuild26605} from "./profiles/build26605.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -84,8 +84,8 @@ const build11645Component = {
   ],
   labelVar: "m", iconVar: "p", clickVar: "h", resultVar: "g"
 };
-if (matchesBuild25894(root)) {
-  process.stdout.write(`${JSON.stringify(runBuild25894({root, command, currentHelper, attributionLabel}), null, 2)}\n`);
+if (matchesBuild26605(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild26605({root, command, currentHelper, attributionLabel}), null, 2)}\n`);
   process.exit(0);
 }
 

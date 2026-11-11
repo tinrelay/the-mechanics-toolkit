@@ -15,50 +15,97 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## Build 25894 — candidate qualification
+## Build 26605 — corrected adoption and bounded live checks passed
 
-On 2026-11-10 the newest official macOS ARM64 feed offered Desktop `26.1103.60933` / build
-`25894`, published on November 8 at 19:18:10 UTC. Full ZIP: `815401502` bytes, SHA-256
-`1d671e7784e0e379f7293ebcfeac826c2a297524ea806cd55e994068d019e388`.
+On 2026-11-11 the newest official macOS ARM64 feed offered Desktop `26.1106.51428` / build
+`26605`, published at 02:34:53 UTC. Full ZIP: `820584997` bytes, SHA-256
+`959adaad0a8b8cd0265ca1a53835af61827e2eaf659fd2bdad7ce39b712f257c`.
 Sparkle Ed25519 signature, vendor app signature, ASAR seal and notarization staple verified.
-Pristine ASAR SHA-256: `a77588b2dcfa9b394d722dd8c2c8b13d3a09bacd49c839cc715245742dba6048`.
-The feed supplies no release notes. The installed accepted app remains build `25679`.
+Pristine ASAR SHA-256: `3695c17edcab8d66c1e5f2faa03e07826a59a39bf78b369ec87854547d4843c1`.
+The feed supplies no release notes. Last accepted app was `25679`; the preceding
+statically qualified `25894` candidate was not adopted and is superseded.
 
-Bundled CLI `0.167.0-alpha.3.2` has stock executable SHA-256
-`a636331ed87605efc4cf84028ac2884a75363f9d10ead63cffb57ea0016d486e`, byte-identical to the
-preceding authenticated package. Reused replacement executable SHA-256:
-`666439515315e28edf8b2ee4bd173f20cc29d16095b575bf7a7a8b5413783ef8`.
-Exact upstream commit remains `c40729ea5cf8e947481b130c59807273eda2f8e9`; the cataloged
-three-file source repair and target hashes are unchanged. Prior stock-red/repaired-green local
-and remote-v2 tests and the stable-Rust `1.95.0`, LTO-off native release build remain the proof.
-Rust tests/build were not rerun for this identical binary. No experimental flag was enabled.
-The packaged delegation adapter still omits `retain` in its tool-output branch.
+The first `26605` candidate passed static proof and reached startup renderer readiness, but opening
+a populated real chat failed. The captured exception points to the outgoing receipt initializer
+requiring removed module `CqQF`. Its replacement is stock hover owner `CxEf` in the current shared
+chunk. The new binding probe checks real packaged exports before supplying test dependencies.
+Additional causal probes expose and repair a renamed archive-menu argument and a mismatched
+incoming-bubble memo dependency. This is a failed first adoption, not live patchset acceptance.
 
-Computer Use helper vendor executable SHA-256 remains
-`469500545c940ecb20541d71a979461ea6bd22e92b513a87fa57eab90cd1061a`; its normalized image
-is unchanged. Prior causal private-socket vendor-Node acceptance and unsigned-Python rejection
-apply unchanged. The persistent per-machine signing identity is reused; no current live-use test
-is claimed.
+Bundled CLI `0.167.0-alpha.4.1` has stock executable SHA-256
+`7cb8700a47be3c81bb3c5efbf2d2adc716ce3db4806e9dc992f2925f78b2b194`.
+Exact source is `d2c035639366e0bf2c316aa2065c24aabc12bcdc`. Both focused local/remote-v2
+compaction regressions fail on stock production code. A missing `reauth` argument in one upstream
+auth test fixture first prevented the library tests from compiling; the same test-only `false`
+argument correction is used for stock and repaired runs and is included in the current source
+diff. It changes no production authentication. Both repaired tests and the Rust `1.95.0`, LTO-off native release build passed.
+Replacement executable SHA-256: `dfa39a27f26c0e5f8d088bdf5fabea85e5cce04d86684bced6a5296ac72972b4`. The packaged delegation adapter still omits `retain`; no
+experimental flag was enabled. Live compaction is not qualified.
 
-The app, renderer runtime, shared chunk and native bootstrap changed. All 16 pristine ASAR
-preflight checks passed after tracing the moved root, roster, attention and keyboard bindings.
-Unchanged chat/tool chunks retain the actual TinRelay bubble-binding regression and both timeline
-paths. The complete signed 19-patch stage passed: composed and post-repack behavior probes,
-changed-module syntax, byte-identical reapplication, signatures/seal, native payloads/modes and
-CLI byte equality. Candidate ASAR SHA-256:
-`dbd95c33023e13120b3dd8113755086ddcf9a4e52906e351e8a33e0273dfa7a7`.
-Actual canonical/incoming helper signing requirements match. Permission preparation previews
-`preserved` without invoking `tccutil`; this is an identity comparison, not a current live-use test.
-`npm run check`, `npm test`, repository-hygiene/source-catalog and diff checks passed. Production
-DEB/RPM staging fixtures were platform-skipped. One authenticated ZIP, one signed candidate,
-the matching CLI and compact receipts remain. Superseded package/candidate and disposable source
-and ASAR extractions were removed. No source/build tree or transaction rollback was retained.
+Computer Use helper vendor executable SHA-256:
+`1a268283d5a016751ac037dd670d4086534eb1a66d300bdc7c8ca0c7007d4c51`.
+Normalized stock image `b25766b347c724525d472958bb5193f8221c828205ca503b98bd4ec76481507d`;
+repaired image `23a4f452bc23b129334675f046aff2cd6605c8be8f0a30c6bf28070e350c28d6`.
+The parent gate retains its exact owner; the SlimCore same-team/developer-team functions moved.
+Current private-socket causal probe: stock rejects vendor Node, repaired responds to its version
+ping, unsigned Python remains rejected. Persistent local certificate unchanged. No privacy grant
+or canonical helper was changed. Final candidate and existing helper have identical designated
+signing requirements; the preview invoked no privacy reset. After adoption, native Computer Use
+successfully read Chrome's window, page and controls without another consent flow.
 
-Supervised adoption, real-chat activation, task-message ACK/wait, TinRelay self-send/return and
-current Computer Use checks are pending. The preceding accepted build `25679` passed those bounded
-live checks, including a native Chrome accessibility read without fresh consent; that is earlier
-evidence, not live acceptance of `25894`. Screenshots/control, separate browser-provider, full
-feature tour, live compaction and secondary-platform runs remain unqualified for this port.
+The renderer module/chunk layout, imports, native main/bootstrap and transcript memo caches
+changed. All 16 pristine ASAR preflight checks, composed behavior and changed-code syntax probes
+passed. Complete signed 19-patch staging, post-repack probes, byte-identical second application,
+native payload preservation, signature and ASAR seal passed. The source app was untouched and
+neither staged app was launched during static proof. First candidate ASAR SHA-256:
+`9906ce4016b35dcf34fdf51db63fbe493c596b8e41ec8534a9fc3699d257b7f1`.
+The corrected candidate repeats complete signed staging with the three new causal probes passing
+before and after repacking, byte-identical reapplication, and preserved helper signing identity.
+Corrected ASAR SHA-256:
+`bfd8dde9f6cb97c22cfb90deb79baddcc2d1097de5dbdd68df0edb3555ed7ce7`.
+The staged CLI is byte-identical to the replacement executable above. `npm run check`,
+`npm run check:current` and `npm test` passed; production DEB/RPM stage fixtures were platform-skipped.
+The two selected Rust regressions passed; the other 2909 library tests were not run.
+
+The corrected candidate was adopted through the supervisor on 2026-11-11; readiness was recorded
+at 08:06:54 UTC after observing the invoking escape-line CLI exit. Installed ASAR matches the
+corrected candidate above, with valid signature and seal. The operator reports the real chat works.
+A native task message reached the recipient's actual chat and its ACK returned after a wait.
+The TinRelay self-send was accepted, independently reports routed, and returned through the bridge
+to this actual chat. These are transport/runtime results; outgoing-card appearance still relies
+on operator observation. A fresh native Computer Use binding to Google Chrome returned the active
+window's accessibility tree, including page and toolbar controls, without a new consent flow.
+The separate `chrome` browser-provider binding was unavailable; native app access was successful.
+No input was sent or page changed. Live compaction, screenshots/input control, separate
+browser-provider, full feature tour and secondary-platform runs are not claimed.
+
+### Dedicated Chrome launch repair — adopted and live tab control passed
+
+The Chrome extension host independently checks the browser REPL's parent identity. Its current
+unmodified binary rejects a vendor Node client directly under the locally rebuilt CLI. Keeping
+packaged vendor Node as the client's immediate parent produces an extension handshake response;
+an unsigned Python child remains rejected. The exact production launcher passed this causal probe.
+The build26605 configuration generator now supplies that launcher using stock runtime paths.
+No Chrome-host binary, manifest, profile or authentication-policy change is required.
+
+The resulting 19-patch candidate passed full signed staging, composed/post-repack probes and
+byte-identical reapplication. Launcher tests cover binary stdio, executor environment, parent PID,
+exit status and SIGTERM without an orphaned child. Candidate ASAR SHA-256:
+`f76fb77c5b5b8f9d874ec2422299baa2bc9a5b1887ffbf226a4c1f3b001bd600`.
+This supersedes the loose corrected candidate above, not its recorded live evidence.
+`npm run check` and `npm test` passed with the new launcher and current-profile regression fixture.
+The permission preview reports the existing helper signing identity preserved, without invoking a
+privacy reset. Staged CLI bytes match the qualified replacement above.
+
+The supervisor recorded readiness at `2026-11-11T08:44:41.402Z` and removed its transaction rollback
+payload. Fresh installed inspection matches this final ASAR hash, with valid signature and seal.
+The operator returned in the actual chat. Dedicated CUA browser inventory now exposes Chrome as
+an `extension` backend. Through that backend, a new disposable tab navigated to
+`https://example.com/`, returned the expected title and page DOM, then closed; the owned-tab list
+confirmed its removal. The operator confirmed the normal Chrome session appeared. This is live
+dedicated Browser Use evidence, separate from the earlier native accessibility read. No new
+permission flow, Chrome restart, host replacement or authentication-policy change was required for
+this adoption. Native screenshots/input, live compaction and a full feature tour remain unqualified.
 
 ## 1. Prove the complete candidate statically
 

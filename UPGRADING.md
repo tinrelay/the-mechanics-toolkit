@@ -1,10 +1,61 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.24` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.25` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.25
+
+The macOS target is Desktop `26.1106.51428` / build `26605`, bundling CLI
+`0.167.0-alpha.4.1`. Apply `standalone-output-compaction-26605` to exact upstream commit
+`d2c035639366e0bf2c316aa2065c24aabc12bcdc`, then use stable Rust `1.95.0`, LTO off and
+compiler overrides unset through `bin/tmtk-build-codex`. The previous replacement binary is a
+different CLI version and must not be reused. The source diff also supplies the missing `reauth`
+argument in one upstream test-only auth fixture so `codex-core` tests compile; it does not change
+production authentication. Both focused compaction regressions fail against stock production
+code with that test harness correction. Both repaired tests and the native release build passed.
+The packaged send-message adapter still omits `toolOutput.retain`; no experimental flag is enabled.
+
+The renderer moved to new chunks and module owners, with two current lazy tool-renderer copies
+and both transcript paths. Profiles follow the changed imports, keyboard owner, model-loading
+publication and transcript memo caches. The native main/bootstrap owners moved too. The task
+attention patch leaves the new Space-notification count alone and filters the task-count path.
+The first candidate reached startup readiness but failed when opening a populated chat: the
+outgoing receipt initializer imported a removed hover-module ID. The corrected profile uses the
+current stock hover owner and verifies packaged module/export availability before accepting its
+bindings. Focused probes also cover preserved archive-menu bindings and incoming-bubble memo reuse.
+
+The Computer Use helper changed. Its exact bounded repair retains immediate-peer vendor checks;
+the current private-socket probe shows stock rejecting vendor Node, then repaired Node ping
+acceptance with unsigned Python still rejected. Reuse the persistent per-machine signing
+certificate. First-time or different-signer installations still use macOS consent; a matching
+signer preserves existing grants. The final candidate matches the existing helper signing requirement;
+the current post-restart Chrome accessibility read passed without a new consent flow.
+
+Dedicated Chrome discovery exposed a separate parent-identity check in the vendor extension host.
+The browser MCP configuration generator now keeps packaged vendor Node as the packaged Node REPL's
+immediate parent, satisfying that existing check under the rebuilt CLI. No extension-host binary,
+native-host manifest, browser profile or authentication policy is changed. Normal plugin setup
+regenerates the launch configuration after supervised adoption; no manual cache edit is required.
+The unmodified host accepts the exact production launcher and still rejects an unsigned client.
+Launcher tests cover MCP bytes, environment, exit status and child shutdown. This additional repair
+was adopted through the supervisor. Dedicated Chrome extension discovery, disposable-tab creation,
+navigation, DOM reading and tab closure passed; the operator confirmed the normal Chrome session
+appeared. The installed signature/seal and ASAR hash match the final candidate.
+
+Default selection remains 18 patches, or 19 with native Computer Use. Windows/Ubuntu `10954`
+and Fedora `9647` are unchanged. Full signed 19-patch staging, composed and post-repack probes,
+byte-identical second application, native payload preservation, signature and ASAR seal all passed.
+Repository checks and tests passed. The corrected candidate was adopted through the supervisor;
+the operator reports the real chat works, task-message ACK/wait passed, and the TinRelay self-send
+returned to the actual chat. Native Computer Use read Chrome's active window, page and controls
+without a new consent flow. The final browser-parent candidate also passed dedicated Chrome control
+as described above. Native input/screenshot operations and a full feature tour remain unqualified.
+The first `26605` candidate failed real-chat activation before that correction.
+`25894` was published with static proof but not adopted.
+See the [macOS receipt](qualification/macos.md). Adopt only through `tmtk-restart --candidate`.
 
 ## 0.2.24
 

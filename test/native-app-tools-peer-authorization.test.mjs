@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {parse} from "acorn";
+import {probeBrowserRuntimeParent} from "./browser-runtime-parent.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
@@ -11,12 +12,12 @@ if (!process.argv[2]) throw new Error("usage: native-app-tools-peer-authorizatio
 const build = path.join(root, ".vite/build");
 const source = fs.readFileSync(mainProcessAsset(root), "utf8");
 const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
-const current=source.startsWith("exports.ids=[815],exports.modules={");
+const current=source.startsWith("exports.ids=[615],exports.modules={");
 let helperNode;const ast=parse(source,{ecmaVersion:"latest",sourceType:"module"});walk(ast,x=>{if(x.type==="FunctionDeclaration"&&x.id?.name==="MTKnativeAppToolsPeerAuthorizer")helperNode=x});
 const end = helperNode?.end??source.indexOf("async function ", start);
-const owner = current ? "25894" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
+const owner = current ? "26605" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
 const profiles = {
-  "25894": {authorizer:"ld",addon:"e",socketVar:"s",authParam:"l"},
+  "26605": {authorizer:"lV",addon:"e",socketVar:"s",authParam:"l"},
   cB: {authorizer: "cR", addon: "e", socketVar: "s", authParam: "o"},
   c$: {authorizer: "cF", addon: "e", socketVar: "s", authParam: "o"},
   $ce: {authorizer: "kl", addon: "i"},
@@ -105,14 +106,15 @@ if (owner === "cB") {
     "client and helper select the same private socket regardless of initialization order");
 }
 if(current){
- for(const seam of ['async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=MTKnativeAppToolsPeerAuthorizer()})','async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tm.randomUUID)()}.sock`,socketPeerAuthorizer:r=MTKnativeAppToolsPeerAuthorizer()})','y=await le({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:MTKnativeAppToolsPeerAuthorizer()})'])assert.equal(count(source,seam),1);
+ await probeBrowserRuntimeParent(source);
+ for(const seam of ['async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=MTKnativeAppToolsPeerAuthorizer()})','async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tf.randomUUID)()}.sock`,socketPeerAuthorizer:r=MTKnativeAppToolsPeerAuthorizer()})','y=await lA({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:MTKnativeAppToolsPeerAuthorizer()})'])assert.equal(count(source,seam),1);
  let initializer;walk(ast,node=>{if(node.type==='FunctionExpression'&&source.slice(node.start,node.start+65).startsWith('async function({sourceServiceAppPath:e,codexHome:t})'))initializer=node});assert.ok(initializer);
  const env={CODEX_ELECTRON_SKIP_COMPUTER_USE_CANONICAL_REFRESH:'1'},calls=[],processStub={platform:'darwin',env};
- const initialize=Function('process','ee','rx','ey','return ('+source.slice(initializer.start,initializer.end)+')')(processStub,()=>path.posix,'SKY_CUA_SERVICE_NATIVE_PIPE_PATH',()=>({async mkdir(p,o){calls.push(['mkdir',p,o])},async chmod(p,m){calls.push(['chmod',p,m])}}));
+ const initialize=Function('process','et','rz','ew','return ('+source.slice(initializer.start,initializer.end)+')')(processStub,()=>path.posix,'SKY_CUA_SERVICE_NATIVE_PIPE_PATH',()=>({async mkdir(p,o){calls.push(['mkdir',p,o])},async chmod(p,m){calls.push(['chmod',p,m])}}));
  await initialize({sourceServiceAppPath:'/unused',codexHome:'/private/codex'});assert.equal(env.SKY_CUA_SERVICE_NATIVE_PIPE_PATH,'/private/codex/computer-use/tmtk-ipc/computeruse.sock');assert.deepEqual(calls,[['mkdir','/private/codex/computer-use/tmtk-ipc',{recursive:true,mode:448}],['chmod','/private/codex/computer-use/tmtk-ipc',448]]);
  env.SKY_CUA_SERVICE_NATIVE_PIPE_PATH='/private/explicit.sock';await initialize({sourceServiceAppPath:'/unused',codexHome:'/private/codex'});assert.equal(calls.length,2);assert.equal(env.SKY_CUA_SERVICE_NATIVE_PIPE_PATH,'/private/explicit.sock');
  const begin=source.indexOf('function({nativePipeDirectory:e,nativePipeEnabled:t=!1,serviceAppPath:r,serviceNativePipePath:n}={})'),end=source.indexOf('):{}',begin)+1;assert.ok(begin>=0&&end>begin);
- const runtime=env=>Function('h','u','eN','c','l','rF','rx','rT','ee','t','return ('+source.slice(begin,end)+')')({platform:'darwin'},false,()=>({env}),{serviceAppPath:'/helper.app'},null,'SKY_CUA_SERVICE_PATH','SKY_CUA_SERVICE_NATIVE_PIPE_PATH','unused',()=>path.posix,'/private/codex');
+ const runtime=env=>Function('h','u','eM','c','l','rQ','rz','rK','et','t','return ('+source.slice(begin,end)+')')({platform:'darwin'},false,()=>({env}),{serviceAppPath:'/helper.app'},null,'SKY_CUA_SERVICE_PATH','SKY_CUA_SERVICE_NATIVE_PIPE_PATH','unused',()=>path.posix,'/private/codex');
  assert.equal(runtime(env).SKY_CUA_SERVICE_NATIVE_PIPE_PATH,'/private/explicit.sock');assert.equal(runtime({}).SKY_CUA_SERVICE_NATIVE_PIPE_PATH,'/private/codex/computer-use/tmtk-ipc/computeruse.sock');
 }
 assert.equal(count(source, `${profile.addon}.authorizeSocketPeer(${profile.socketVar ?? "t"},${profile.devVar ?? "n"})`), 1, "the native stock authorizer remains installed");

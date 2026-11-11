@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1103.60933`, build `25894` | Signed 19-patch stage, composed/post-repack probes and byte-identical reapplication passed; CLI/helper reused from the byte-identical accepted package. Supervised adoption and current live checks pending. |
+| macOS ARM64 application | `26.1106.51428`, build `26605` | Corrected signed stage adopted; real chat, task-message ACK/wait, TinRelay return, native Chrome accessibility and dedicated Chrome tab control passed. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -43,11 +43,12 @@ An `active` patch is maintained on the current branch. That does not mean it is 
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
 before porting or adopting a candidate.
 
-The optional macOS Computer Use repair reuses prior native Chrome-read and private-socket
-authorization evidence for the byte-identical helper; current live adoption
-remains separate. It requires a persistent local signing certificate and first-transition macOS
+The optional macOS Computer Use repair has current private-socket vendor-Node acceptance and
+unsigned-client rejection evidence, plus live native Chrome accessibility reads. Dedicated Chrome
+extension discovery, tab creation/navigation, DOM reads and tab closure also passed after the
+browser-parent repair. The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0224).
+The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0225).
 
 ## Ordinary use
 
@@ -112,7 +113,7 @@ evidence, configuration, and non-goals.
 | [Terminal toggle](patches/terminal-toggle/) | Makes the configured terminal shortcut work from both the composer and focused terminal. |
 | [TinRelay presentation](patches/tinrelay-pointer-presentation/) | Renders verified incoming and accepted outgoing TinRelay correspondence in the conversation. |
 | [macOS menu title](patches/macos-menu-title/) | Restores `Codex` as the leading macOS application-menu label. |
-| [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Preserves native task tools and current browser/host-service pipes after local re-signing. |
+| [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Preserves native task tools and browser/host-service pipes; keeps vendor runtime ancestry for dedicated Chrome. |
 | [macOS Computer Use service](patches/macos-computer-use-service/) | Optional repair for the vendor-signed runtime under a locally signed Codex parent; keeps immediate-peer signature checks. |
 | [Codex observability](patches/codex-observability/) | Exposes bounded local CDP, renderer metrics, CPU profiles, and timeline traces. |
 | [Renderer turn window](patches/renderer-turn-window/) | Bounds mounted completed turns without truncating transcript storage or export. |
@@ -132,7 +133,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.167.0-alpha.3.2` / Desktop `26.1103.60933` build `25894` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.167.0-alpha.4.1` / Desktop `26.1106.51428` build `26605` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The current macOS CLI builds without it. |
 
 ## Documentation map

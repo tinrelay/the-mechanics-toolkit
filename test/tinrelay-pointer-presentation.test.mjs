@@ -4,15 +4,15 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
-import {matchesBuild25894} from "../patches/runtime-json-reload/profiles/build25894.mjs";
-import {tinrelayOwners25894} from "../patches/tinrelay-pointer-presentation/profiles/build25894.mjs";
+import {matchesBuild26605} from "../patches/runtime-json-reload/profiles/build26605.mjs";
+import {tinrelayOwners26605} from "../patches/tinrelay-pointer-presentation/profiles/build26605.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild25894(root), moduleOwners=current?tinrelayOwners25894(root):null;
+const current=matchesBuild26605(root), moduleOwners=current?tinrelayOwners26605(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
@@ -23,17 +23,28 @@ if(current){
   // Initialize the actual injected bindings; helper-only probes otherwise hide missing modules.
   const tree=parse(rendererSource,{ecmaVersion:"latest",sourceType:"module"});
   const imports=tree.body.filter(node=>node.type==="VariableDeclaration").flatMap(node=>node.declarations);
-  const nativeBubble=imports.find(node=>node.id.name==="_");
+  const nativeBubble=imports.find(node=>node.id.name==="L");
   assert.equal(rendererSource.slice(nativeBubble.init.start,nativeBubble.init.end),'n("y5H2")');
-  assert.ok(rendererSource.includes('(0,a.jsx)(_.R,{alignment:y,accentColor:u,message:p,'));
+  assert.ok(rendererSource.includes('(0,a.jsx)(L.R,{alignment:y,accentColor:u,message:p,'));
   function NativeMessageBubble(){}
   const modules={zd8w:{},ABep:{},TL6G:{O1:{}},y5H2:{R:NativeMessageBubble}};
   const declaration=tree.body.find(node=>node.type==="VariableDeclaration"&&node.declarations.some(d=>d.id.name==="MTKtinrelayMessageComponent"));
   assert.ok(declaration,"incoming renderer binding declaration");
-  const component=Function("n","_",rendererSource.slice(declaration.start,declaration.end)+";return MTKtinrelayMessageComponent;")(
+  const component=Function("n","L",rendererSource.slice(declaration.start,declaration.end)+";return MTKtinrelayMessageComponent;")(
     id=>{assert.ok(modules[id],"injected binding resolves a current native module: "+id);return modules[id]},modules.y5H2
   );
   assert.equal(component,NativeMessageBubble,"radio uses the stock delegated-message bubble");
+  const wrapper=tree.body.find(node=>node.type==="FunctionDeclaration"&&node.id.name==="ee");
+  const cache=Array(25).fill(Symbol.for("react.memo_cache_sentinel"));let bubbleRenders=0;
+  const jsx={jsx:(type,props)=>{if(type===NativeMessageBubble)bubbleRenders++;return{type,props}},jsxs:(type,props)=>({type,props})};
+  const render=Function("s","a","X","L","return ("+rendererSource.slice(wrapper.start,wrapper.end)+")")(
+    {c:()=>cache},jsx,{A:(...values)=>values.join(" ")},{R:NativeMessageBubble}
+  );
+  const props={label:"Sender",message:"hello",compactActions:false};
+  render(props);render(props);
+  assert.equal(bubbleRenders,1,"identical delegated messages reuse the native bubble memo");
+  render({...props,message:""});
+  assert.equal(cache[15],false,"empty-message state updates its matching memo dependency");
 }
 const mainSource = fs.readFileSync(main, "utf8");
 const stringLiteral = '"(?:\\\\.|[^"\\\\])*"';
