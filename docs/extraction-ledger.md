@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1111.71025` / `28661` | 18 default; 19 with Computer Use | Operator accepted corrected adoption; real chat, task-message ACK/wait across compaction and TinRelay return passed. |
+| macOS ARM64 application | `26.1111.71025` / `28661` | 18 default; 19 with Computer Use | Operator accepted corrected adoption and the 0.2.27 footer visual fix; task-message ACK/wait across compaction and TinRelay return passed on unchanged transport. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -24,6 +24,14 @@ Ubuntu build-`10954` DEB. Its RPM stage and launch are not yet qualified, so Fed
 remains its last accepted package. The official Windows x64 MSIX has the same outer version as the
 ARM64 offer, but its **inner** Desktop build has not been checked; outer version alone cannot
 select a generated-JavaScript profile.
+
+## Composer-footer correction
+
+TMTK `0.2.27` keeps the same Desktop/CLI target. The palette now tags the active composer footer
+as well as the legacy fade. Only the footer pseudo-elements receive the room surface token;
+native geometry/transparency and child composer surfaces are preserved. Signed 19-patch staging, post-repack probes, reapplication and native-CSS browser checks passed.
+The supervised restart reached readiness; the operator accepted the corrected footer visually.
+CLI/native and messaging logic are unchanged; their prior live checks were not repeated.
 
 ## Fleet-wide evidence and limits
 

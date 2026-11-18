@@ -136,6 +136,10 @@ async function testRosterConsumer(helperSource, appSource) {
       `${theme} room color covers the solid bottom surface`);
     assert.ok(appSource.includes(`[data-mtk-palette-bottom-fade]{--tw-gradient-from:var(${color})!important;--tw-gradient-via:var(${color})!important}`),
       `${theme} room color covers the gradient without flattening its transparent edge`);
+    const prefix=theme==='light'?'html.electron-light ':'';
+    assert.ok(appSource.includes(`${prefix}[data-mtk-palette-room=true] [data-mtk-palette-bottom-fade]::before,${prefix}[data-mtk-palette-room=true] [data-mtk-palette-bottom-fade]::after{--color-surface:var(${color})!important}`),
+      `${theme} native footer pseudo-elements receive the room token without changing descendants`);
+
   }
 }
 

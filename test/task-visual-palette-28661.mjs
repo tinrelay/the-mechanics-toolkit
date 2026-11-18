@@ -1,9 +1,16 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
+import path from "node:path";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {paletteOwners28661} from "../patches/task-visual-palette/profiles/build28661.mjs";
 
 export function probePendingChatArchive28661(root) {
+  const footer=readRendererModule({file:path.join(root,'webview/assets/async/344734.3322725bda.js'),id:'Jg9v',parameters:['e','t','r']}),footerNodes=[];
+  walk(parse(footer,{ecmaVersion:'latest',sourceType:'module'}),node=>{if(node.type==='ObjectExpression'&&node.properties.some(p=>p.key?.value==='data-thread-end-fade'))footerNodes.push(node)});
+  assert.equal(footerNodes.length,1,'one native composer footer owns the pseudo-element backdrop');
+  const marker=footerNodes[0].properties.find(p=>p.key?.value==='data-mtk-palette-bottom-fade');
+  assert.ok(marker,'the active composer footer participates in room-color styling');
+  assert.equal(Function('return '+footer.slice(marker.value.start,marker.value.end))(),true);
   const group=readRendererModule(paletteOwners28661(root).group),groupNodes=[];
   walk(parse(group,{ecmaVersion:"latest",sourceType:"module"}),node=>groupNodes.push(node));
   const groupAction=groupNodes.find(node=>node.type==="FunctionExpression"&&node.params[0]?.type==="ObjectPattern"&&

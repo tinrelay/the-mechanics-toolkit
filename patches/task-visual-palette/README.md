@@ -45,7 +45,9 @@ before publication; a partial, invalid, or conflicting save leaves the last-good
 ## Owned seam
 
 The transform recognizes four renderer owners: the application/sidebar bootstrap, the task-room
-shell, the delegated-message wrapper, and the thread footer fade. It also owns every stock sidebar
+shell, the delegated-message wrapper, and the thread footer fade. The current composer footer
+uses pseudo-elements: its surface token is overridden only on those pseudo-elements, so the
+native gradient geometry, transparent edge and composer controls retain their own styling. It also owns every stock sidebar
 archive affordance for the supported build so exact-ID protection cannot disappear from only one
 menu or hover action.
 

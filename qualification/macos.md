@@ -15,6 +15,32 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## TMTK 0.2.27 — composer-footer correction accepted
+
+The Desktop build remains `28661`. Before the correction, read-only renderer inspection
+found the colored room at `#1E1B29` while the current footer's pseudo-elements still resolved to
+the native `rgb(30,30,30)` surface. No active footer carried the palette marker. The actual footer
+is in `Jg9v`; the previous patch tagged only the older `KkZX` fade component. The report alone
+and this current package do not establish which earlier release first diverged.
+
+The correction tags the current footer and supplies its room token locally to its pseudo-elements.
+It preserves native positioning, fade geometry, transparent edge and child composer controls.
+The focused package probe fails on the pre-fix artifact. An isolated headless Chrome check using
+the native footer CSS fails on that artifact,
+then passes on the corrected candidate for dark/light gradient endpoints, transparent edge, native
+stop geometry, solid tail, focus-mode surface, unconfigured chats and composer-surface isolation.
+Complete signed 19-patch staging, post-repack probes, byte-identical second application, native
+payload preservation, signature and ASAR seal passed. Candidate ASAR SHA-256:
+`ca0cf37b0c5e7fd2201eba79961b4ea0c96963ba31d61966444ab86f53345b6b`. The helper signing requirement remains preserved without a privacy reset.
+`npm run check` and `npm test` passed; production DEB/RPM stage fixtures were platform-skipped.
+Mike then authorized supervised adoption. Renderer readiness was recorded at
+2026-11-18 15:10:21 UTC. He reports the footer looks much better and explicitly accepts the
+qualification. The installed ASAR matches the candidate hash above, with valid signature/seal.
+The correction changes only palette footer tagging/styling; CLI/native and task/radio logic are
+unchanged, so their already-accepted checks were not repeated. Transient extracted/pristine apps
+and the supervisor rollback were removed; one official ZIP, one current candidate, the existing
+matching CLI and compact receipts remain.
+
 ## Build 28661 — corrected adoption accepted
 
 On 2026-11-18 the newest official ARM64 feed offered Desktop `26.1111.71025` / build

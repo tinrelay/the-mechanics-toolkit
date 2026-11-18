@@ -1,10 +1,27 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.26` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.27` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.27
+
+The Desktop target remains macOS `26.1111.71025` / build `28661`; the exact CLI and native
+repairs are unchanged. This fixes the composer backdrop fading to the stock surface instead of
+the configured room color. The current footer paints its gradient and solid tail on pseudo-elements,
+while the palette patch had only tagged the older fade component. The active footer now joins the
+palette surface contract. Its pseudo-elements receive the room surface token; native gradient
+geometry, transparency and the composer controls' own surface remain unchanged. Focus-mode solid
+backdrops also follow the room color. Unconfigured chats retain stock styling.
+
+A packaged-footer regression and isolated browser checks cover the missing marker, dark/light
+colors, transparent edge, solid tail, composer isolation and unconfigured chats. Complete signed
+19-patch staging, native-CSS browser checks and repository checks/tests passed. The supervised
+restart reached renderer readiness; Mike reported the footer looked much better and accepted this
+bounded visual correction on November 18. CLI/native and messaging behavior did not change.
+Adopt through `tmtk-restart --candidate`; staging does not install or launch the application.
 
 ## 0.2.26
 
