@@ -96,7 +96,7 @@ function computerUseReplacements(profile) {
   return [
     ...(profile.computerUseOwners ?? []).map(before => [before, patchedOwner(before, profile.authorizer)]),
     ...(profile.computerUseSocket ?? []),
-    ...(profile.browserRuntimeParent ? browserRuntimeReplacements() : [])
+    ...(profile.browserRuntimeParent ? browserRuntimeReplacements(profile.browserRuntimeParent === true ? {} : profile.browserRuntimeParent) : [])
   ];
 }
 
@@ -115,19 +115,19 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
-      owner: "", authorizer: "lV", helperAnchor: "function lV(){", browserRuntimeParent: true,
+      owner: "", authorizer: "ct", helperAnchor: "function ct(){", browserRuntimeParent: {ownerName:"n1",nodePath:"e0.wLF"},
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,readTaskThread:a,pipePath:o,socketPeerAuthorizer:l=",
-      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=lB((0,ee.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
+      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=ce((0,eJ.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
       computerUseOwners: [
-        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=lV()})',
-        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,tf.randomUUID)()}.sock`,socketPeerAuthorizer:r=lV()})',
-        'y=await lA({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:lV()})'
+        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=ct()})',
+        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,t9.randomUUID)()}.sock`,socketPeerAuthorizer:r=ct()})',
+        'y=await l2({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:ct()})'
       ],
       computerUseSocket: [
-        ['async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"!==process.platform||',
-         'async function({sourceServiceAppPath:e,codexHome:t}){if("darwin"===process.platform&&!process.env[rz]?.trim()){let r=et().join(t,"computer-use","tmtk-ipc");await ew().mkdir(r,{recursive:!0,mode:448}),await ew().chmod(r,448),process.env[rz]=et().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
-        ['serviceNativePipePath:"darwin"===h.platform&&u?eM().env[rz]:null',
-         'serviceNativePipePath:"darwin"===h.platform?(eM().env[rz]?.trim()||et().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
+        ['async function({source:e,codexHome:t}){if("darwin"!==process.platform||',
+         'async function({source:e,codexHome:t}){if("darwin"===process.platform&&!process.env[nK]?.trim()){let r=eQ().join(t,"computer-use","tmtk-ipc");await tr().mkdir(r,{recursive:!0,mode:448}),await tr().chmod(r,448),process.env[nK]=eQ().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
+        ['serviceNativePipePath:"darwin"===p.platform&&h?tb().env[nK]:null',
+         'serviceNativePipePath:"darwin"===p.platform?(tb().env[nK]?.trim()||eQ().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
       ]
     },
     {
@@ -185,11 +185,11 @@ function ownershipProfile(value) {
     }
   ];
   const pristine = profiles.filter(profile =>
-    value.includes(profile.contracts?.[0] ?? `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
+    (profile.contracts ?? [`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``]).every(contract=>value.includes(contract)) &&
     value.includes(ownerFor(profile, `${profile.authorizer}()`))
   );
   const applied = profiles.filter(profile =>
-    value.includes(profile.contracts?.[0] ?? `${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``) &&
+    (profile.contracts ?? [`${profile.envConst}=\`CODEX_BROWSER_USE_PEER_AUTHORIZATION\``]).every(contract=>value.includes(contract)) &&
     value.includes(ownerFor(profile, "MTKnativeAppToolsPeerAuthorizer()"))
   );
   if (pristine.length === 1 && applied.length === 0) return pristine[0];

@@ -1,28 +1,8 @@
-diff --git a/codex-rs/core/src/client_runtime_auth_tests.rs b/codex-rs/core/src/client_runtime_auth_tests.rs
-index 35a41b6..432db16 100644
---- a/codex-rs/core/src/client_runtime_auth_tests.rs
-+++ b/codex-rs/core/src/client_runtime_auth_tests.rs
-@@ -118,6 +118,7 @@ async fn selected_runtime_transport_stays_revoked(mode: RuntimeAuthMode) {
-             RequestRouteTelemetry::for_endpoint("/responses"),
-             &http::HeaderMap::new(),
-             /*parent_routing_affinity*/ None,
-+            /*reauth*/ false,
-         )
-         .await;
-     assert!(matches!(
 diff --git a/codex-rs/core/src/compact.rs b/codex-rs/core/src/compact.rs
-index bb563ab..530854f 100644
+index 4aa7e07..5bb97de 100644
 --- a/codex-rs/core/src/compact.rs
 +++ b/codex-rs/core/src/compact.rs
-@@ -61,6 +61,7 @@ use tracing::error;
- pub use codex_prompts::SUMMARIZATION_PROMPT;
- pub use codex_prompts::SUMMARY_PREFIX;
- const COMPACT_USER_MESSAGE_MAX_TOKENS: usize = 20_000;
-+pub(crate) const MAX_RETAINED_EXTERNAL_INPUT_TOKENS: i64 = 10_000;
- 
- /// Thread-local policy that preserves inherited context without changing model or skill budgets.
- /// Insert into `StartThreadOptions::thread_extension_init` to disable automatic compaction.
-@@ -656,6 +657,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -670,6 +670,7 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      let mut last_real_user_index = None;
      for (i, item) in compacted_history.iter().enumerate().rev() {
          if crate::compact_retained_tool_outputs::is_retained_tool_output(item)
@@ -30,7 +10,7 @@ index bb563ab..530854f 100644
              || is_real_user_or_agent_message(&item.item)
          {
              last_real_user_index = Some(i);
-@@ -699,6 +701,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
+@@ -713,6 +714,10 @@ pub(crate) fn insert_initial_context_before_last_real_user_or_summary(
      compacted_history
  }
  
@@ -42,47 +22,29 @@ index bb563ab..530854f 100644
      initial_context: Vec<ResponseItemEnvelope>,
      user_messages: &[CompactedUserMessage<'_>],
 diff --git a/codex-rs/core/src/compact_remote_v2.rs b/codex-rs/core/src/compact_remote_v2.rs
-index 0b47a57..99dc34a 100644
+index 5656fb4..ae76245 100644
 --- a/codex-rs/core/src/compact_remote_v2.rs
 +++ b/codex-rs/core/src/compact_remote_v2.rs
-@@ -8,6 +8,8 @@ use crate::ResponseStream;
- use crate::client::ModelClientSession;
- use crate::client::ResponsesHttpExecutor;
- use crate::client_common::ResponseEvent;
-+use crate::compact::MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
-+use crate::compact::is_standalone_function_call_output;
- use crate::compact::CompactedHistoryMetadata;
- use crate::compact::CompactionAnalyticsAttempt;
- use crate::compact::CompactionAnalyticsDetails;
-@@ -85,7 +87,6 @@ enum RetainedImageBudget {
- }
+@@ -2,6 +2,7 @@ use codex_login::AuthOwner;
+ use std::sync::Arc;
+ use std::sync::OnceLock;
  
- pub(crate) const RETAINED_MESSAGE_TOKEN_BUDGET: usize = 64_000;
--const MAX_RETAINED_AGENT_MESSAGE_TOKENS: i64 = 10_000;
- // Compact attempts can run much longer than normal turns, so keep the per-transport
- // retry budget smaller than the general Responses stream retry budget.
- const MAX_REMOTE_COMPACTION_V2_STREAM_RETRIES: u64 = 2;
-@@ -537,6 +538,9 @@ fn is_retained_for_remote_compaction_v2(
++use crate::compact::is_standalone_function_call_output;
+ use crate::compact_retained_tool_outputs::is_retained_tool_output;
+ use crate::session::FileAudioDurations;
+ 
+@@ -570,6 +571,9 @@ fn is_retained_for_remote_compaction_v2(
          return true;
      }
      let item = &envelope.item;
 +    if is_standalone_function_call_output(item) {
-+        return estimate_item_token_count(item) <= MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
++        return estimate_item_token_count(item) <= MAX_RETAINED_AGENT_MESSAGE_TOKENS;
 +    }
      if let ResponseItem::AgentMessage {
          author,
          recipient,
-@@ -560,7 +564,7 @@ fn is_retained_for_remote_compaction_v2(
-         );
-         return !is_descendant_progress
-             && !is_completion
--            && estimate_item_token_count(item) <= MAX_RETAINED_AGENT_MESSAGE_TOKENS;
-+            && estimate_item_token_count(item) <= MAX_RETAINED_EXTERNAL_INPUT_TOKENS;
-     }
- 
-     let ResponseItem::Message { role, .. } = item else {
-@@ -929,6 +933,28 @@ mod tests {
-         );
+@@ -955,6 +959,28 @@ mod tests {
+         }
      }
  
 +    #[test]
@@ -108,14 +70,14 @@ index 0b47a57..99dc34a 100644
 +    }
 +
      #[test]
-     fn build_v2_compacted_history_preserves_retained_metadata_sidecar() {
-         let retained = message("user", "keep", /*phase*/ None);
+     fn build_v2_compacted_history_filters_to_installed_retention_shape() {
+         let hook = codex_protocol::items::build_hook_prompt_message(
 diff --git a/codex-rs/core/src/compact_tests.rs b/codex-rs/core/src/compact_tests.rs
-index a57d2f0..db96441 100644
+index a57d2f0..92b8d13 100644
 --- a/codex-rs/core/src/compact_tests.rs
 +++ b/codex-rs/core/src/compact_tests.rs
-@@ -862,6 +862,35 @@ fn assemble_compaction_history_keeps_prefix_first_and_summary_last() {
-     assert_eq!(refreshed, expected);
+@@ -321,6 +321,35 @@ async fn extension_window_prefix_precedes_retained_turns_and_is_not_repeated() {
+     );
  }
  
 +#[test]
@@ -148,5 +110,5 @@ index a57d2f0..db96441 100644
 +}
 +
  #[test]
- fn assemble_compaction_history_keeps_compaction_last() {
-     let agent_task = ResponseItem::AgentMessage {
+ fn content_items_to_text_joins_non_empty_segments() {
+     let items = vec![

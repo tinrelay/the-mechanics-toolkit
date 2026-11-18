@@ -1,30 +1,26 @@
 const definitions = [
   {
-    "name": "standalone-output-compaction-26605",
-    "patch": "source-patches/standalone-output-compaction/codex-0.167.0-alpha.4.1.patch",
+    "name": "standalone-output-compaction-28661",
+    "patch": "source-patches/standalone-output-compaction/codex-0.169.0-alpha.11.1.patch",
     "upstream": "https://github.com/openai/codex",
-    "tag": "rust-v0.167.0-alpha.4.1",
-    "commit": "d2c035639366e0bf2c316aa2065c24aabc12bcdc",
+    "tag": "rust-v0.169.0-alpha.11.1",
+    "commit": "226fa88979b1a9d76dc36f339ee9c5fbdb2c8e7f",
     "desktop": {
-      "version": "26.1106.51428",
-      "build": "26605"
+      "version": "26.1111.71025",
+      "build": "28661"
     },
     "files": {
       "codex-rs/core/src/compact.rs": {
-        "before": "e69d1a8c8c73561a32c1d7a3ca8c04607d231ce97d92ecc8a159c5f08401d835",
-        "after": "5998712029b43cdd41ee6cc5fd8b9db32bca4d1712de0e88f40a4ed8781bfbeb"
+        "before": "f844fa8fff36d1702417febadc15ecd8d4faf41883a51c05c51f382a327fa91d",
+        "after": "c8ec4547ad3c43916b19c2613d045c176809d125fb734a8a0592cfd854cf147a"
       },
       "codex-rs/core/src/compact_remote_v2.rs": {
-        "before": "f7e9a371dac42ab90ea337625d38ca56ed4ff79f9a53edd73457c6606d4f9d14",
-        "after": "f1c1583b237d6b25cdf5f49a0da7acf7befb61e92f0ebfcd95552f03072437c1"
+        "before": "edc0741d962abb55fe58b223d51dfcfbf149435347a0942c0d273759ae98899e",
+        "after": "eed9edca2f6a8630c3eea166d2e7fc148e2c9248d0ab8ff40308135a25668c9a"
       },
       "codex-rs/core/src/compact_tests.rs": {
         "before": "fbb2446cba6368ae8b2dd1af82de524fe5b2dd910ea3676b751cd29521067dab",
-        "after": "16c4033ef5a4fe45f0df7431c44d72d2ed4cb0bd67df807bd8e63017dbd787b1"
-      },
-      "codex-rs/core/src/client_runtime_auth_tests.rs": {
-        "before": "1dcfda237b6f60b06556d2c1548547a02b9bd535a303e371ddee8d9fda0aea98",
-        "after": "55e83a2f2565dc566be27155c93a4a76a2d00bd9143e90ee569a84c9dfbcb662"
+        "after": "7f607e6073ee34d52f7c346833d7ea31521c8dc33a17d9b03128942c24152e4d"
       }
     }
   },

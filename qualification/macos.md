@@ -15,6 +15,68 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## Build 28661 — corrected adoption accepted
+
+On 2026-11-18 the newest official ARM64 feed offered Desktop `26.1111.71025` / build
+`28661`, published 2026-11-17 22:01:36 UTC. Full ZIP: `835838478` bytes; SHA-256
+`7edb7f133e41d947a9e11826f3669fd32be2ff6c6bbdaa01e40eb41b9e39e957`.
+Sparkle Ed25519, vendor signature, ASAR integrity and notarization staple verified.
+Pristine ASAR SHA-256: `8e84a27e1cade4406a60854d2ae850e330d1de5c3dab5627b2a95c76fe685284`.
+The newest feed was checked beyond a lagging/busy updater; no updater cache was modified.
+
+Bundled CLI `0.169.0-alpha.11.1`, upstream
+`226fa88979b1a9d76dc36f339ee9c5fbdb2c8e7f`, has stock executable SHA-256
+`3ea20787e106af94573d3d6c19480aed93a1334b0dd32b6b04e2f780ce82cf4b`.
+Both focused local and remote-v2 compaction regressions failed on stock and passed after repair;
+3011 other core tests were filtered out. No authentication-fixture correction was required.
+Native Rust `1.95.0`, LTO-off release build passed (19m19s). Replacement ARM64 executable:
+`409961240` bytes, SHA-256
+`6432f14130e05a2d82a010d6560b48e8e08dc9c8606266d2b1b6c3fec43af761`.
+The delegation adapter still omits retain; the new pending-agent-mail path is a separate input
+shape. No experimental flag was enabled. This proof does not qualify wider handled-input replay.
+
+Computer Use normalized stock image:
+`01b77165a1552527293a07aa11eefd24c1aeebea9303b409ff137330ac51c0fb`;
+repaired image: `9225430fe5357786cf2a2dcf8cc864d0bffc801d119c32cf6be5f6570f4f3b6a`.
+Exact parent gate `0x180540`, same-team `0xde2de4`, developer-team `0xde2d54`.
+Private-socket proof: stock rejected vendor Node, repaired answered IPC-v5 ping, unsigned Python
+remained rejected. The existing persistent signer and private socket policy are unchanged.
+Candidate and existing helper designated signing requirements match; the preview used codesign
+inspection only, without a privacy reset.
+
+Renderer profiles cover three lazy tool copies, both keyboard dispatchers and both transcript
+paths. Outgoing previews adapt the stock compound tooltip API and resolve the native formatter
+at render time. The secondary keyboard dispatcher's editable-focus probe failed before its
+correction and passed afterward. Complete signed 19-patch staging, composed/post-repack probes,
+byte-identical second application, native payload preservation, executable Terminal helper,
+signature and ASAR seal passed.
+
+The first supervised adoption failed before renderer readiness with
+`MTKattentionDecode is not a function`. The barrel no longer exports `DBCl.Pc`; native badge
+handling uses `d6Ff.Pc`. Both attention and palette imports selected the removed re-export.
+A new regression resolves the actual packaged decoder before exercising these policies; it
+reproduces the undefined binding and passes after correcting the two imports. The rescue repacked
+and re-signed the candidate and installed app, preserving all native unpacked bytes and flags.
+Corrected installed/candidate ASAR SHA-256:
+`5025bbda64fbba7174dddd6f7a5ce5e49dd11d999c859d76014c36399055309e`.
+Both signatures and ASAR seals verify. The final source reproduced this exact accepted ASAR from the pristine vendor package before
+commit. Its complete signed 19-patch stage, corrected decoder preflight/regression, post-repack
+probes and byte-identical reapplication passed. `npm run check` and `npm test` passed after the
+correction; production DEB/RPM staging fixtures were platform-skipped.
+
+The supervisor subsequently recorded renderer readiness at 2026-11-18 14:34:50 UTC. Mike reports
+this real chat opens normally. A native task message reached its recipient across compaction,
+the ACK returned here, and the explicit wait completed without error. A fresh TinRelay self-send
+was accepted, independently inspected as routed, and returned through the bridge to this chat.
+No retry or manual routing mark was used. Mike explicitly accepted this qualification and
+authorized commit/push on November 18. This successful compaction case is separate from the
+controlled source regressions and does not establish general replay prevention.
+
+Current Chrome/native Computer Use actions, screenshots/input and a full feature tour were not
+rerun for this build. No broader live result is claimed. Transient source/extracted apps, module
+captures and Rust build trees are disposable; retain one official ZIP, one current candidate,
+the matching CLI and compact receipts. Other platforms' qualification remains unchanged.
+
 ## Build 26605 — corrected adoption and bounded live checks passed
 
 On 2026-11-11 the newest official macOS ARM64 feed offered Desktop `26.1106.51428` / build

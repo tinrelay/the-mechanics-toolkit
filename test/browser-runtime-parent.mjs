@@ -2,20 +2,20 @@ import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
 import {parse} from "acorn";
 
-export async function probeBrowserRuntimeParent(source) {
+export async function probeBrowserRuntimeParent(source, {ownerName="r3",nodeBinding="es"} = {}) {
   const tree = parse(source, {ecmaVersion: "latest", sourceType: "module"});
   let helper, config;
   walk(tree, node => {
     if (node.type !== "FunctionDeclaration") return;
     if (node.id.name === "MTKbrowserRuntimeLaunch") helper = node;
-    if (node.id.name === "r3") config = node;
+    if (node.id.name === ownerName) config = node;
   });
   assert.ok(helper, "browser MCP launcher retains a vendor runtime parent");
   assert.ok(config);
   const configSource = source.slice(config.start, config.end);
   assert.ok(configSource.includes("...MTKbrowserRuntimeLaunch(n,i),env:"),
     "the generated MCP configuration actually selects the launch helper");
-  const create = platform => Function("process", "es",
+  const create = platform => Function("process", nodeBinding,
     source.slice(helper.start, helper.end) + ";return MTKbrowserRuntimeLaunch;")(
       {platform}, {wLF: "NODE_REPL_NODE_PATH"});
   const child = {

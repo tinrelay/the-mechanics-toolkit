@@ -1,16 +1,18 @@
-import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner26605}from '../../runtime-json-reload/profiles/build26605.mjs';import{rosterOwner26605}from '../../agent-roster/profiles/build26605.mjs';import{modelOwner26605}from '../../model-identity-guard/profiles/build26605.mjs';import{attributionOwner26605}from '../../cross-task-attribution/profiles/build26605.mjs';import{reasoningOwners26605}from '../../reasoning-retention/profiles/build26605.mjs';import{waitOwners26605}from '../../wait-thread-roster/profiles/build26605.mjs';
-export function registryOwners26605(root){return{runtime:runtimeOwner26605(root),app:rosterOwner26605(root),model:modelOwner26605(root),conversation:attributionOwner26605(root),turn:reasoningOwners26605(root).turn,tools:waitOwners26605(root)}}
-export function runBuild26605({root,command,bootstrap}){
- const o=registryOwners26605(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
+import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner28661}from '../../runtime-json-reload/profiles/build28661.mjs';import{rosterOwner28661}from '../../agent-roster/profiles/build28661.mjs';import{modelOwner28661}from '../../model-identity-guard/profiles/build28661.mjs';import{attributionOwner28661}from '../../cross-task-attribution/profiles/build28661.mjs';import{reasoningOwners28661}from '../../reasoning-retention/profiles/build28661.mjs';import{waitOwners28661}from '../../wait-thread-roster/profiles/build28661.mjs';
+export function registryOwners28661(root){return{runtime:runtimeOwner28661(root),app:rosterOwner28661(root),model:modelOwner28661(root),conversation:attributionOwner28661(root),turn:reasoningOwners28661(root).turn,tools:waitOwners28661(root)}}
+export function runBuild28661({root,command,bootstrap}){
+ const o=registryOwners28661(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
  if(command==='check'&&!readRendererModule(o.runtime).includes('function MTKinstallRuntimeJsonReload(')){
   const source=readRendererModule(o.runtime);if(!source.includes('let s=o.getInstance();s.initialize(),c.d(a,{},{JX:function(e,a,c){'))throw Error('Unknown pristine registry runtime');
   for(const owner of[o.app,o.model,o.conversation,o.turn,...o.tools])readRendererModule(owner);
   return{state:'needs-apply',apiVersion:1,packages:[],targets:[path.relative(root,o.runtime.file)]};
  }
+ const keyboard=readRendererModule({...o.app,id:"ITUJ"});
+ if(!keyboard.includes('I="toggleTerminal"===l||')||!keyboard.includes('allowWithinEditable:I,enabled:E,onKeyDown:r'))throw Error('Registry requires composed terminal owner');
  const reg=(name,descriptor)=>`globalThis.__MTK_PATCH_REGISTRY__?.register?.("${name}",${descriptor});`;
  const add=(owner,markers,registrations)=>{const source=readRendererModule(owner);for(const marker of markers)if(!source.includes(marker))throw Error('Registry requires composed module '+marker);entries.push({owner,source,registrations})};
  add(o.runtime,['function MTKinstallRuntimeJsonReload('],[reg('runtimeJsonReload','{version:2,files:["agent-roster.json"]}')]);
- add(o.app,['globalThis.__MTK_AGENT_ROSTER__=Object.freeze(','const MTKdotLifecyclePolicy=1;','function MTKusePaletteBootstrap(','const MTKattentionRosterBridge=1','allowWithinEditable:x,enabled:w,onKeyDown:a'],[
+ add(o.app,['globalThis.__MTK_AGENT_ROSTER__=Object.freeze(','const MTKdotLifecyclePolicy=1;','function MTKusePaletteBootstrap(','const MTKattentionRosterBridge=1'],[
  reg('agentRoster','{version:1,file:"agent-roster.json",discovery:"registered-local-project-roots"}'),reg('dotLifecycleProtection','{version:1,policy:"exact-cloud-dot-opt-in"}'),reg('taskVisualPalette','{version:1,resolveTaskColor(e){try{let t=MTKmatchPalette(MTKsidebarPalette,e?.title,e?.taskId);return t?.color??null}catch{return null}}}'),reg('taskAttentionPolicy','{version:1}'),reg('terminalToggle','{version:1}')]);
  add(o.model,['function MTKinstallModelIdentityGuard('],[reg('modelIdentityGuard','{version:1,policy:"exact-task-model-and-effort-pin",mismatch:"red-selector-and-locked-composer"}')]);
  add(o.turn,['function MTKreasoningRosterValue('],[reg('reasoningRetention','{version:1,policy:"exact-task-opt-in"}')]);

@@ -2,11 +2,11 @@ import crypto from "node:crypto";
 
 // Re-signing replaces the signature and updates its command and __LINKEDIT extent, but no
 // executable payload. Normalize those size fields when pinning the complete unsigned image.
-const stockHash = "b25766b347c724525d472958bb5193f8221c828205ca503b98bd4ec76481507d";
-const appliedHash = "23a4f452bc23b129334675f046aff2cd6605c8be8f0a30c6bf28070e350c28d6";
-const parentGate = 0x180bdc;
-const sameTeamRequirement = 0xddc00c;
-const developerTeam = 0xddbf7c;
+const stockHash = "01b77165a1552527293a07aa11eefd24c1aeebea9303b409ff137330ac51c0fb";
+const appliedHash = "9225430fe5357786cf2a2dcf8cc864d0bffc801d119c32cf6be5f6570f4f3b6a";
+const parentGate = 0x180540;
+const sameTeamRequirement = 0xde2de4;
+const developerTeam = 0xde2d54;
 
 export function helperState(bytes) {
   const hash = imageHash(bytes);

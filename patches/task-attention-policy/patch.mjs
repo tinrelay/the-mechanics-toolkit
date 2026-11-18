@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild26605} from "../runtime-json-reload/profiles/build26605.mjs";
-import {runBuild26605} from "./profiles/build26605.mjs";
+import {matchesBuild28661} from "../runtime-json-reload/profiles/build28661.mjs";
+import {runBuild28661} from "./profiles/build28661.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -18,7 +18,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: task-attention-policy.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild26605(root)){console.log(JSON.stringify(runBuild26605({root,command,patchProfile})));process.exit(0);}
+if(matchesBuild28661(root)){console.log(JSON.stringify(runBuild28661({root,command,patchProfile})));process.exit(0);}
 
 const profiles = [build22943, build11645, linuxBuild10954, build10789, build9922, linuxBuild9771, linuxBuild9647];
 const assets = path.join(root, "webview/assets");

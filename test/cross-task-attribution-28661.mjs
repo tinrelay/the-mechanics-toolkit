@@ -1,14 +1,14 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 
-export function probeAttribution26605(source, helper) {
+export function probeAttribution28661(source, helper) {
   assert.ok(source.includes('c=n("zTeN")') && source.includes('ex=n("tl5a")'), "state bindings refer to the actual stock modules");
   assert.ok(source.includes('const MTKtitleAtom=ex.HX,MTKsourceThreadAtom=ex.ok,MTKcrossTaskState=c;'), "title and source metadata use their stock exports");
-  const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "tn");
+  const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "tt");
   assert.ok(node, "delegated-message component owner");
   const component = source.slice(node.start, node.end);
   const titleAtom = Symbol("title"), metadataAtom = Symbol("source metadata");
-  const cacheSize=component.includes("o=(0,s.c)(16)")?16:14;
+  const cacheSize=component.includes("r=(0,i.c)(16)")?16:14;
   const cache = Array(cacheSize).fill(Symbol.for("react.memo_cache_sentinel"));
   let title = "Ada — Coordination", summary = {cwd: "/projects/source"};
   const navigate = route => { assert.equal(route, "/local/source-id"); };
@@ -19,8 +19,8 @@ export function probeAttribution26605(source, helper) {
     return summary == null ? null : {summary};
   }};
   const jsx = {Fragment: "fragment", jsx: (type, props) => ({type, props}), jsxs: (type, props) => ({type, props})};
-  const values={s:{c(size){assert.equal(size,cacheSize);return cache}},MTKcrossTaskState:state,a:jsx,h:{Zp:()=>navigate},e9:{OX:()=>false},e8:{C:"Codex"},tt:{A:"app"},e7:{B:"asset"},te:{A:"app"},E:{bF:"app"},p:{A:"translated-label"},ee:"bubble-wrapper",MTKtitleAtom:titleAtom,MTKsourceThreadAtom:metadataAtom,MTKtinrelayPointerNode:()=>null};
-  const render=Function(...Object.keys(values),`${helper};${component};return tn`)(...Object.values(values));
+  const values={i:{c(size){assert.equal(size,cacheSize);return cache}},MTKcrossTaskState:state,a:jsx,h:{Zp:()=>navigate},e7:{OX:()=>false},e8:{C:"Codex"},e9:{A:"app"},e6:{B:"asset"},te:{A:"app"},F:{bF:"app"},p:{A:"translated-label"},ee:"bubble-wrapper",MTKtitleAtom:titleAtom,MTKsourceThreadAtom:metadataAtom,MTKtinrelayPointerNode:()=>null};
+  const render=Function(...Object.keys(values),`${helper};${component};return tt`)(...Object.values(values));
   const props = {conversationId: "receiver-id", sourceThreadId: "source-id", message: "test", sentAtMs: 1, cwd: "/projects/receiver", hostId: "local"};
   let result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, "Ada");
@@ -34,5 +34,5 @@ export function probeAttribution26605(source, helper) {
   summary = null;
   result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, title, "missing source metadata does not borrow the receiver's project");
-  console.log("build-26605 cross-task attribution behavior probe passed");
+  console.log("build-28661 cross-task attribution behavior probe passed");
 }

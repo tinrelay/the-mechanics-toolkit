@@ -1,22 +1,71 @@
 import path from 'node:path';
 import {readRendererModule,writeRendererModule} from '../../../src/renderer-module.mjs';
-export const waitOwners26605=root=>[
- {file:'354663.8f409381eb.js',parameters:['e','t','n']},
- {file:'499685.4824cd8a22.js',parameters:['e','t','n']}
-].map(({file,parameters})=>({file:path.join(root,'webview/assets/async',file),id:'acby',parameters}));
-export const waitProfiles26605=[
- {loader:'n',namespace:'s.PD',genericRender:'k',icon:'T',jsx:'a',container:'c.F',classNames:'(0,r.A)',spinner:'m.N',iconFunction:'T',summaryWrapper:'A.o',normalize:'(0,f.JXB)',hostBridge:'b.O1',routeFlag:'(0,w.OX)',newRoute:'(0,f.Cv$)',oldRoute:'(0,f._RT)',sendTool:'x.vN'},
- {loader:'n',namespace:'o.PD',genericRender:'_',icon:'j',jsx:'a',container:'u.F',classNames:'(0,r.A)',spinner:'p.N',iconFunction:'j',summaryWrapper:'b.o',normalize:'(0,v.JXB)',hostBridge:'w.O1',routeFlag:'(0,x.OX)',newRoute:'(0,v.Cv$)',oldRoute:'(0,v._RT)',sendTool:'y.vN'},
+export const waitOwners28661=root=>[{"file":"246212.63d5327e56.js","parameters":["e","t","a"]},{"file":"561945.6f82ccc64f.js","parameters":["e","t","a"]},{"file":"815045.50def6f4d1.js","parameters":["e","t","n"]}].map(({file,parameters})=>({file:path.join(root,'webview/assets/async',file),id:'acby',parameters}));
+export const waitProfiles28661=[
+  {
+    "loader": "a",
+    "namespace": "o.PD",
+    "genericRender": "P",
+    "icon": "M",
+    "jsx": "n",
+    "container": "c.F",
+    "classNames": "(0,r.A)",
+    "spinner": "p.N",
+    "iconFunction": "M",
+    "summaryWrapper": "b.o",
+    "normalize": "(0,f.JXB)",
+    "hostBridge": "w.O1",
+    "routeFlag": "(0,C.OX)",
+    "newRoute": "(0,f.Cv$)",
+    "oldRoute": "(0,f._RT)",
+    "sendTool": "y.vN"
+  },
+  {
+    "loader": "a",
+    "namespace": "o.PD",
+    "genericRender": "T",
+    "icon": "N",
+    "jsx": "n",
+    "container": "c.F",
+    "classNames": "(0,r.A)",
+    "spinner": "m.N",
+    "iconFunction": "N",
+    "summaryWrapper": "b.o",
+    "normalize": "(0,f.JXB)",
+    "hostBridge": "w.O1",
+    "routeFlag": "(0,C.OX)",
+    "newRoute": "(0,f.Cv$)",
+    "oldRoute": "(0,f._RT)",
+    "sendTool": "x.vN"
+  },
+  {
+    "loader": "n",
+    "namespace": "s.PD",
+    "genericRender": "N",
+    "icon": "M",
+    "jsx": "a",
+    "container": "c.F",
+    "classNames": "(0,r.A)",
+    "spinner": "p.N",
+    "iconFunction": "M",
+    "summaryWrapper": "b.o",
+    "normalize": "(0,f.JXB)",
+    "hostBridge": "w.O1",
+    "routeFlag": "(0,C.OX)",
+    "newRoute": "(0,f.Cv$)",
+    "oldRoute": "(0,f._RT)",
+    "sendTool": "y.vN"
+  }
 ];
-export function runBuild26605({root,command,buildHelper}){
- const owners=waitOwners26605(root),targets=[];let states=[];
+export function runBuild28661({root,command,buildHelper}){
+ const owners=waitOwners28661(root),targets=[];let states=[];
  for(let index=0;index<owners.length;index++){
-  const owner=owners[index],p=waitProfiles26605[index];let source=readRendererModule(owner);
+  const owner=owners[index],p=waitProfiles28661[index];let source=readRendererModule(owner);
   const entry=`{namespace:${p.namespace},render:${p.genericRender},renderAgentActivityIcon:${p.icon},tool:${p.sendTool}}`;
   const receiptEntry=`{namespace:${p.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${p.icon},standaloneInConversation:!0,tool:${p.sendTool}}`;
   const sendEntry=source.includes(entry)?entry:receiptEntry;
   const added=`{namespace:${p.namespace},render:MTKrenderWaitThreads,renderAgentActivityIcon:${p.icon},tool:"wait_threads"}`;
-  for(const fragment of [`${p.sendTool.split('.')[0]}=${p.loader}("MCYz")`,`${p.hostBridge.split('.')[0]}=${p.loader}("TL6G")`,`${p.summaryWrapper.split('.')[0]}=${p.loader}("BI7J")`])requireOne(source,fragment);
+  for(const fragment of [`${p.sendTool.split('.')[0]}=${p.loader}("MCYz")`,`${p.hostBridge.split('.')[0]}=${p.loader}("TL6G")`,`${p.summaryWrapper.split('.')[0]}=${p.loader}("MFk9")`])requireOne(source,fragment);
   const helperProfile={jsx:'MTKwaitJsx',container:'MTKwaitContainer',classNames:'MTKwaitClasses',spinner:'MTKwaitSpinner',iconFunction:'MTKwaitIcon',summaryWrapper:'MTKwaitSummary',normalize:'MTKwaitNormalize',hostBridge:'MTKwaitBus',routeFlag:'MTKwaitRouteFlag',newRoute:'MTKwaitNewRoute',oldRoute:'MTKwaitOldRoute'};
   let helper=buildHelper(helperProfile,true);
   const before='let r=MTKwaitStoreHook(MTKwaitStoreScope),i=MTKwaitTargets(e.arguments);if(i==null)return null;let a=i.map(e=>{let t=e.hostId==="local"?MTKwaitLocalThreadKey(e.threadId):MTKwaitRemoteThreadKey(e.threadId);return MTKwaitResolvedTarget(e,r.get(MTKwaitTaskAtom,t),r.get(MTKwaitTitleAtom,{hostId:e.hostId,threadId:e.threadId}))})';

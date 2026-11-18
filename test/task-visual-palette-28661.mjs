@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {paletteOwners26605} from "../patches/task-visual-palette/profiles/build26605.mjs";
+import {paletteOwners28661} from "../patches/task-visual-palette/profiles/build28661.mjs";
 
-export function probePendingChatArchive26605(root) {
-  const group=readRendererModule(paletteOwners26605(root).group),groupNodes=[];
+export function probePendingChatArchive28661(root) {
+  const group=readRendererModule(paletteOwners28661(root).group),groupNodes=[];
   walk(parse(group,{ecmaVersion:"latest",sourceType:"module"}),node=>groupNodes.push(node));
   const groupAction=groupNodes.find(node=>node.type==="FunctionExpression"&&node.params[0]?.type==="ObjectPattern"&&
     node.params[0].properties.some(property=>property.key.name==="selectedThreadKeys"));
@@ -18,14 +18,14 @@ export function probePendingChatArchive26605(root) {
   assert.deepEqual(menuAction(selection).map(item=>item.id),["rename-thread"]);
   guard=false;
   assert.equal(menuAction(selection),items,"ordinary single selections keep native menu items");
-  const source=readRendererModule(paletteOwners26605(root).localMenu);
+  const source=readRendererModule(paletteOwners28661(root).localMenu);
   const nodes=[];
   walk(parse(source,{ecmaVersion:"latest",sourceType:"module"}),node=>nodes.push(node));
   const menu=nodes.find(node=>node.type==="ArrowFunctionExpression"&&source.slice(node.start,node.end).includes('MTKsidebarArchiveProtected(J)'));
   assert.ok(menu,"pending-chat menu tests the native clientThreadId");
   let protectedTask=true;
   const action=()=>{};
-  const render=Function("MTKsidebarArchiveProtected","J","X","f","Y","ee","v","eo","en","return ("+source.slice(menu.start,menu.end)+")")(
+  const render=Function("MTKsidebarArchiveProtected","J","G","f","Y","ee","v","eo","ea","return ("+source.slice(menu.start,menu.end)+")")(
     id=>{assert.equal(id,"native-task-id");return protectedTask},"native-task-id",true,
     {$J:()=>({id:"pin-thread"})},false,action,{tD:{renameThread:"Rename",archiveThread:"Archive"}},action,action
   );
@@ -39,20 +39,20 @@ export function probePendingChatArchive26605(root) {
   const cache=Array(82).fill("cached");cache[81]=1;
   invalidate(cache,1);assert.equal(cache[0],"cached");
   invalidate(cache,2);assert.equal(cache[0],Symbol.for("react.memo_cache_sentinel"));assert.equal(cache[81],2);
-  const remote=readRendererModule(paletteOwners26605(root).remoteActions),remoteNodes=[];
+  const remote=readRendererModule(paletteOwners28661(root).remoteActions),remoteNodes=[];
   walk(parse(remote,{ecmaVersion:"latest",sourceType:"module"}),node=>remoteNodes.push(node));
-  assert.ok(remote.includes('ew=function(e){const MTKarchiveTaskId=e.task.id;'),
-    "remote action builder captures its task before the action-context callback shadows e");
   const archiveValues=remoteNodes.filter(node=>node.type==="Property"&&node.key.name==="archive"&&
-    remote.slice(node.value.start,node.value.end).includes('MTKsidebarArchiveProtected(MTKarchiveTaskId)'));
-  assert.equal(archiveValues.length,2,"both native remote archive callbacks use their owning task");
+    remote.slice(node.value.start,node.value.end).includes('MTKsidebarArchiveProtected(tp??ev.key)'));
+  assert.equal(archiveValues.length,1,"unified entry action guards its native conversation or entry key");
   for(const node of archiveValues){
-    const value=Function("MTKarchiveTaskId","MTKsidebarArchiveProtected","t","n",
+    const value=Function("tp","ev","MTKsidebarArchiveProtected","t",
       "return ("+remote.slice(node.value.start,node.value.end)+")");
-    const protectedTask=id=>{assert.equal(id,"native-task-id");return true};
-    assert.equal(value("native-task-id",protectedTask,action,action),null);
-    assert.equal(value("native-task-id",()=>false,action,action),action,
-      "an ordinary task keeps the native archive action without a task field in the action context");
+    for(const id of ["native-task-id",null]){
+      const protectedTask=key=>{assert.equal(key,id??"native-entry-key");return true};
+      assert.equal(value(id,{key:"native-entry-key"},protectedTask,action),null);
+      assert.equal(value(id,{key:"native-entry-key"},()=>false,action),action,
+        "ordinary entries retain the native archive callback");
+    }
   }
 }
 function walk(node,visit){if(!node||typeof node!=="object")return;if(node.type)visit(node);for(const value of Object.values(node))if(Array.isArray(value))value.forEach(child=>walk(child,visit));else if(value&&typeof value==="object")walk(value,visit)}

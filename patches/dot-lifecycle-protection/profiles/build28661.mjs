@@ -1,17 +1,17 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner26605}from '../../agent-roster/profiles/build26605.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner28661}from '../../agent-roster/profiles/build28661.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export function dotOwners26605(root){return{policy:rosterOwner26605(root),deletion:owner(root,'739301.37a39f26d6.js','tLki'),menus:['209376.8ce3edd2a7.js','345848.bbe6bc3831.js','539687.6e6228eef0.js'].map((f,i)=>owner(root,f,'SeWp',i===0?['e','t','n']:i===1?['e','t','a']:['e','t','r'])),rebootMenus:['345848.bbe6bc3831.js','539687.6e6228eef0.js'].map((f,i)=>owner(root,f,'GgrI',i===0?['e','t','a']:['e','t','r'])),reboot:owner(root,'775336.6aed9571c5.js','PSog',['e','t','r'])}}
-export function dotHelper26605(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
-export function runBuild26605({root,command,helper}){
- const o=dotOwners26605(root),h=dotHelper26605(helper),entries=[];
+export function dotOwners28661(root){return{policy:rosterOwner28661(root),deletion:owner(root,'907538.91f2a19777.js','tLki'),menus:['209376.fa9ee8bce7.js','729482.95b603b8bb.js','588201.00897288bb.js'].map((f,i)=>owner(root,f,'SeWp',i===0?['e','t','n']:i===1?['e','t','a']:['e','t','n'])),rebootMenus:['729482.95b603b8bb.js','588201.00897288bb.js'].map((f,i)=>owner(root,f,'GgrI',i===0?['e','t','a']:['e','t','n'])),reboot:owner(root,'775336.577a76a1f1.js','PSog',['e','t','r'])}}
+export function dotHelper28661(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
+export function runBuild28661({root,command,helper}){
+ const o=dotOwners28661(root),h=dotHelper28661(helper),entries=[];
  const policy=readRendererModule(o.policy),binding=';const MTKdotMetadata=n("TYK1").cloudAeonByThreadId$,MTKdotNormalize=n("DBCl").JXB;';
  if(command==='apply'&&!policy.includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze('))throw Error('Dot protection requires roster');
  entries.push({owner:o.policy,source:policy,pairs:[[null,binding+h]]});
  const deletion=readRendererModule(o.deletion);
  one(deletion,'if((0,m.rf)(e,n.threadId)?.id!==t)throw Error("The Dot deletion target is no longer current")');
- entries.push({owner:o.deletion,source:deletion,pairs:[['function E(e,t,n,E){','function E(e,t,n,E){if(globalThis.__MTK_DOT_POLICY__.protected("delete",t))return;'],['if(!O()||e.get(g.kO,I).has(n.threadId))return;','if(globalThis.__MTK_DOT_POLICY__.protected("delete",t)||!O()||e.get(g.kO,I).has(n.threadId))return;']]});
+ entries.push({owner:o.deletion,source:deletion,pairs:[['function y(e,t,n,y){','function y(e,t,n,y){if(globalThis.__MTK_DOT_POLICY__.protected("delete",t))return;'],['if(!O()||e.get(f.kO,I).has(n.threadId))return;','if(globalThis.__MTK_DOT_POLICY__.protected("delete",t)||!O()||e.get(f.kO,I).has(n.threadId))return;']]});
  for(const [index,target]of o.menus.entries()){
-  const source=readRendererModule(target),names=[['s','a','r','l'],['l','n','i','s'],['l','n','o','s']][index];
+  const source=readRendererModule(target),names=[['s','a','r','l'],['l','n','r','s'],['l','a','i','s']][index];
   const [open,param,thread,metadata]=names;
   one(source,`${metadata}=${target.parameters.at(-1)}("TYK1")`);
   const before=`async function ${open}(e,t,${param}=e.get(${thread}.qX,t)){`,menuBefore=`b:function(e,t,${target.parameters.at(-1)}){return`;

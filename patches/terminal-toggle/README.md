@@ -26,7 +26,7 @@ It does not add or hard-code a key combination. The user's configured keymap rem
 The transform recognizes the current split ownership profile:
 
 1. the `toggleTerminal` descriptor in the renderer's shared catalog, main-process catalog, and worker;
-2. the configurable hotkey dispatcher in `app-initial`;
+2. both current configurable hotkey dispatcher copies (the app and secondary entry chunk);
 3. the editable-focus permission decision; and
 4. the stock terminal toggle action.
 

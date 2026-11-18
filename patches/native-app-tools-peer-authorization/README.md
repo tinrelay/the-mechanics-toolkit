@@ -38,7 +38,7 @@ container. Both sides derive the same default even if runtime configuration prec
 startup; an explicit socket override remains authoritative. No group-container data is moved or
 made accessible.
 
-On macOS build `26605`, the generated browser MCP configuration also keeps the packaged,
+The current macOS profile also makes the generated browser MCP configuration keep the packaged,
 vendor-signed Node runtime alive as the immediate parent of the packaged Node REPL. The separate
 Chrome extension host checks that parent and rejects the locally rebuilt CLI when it is directly
 above the REPL. This launch arrangement satisfies the host's existing checks without changing its

@@ -60,11 +60,11 @@ function patchMain(value) {
 }
 
 function mainProfile(value) {
-  if (value.startsWith("exports.ids=[615],exports.modules={")) {
-    for(const contract of ['eC=new eu.kec;eC.add(j),eC.add(el)', 'await en.app.whenReady(),', 'em("main app.whenReady resolved",eA)']) {
-      if(count(value,contract)!==1)throw Error("Upstream changed: build-26605 app-ready owner");
+  if (value.startsWith("exports.ids=[100],exports.modules={")) {
+    for(const contract of ['ep=new e6.kec;ep.add(J),ep.add(ea)', 'await eZ.app.whenReady(),', 'ec("main app.whenReady resolved",em)']) {
+      if(count(value,contract)!==1)throw Error("Upstream changed: build-28661 app-ready owner");
     }
-    return {helperOwner:mainLoggerOwner(value)[0],startup:'em("main app.whenReady resolved",eA)',electron:"en",disposers:"eC"};
+    return {helperOwner:mainLoggerOwner(value)[0],startup:'ec("main app.whenReady resolved",em)',electron:"eZ",disposers:"ep"};
   }
   if (isWebpackMain(value)) {
     for (const contract of ['ex=new em.kec;ex.add(G),ex.add(eu),ex.add(eh)',

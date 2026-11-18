@@ -1,10 +1,42 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.25` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.26` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.26
+
+The macOS target is Desktop `26.1111.71025` / build `28661`, bundling CLI
+`0.169.0-alpha.11.1`. Select `standalone-output-compaction-28661` at exact upstream commit
+`226fa88979b1a9d76dc36f339ee9c5fbdb2c8e7f`. Both focused local/remote-v2 regressions fail on
+stock and pass after the three-file repair. No test-only authentication correction is needed.
+The Rust `1.95.0`, LTO-off native release build passed. The packaged delegation adapter still
+omits `toolOutput.retain`; new pending-agent-mail handling does not cover these unmarked external
+outputs. No experimental feature is enabled.
+
+Exact renderer profiles follow the new app, shared, sidebar, keyboard and native bootstrap
+owners, three lazy tool-renderer copies, both keyboard dispatchers, and both transcript paths.
+The outgoing preview now adapts the stock compound tooltip API. Its formatter resolves when rendered, so a cold tool
+initializer does not require a conversation-only module. Probes check actual packaged exports,
+preview composition, title hydration, incoming bubble memo reuse, and the current archive actions.
+The Computer Use helper has a new normalized image and exact instruction offsets; its bounded
+private-socket proof still accepts vendor Node after repair and rejects unsigned Python.
+The persistent signing identity, private socket and vendor browser-parent launcher remain in use.
+
+Full signed 19-patch staging, composed/post-repack probes, byte-identical reapplication, native
+payload preservation, signature and ASAR seal passed. The first supervised launch exposed a
+removed `DBCl.Pc` decoder re-export. Both attention/palette imports now use the native `d6Ff.Pc`;
+a packaged-decoder regression covers the failure. The corrected build reached renderer readiness
+and Mike's real chat. Native task-message ACK/wait across compaction and TinRelay self-send/return
+passed. Mike accepted this qualification on November 18.
+
+The candidate preserves the existing helper's certificate-based signing requirement without a
+privacy reset. Chrome/native Computer Use actions and a full feature tour were not rerun for this
+build. Repository checks/tests and the final pristine-package reproduction are recorded in the
+[macOS receipt](qualification/macos.md). Adopt through `tmtk-restart --candidate`; staging does not
+install or launch the application.
 
 ## 0.2.25
 

@@ -3,12 +3,12 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import {matchesBuild26605} from "../patches/runtime-json-reload/profiles/build26605.mjs";
-import {probeWait26605} from "./wait-thread-roster-26605.mjs";
+import {matchesBuild28661} from "../patches/runtime-json-reload/profiles/build28661.mjs";
+import {probeWait28661} from "./wait-thread-roster-28661.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: wait-thread-roster.test.mjs EXTRACTED_ASAR_ROOT");
 
-if(matchesBuild26605(root)){probeWait26605(root);process.exit(0);}
+if(matchesBuild28661(root)){probeWait28661(root);process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const owners = fs.readdirSync(assets).filter(name => {
   if (!name.endsWith(".js")) return false;
