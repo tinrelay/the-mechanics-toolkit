@@ -7,16 +7,16 @@ import os from "node:os";
 import path from "node:path";
 
 const windows = process.platform === "win32";
-import {matchesBuild28661} from "../patches/runtime-json-reload/profiles/build28661.mjs";
-import {tinrelayOwners28661} from "../patches/tinrelay-pointer-presentation/profiles/build28661.mjs";
+import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
+import {tinrelayOwners29513} from "../patches/tinrelay-pointer-presentation/profiles/build29513.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
-import {probeClassification28661} from "./tinrelay-classification-28661.mjs";
+import {probeClassification29513} from "./tinrelay-classification-29513.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-presentation-outgoing.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild28661(root), moduleOwners=current?tinrelayOwners28661(root):null;
+const current=matchesBuild29513(root), moduleOwners=current?tinrelayOwners29513(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
@@ -309,10 +309,10 @@ const activityApi = Function(`${activitySource.slice(activityStart, activityEnd)
 assert.deepEqual(activityApi(item), acceptance, "activity classifier recognizes ordinary Tinrelay acceptance");
 assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?[`"]standalone[`"]/g) ?? []).length, 1,
   "recognized sends are first-class standalone conversation items");
-assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
+if(!current)assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
-if(current){probeClassification28661(root,item,activityApi);}else{
+if(current){probeClassification29513(root,item,activityApi);}else{
 const collapseMarker = rendererSource.search(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/);
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);

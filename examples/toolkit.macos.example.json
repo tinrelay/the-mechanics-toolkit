@@ -8,7 +8,6 @@
     "reasoning-retention",
     "model-identity-guard",
     "macos-menu-title",
-    "standalone-output-compaction",
     "task-attention-policy",
     "terminal-toggle",
     "outgoing-message-receipt",
@@ -19,7 +18,6 @@
     "renderer-patch-registry",
     "safe-start-readiness"
   ],
-  "codexBinary": "/absolute/path/to/patched/codex",
   "signingIdentity": "-",
   "tinrelay": {
     "client": "/absolute/path/to/tinrelay"

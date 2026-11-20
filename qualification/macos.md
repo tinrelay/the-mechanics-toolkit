@@ -15,6 +15,98 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## TMTK 0.2.28 — build 29513 accepted
+
+On November 20 the newest official ARM64 appcast item was Desktop `26.1117.31558` / build
+`29513`, published at 01:45:31 UTC. Full ZIP: `723988688` bytes, SHA-256
+`2e6927203a93e4e5238ff0411d11fd6ed23cb97a0e6b03b10e403f30d02e2d37`.
+Sparkle Ed25519, vendor signature, ASAR seal and notarization staple passed. Pristine ASAR:
+`97f9f40a31a1512cca57c0e06fedc568642a8f84a10abc637d96ffeca3f5e6ac`.
+
+The bundled CLI is `0.171.0-alpha.13`, exact upstream
+`581161ab41e643d942e1e1b5f561034060bf18e3`. Its unchanged executable SHA-256 is
+`3b6d00deea5fabc50ad34be1872b8e4ead1638d23c68fabb7837edc07f0cf1e0`.
+The actual packaged sender (`KBsB.on`) now marks send/create outputs `retain: true` after the
+native version-capability check. The matching core feature is stable/default-on, also confirmed
+by the bundled binary's feature listing. Both exact-source stock tests passed: marked delegation
+stays after initial context in a fresh window and survives remote-v2 compaction. Two passed,
+3071 filtered out; only test source was added. Cargo.lock changes were limited to 174 own-workspace
+version pairs. Rust 1.99.1, LTO-off test compilation passed; no repaired CLI was built or selected.
+The prior compaction source/integration patch is dormant for this macOS target and retained as an
+inactive reference. This is not a general unmarked-output or consumed-input replay guarantee.
+
+Exact renderer profiles cover five lazy tool/classifier copies, both keyboard dispatchers, actual
+packaged imports and the common transcript owner shared by native and MCP turns. Receipt and
+TinRelay entries cannot take latest-turn scroll ownership. The current composer footer retains
+its room token. An isolated browser using this package's footer CSS passed dark/light colors,
+transparent edge, native stop geometry, solid tail, focus surface, unconfigured chats and composer
+isolation.
+
+This package introduces 30 optional Owl CommonJS bytecode-cache entries. Their manifest digests
+match cache blobs, not source text. Static inspection of the native lookup identifies a cache-miss
+path. Staging removes only the four entries/files corresponding to patched startup sources;
+the remaining 26 are verified byte-identical after repacking. A signed-stage regression first
+failed with stale bytecode retained, then passed after invalidation. Subsequent supervised startup passed; static probes alone do not establish renderer usability.
+
+Computer Use normalized stock image:
+`42d72ddbe3d1b9fa46e1d15f282ffbd1d109f9624249c9f0ac0bc232c012d0ac`;
+repaired image: `9bc007422c0df270861eda24321a0d8131e204f93226d825081d724dc43427f5`.
+Parent gate `0x1807b4`, same-team requirement `0xde7178`, developer-team `0xde70e8`.
+Private-socket proof: stock rejects vendor Node, repaired answers IPC-v5 ping, unsigned Python
+remains rejected. Candidate and existing helper designated signing requirements match under the
+persistent local signer. The preview performs codesign inspection only; no privacy reset occurred.
+
+Complete signed 18-patch staging passed, including post-repack probes, byte-identical second
+application, native payload and executable-mode preservation, signature and ASAR seal.
+Initial candidate ASAR SHA-256:
+`cd8030724673ad6b7675eb9aef7362bb147479f30826e6f3bd88e2cc4714bd2b`.
+`npm run check`, `npm test`, Windows package fixtures and Linux adoption fixtures passed;
+production DEB/RPM staging fixtures were platform-skipped. The default macOS example has 17
+patches; this receipt includes the optional Computer Use repair as the eighteenth.
+
+Mike then authorized supervised adoption. The installed build is now `29513`, with valid
+signature/seal and an ASAR exactly matching the qualified candidate. This actual chat is usable.
+A task message through the current Codex app MCP tools reached its recipient, the requested ACK
+returned, and wait reported `turnCompleted` with no error. The older dynamic app-tool alias reports
+it is unavailable and redirects callers to the MCP server; its failed call did not submit a message.
+A TinRelay self-send was accepted, independently inspected as routed, and returned to the actual
+chat. These are transport checks, not a controlled live compaction test. At that point the current
+Chrome/Computer Use checks had not yet run; their final results appear below.
+
+Mike then reported that only the incoming TinRelay card appeared. The outgoing observer event
+exists, but the source-turn presentation anchor was not established. The build-29513 exec wrapper
+had stale `t$`/`e1` references instead of the current `tF`/`e0` bindings, and omitted native disclosure
+scope. A probe evaluating the actual packaged props expression reproduced `ReferenceError: t$ is
+not defined`. Preserving the native hide-command, activity-key and disclosure inputs made the
+probe pass. This corrects the profile without changing transport, lookup, persistence or scroll
+policy. The corrected complete signed 18-patch stage and post-repack probes passed; corrected
+candidate ASAR SHA-256:
+`3145c6fdbf455a608bc7e2e3e79e8f97ff02b46f06c55b7d7c39d2f2a8e6f2ce`.
+That variable-binding correction was adopted through the supervisor. Its fresh self-send again
+returned, but the outgoing card and source-turn anchor were absent. Read-only inspection of the
+mounted renderer found 137 bytes of acceptance output at `fw8Z.C`/`fw8Z.A`, while downstream
+`z9Cz.ak` received an empty deferred-output shell and no direct turn ID. The native activity key
+still contained the correct conversation and turn. The binding-only fix was insufficient.
+
+The final correction wraps the original history item before native output deferral, derives source
+ownership from that native activity key, and leaves the deferral, command props and scroll policy
+intact. A probe executing the actual history wrapper with the observed input shape fails on the
+installed artifact and passes on this correction. Complete signed 18-patch staging, post-repack
+probes, reapply identity, native preservation, signature and seal passed. Final staged candidate ASAR:
+`1378768737230d73136b8a7defeca2c478a70c71b5129fe83a38b50b065e44ab`.
+Mike authorized another supervised restart. The installed ASAR now matches the final `137876...`
+candidate, with valid signature and seal. A fresh TinRelay self-send was accepted, independently
+reported routed, and returned to this actual chat. Its source-turn anchor exists. Read-only
+inspection also finds the matching outgoing card rendered in the current viewport. Mike confirmed
+that it works and authorized the source checkpoint and push.
+
+Final live browser/native checks passed on this installed build: dedicated Chrome control created
+a temporary public example-page tab, navigated/read it and closed it. Native Computer Use retrieved
+the canonical Codex app's accessibility state. No new permission flow or privacy reset was needed.
+The canonical app was addressed by full path because the still-present staged candidate shared its
+bundle identifier. Pixel capture and input were not exercised. The accepted loose candidate was
+then removed; the installed app, one official ZIP and compact receipts remain.
+
 ## TMTK 0.2.27 — composer-footer correction accepted
 
 The Desktop build remains `28661`. Before the correction, read-only renderer inspection

@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1111.71025`, build `28661` | Operator accepted corrected adoption and 0.2.27 footer fix; prior task-message ACK/wait and TinRelay checks cover unchanged transport. |
+| macOS ARM64 application | `26.1117.31558`, build `29513` | Supervised adoption, task ACK/wait, two-way TinRelay, Chrome control and native observation passed. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -44,11 +44,11 @@ or compatible with an unnamed build. See [platform compatibility](docs/platform-
 before porting or adopting a candidate.
 
 The optional macOS Computer Use repair has current private-socket vendor-Node acceptance and
-unsigned-client rejection evidence, plus live native Chrome accessibility reads. Dedicated Chrome
-extension discovery, tab creation/navigation, DOM reads and tab closure also passed after the
-browser-parent repair. The optional native repair requires a persistent local signing certificate and first-transition macOS
+unsigned-client rejection evidence, plus current native Codex accessibility observation. Dedicated
+Chrome extension discovery, tab creation/navigation, page reads and tab closure also passed.
+The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default 18-patch example remains unchanged. See [upgrading](UPGRADING.md#0225).
+The default macOS example now selects 17 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0228).
 
 ## Ordinary use
 
@@ -90,8 +90,9 @@ matcher merely to make a new build pass. The maintainer workflow is in
 [maintenance](docs/maintenance.md); macOS update selection is in
 [the update workflow](docs/macos-update-workflow.md).
 
-After acceptance, keep at most one pristine vendor artifact and one current candidate. Delete
-superseded applications, packages, extracted trees, and transaction-only rollback payloads.
+During qualification, keep one pristine vendor artifact and one current candidate. After acceptance,
+remove the loose candidate and extracted trees; keep at most one compressed vendor artifact with
+the installed app and compact receipts. Delete superseded packages and transaction-only rollbacks.
 
 ## Desktop patch catalog
 
@@ -133,7 +134,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Codex CLI `0.169.0-alpha.11.1` / Desktop `26.1111.71025` build `28661` on macOS | Preserves the current standalone external instruction when that same turn triggers compaction. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Dormant on current macOS CLI `0.171.0-alpha.13`; exact earlier diffs retained | Desktop now marks delegation output for retention and the stock CLI enables that contract by default. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The current macOS CLI builds without it. |
 
 ## Documentation map

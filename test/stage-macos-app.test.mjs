@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
+import crypto from "node:crypto";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -129,6 +130,12 @@ try {
 
   const verified = path.join(scratch, "verified");
   run(asar, ["extract", staged.archive.path, verified]);
+  assert.equal(fs.existsSync(path.join(verified, ".vite/build/main-fixture.js.owl-cjs-cache")), false,
+    "patched startup must compile its current source rather than vendor bytecode");
+  assert.deepEqual(JSON.parse(fs.readFileSync(path.join(verified, ".owl-cjs-cache.json"))), {
+    ".vite/build/untouched.js": crypto.createHash("sha256").update("unchanged cache").digest("hex")
+  });
+  assert.equal(fs.readFileSync(path.join(verified, ".vite/build/untouched.js.owl-cjs-cache"), "utf8"), "unchanged cache");
   const probe = spawnSync(process.execPath, [terminalProbe, verified], {encoding: "utf8"});
   assert.equal(probe.status, 0, probe.stderr || probe.stdout);
 
@@ -197,6 +204,13 @@ function makeSourceApp(app, rendererSource) {
     "var vae=`CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH`;" +
     "function Cae({markerPath:e=process.env[vae]?.trim(),writeMarker:t=()=>{}}={}){return t(e),!0}function owner(){let N=()=>true,r={lt:1},l={ipcMain:{handle(){}}};" +
     "l.ipcMain.handle(r.lt,async(t,s)=>{if(!N(t))return;if(s.type===`electron-avatar-overlay-restore-ready`)return})}\n");
+  fs.writeFileSync(path.join(build, "untouched.js"), "module.exports = 1;\n");
+  const cacheIndex = {};
+  for (const [name, cache] of [["main-fixture.js", "stale cache"], ["untouched.js", "unchanged cache"]]) {
+    fs.writeFileSync(path.join(build, name + ".owl-cjs-cache"), cache);
+    cacheIndex[".vite/build/" + name] = crypto.createHash("sha256").update(cache).digest("hex");
+  }
+  fs.writeFileSync(path.join(sourceTree, ".owl-cjs-cache.json"), JSON.stringify(cacheIndex));
   fs.writeFileSync(helper, "fixture helper\n", {mode: 0o755});
   const unpackedFixtures = [helper];
   for (const packageName of ["@worklouder/device-kit-oai", "better-sqlite3", "objc-js"]) {

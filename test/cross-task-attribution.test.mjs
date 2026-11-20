@@ -1,18 +1,20 @@
 #!/usr/bin/env node
+import {probeDelegationRetention29513} from './delegation-retention-29513.mjs';
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/cross-task-attribution/profiles/linux.mjs";
-import {matchesBuild28661} from "../patches/runtime-json-reload/profiles/build28661.mjs";
-import {attributionOwner28661} from "../patches/cross-task-attribution/profiles/build28661.mjs";
+import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
+import {attributionOwner29513} from "../patches/cross-task-attribution/profiles/build29513.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {probeAttribution28661} from "./cross-task-attribution-28661.mjs";
+import {probeAttribution29513} from "./cross-task-attribution-29513.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild28661(root) ? attributionOwner28661(root) : null;
+const moduleOwner = matchesBuild29513(root) ? attributionOwner29513(root) : null;
+if(moduleOwner)probeDelegationRetention29513(root);
 const owners = moduleOwner != null ? [path.relative(assets, moduleOwner.file)] : fs.readdirSync(assets).filter(name => {
   if (!name.endsWith(".js")) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
@@ -33,7 +35,7 @@ const completeSource = externalBubbleImport?.groups?.relative == null
 
 const helperStart = source.indexOf("var MTKdelegatedBubbleStyle=");
 const helperTail = source.slice(helperStart);
-const componentBoundary = moduleOwner == null ? helperTail.match(/function [$A-Z_a-z][$\w]*\(e\)\{let t=/) : /function tt\(e\)\{/.exec(helperTail);
+const componentBoundary = moduleOwner == null ? helperTail.match(/function [$A-Z_a-z][$\w]*\(e\)\{let t=/) : /function eX\(e\)\{/.exec(helperTail);
 assert.ok(helperStart >= 0 && componentBoundary, "attribution helper seam");
 const bindingStart = helperTail.indexOf("const MTKcrossTaskStoreHook=");
 const sharedStoreImported = source.includes("LX as MTKcrossTaskStoreHook,ZI as MTKcrossTaskStoreScope") ||
@@ -73,7 +75,7 @@ assert.ok(api.MTKdelegatedBubbleStyle.backgroundColor.includes("interactive-bg-a
   "unmapped delegation keeps the existing semantic accent fallback");
 
 if (moduleOwner != null) {
-  probeAttribution28661(source, helper);
+  probeAttribution29513(source, helper);
   process.exit(0);
 }
 

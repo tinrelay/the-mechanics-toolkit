@@ -4,15 +4,15 @@ import fs from "node:fs";
 import {mainProcessAsset} from "../src/main-process-asset.mjs";
 import path from "node:path";
 
-import {matchesBuild28661} from "../patches/runtime-json-reload/profiles/build28661.mjs";
-import {tinrelayOwners28661} from "../patches/tinrelay-pointer-presentation/profiles/build28661.mjs";
+import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
+import {tinrelayOwners29513} from "../patches/tinrelay-pointer-presentation/profiles/build29513.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-pointer-presentation.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild28661(root), moduleOwners=current?tinrelayOwners28661(root):null;
+const current=matchesBuild29513(root), moduleOwners=current?tinrelayOwners29513(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "delegated message renderer");
@@ -34,10 +34,10 @@ if(current){
     id=>{assert.ok(modules[id],"injected binding resolves a current native module: "+id);return modules[id]},modules.y5H2
   );
   assert.equal(component,NativeMessageBubble,"radio uses the stock delegated-message bubble");
-  const wrapper=tree.body.find(node=>node.type==="FunctionDeclaration"&&node.id.name==="ee");
+  const wrapper=tree.body.find(node=>node.type==="FunctionDeclaration"&&node.id.name==="Y");
   const cache=Array(25).fill(Symbol.for("react.memo_cache_sentinel"));let bubbleRenders=0;
   const jsx={jsx:(type,props)=>{if(type===NativeMessageBubble)bubbleRenders++;return{type,props}},jsxs:(type,props)=>({type,props})};
-  const render=Function("i","a","Y","R","return ("+rendererSource.slice(wrapper.start,wrapper.end)+")")(
+  const render=Function("i","a","Q","R","return ("+rendererSource.slice(wrapper.start,wrapper.end)+")")(
     {c:()=>cache},jsx,{A:(...values)=>values.join(" ")},{R:NativeMessageBubble}
   );
   const props={label:"Sender",message:"hello",compactActions:false};

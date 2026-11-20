@@ -9,15 +9,15 @@ import { build11645 } from "../patches/reasoning-retention/profiles/build11645.m
 import { build22943 } from "../patches/reasoning-retention/profiles/build22943.mjs";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/reasoning-retention/profiles/linux.mjs";
 
-import {matchesBuild28661} from "../patches/runtime-json-reload/profiles/build28661.mjs";
-import {reasoningOwners28661,build28661} from "../patches/reasoning-retention/profiles/build28661.mjs";
+import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
+import {reasoningOwners29513,build29513} from "../patches/reasoning-retention/profiles/build29513.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const extracted = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: reasoning-retention.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(extracted, "webview/assets");
 
-const current=matchesBuild28661(extracted), owners=current?reasoningOwners28661(extracted):null;
+const current=matchesBuild29513(extracted), owners=current?reasoningOwners29513(extracted):null;
 const turn = current?{source:readRendererModule(owners.turn)}:uniqueSource(source=>source.includes("function MTKuseReasoningRetention("),"reasoning turn owner");
 const thread = current?null:uniqueSource(source=>source.includes("function MTKuseReasoningThreadRetention("),"reasoning thread owner");
 const activity = current?{source:readRendererModule(owners.activity)}:uniqueSource(source=>source.includes("isCollapsed:!r&&(a??!i)")||source.includes("isCollapsed:!i&&(o??!a)"),"stock collapse owner");
@@ -118,7 +118,7 @@ assert.ok(
 );
 
 }
-const collapseMarker = current?build28661.collapseMarker:activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
+const collapseMarker = current?build29513.collapseMarker:activity.source.includes("isCollapsed:!i&&(o??!a)") ? "isCollapsed:!i&&(o??!a)" : "isCollapsed:!r&&(a??!i)";
 const collapseText = current ? (()=>{const node=parse(activity.source,{ecmaVersion:"latest"}).body[0].expression.arguments[2].properties.find(p=>p.key.name==="P").value;return activity.source.slice(node.start,node.end)})() : functionAt(activity.source, containingFunctionStart(activity.source, activity.source.indexOf(collapseMarker)));
 const collapse = current ? Function(`return (${collapseText})`)() : Function(`${collapseText};return ${functionName(collapseText)}`)();
 const base = {hasFinalAssistantStarted: true, isTurnCancelled: false, hasRenderableAgentItems: true};
@@ -133,7 +133,7 @@ assert.equal(
     turn.source.includes(build9922.turn.appliedOwner) ||
     turn.source.includes(build10789.turn.appliedOwner) ||
     turn.source.includes(build11645.turn.appliedOwner) ||
-    turn.source.includes(build22943.turn.appliedOwner) || current && turn.source.includes(build28661.turn.appliedOwner),
+    turn.source.includes(build22943.turn.appliedOwner) || current && turn.source.includes(build29513.turn.appliedOwner),
   true,
   "selected policy reaches the stock collapse decision"
 );

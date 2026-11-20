@@ -5,6 +5,12 @@ candidate. This is the package-integration half of the
 [standalone-output compaction source repair](../../source-patches/standalone-output-compaction/);
 it does not patch or build Rust source.
 
+The current macOS fleet leaves this integration **inactive** and uses the unchanged vendor CLI.
+Upstream now owns the qualified marked-delegation retention path; the source repair and this
+integration remain available for explicitly qualified older targets. Do not enable them on a new
+package solely because an old diff still applies. See the source repair's disposition and the
+[build matrix](../../docs/extraction-ledger.md#current-build-matrix).
+
 On macOS, set `codexBinary` in the private toolkit config to the absolute path of the built
 executable. On Windows, set `windows.codexBinaries.native` and `windows.codexBinaries.wsl` to the
 absolute paths of the separately built native and WSL executables. Enable the catalog entry

@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 
-export function probeAttribution28661(source, helper) {
-  assert.ok(source.includes('c=n("zTeN")') && source.includes('ex=n("tl5a")'), "state bindings refer to the actual stock modules");
-  assert.ok(source.includes('const MTKtitleAtom=ex.HX,MTKsourceThreadAtom=ex.ok,MTKcrossTaskState=c;'), "title and source metadata use their stock exports");
-  const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "tt");
+export function probeAttribution29513(source, helper) {
+  assert.ok(source.includes('c=n("qmMi")') && source.includes('ne=n("tl5a")'), "state bindings refer to the actual stock modules");
+  assert.ok(source.includes('const MTKtitleAtom=ne.HX,MTKsourceThreadAtom=ne.ok,MTKcrossTaskState=c;'), "title and source metadata use their stock exports");
+  const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "eX");
   assert.ok(node, "delegated-message component owner");
   const component = source.slice(node.start, node.end);
   const titleAtom = Symbol("title"), metadataAtom = Symbol("source metadata");
@@ -19,8 +19,8 @@ export function probeAttribution28661(source, helper) {
     return summary == null ? null : {summary};
   }};
   const jsx = {Fragment: "fragment", jsx: (type, props) => ({type, props}), jsxs: (type, props) => ({type, props})};
-  const values={i:{c(size){assert.equal(size,cacheSize);return cache}},MTKcrossTaskState:state,a:jsx,h:{Zp:()=>navigate},e7:{OX:()=>false},e8:{C:"Codex"},e9:{A:"app"},e6:{B:"asset"},te:{A:"app"},F:{bF:"app"},p:{A:"translated-label"},ee:"bubble-wrapper",MTKtitleAtom:titleAtom,MTKsourceThreadAtom:metadataAtom,MTKtinrelayPointerNode:()=>null};
-  const render=Function(...Object.keys(values),`${helper};${component};return tt`)(...Object.values(values));
+  const values={i:{c(size){assert.equal(size,cacheSize);return cache}},MTKcrossTaskState:state,a:jsx,p:{Zp:()=>navigate},eJ:{C:"Codex"},eY:{A:"app"},eG:{B:"asset"},eQ:{A:"app"},F:{bF:"app"},m:{A:"translated-label"},Y:"bubble-wrapper",MTKtitleAtom:titleAtom,MTKsourceThreadAtom:metadataAtom,MTKtinrelayPointerNode:()=>null};
+  const render=Function(...Object.keys(values),`${helper};${component};return eX`)(...Object.values(values));
   const props = {conversationId: "receiver-id", sourceThreadId: "source-id", message: "test", sentAtMs: 1, cwd: "/projects/receiver", hostId: "local"};
   let result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, "Ada");
@@ -34,5 +34,5 @@ export function probeAttribution28661(source, helper) {
   summary = null;
   result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, title, "missing source metadata does not borrow the receiver's project");
-  console.log("build-28661 cross-task attribution behavior probe passed");
+  console.log("build-29513 cross-task attribution behavior probe passed");
 }

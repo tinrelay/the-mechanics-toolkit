@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import crypto from "node:crypto";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -77,6 +78,7 @@ export function stageMacosApp({sourceApp, destinationApp, configPath, repository
       sourceLabel: "Source app"
     });
     const targets = fleet.changedTargets;
+    const invalidatedCodeCaches = invalidateChangedCodeCaches(extracted, targets);
 
     if (hasAsarPatches) {
       restoreUnpackedModes(extracted, sourceNativeSnapshot);
@@ -158,6 +160,7 @@ export function stageMacosApp({sourceApp, destinationApp, configPath, repository
       candidate: {app: destination, asarSha256: finalInspection.archive.sha256},
       patches: finalChecks.map(result => result.name),
       changedTargets: targets,
+      invalidatedCodeCaches,
       secondApplyByteIdentical: true,
       probesPassedAfterRepack: true,
       signatureValid: true,
@@ -308,4 +311,27 @@ function requireFile(target, label) {
   if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
     throw new Error(`Missing ${label}: ${target}`);
   }
+}
+
+// Owl's optional cache index authenticates the bytecode, not our rewritten JavaScript. Omit
+// changed entries so its cache-miss path compiles current source; preserve every other cache.
+function invalidateChangedCodeCaches(root, targets) {
+  const indexPath = path.join(root, ".owl-cjs-cache.json");
+  if (!fs.existsSync(indexPath)) return [];
+  const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+  if (index == null || typeof index !== "object" || Array.isArray(index)) {
+    throw new Error("Unknown Owl code-cache index");
+  }
+  const removed = [];
+  for (const target of targets) {
+    if (!Object.hasOwn(index, target)) continue;
+    const cache = path.join(root, `${target}.owl-cjs-cache`);
+    const digest = crypto.createHash("sha256").update(fs.readFileSync(cache)).digest("hex");
+    if (index[target] !== digest) throw new Error(`Owl code-cache digest mismatch: ${target}`);
+    fs.unlinkSync(cache);
+    delete index[target];
+    removed.push(target);
+  }
+  if (removed.length) fs.writeFileSync(indexPath, JSON.stringify(index));
+  return removed;
 }

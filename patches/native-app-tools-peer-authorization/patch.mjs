@@ -115,19 +115,19 @@ function ownerFor(profile, defaultAuthorizer) {
 function ownershipProfile(value) {
   const profiles = [
     {
-      owner: "", authorizer: "ct", helperAnchor: "function ct(){", browserRuntimeParent: {ownerName:"n1",nodePath:"e0.wLF"},
+      owner: "", authorizer: "c8", helperAnchor: "function c8(){", browserRuntimeParent: {ownerName:"iM",nodePath:"tw.wLF",newLayout:true},
       ownerPrefix: "callTool:e,listTools:t,readBrowserAccess:r,prepareTaskWorkspace:n,assignTaskProject:i,listTaskProjects:s,readTaskThread:a,pipePath:o,socketPeerAuthorizer:l=",
-      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=ce((0,eJ.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
+      contracts: ['n=!r&&"1"===process.env.CODEX_BROWSER_USE_PEER_AUTHORIZATION', 'e=c6((0,th.join)(i,"native","browser-use-peer-authorization.node"))', 'e.authorizeSocketPeer(s,n)', 'dynamic_app_tools_peer_rejected', 'missing-socket-file-descriptor'],
       computerUseOwners: [
-        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=ct()})',
-        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,t9.randomUUID)()}.sock`,socketPeerAuthorizer:r=ct()})',
-        'y=await l2({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:ct()})'
+        'async function({apiImpl:e,nativePipeDirectory:t,maxOutgoingFrameBytes:r=0x4000000,pipePath:n,socketPeerAuthorizer:i=c8()})',
+        'async function({services:e,pipePath:t=`/tmp/codex-host-services-${(0,rO.randomUUID)()}.sock`,socketPeerAuthorizer:r=c8()})',
+        'y=await cZ({maxIncomingFrameBytes:8388608,maxOutgoingFrameBytes:0x4000000,socketPeerAuthorizer:c8()})'
       ],
       computerUseSocket: [
         ['async function({source:e,codexHome:t}){if("darwin"!==process.platform||',
-         'async function({source:e,codexHome:t}){if("darwin"===process.platform&&!process.env[nK]?.trim()){let r=eQ().join(t,"computer-use","tmtk-ipc");await tr().mkdir(r,{recursive:!0,mode:448}),await tr().chmod(r,448),process.env[nK]=eQ().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
-        ['serviceNativePipePath:"darwin"===p.platform&&h?tb().env[nK]:null',
-         'serviceNativePipePath:"darwin"===p.platform?(tb().env[nK]?.trim()||eQ().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
+         'async function({source:e,codexHome:t}){if("darwin"===process.platform&&!process.env[iP]?.trim()){let r=tp().join(t,"computer-use","tmtk-ipc");await tA().mkdir(r,{recursive:!0,mode:448}),await tA().chmod(r,448),process.env[iP]=tp().join(r,"computeruse.sock")}if("darwin"!==process.platform||'],
+        ['serviceNativePipePath:"darwin"===p.platform&&h?tK().env[iP]:null',
+         'serviceNativePipePath:"darwin"===p.platform?(tK().env[iP]?.trim()||tp().join(t,"computer-use","tmtk-ipc","computeruse.sock")):null']
       ]
     },
     {

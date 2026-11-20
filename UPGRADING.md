@@ -1,10 +1,45 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.27` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.28` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.28
+
+The macOS target is Desktop `26.1117.31558` / build `29513`, with vendor CLI
+`0.171.0-alpha.13`. Complete signed static qualification, supervised adoption, task ACK/wait
+and two-way TinRelay presentation passed. Dedicated Chrome tab control and native Codex accessibility observation also
+passed without a new permission flow.
+
+Remove `standalone-output-compaction` and the unused `codexBinary` setting from a macOS
+configuration for this exact target. The Desktop sender now requests `toolOutput.retain`; the
+matching stock CLI makes `retain_client_tool_outputs` stable and enabled by default. Both focused
+stock tests passed with Rust 1.99.1, without a production-source repair: local fresh-context ordering
+and remote-v2 retention of the marked delegation. The packaged sender and its actual version
+comparator passed for both send and create. The earlier exact source diff remains dormant and
+inspectable; unmarked-output behavior and general consumed-input replay are not claimed fixed.
+A deliberately disabled retention feature is outside this qualification.
+
+Renderer ownership, five lazy tool copies, both keyboard dispatchers, the common transcript owner,
+main bootstrap and native helper offsets changed. The composer footer still follows room color.
+The default macOS example selects 17 patches; adding the optional Computer Use repair selects 18.
+The new package includes optional Owl CommonJS bytecode caches. Staging removes the cache file and
+index entry for each patched startup file, preserving untouched entries, so the runtime compiles
+current patched source. The signed-stage regression covers this packaging transition.
+The first adoption exposed an outgoing-card regression: the command wrapper retained obsolete
+minified variable names instead of the current hide-command/activity-key/disclosure inputs. The
+observer event and incoming delivery were intact, but the card could not establish its source-turn
+anchor. The retry also exposed native output deferral: the downstream command item has empty output
+and no direct turn ID. The final profile wraps the original history item before that deferral,
+derives source ownership from its native activity key, and preserves the native deferral and
+command props. A red/green probe executes that real history wrapper with the observed input
+shape. After supervised adoption, a fresh send gained its source-turn anchor, rendered an outgoing
+card in the current viewport and returned through TinRelay.
+Keep the existing persistent signing identity and use the supervisor for adoption. No macOS privacy
+reset is part of the port. Ubuntu `10954`, Windows `10954`, and Fedora `9647` are unchanged;
+DEB `amd64` and RPM `x86_64` tooling remain available under their existing qualification boundaries.
 
 ## 0.2.27
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild28661} from "../runtime-json-reload/profiles/build28661.mjs";
-import {runBuild28661} from "./profiles/build28661.mjs";
+import {matchesBuild29513} from "../runtime-json-reload/profiles/build29513.mjs";
+import {runBuild29513} from "./profiles/build29513.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -14,8 +14,8 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: agent-roster/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if (matchesBuild28661(root)) {
-  process.stdout.write(`${JSON.stringify(runBuild28661({root, command, rosterHelper}), null, 2)}\n`);
+if (matchesBuild29513(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild29513({root, command, rosterHelper}), null, 2)}\n`);
   process.exit(0);
 }
 

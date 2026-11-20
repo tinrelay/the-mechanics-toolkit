@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1111.71025` / `28661` | 18 default; 19 with Computer Use | Operator accepted corrected adoption and the 0.2.27 footer visual fix; task-message ACK/wait across compaction and TinRelay return passed on unchanged transport. |
+| macOS ARM64 application | `26.1117.31558` / `29513` | 17 default; 18 with Computer Use | Supervised adoption, task ACK/wait, two-way TinRelay, Chrome control and native observation passed. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -25,46 +25,31 @@ remains its last accepted package. The official Windows x64 MSIX has the same ou
 ARM64 offer, but its **inner** Desktop build has not been checked; outer version alone cannot
 select a generated-JavaScript profile.
 
-## Composer-footer correction
-
-TMTK `0.2.27` keeps the same Desktop/CLI target. The palette now tags the active composer footer
-as well as the legacy fade. Only the footer pseudo-elements receive the room surface token;
-native geometry/transparency and child composer surfaces are preserved. Signed 19-patch staging, post-repack probes, reapplication and native-CSS browser checks passed.
-The supervised restart reached readiness; the operator accepted the corrected footer visually.
-CLI/native and messaging logic are unchanged; their prior live checks were not repeated.
-
 ## Fleet-wide evidence and limits
 
-The current CLI repair passed exact stock-red/repaired-green local and remote-v2 tests and a
-native release build. This revision needs no authentication-fixture correction. The independent
-Computer Use helper probe passed stock vendor-Node rejection, repaired ping acceptance and
-continued unsigned-Python rejection. No experimental retention flag or macOS privacy grant was changed.
+Exact `build29513` profiles cover the current renderer/native owners, all five lazy tool copies,
+both keyboard dispatchers, and the common transcript owner used by native and MCP turns. The
+composer footer retains its scoped room-color token and native geometry. Outgoing previews keep
+cold initialization independent of the conversation formatter. Supported Linux/Windows profiles
+remain separate and unchanged.
 
-Exact `build28661` profiles cover the new renderer/native owners, three lazy tool-renderer copies,
-both keyboard dispatchers and both transcript paths. Outgoing previews adapt the stock compound tooltip and defer the
-conversation formatter until render. Legacy fixtures remain for supported Windows/Linux targets.
-The absent thread-level collapse effect stays unpatched. The Space-notification count remains
-outside task-attention policy.
+The macOS compaction source repair is dormant for this target. The actual Desktop adapter requests
+retention and the stock `.171.0-alpha.13` CLI enables it by default. Two exact-source tests passed
+for marked delegation ordering and remote-v2 retention; the packaged sender/version gate also
+passed. No production Rust source repair or replacement CLI is selected. Earlier exact diffs stay
+available as regression references, not current macOS staging inputs. This does not establish
+retention of ordinary unmarked outputs or prevention of every consumed-message replay.
 
-| Boundary | Current result |
-| --- | --- |
-| Source repair | Exact `.169.0-alpha.11.1`: 2 stock failures, 2 repaired passes; native Rust 1.95.0 release build passed. |
-| Helper authorization | Current private-socket stock/repaired/rejected-peer proof passed. |
-| Shared behavior and packaging | Complete signed 19-patch stage, composed/post-repack probes, byte-identical reapplication, native payload preservation, signature and ASAR seal passed. |
-| Permission identity | Candidate and existing helper have identical certificate-based signing requirements; no privacy reset invoked. |
-| Live adoption | First attempt failed on a removed decoder export; exact two-import rescue correction verified. Supervisor ready; operator accepted qualification. Real chat, native ACK/wait across compaction and TinRelay return passed. |
-| Repository | `npm run check` and `npm test` passed; production DEB/RPM staging fixtures platform-skipped. |
-| Open limits | One live delegated request survived compaction; general replay prevention is not proved. Chrome/native Computer Use actions and a full feature tour were not rerun. |
-
-See [macOS](../qualification/macos.md), [Windows](../qualification/windows.md), and
-[Linux](../qualification/linux.md) qualification for hashes and exact residuals. The
-[standalone-output compaction repair](../source-patches/standalone-output-compaction/) is a separate
-same-version Codex CLI source patch selected for macOS build `28661` but
-not the Windows or Linux package fleets.
-The separate [query-depth source patch](../source-patches/chatgpt-query-depth/) enables a stable-Rust
-rebuild of that CLI on hosts where `codex-chatgpt` exceeds the compiler limit; it was applied to
-the accepted build-`11645` source checkout and is not needed for the current CLI. It does
-not change the desktop JavaScript fleet.
+Complete signed 18-patch staging, post-repack probes, byte-identical reapplication, repository checks
+and tests passed. Four changed startup files lose their optional Owl bytecode entries; the other
+26 entries remain byte-identical. Native-CSS browser checks preserve footer colors and geometry.
+Initial supervised launch, real-chat operation, message/ACK/wait and TinRelay return passed. Mike
+then found the outgoing card absent. After correcting pre-deferral presentation and another
+supervised restart, a fresh send has its source-turn anchor, outgoing card rendered in the viewport,
+and returned incoming delivery. A temporary dedicated Chrome tab was created, navigated, read
+and closed; native accessibility observation of the canonical Codex app also passed without a new permission flow. Pixel capture
+and input were not exercised. The [macOS runbook](../qualification/macos.md) owns hashes and exact gates.
+See also [Windows](../qualification/windows.md) and [Linux](../qualification/linux.md).
 
 ## Extraction rule
 

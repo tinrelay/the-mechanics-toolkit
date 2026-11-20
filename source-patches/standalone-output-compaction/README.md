@@ -45,9 +45,23 @@ The affected compaction paths did not retain that newer input shape. This patch 
 unpaired external items, caps each at 10,000 estimated tokens, and leaves ordinary paired tool
 results discardable.
 
-## Qualified source
+## Current disposition
 
-[The current source diff](codex-0.169.0-alpha.11.1.patch) targets macOS Desktop
+**Dormant on macOS Desktop build `29513`, CLI `0.171.0-alpha.13`.** The current Desktop
+adapter requests `toolOutput.retain` for delegation, and this matching CLI marks
+`retain_client_tool_outputs` stable/default-on. The packaged sender/version comparator and two
+stock-core tests passed for marked delegation ordering and remote-v2 retention. The macOS example
+therefore leaves the integration disabled and preserves the vendor CLI. Explicitly disabling the
+retention feature is outside this qualification.
+
+This retires the local repair from that exact macOS fleet, not from every input shape or platform.
+The unmarked-output fallback and broader consumed-input replay are not proved upstream-owned.
+The exact prior diff below is retained inactive as a regression reference, per the operator's
+instruction to preserve rather than delete retired repairs.
+
+## Prior qualified source (retained inactive)
+
+[The retained source diff](codex-0.169.0-alpha.11.1.patch) targets macOS Desktop
 `26.1111.71025` / build `28661`, which bundles `codex-cli 0.169.0-alpha.11.1` at upstream commit
 `226fa88979b1a9d76dc36f339ee9c5fbdb2c8e7f`. Both focused tests failed on this exact stock
 revision, then passed after the repair. Those tests cover local and remote-v2
@@ -64,7 +78,7 @@ also retains exact entries for earlier supported builds. The source-patch comman
 selected commit and every target file's exact before or after hash; the shared textual diff alone
 is not an applicability claim.
 
-The current CLI does not need the separate
+That prior CLI does not need the separate
 [ChatGPT query-depth source patch](../chatgpt-query-depth/); that exact patch remains for the
 earlier build-`11645` source whose crate exceeded a compiler limit on another ARM64 macOS host.
 

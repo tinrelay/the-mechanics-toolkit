@@ -3,21 +3,21 @@ import path from "node:path";
 import {mainProcessAsset, mainLoggerOwner, mainMessageAnchor} from "../../../src/main-process-asset.mjs";
 import {readRendererModule, writeRendererModule} from "../../../src/renderer-module.mjs";
 
-export function matchesBuild28661(root) {
+export function matchesBuild29513(root) {
   if (!fs.existsSync(path.join(root, "package.json"))) return false;
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-  return manifest.version === "26.1111.71025" && String(manifest.codexBuildNumber) === "28661";
+  return manifest.version === "26.1117.31558" && String(manifest.codexBuildNumber) === "29513";
 }
 
-export function runtimeOwner28661(root) {
-  const entry = path.join(root, "webview/assets/348410.136819d3b7.js");
+export function runtimeOwner29513(root) {
+  const entry = path.join(root, "webview/assets/348410.26eb37f9ae.js");
   const html = fs.readFileSync(path.join(root, "webview/index.html"), "utf8");
-  if (!html.includes('src="/assets/348410.136819d3b7.js"')) throw new Error("Upstream changed: renderer runtime entry is not selected");
-  return {file: entry, id: "TL6G", parameters: ["e", "a", "c"], registry: "u"};
+  if (!html.includes('src="/assets/348410.26eb37f9ae.js"')) throw new Error("Upstream changed: renderer runtime entry is not selected");
+  return {file: entry, id: "TL6G", parameters: ["e", "a", "c"], registry: "l"};
 }
 
-export function runBuild28661({root, command, rendererHelper, mainHelper}) {
-  const owner = runtimeOwner28661(root), main = mainProcessAsset(root);
+export function runBuild29513({root, command, rendererHelper, mainHelper}) {
+  const owner = runtimeOwner29513(root), main = mainProcessAsset(root);
   let renderer = readRendererModule(owner), native = fs.readFileSync(main, "utf8");
   const before = 'let s=o.getInstance();s.initialize(),c.d(a,{},{JX:function(e,a,c){';
   const after = before.replace("s.initialize(),", "s.initialize(),MTKinstallRuntimeJsonReload(),");

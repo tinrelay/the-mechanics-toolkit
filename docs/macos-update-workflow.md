@@ -129,6 +129,12 @@ its internal build. Compare both because neither implies the other. If no qualif
 matches, port directly against this pristine offered bundle. Do not first spend a restart qualifying
 the soon-to-be-old installed build, and do not widen an old matcher until it passes.
 
+For packages containing `.owl-cjs-cache.json`, `stage-macos` invalidates optional bytecode only
+for changed ASAR sources: it removes the matching cache files and index entries before repacking.
+Untouched bytecode remains unchanged. Do not manually keep stale cache entries beside rewritten
+startup code. The normal signed staging receipt lists `invalidatedCodeCaches`; post-repack feature
+probes still apply. This does not replace live startup and real-chat activation acceptance.
+
 ## Keep one live application identity
 
 Do not install `ChatGPT.app` and `ChatGPT-MechanicsToolkit.app` side by side. Renaming an application
@@ -203,6 +209,10 @@ active replacement transaction and is removed when that transaction ends. Before
 copy, inspect both available disk space and the exact workbench size. If removal requires authority
 the current task does not have, stop before creating another candidate and return the exact obsolete
 paths and sizes for disposition.
+
+For native Computer Use verification, address `/Applications/ChatGPT.app` explicitly when a staged
+candidate with the same bundle identifier is still present. Do not launch that candidate alongside
+the canonical app. Remove the loose candidate after acceptance as described below.
 
 After live acceptance, keep:
 

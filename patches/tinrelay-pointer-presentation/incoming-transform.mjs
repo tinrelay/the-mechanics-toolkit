@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild28661} from "../runtime-json-reload/profiles/build28661.mjs";
-import {runIncoming28661} from "./profiles/build28661.mjs";
+import {matchesBuild29513} from "../runtime-json-reload/profiles/build29513.mjs";
+import {runIncoming29513} from "./profiles/build29513.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -25,7 +25,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/incoming-transform.mjs check|apply EXTRACTED_ASAR_ROOT [--config TOOLKIT_CONFIG]");
 }
 
-if(matchesBuild28661(root)){console.log(JSON.stringify(runIncoming28661({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
+if(matchesBuild29513(root)){console.log(JSON.stringify(runIncoming29513({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -467,10 +467,10 @@ function mainHelpers(config, childProcess) {
 }
 
 function mainProcessProfile(source) {
-  if(source.startsWith("exports.ids=[100],exports.modules={")) {
+  if(source.includes('ep=new tI.kec;ep.add(G),ep.add(ea)')) {
     const entry=fs.readFileSync(path.join(root,".vite/build/early-bootstrap.js"),"utf8");
-    if(count(source,'var t5=r(50596),t6=r(2757),t8=r(95398),t9=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-28661 child-process binding");
-    return {childProcess:"t8",helperOwner:mainLoggerOwner(source)[0]};
+    if(count(source,'var rM=r(95398),rO=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-29513 child-process binding");
+    return {childProcess:"rM",helperOwner:mainLoggerOwner(source)[0]};
   }
   if (isWebpackMain(source)) {
     const entry = fs.readFileSync(path.join(root, ".vite/build/early-bootstrap.js"), "utf8");
