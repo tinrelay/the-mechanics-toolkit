@@ -1,9 +1,9 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner29513}from '../../agent-roster/profiles/build29513.mjs';
-export const attentionRow29513=root=>({file:path.join(root,'webview/assets/async/364303.ba663c573e.js'),id:'CGsD',parameters:['e','t','n']});
-export const attention29513={
-  "suffix": "29513",
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner29803}from '../../agent-roster/profiles/build29803.mjs';
+export const attentionRow29803=root=>({file:path.join(root,'webview/assets/async/364303.547a896ba2.js'),id:'CGsD',parameters:['e','t','n']});
+export const attention29803={
+  "suffix": "29803",
   "appRootBefore": "function fg(){MTKuseAgentRoster();",
-  "appRootAfter": "function fg(){MTKuseAttentionBootstrap29513();MTKuseAgentRoster();",
+  "appRootAfter": "function fg(){MTKuseAttentionBootstrap29803();MTKuseAgentRoster();",
   "scopeAfter": "(0,A.gh)(O.u)",
   "react": "u",
   "decoder": "MTKattentionDecode",
@@ -12,13 +12,13 @@ export const attention29513={
   "atomBefore": "hF=(0,A.un)(O.u,({get:e})=>{if",
   "atomAfter": "hF=(0,A.un)(O.u,({get:e})=>{e(MTKattentionPolicyAtom);if",
   "dockBefore": "o=\"work\"===t?(0,io.FT)({cloudThreadsAllowed:i,localThreadsAllowed:(0,io.sV)(e(e1.rQ)),threadKeys:l}):l;return r+",
-  "dockAfter": "o=\"work\"===t?(0,io.FT)({cloudThreadsAllowed:i,localThreadsAllowed:(0,io.sV)(e(e1.rQ)),threadKeys:l}):l;o=o.filter(t=>!MTKattentionIgnoredThread29513(e,t));return r+",
+  "dockAfter": "o=\"work\"===t?(0,io.FT)({cloudThreadsAllowed:i,localThreadsAllowed:(0,io.sV)(e(e1.rQ)),threadKeys:l}):l;o=o.filter(t=>!MTKattentionIgnoredThread29803(e,t));return r+",
   "notificationBefore": "event:\"turn-completed\",listener:n}),(t,a,r)=>{var s;",
-  "notificationAfter": "event:\"turn-completed\",listener:n}),(t,a,r)=>{if(MTKattentionIgnored29513((0,pt.W$)(a),t.conversationId))return;var s;",
+  "notificationAfter": "event:\"turn-completed\",listener:n}),(t,a,r)=>{if(MTKattentionIgnored29803((0,pt.W$)(a),t.conversationId))return;var s;",
   "primaryOwner": "function eF(e){",
   "primaryReact": "s",
   "titleBefore": "nK=nP?\"loading\":nW,nF=",
-  "titleAfter": "MTKattentionIgnoredForTask=MTKuseTaskAttention29513(eN,eL),nK=nP?\"loading\":nW,nF=",
+  "titleAfter": "MTKattentionIgnoredForTask=MTKuseTaskAttention29803(eN,eL),nK=nP?\"loading\":nW,nF=",
   "pristinePrimary": [
     "nF=!nH&&(tU??!0===nx),nz=nH||null!=nb?0:nC??0",
     "hasUnreadTurn:!nH&&!0===nx"
@@ -28,9 +28,9 @@ export const attention29513={
     "hasUnreadTurn:!MTKattentionIgnoredForTask&&!nH&&!0===nx"
   ]
 };
-export function runBuild29513({root,command,patchProfile}){
+export function runBuild29803({root,command,patchProfile}){
  const decoder=readRendererModule({file:path.join(root,'webview/assets/async/364313.d749d31da5.js'),id:'d6Ff',parameters:['e','t','n']});one(decoder,"Pc:l,Wz:s,z3:a");one(decoder,"return{kind:\"local\",key:a(n),threadId:n}");
- const app=rosterOwner29513(root),row=attentionRow29513(root);let source=readRendererModule(app),primary=readRendererModule(row);const p=attention29513;
+ const app=rosterOwner29803(root),row=attentionRow29803(root);let source=readRendererModule(app),primary=readRendererModule(row);const p=attention29803;
  if(command==='check'&&!source.includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze(')){
   for(const fragment of ['function fg(){let e,t,n,a,r=(0,c.c)(11),',p.atomBefore,p.dockBefore,p.notificationBefore,"let o=(0,pt.W$)(a),c=_(t.conversationId,a)"])one(source,fragment);
   for(const fragment of[p.primaryOwner,p.titleBefore,...p.pristinePrimary])one(primary,fragment);

@@ -162,7 +162,7 @@ The host-message cases bind to the enclosing main handler's actual request argum
 outgoing lookup/anchor restore and legacy incoming-pointer inspection are checked through that
 owner; isolated helper tests must not supply an obsolete request-variable name on its behalf.
 
-For build `29513`, presentation wraps the original history item before native command-output
+For builds `29513` and `29803`, presentation wraps the original history item before native command-output
 deferral. The downstream command renderer receives empty output and no direct turn ID, so it
 cannot own acceptance lookup. The wrapper uses the native conversation-plus-turn activity key
 for source ownership and leaves native output deferral, command props and disclosure intact.

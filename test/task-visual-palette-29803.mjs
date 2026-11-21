@@ -2,16 +2,16 @@ import assert from "node:assert/strict";
 import {parse} from "acorn";
 import path from "node:path";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {paletteOwners29513} from "../patches/task-visual-palette/profiles/build29513.mjs";
+import {paletteOwners29803} from "../patches/task-visual-palette/profiles/build29803.mjs";
 
-export function probePendingChatArchive29513(root) {
-  const footer=readRendererModule({file:path.join(root,'webview/assets/async/632620.48ff231b29.js'),id:'Gjet',parameters:['e','t','r']}),footerNodes=[];
+export function probePendingChatArchive29803(root) {
+  const footer=readRendererModule({file:path.join(root,'webview/assets/async/632620.21f2e5d141.js'),id:'Gjet',parameters:['e','t','r']}),footerNodes=[];
   walk(parse(footer,{ecmaVersion:'latest',sourceType:'module'}),node=>{if(node.type==='ObjectExpression'&&node.properties.some(p=>p.key?.name==='className'&&footer.slice(p.value.start,p.value.end).includes('footer-A8ZvKV')))footerNodes.push(node)});
   assert.equal(footerNodes.length,1,'one native composer footer owns the pseudo-element backdrop');
   const marker=footerNodes[0].properties.find(p=>p.key?.value==='data-mtk-palette-bottom-fade');
   assert.ok(marker,'the active composer footer participates in room-color styling');
   assert.equal(Function('return '+footer.slice(marker.value.start,marker.value.end))(),true);
-  const group=readRendererModule(paletteOwners29513(root).group),groupNodes=[];
+  const group=readRendererModule(paletteOwners29803(root).group),groupNodes=[];
   walk(parse(group,{ecmaVersion:"latest",sourceType:"module"}),node=>groupNodes.push(node));
   const groupAction=groupNodes.find(node=>node.type==="FunctionExpression"&&node.params[0]?.type==="ObjectPattern"&&
     node.params[0].properties.some(property=>property.key.name==="selectedThreadKeys"));
@@ -25,7 +25,7 @@ export function probePendingChatArchive29513(root) {
   assert.deepEqual(menuAction(selection).map(item=>item.id),["rename-thread"]);
   guard=false;
   assert.equal(menuAction(selection),items,"ordinary single selections keep native menu items");
-  const source=readRendererModule(paletteOwners29513(root).localMenu);
+  const source=readRendererModule(paletteOwners29803(root).localMenu);
   const nodes=[];
   walk(parse(source,{ecmaVersion:"latest",sourceType:"module"}),node=>nodes.push(node));
   const menu=nodes.find(node=>node.type==="ArrowFunctionExpression"&&source.slice(node.start,node.end).includes('MTKsidebarArchiveProtected(J)'));
@@ -46,7 +46,7 @@ export function probePendingChatArchive29513(root) {
   const cache=Array(82).fill("cached");cache[81]=1;
   invalidate(cache,1);assert.equal(cache[0],"cached");
   invalidate(cache,2);assert.equal(cache[0],Symbol.for("react.memo_cache_sentinel"));assert.equal(cache[81],2);
-  const remote=readRendererModule(paletteOwners29513(root).remoteActions),remoteNodes=[];
+  const remote=readRendererModule(paletteOwners29803(root).remoteActions),remoteNodes=[];
   walk(parse(remote,{ecmaVersion:"latest",sourceType:"module"}),node=>remoteNodes.push(node));
   const archiveValues=remoteNodes.filter(node=>node.type==="Property"&&node.key.name==="archive"&&
     remote.slice(node.value.start,node.value.end).includes('MTKsidebarArchiveProtected(tp??eg.key)'));

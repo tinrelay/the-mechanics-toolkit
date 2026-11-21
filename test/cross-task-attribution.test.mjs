@@ -1,20 +1,20 @@
 #!/usr/bin/env node
-import {probeDelegationRetention29513} from './delegation-retention-29513.mjs';
+import {probeDelegationRetention29803} from './delegation-retention-29803.mjs';
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { linuxBuild9771, linuxBuild10954 } from "../patches/cross-task-attribution/profiles/linux.mjs";
-import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
-import {attributionOwner29513} from "../patches/cross-task-attribution/profiles/build29513.mjs";
+import {matchesBuild29803} from "../patches/runtime-json-reload/profiles/build29803.mjs";
+import {attributionOwner29803} from "../patches/cross-task-attribution/profiles/build29803.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
-import {probeAttribution29513} from "./cross-task-attribution-29513.mjs";
+import {probeAttribution29803} from "./cross-task-attribution-29803.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: cross-task-attribution.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild29513(root) ? attributionOwner29513(root) : null;
-if(moduleOwner)probeDelegationRetention29513(root);
+const moduleOwner = matchesBuild29803(root) ? attributionOwner29803(root) : null;
+if(moduleOwner)probeDelegationRetention29803(root);
 const owners = moduleOwner != null ? [path.relative(assets, moduleOwner.file)] : fs.readdirSync(assets).filter(name => {
   if (!name.endsWith(".js")) return false;
   const source = fs.readFileSync(path.join(assets, name), "utf8");
@@ -75,7 +75,7 @@ assert.ok(api.MTKdelegatedBubbleStyle.backgroundColor.includes("interactive-bg-a
   "unmapped delegation keeps the existing semantic accent fallback");
 
 if (moduleOwner != null) {
-  probeAttribution29513(source, helper);
+  probeAttribution29803(source, helper);
   process.exit(0);
 }
 

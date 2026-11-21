@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1117.31558` / `29513` | 17 default; 18 with Computer Use | Supervised adoption, task ACK/wait, two-way TinRelay, Chrome control and native observation passed. |
+| macOS ARM64 application | `26.1117.41037` / `29803` | 17 default; 18 with Computer Use | Signed 18-patch stage, supervised adoption, real chat, task ACK/wait and two-way TinRelay passed. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,29 +27,33 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-Exact `build29513` profiles cover the current renderer/native owners, all five lazy tool copies,
+Exact `build29803` profiles cover the current renderer/native owners, all five lazy tool copies,
 both keyboard dispatchers, and the common transcript owner used by native and MCP turns. The
-composer footer retains its scoped room-color token and native geometry. Outgoing previews keep
-cold initialization independent of the conversation formatter. Supported Linux/Windows profiles
-remain separate and unchanged.
+shared item module split into new owners; task-message metadata, receipts, reasoning policy and
+TinRelay registration follow the actual current bindings. The history wrapper still intercepts
+full command output before native deferral. The composer footer retains its scoped room token.
+Supported Linux/Windows profiles remain separate and unchanged.
 
-The macOS compaction source repair is dormant for this target. The actual Desktop adapter requests
-retention and the stock `.171.0-alpha.13` CLI enables it by default. Two exact-source tests passed
-for marked delegation ordering and remote-v2 retention; the packaged sender/version gate also
-passed. No production Rust source repair or replacement CLI is selected. Earlier exact diffs stay
-available as regression references, not current macOS staging inputs. This does not establish
-retention of ordinary unmarked outputs or prevention of every consumed-message replay.
+The vendor CLI `0.171.0-alpha.13` is byte-identical to the accepted 29513 executable. The packaged
+sender/version comparator still requests marked-delegation retention. The macOS compaction source
+repair remains dormant; the previous exact-source stock tests remain applicable to the same
+executable. This does not establish general unmarked-output retention or every consumed-input
+replay repair. No replacement CLI or Rust build is selected.
 
-Complete signed 18-patch staging, post-repack probes, byte-identical reapplication, repository checks
-and tests passed. Four changed startup files lose their optional Owl bytecode entries; the other
-26 entries remain byte-identical. Native-CSS browser checks preserve footer colors and geometry.
-Initial supervised launch, real-chat operation, message/ACK/wait and TinRelay return passed. Mike
-then found the outgoing card absent. After correcting pre-deferral presentation and another
-supervised restart, a fresh send has its source-turn anchor, outgoing card rendered in the viewport,
-and returned incoming delivery. A temporary dedicated Chrome tab was created, navigated, read
-and closed; native accessibility observation of the canonical Codex app also passed without a new permission flow. Pixel capture
-and input were not exercised. The [macOS runbook](../qualification/macos.md) owns hashes and exact gates.
-See also [Windows](../qualification/windows.md) and [Linux](../qualification/linux.md).
+The optional Computer Use helper's normalized image is also identical to 29513. Its exact repair
+and persistent-signing contract are unchanged. The earlier private-socket and live browser/native
+results belong to that accepted build. They do not prove a new launch of 29803.
+
+Complete signed 18-patch staging, post-repack probes, byte-identical reapplication, native
+preservation, signature/seal, native-CSS footer checks and repository checks/tests passed. Four
+patched startup cache entries were removed; 26 untouched entries are preserved. The optional
+helper retains the existing certificate-based designated requirement without a privacy reset.
+Supervised adoption reached renderer readiness without rescue and returned to the real chat.
+Installed 29803 matches the qualified candidate with valid signature/seal. Vera's fresh ACK and
+wait completion passed. TinRelay self-send was accepted, routed and returned, with both outgoing
+and incoming cards rendered in the viewport. Browser/native actions were not repeated.
+The [macOS runbook](../qualification/macos.md) owns hashes and exact gates. See also [Windows](../qualification/windows.md) and
+[Linux](../qualification/linux.md).
 
 ## Extraction rule
 

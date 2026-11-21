@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild29513} from "../runtime-json-reload/profiles/build29513.mjs";
-import {runBuild29513} from "./profiles/build29513.mjs";
+import {matchesBuild29803} from "../runtime-json-reload/profiles/build29803.mjs";
+import {runBuild29803} from "./profiles/build29803.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -23,7 +23,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: wait-thread-roster/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild29513(root)){console.log(JSON.stringify(runBuild29513({root,command,buildHelper})));process.exit(0);}
+if(matchesBuild29803(root)){console.log(JSON.stringify(runBuild29803({root,command,buildHelper})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const target = uniqueOwner();

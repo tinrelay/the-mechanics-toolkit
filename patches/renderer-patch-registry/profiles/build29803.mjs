@@ -1,14 +1,14 @@
-import {terminalKeyboardOwners29513} from '../../terminal-toggle/profiles/build29513.mjs';
-import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner29513}from '../../runtime-json-reload/profiles/build29513.mjs';import{rosterOwner29513}from '../../agent-roster/profiles/build29513.mjs';import{modelOwner29513}from '../../model-identity-guard/profiles/build29513.mjs';import{attributionOwner29513}from '../../cross-task-attribution/profiles/build29513.mjs';import{reasoningOwners29513}from '../../reasoning-retention/profiles/build29513.mjs';import{waitOwners29513}from '../../wait-thread-roster/profiles/build29513.mjs';
-export function registryOwners29513(root){return{runtime:runtimeOwner29513(root),app:rosterOwner29513(root),model:modelOwner29513(root),conversation:attributionOwner29513(root),turn:reasoningOwners29513(root).turn,tools:waitOwners29513(root)}}
-export function runBuild29513({root,command,bootstrap}){
- const o=registryOwners29513(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
+import {terminalKeyboardOwners29803} from '../../terminal-toggle/profiles/build29803.mjs';
+import path from 'node:path';import fs from 'node:fs';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{mainProcessAsset}from '../../../src/main-process-asset.mjs';import{runtimeOwner29803}from '../../runtime-json-reload/profiles/build29803.mjs';import{rosterOwner29803}from '../../agent-roster/profiles/build29803.mjs';import{modelOwner29803}from '../../model-identity-guard/profiles/build29803.mjs';import{attributionOwner29803}from '../../cross-task-attribution/profiles/build29803.mjs';import{reasoningOwners29803}from '../../reasoning-retention/profiles/build29803.mjs';import{waitOwners29803}from '../../wait-thread-roster/profiles/build29803.mjs';
+export function registryOwners29803(root){return{runtime:runtimeOwner29803(root),app:rosterOwner29803(root),model:modelOwner29803(root),conversation:attributionOwner29803(root),turn:reasoningOwners29803(root).turn,tools:waitOwners29803(root)}}
+export function runBuild29803({root,command,bootstrap}){
+ const o=registryOwners29803(root),native=fs.readFileSync(mainProcessAsset(root),'utf8'),entries=[];
  if(command==='check'&&!readRendererModule(o.runtime).includes('function MTKinstallRuntimeJsonReload(')){
   const source=readRendererModule(o.runtime);if(!source.includes('let s=o.getInstance();s.initialize(),c.d(a,{},{JX:function(e,a,c){'))throw Error('Unknown pristine registry runtime');
   for(const owner of[o.app,o.model,o.conversation,o.turn,...o.tools])readRendererModule(owner);
   return{state:'needs-apply',apiVersion:1,packages:[],targets:[path.relative(root,o.runtime.file)]};
  }
- for(const owner of terminalKeyboardOwners29513(root))if(!readRendererModule(owner).includes(owner.after))throw Error('Registry requires composed terminal owner');
+ for(const owner of terminalKeyboardOwners29803(root))if(!readRendererModule(owner).includes(owner.after))throw Error('Registry requires composed terminal owner');
  const reg=(name,descriptor)=>`globalThis.__MTK_PATCH_REGISTRY__?.register?.("${name}",${descriptor});`;
  const add=(owner,markers,registrations)=>{const source=readRendererModule(owner);for(const marker of markers)if(!source.includes(marker))throw Error('Registry requires composed module '+marker);entries.push({owner,source,registrations})};
  add(o.runtime,['function MTKinstallRuntimeJsonReload('],[reg('runtimeJsonReload','{version:2,files:["agent-roster.json"]}')]);

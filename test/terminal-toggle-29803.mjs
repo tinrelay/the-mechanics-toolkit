@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import {parse} from 'acorn';
-import {readRendererModule} from '../src/renderer-module.mjs';import {terminalCommandOwner29513,terminal29513,terminalKeyboardOwners29513} from '../patches/terminal-toggle/profiles/build29513.mjs';
-export function probeTerminal29513(root){
- const catalogs=[readRendererModule(terminalCommandOwner29513(root)),...['early-bootstrap-7-ce4a67f0257ee973.js','worker.js'].map(f=>fs.readFileSync(path.join(root,'.vite/build',f),'utf8'))];
- for(const s of catalogs){assert.equal(s.split(terminal29513.commandAfter).length,2);assert.ok(s.includes('defaultKeybindings:[{key:"Control+`"}]'));}
- for(const owner of terminalKeyboardOwners29513(root)){
+import {readRendererModule} from '../src/renderer-module.mjs';import {terminalCommandOwner29803,terminal29803,terminalKeyboardOwners29803} from '../patches/terminal-toggle/profiles/build29803.mjs';
+export function probeTerminal29803(root){
+ const catalogs=[readRendererModule(terminalCommandOwner29803(root)),...['early-bootstrap-7-ce4a67f0257ee973.js','worker.js'].map(f=>fs.readFileSync(path.join(root,'.vite/build',f),'utf8'))];
+ for(const s of catalogs){assert.equal(s.split(terminal29803.commandAfter).length,2);assert.ok(s.includes('defaultKeybindings:[{key:"Control+`"}]'));}
+ for(const owner of terminalKeyboardOwners29803(root)){
  const source=readRendererModule(owner);
  const node=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.find(x=>x.type==='FunctionDeclaration'&&x.id.name===owner.functionName);assert.ok(node);const text=source.slice(node.start,node.end);
  let options,dispatched=0;class Element{};
@@ -14,5 +14,5 @@ export function probeTerminal29513(root){
  assert.equal(dispatched,1);assert.equal(prevented,1);assert.equal(stopped,1);
  options.onKeyDown({target:new Element,defaultPrevented:false,isComposing:true,key:'Process',getModifierState:()=>false});assert.equal(dispatched,1,'IME composition does not toggle');
  }
- console.log('terminal toggle 29513 behavior probe passed');
+ console.log('terminal toggle 29803 behavior probe passed');
 }

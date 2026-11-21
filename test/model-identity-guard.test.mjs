@@ -3,22 +3,22 @@ import {parse} from "acorn";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import {matchesBuild29513} from "../patches/runtime-json-reload/profiles/build29513.mjs";
-import {build29513, modelOwner29513} from "../patches/model-identity-guard/profiles/build29513.mjs";
+import {matchesBuild29803} from "../patches/runtime-json-reload/profiles/build29803.mjs";
+import {build29803, modelOwner29803} from "../patches/model-identity-guard/profiles/build29803.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: model-identity-guard.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild29513(root) ? modelOwner29513(root) : null;
+const moduleOwner = matchesBuild29803(root) ? modelOwner29803(root) : null;
 const owner = moduleOwner == null ? uniqueOwner(source => source.includes("function MTKinstallModelIdentityGuard(")) : {file: moduleOwner.file, source: readRendererModule(moduleOwner)};
 const rosterPolicy = owner.source.includes("function MTKmodelPinForTask(");
 const start = owner.source.indexOf(rosterPolicy ? "function MTKmodelPinForTask(" : 'const MTKmodelGuardStyleId=');
 const componentBoundary = owner.source.slice(start).match(/function [A-Za-z_$][\w$]*\(e\)\{let t=\(0,[A-Za-z_$][\w$]*\.c\)\(/);
 const end = moduleOwner != null ? parse(owner.source,{ecmaVersion:"latest"}).body.find(x=>x.type==="FunctionDeclaration"&&x.id?.name==="MTKuseModelIdentityGuard").end : componentBoundary == null ? -1 : start + componentBoundary.index;
 if (moduleOwner != null) {
-  assert.ok(owner.source.includes(build29513.appliedPublication), "loading clears the task publication until the effective model and effort are ready");
-  assert.ok(owner.source.includes(build29513.selectionOwner) && owner.source.includes(build29513.loadingGateOwner), "publication follows the effective selection and complete stock loading state");
+  assert.ok(owner.source.includes(build29803.appliedPublication), "loading clears the task publication until the effective model and effort are ready");
+  assert.ok(owner.source.includes(build29803.selectionOwner) && owner.source.includes(build29803.loadingGateOwner), "publication follows the effective selection and complete stock loading state");
 }
 assert.ok(start >= 0 && end > start, "model guard helper seam");
 const helper = owner.source.slice(start, end);

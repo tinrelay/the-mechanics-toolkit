@@ -1,16 +1,16 @@
 import fs from 'node:fs';import path from 'node:path';
 import {readRendererModule,writeRendererModule} from '../../../src/renderer-module.mjs';
-import {rosterOwner29513} from '../../agent-roster/profiles/build29513.mjs';
-export const terminalCommandOwner29513=root=>({file:path.join(root,'webview/assets/async/364313.d749d31da5.js'),id:'Qph1',parameters:['e','t','n']});
-export const terminal29513={
+import {rosterOwner29803} from '../../agent-roster/profiles/build29803.mjs';
+export const terminalCommandOwner29803=root=>({file:path.join(root,'webview/assets/async/364313.d749d31da5.js'),id:'Qph1',parameters:['e','t','n']});
+export const terminal29803={
  commandBefore:'id:"toggleTerminal",titleIntlId:"codex.command.toggleTerminal",descriptionIntlId:"codex.commandDescription.toggleTerminal",requiredAccess:"codexLocal",unifiedSearchGroupKey:"panels",',
  editableBefore:"I=\"composer.toggleDictation\"===l||_&&\"[data-codex-composer]\"||\"exitWorkspaceFullView\"===l||\"focusPageBlockControls\"===l||\"copyPageLink\"===l||\"clearAllUnreads\"===l&&(\"Shift+Escape\"===c||\"Shift+Esc\"===c)",
  editableAfter:"I=\"toggleTerminal\"===l||\"composer.toggleDictation\"===l||_&&\"[data-codex-composer]\"||\"exitWorkspaceFullView\"===l||\"focusPageBlockControls\"===l||\"copyPageLink\"===l||\"clearAllUnreads\"===l&&(\"Shift+Escape\"===c||\"Shift+Esc\"===c)"
 };
-terminal29513.commandAfter=terminal29513.commandBefore.replace('unifiedSearchGroupKey:','shortcutScope:"app",unifiedSearchGroupKey:');
-export const terminalKeyboardOwners29513=root=>[
+terminal29803.commandAfter=terminal29803.commandBefore.replace('unifiedSearchGroupKey:','shortcutScope:"app",unifiedSearchGroupKey:');
+export const terminalKeyboardOwners29803=root=>[
   {
-    "file": "191628.72f208c924.js",
+    "file": "191628.7c4ce6e8ec.js",
     "id": "EOr7",
     "parameters": [
       "e",
@@ -46,14 +46,14 @@ export const terminalKeyboardOwners29513=root=>[
     "after": "S=\"toggleTerminal\"===l||\"composer.toggleDictation\"===l||b&&\"[data-codex-composer]\"||\"focusPageBlockControls\"===l||\"copyPageLink\"===l||\"clearAllUnreads\"===l&&(\"Shift+Escape\"===d||\"Shift+Esc\"===d)"
   }
 ].map(o=>({...o,file:path.join(root,'webview/assets/async',o.file)}));
-export function runBuild29513({root,command}){
- const keyboards=terminalKeyboardOwners29513(root).map(owner=>({owner,source:readRendererModule(owner)})),renderer=terminalCommandOwner29513(root),native=["worker.js", "app-server-host.js", "process-telemetry-worker.js", "early-bootstrap-7-ce4a67f0257ee973.js"].map(file=>path.join(root,'.vite/build',file));
+export function runBuild29803({root,command}){
+ const keyboards=terminalKeyboardOwners29803(root).map(owner=>({owner,source:readRendererModule(owner)})),renderer=terminalCommandOwner29803(root),native=["worker.js", "app-server-host.js", "process-telemetry-worker.js", "early-bootstrap-7-ce4a67f0257ee973.js"].map(file=>path.join(root,'.vite/build',file));
  for(const {source,owner} of keyboards)for(const text of [`function ${owner.functionName}(e){`,owner.props,owner.binding])one(source,text);
  const targets=[{owner:renderer,source:readRendererModule(renderer)},...native.map(file=>({file,source:fs.readFileSync(file,'utf8')}))];
- const green=targets.every(x=>x.source.includes(terminal29513.commandAfter))&&keyboards.every(x=>x.source.includes(x.owner.after));
- if(!green){for(const x of keyboards)one(x.source,x.owner.before);for(const x of targets)one(x.source,terminal29513.commandBefore);
+ const green=targets.every(x=>x.source.includes(terminal29803.commandAfter))&&keyboards.every(x=>x.source.includes(x.owner.after));
+ if(!green){for(const x of keyboards)one(x.source,x.owner.before);for(const x of targets)one(x.source,terminal29803.commandBefore);
   if(command==='apply'){
-   for(const x of targets){const changed=x.source.replace(terminal29513.commandBefore,()=>terminal29513.commandAfter);if(x.owner)writeRendererModule(x.owner,changed);else fs.writeFileSync(x.file,changed);}
+   for(const x of targets){const changed=x.source.replace(terminal29803.commandBefore,()=>terminal29803.commandAfter);if(x.owner)writeRendererModule(x.owner,changed);else fs.writeFileSync(x.file,changed);}
    for(const x of keyboards)writeRendererModule(x.owner,x.source.replace(x.owner.before,()=>x.owner.after));
   }
  }

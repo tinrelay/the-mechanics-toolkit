@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1117.31558`, build `29513` | Supervised adoption, task ACK/wait, two-way TinRelay, Chrome control and native observation passed. |
+| macOS ARM64 application | `26.1117.41037`, build `29803` | Signed 18-patch stage, supervised adoption, real chat, task ACK/wait and two-way TinRelay passed. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -43,12 +43,13 @@ An `active` patch is maintained on the current branch. That does not mean it is 
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
 before porting or adopting a candidate.
 
-The optional macOS Computer Use repair has current private-socket vendor-Node acceptance and
-unsigned-client rejection evidence, plus current native Codex accessibility observation. Dedicated
-Chrome extension discovery, tab creation/navigation, page reads and tab closure also passed.
+The optional macOS Computer Use repair has private-socket vendor-Node acceptance and unsigned-client
+rejection evidence from the preceding accepted macOS build. Native Codex accessibility observation
+and dedicated Chrome tab control also passed on that build; those native/browser actions were not
+repeated for the current target.
 The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default macOS example now selects 17 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0228).
+The default macOS example now selects 17 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0229).
 
 ## Ordinary use
 

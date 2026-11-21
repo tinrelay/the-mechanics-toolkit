@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {parse} from 'acorn';
 import {readRendererModule} from '../src/renderer-module.mjs';
-import {waitOwners29513,waitProfiles29513} from '../patches/wait-thread-roster/profiles/build29513.mjs';
-export function probeWait29513(root){
- for(const[index,owner]of waitOwners29513(root).entries()){
-  const source=readRendererModule(owner),p=waitProfiles29513[index],ast=parse(source,{ecmaVersion:'latest',sourceType:'module'});
+import {waitOwners29803,waitProfiles29803} from '../patches/wait-thread-roster/profiles/build29803.mjs';
+export function probeWait29803(root){
+ for(const[index,owner]of waitOwners29803(root).entries()){
+  const source=readRendererModule(owner),p=waitProfiles29803[index],ast=parse(source,{ecmaVersion:'latest',sourceType:'module'});
   const helpers=ast.body.filter(x=>x.type==='FunctionDeclaration'&&x.id.name.startsWith('MTK')).map(x=>source.slice(x.start,x.end)).join('');
   const bindings=source.slice(source.indexOf('const MTKwaitStoreHook='),source.indexOf(';',source.indexOf('const MTKwaitStoreHook='))+1);
   const titleAtom={},threadAtom={},dispatched=[];let title='Ada — Coordinator';
@@ -21,5 +21,5 @@ export function probeWait29513(root){
   title='Renamed — Coordinator';button=collect(render()).find(x=>x.type==='button');assert.equal(button.props.children,'Renamed','uses current title after metadata changes');
   assert.equal(api.render({item:{arguments:{targets:[]}},variant:'row'}),null);
  }
- console.log('wait-thread roster 29513 behavior probe passed');
+ console.log('wait-thread roster 29803 behavior probe passed');
 }

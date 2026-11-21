@@ -1,7 +1,7 @@
 import path from 'node:path';
 import {readRendererModule,writeRendererModule} from '../../../src/renderer-module.mjs';
-export const waitOwners29513=root=>[{"file": "202588.b0da0b4398.js", "parameters": ["e", "t", "a"]}, {"file": "205407.961faa2a52.js", "parameters": ["e", "t", "n"]}, {"file": "306206.53fa8289ff.js", "parameters": ["e", "t", "a"]}, {"file": "523436.ab59beac28.js", "parameters": ["e", "t", "n"]}, {"file": "713407.33e3ae5ceb.js", "parameters": ["e", "t", "a"]}].map(({file,parameters})=>({file:path.join(root,'webview/assets/async',file),id:'acby',parameters}));
-export const waitProfiles29513=[
+export const waitOwners29803=root=>[{"file": "202588.8d9d3f9fe3.js", "parameters": ["e", "t", "a"]}, {"file": "205407.0c3eb42862.js", "parameters": ["e", "t", "n"]}, {"file": "306206.a3e28f9779.js", "parameters": ["e", "t", "a"]}, {"file": "523436.13a8e37dc4.js", "parameters": ["e", "t", "n"]}, {"file": "713407.8df9f6d0d8.js", "parameters": ["e", "t", "a"]}].map(({file,parameters})=>({file:path.join(root,'webview/assets/async',file),id:'acby',parameters}));
+export const waitProfiles29803=[
   {
     "loader": "a",
     "namespace": "o.PD",
@@ -86,17 +86,17 @@ export const waitProfiles29513=[
     "iconFunction": "O",
     "summaryWrapper": "I.o",
     "normalize": "(0,A.JXB)",
-    "hostBridge": "_.O1",
+    "hostBridge": "h.O1",
     "routeFlag": "(()=>false)",
     "newRoute": "(0,A.Cv$)",
     "oldRoute": "(0,A._RT)",
     "sendTool": "C.vN"
   }
 ];
-export function runBuild29513({root,command,buildHelper}){
- const owners=waitOwners29513(root),targets=[];let states=[];
+export function runBuild29803({root,command,buildHelper}){
+ const owners=waitOwners29803(root),targets=[];let states=[];
  for(let index=0;index<owners.length;index++){
-  const owner=owners[index],p=waitProfiles29513[index];let source=readRendererModule(owner);
+  const owner=owners[index],p=waitProfiles29803[index];let source=readRendererModule(owner);
   const entry=`{namespace:${p.namespace},render:${p.genericRender},renderAgentActivityIcon:${p.icon},tool:${p.sendTool}}`;
   const receiptEntry=`{namespace:${p.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${p.icon},standaloneInConversation:!0,tool:${p.sendTool}}`;
   const sendEntry=source.includes(entry)?entry:receiptEntry;

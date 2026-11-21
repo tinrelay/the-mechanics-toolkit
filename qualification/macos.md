@@ -15,6 +15,53 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## TMTK 0.2.29 — build 29803 live qualification
+
+The official ARM64 appcast offers Desktop `26.1117.41037` / build `29803`, published
+November 20 at 22:47:19 UTC. Full ZIP: `724006681` bytes, SHA-256
+`bc0a42d01a9bdede1c1c2b876151a818560d6b1eaf1f45ae402d3d2229c34220`.
+Sparkle Ed25519, vendor deep signature, ASAR seal and notarization staple passed. Pristine ASAR:
+`b9e516de7c5ef608bf83a6313c815f5a7ef8819e4f08aef04c69744ecfc59cf8`.
+
+The bundled CLI `0.171.0-alpha.13` is byte-identical to 29513, SHA-256
+`3b6d00deea5fabc50ad34be1872b8e4ead1638d23c68fabb7837edc07f0cf1e0`.
+The actual packaged delegation sender/version gate passes for send/create. Retention remains
+stock-owned under the preceding receipt's exact-source proof; no Rust build or local CLI repair
+was repeated. The optional Computer Use helper has the same normalized stock image
+`42d72ddbe3d1b9fa46e1d15f282ffbd1d109f9624249c9f0ac0bc232c012d0ac`.
+Its exact instruction repair and designated-signing contract are unchanged.
+
+The main loader now binds module 17408. The shared chat module splits into qGHI, CrhD and toTV;
+the common transcript's bindings and one lazy tool copy's bus alias also change. Exact profiles
+follow those owners without broadening matching. Five classifier/tool copies, both dispatchers,
+actual packaged exports, task-label hydration, receipt persistence, reasoning/manual-collapse
+policy and the pre-deferral TinRelay history wrapper pass composed probes. Native output deferral,
+activity-key source ownership and non-following receipt entries retain the accepted behavior.
+
+Complete signed 18-patch staging passed: composed and post-repack probes, byte-identical
+reapplication, native payload/executable preservation, signature and ASAR seal. Candidate ASAR:
+`974fe0e75e59a94ffc8c4b79ce0695c4bcbd13c7c185d87d4862158cdc554bbb`.
+The default 17-patch stage also passed before its candidate was replaced by the local 18-patch
+variant. Four patched startup Owl cache entries were removed; 26 untouched entries and blobs
+remain byte-identical. The stock CLI executable is preserved. The helper preview performs only
+codesign inspection and confirms the existing certificate-based designated requirement; it
+cannot reset privacy grants. An isolated browser using this package's native CSS passed footer
+dark/light colors, transparent edge, native stop geometry, solid tail, focus surface, unconfigured
+rooms and composer isolation.
+
+`npm run check` and `npm test` passed, including Windows package and Linux adoption fixtures.
+Production DEB/RPM staging fixtures were platform-skipped. No guest qualification was attempted.
+Mike authorized supervised adoption. The supervisor reached renderer readiness without rescue
+and removed its transaction-only rollback payload. The real chat is usable. Installed Desktop
+29803 matches the qualified candidate ASAR above, with valid deep signature and seal. A fresh
+task message reached Vera, her BUILD29803-ACK returned, and wait reported turnCompleted with
+no error. A fresh TinRelay self-send was accepted, independently reported routed, and returned
+to this chat. Read-only inspection of the actual mounted chat found both matching outgoing and
+incoming cards rendered in the viewport. No forced compaction was attempted. Browser/native
+actions were not repeated for this package; unchanged helper ownership retains the preceding
+receipt's bounded evidence. No privacy reset or new signing identity was selected.
+The adopted loose candidate was removed; one official ZIP, installed app and compact receipts remain.
+
 ## TMTK 0.2.28 — build 29513 accepted
 
 On November 20 the newest official ARM64 appcast item was Desktop `26.1117.31558` / build

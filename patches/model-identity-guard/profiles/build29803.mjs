@@ -1,8 +1,8 @@
 import path from "node:path";
 import {readRendererModule, writeRendererModule} from "../../../src/renderer-module.mjs";
-import {rosterOwner29513} from "../../agent-roster/profiles/build29513.mjs";
+import {rosterOwner29803} from "../../agent-roster/profiles/build29803.mjs";
 
-export const build29513 = {
+export const build29803 = {
   ownerFunction: "M:function(e){let",
   selectionOwner: "tl=nX?te?.model??nR:nH,tn=nY?n9?.filter(eV):n9;",
   loadingOwner: "e4=nJ?.isLoading===!0||!(0,ei.SO)(n4)||nz.isLoading||\"pending\"===tT",
@@ -13,23 +13,23 @@ export const build29513 = {
   reactAlias: "p"
 };
 
-export function modelOwner29513(root) {
+export function modelOwner29803(root) {
   return {file: path.join(root, "webview/assets/async/79584.107a308b22.js"), id: "cyhU", parameters: ["e", "l", "n"]};
 }
 
-export function runBuild29513({root, command, modelGuardHelper}) {
-  const owner = modelOwner29513(root);
+export function runBuild29803({root, command, modelGuardHelper}) {
+  const owner = modelOwner29803(root);
   let source = readRendererModule(owner);
-  for (const contract of [build29513.ownerFunction, build29513.selectionOwner, build29513.loadingOwner, build29513.loadingGateOwner, 'p=n("zd8w")', "l7=(0,o.c)(433)"]) unique(source, contract);
+  for (const contract of [build29803.ownerFunction, build29803.selectionOwner, build29803.loadingOwner, build29803.loadingGateOwner, 'p=n("zd8w")', "l7=(0,o.c)(433)"]) unique(source, contract);
   const helper = modelGuardHelper(true).replace("S7.useEffect", "p.useEffect");
-  const applied = source.includes(helper) && source.includes(build29513.appliedPublication);
+  const applied = source.includes(helper) && source.includes(build29803.appliedPublication);
   if (!applied) {
     if (source.includes('MTKuseModelIdentityGuard')) throw new Error('Upstream changed: partial model guard module patch');
-    unique(source, build29513.publicationBefore);
+    unique(source, build29803.publicationBefore);
     if (command === 'apply') {
-      if (!readRendererModule(rosterOwner29513(root)).includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze(')) throw new Error('Model guard requires agent-roster first');
-      source = source.replace(build29513.publicationBefore, () => build29513.publicationAfter) + ";" + helper;
-      if (!source.includes(helper) || !source.includes(build29513.appliedPublication)) throw new Error('Model guard insertion did not verify');
+      if (!readRendererModule(rosterOwner29803(root)).includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze(')) throw new Error('Model guard requires agent-roster first');
+      source = source.replace(build29803.publicationBefore, () => build29803.publicationAfter) + ";" + helper;
+      if (!source.includes(helper) || !source.includes(build29803.appliedPublication)) throw new Error('Model guard insertion did not verify');
       writeRendererModule(owner, source);
     }
   }

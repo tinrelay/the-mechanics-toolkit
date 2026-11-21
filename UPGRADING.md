@@ -1,10 +1,32 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.28` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.29` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.29
+
+The macOS target is Desktop `26.1117.41037` / build `29803`. This is a renderer port: the
+vendor CLI `0.171.0-alpha.13` and optional Computer Use helper image are byte-identical to
+29513. Keep the stock CLI and existing signing identity; leave the compaction repair inactive.
+No toolchain change or macOS privacy reset is required by this port.
+
+Exact profiles follow the split chat module, relocated main module, current common transcript
+bindings, and all five lazy tool copies. The outgoing TinRelay wrapper still intercepts the
+original history item before native output deferral and derives its source turn from the native
+activity key. Task receipts and TinRelay entries retain their existing scroll policy. The default
+macOS example selects 17 patches; the optional Computer Use repair makes 18.
+
+Complete signed 18-patch staging, post-repack probes, byte-identical reapplication, native
+preservation, signature/seal, native-CSS footer checks and repository checks/tests passed.
+Supervised adoption reached renderer readiness without rescue and returned to the real chat.
+The installed 29803 ASAR matches the candidate, with valid signature/seal. Vera's fresh ACK and
+wait completion passed. TinRelay self-send was accepted, routed and returned; read-only live DOM
+inspection found both outgoing and incoming cards rendered in the viewport. Browser/native actions
+were not repeated; their unchanged owners retain the preceding receipt's evidence. Use supervised
+candidate adoption. Linux and Windows targets are unchanged.
 
 ## 0.2.28
 

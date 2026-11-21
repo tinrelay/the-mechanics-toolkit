@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {matchesBuild29513, runBuild29513} from "./profiles/build29513.mjs";
+import {matchesBuild29803, runBuild29803} from "./profiles/build29803.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -12,8 +12,8 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: runtime-json-reload/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if (matchesBuild29513(root)) {
-  process.stdout.write(`${JSON.stringify(runBuild29513({root, command, rendererHelper, mainHelper}), null, 2)}\n`);
+if (matchesBuild29803(root)) {
+  process.stdout.write(`${JSON.stringify(runBuild29803({root, command, rendererHelper, mainHelper}), null, 2)}\n`);
   process.exit(0);
 }
 

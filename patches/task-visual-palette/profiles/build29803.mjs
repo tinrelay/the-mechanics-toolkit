@@ -1,9 +1,9 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner29513}from '../../agent-roster/profiles/build29513.mjs';import{attributionOwner29513}from '../../cross-task-attribution/profiles/build29513.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner29803}from '../../agent-roster/profiles/build29803.mjs';import{attributionOwner29803}from '../../cross-task-attribution/profiles/build29803.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export const paletteOwners29513=root=>({app:rosterOwner29513(root),room:owner(root,'933709.f71ee84c90.js','sI7L',['e','t','l']),fade:owner(root,'184275.20e43740ee.js','KkZX'),footer:owner(root,'632620.48ff231b29.js','Gjet',['e','t','r']),delegation:attributionOwner29513(root),group:owner(root,'364303.ba663c573e.js','eQ5p',['e','t','n']),local:owner(root,'364303.ba663c573e.js','oprL',['e','t','n']),localMenu:owner(root,'364303.ba663c573e.js','JbIn',['e','t','n']),remoteActions:owner(root,'175259.3a81dd9db4.js','qK2L'),menus:['145109.1a6a21379d.js'].map((f,i)=>owner(root,f,'eP5h',['e','t','n']))});
-export function runBuild29513({root,command,buildPaletteHelper}){
+export const paletteOwners29803=root=>({app:rosterOwner29803(root),room:owner(root,'933709.8f58879da2.js','sI7L',['e','t','l']),fade:owner(root,'184275.20e43740ee.js','KkZX'),footer:owner(root,'632620.21f2e5d141.js','Gjet',['e','t','r']),delegation:attributionOwner29803(root),group:owner(root,'364303.547a896ba2.js','eQ5p',['e','t','n']),local:owner(root,'364303.547a896ba2.js','oprL',['e','t','n']),localMenu:owner(root,'364303.547a896ba2.js','JbIn',['e','t','n']),remoteActions:owner(root,'175259.3a81dd9db4.js','qK2L'),menus:['145109.1a6a21379d.js'].map((f,i)=>owner(root,f,'eP5h',['e','t','n']))});
+export function runBuild29803({root,command,buildPaletteHelper}){
  const decoder=readRendererModule(owner(root,'364313.d749d31da5.js','d6Ff'));if(count(decoder,"Pc:l,Wz:s,z3:a")!==1)throw Error('Unknown sidebar key decoder export');
- const o=paletteOwners29513(root);let helper=buildPaletteHelper({name:'build-29513',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
+ const o=paletteOwners29803(root);let helper=buildPaletteHelper({name:'build-29803',agentRoster:true,helperReplacements:[['QSl.useEffect','u.useEffect']]});
  helper=helper.replace('t.getAttribute("data-app-action-sidebar-thread-id")', 'MTKpaletteNativeTaskId(t.getAttribute("data-app-action-sidebar-thread-id"))').replace('function MTKusePaletteBootstrap(', 'function MTKpaletteNativeTaskId(e){let t=MTKpaletteKeyDecode(e);return t?.kind==="local"?t.threadId:t?.kind==="remote"?t.taskId:e}function MTKusePaletteBootstrap(');
  const entries=[],add=(target,pairs)=>entries.push({owner:target,pairs,source:readRendererModule(target)});
  add(o.app,[["function fg(){MTKuseAgentRoster();","function fg(){MTKuseAgentRoster();MTKusePaletteBootstrap();"],[null,';const MTKpaletteKeyDecode=n("d6Ff").Pc;'+helper]]);
@@ -44,7 +44,7 @@ function count(s,v){return s.split(v).length-1}
 
 // Incoming TinRelay owns the optional replacement bubble on this same wrapper.
 function paletteCanonical(source){
- source=source.replace("function fg(){MTKuseAttentionBootstrap29513();","function fg(){");
+ source=source.replace("function fg(){MTKuseAttentionBootstrap29803();","function fg(){");
  if(!source.includes('messageNode:MTKmessageNode}=e,y='))return source;
  return source.replace("o=(0,i.c)(25),{label:c,alignment:d","o=(0,i.c)(23),{label:c,alignment:d").replace('paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId,messageNode:MTKmessageNode}=e,y=','paletteSourceTitle:MTKsourceTitle,paletteSourceId:MTKsourceId}=e,y=');
 }
