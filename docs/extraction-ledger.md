@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1117.41037` / `29803` | 17 default; 18 with Computer Use | Signed 18-patch stage, supervised adoption, real chat, task ACK/wait and two-way TinRelay passed. |
+| macOS ARM64 application | `26.1117.41037` / `29803` | 18 default; 19 with Computer Use | 0.2.30 signed stage, supervised adoption, real chat and cold-resume override delivery passed. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -26,6 +26,15 @@ ARM64 offer, but its **inner** Desktop build has not been checked; outer version
 select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
+
+TMTK 0.2.30 adds the optional-file whole-app-context override and startup instruction-change notice.
+Focused actual-builder/transform tests, complete signed staging and supervised adoption passed.
+Default snapshot and first-run baseline generation passed. The operator confirmed custom guidance
+reached the same continuing chat after a full app quit/relaunch; ordinary loaded-chat turns are
+not a reliable refresh. The visible changed-default popup has isolated-test coverage but no live
+observation. This capability is currently scoped to the exact macOS target. Other platform
+selections and profiles are unchanged. Messaging/browser evidence below belongs to 0.2.29;
+those owners did not change in 0.2.30.
 
 Exact `build29803` profiles cover the current renderer/native owners, all five lazy tool copies,
 both keyboard dispatchers, and the common transcript owner used by native and MCP turns. The

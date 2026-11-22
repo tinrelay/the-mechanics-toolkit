@@ -15,6 +15,57 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
+## TMTK 0.2.30 — optional app-context files, cold-resume qualification
+
+Desktop target remains `26.1117.41037` / `29803`; the authenticated official source package is
+unchanged from the preceding receipt. Native instruction module 73488 in the shared bootstrap
+owns the app-context text; its app-ready caller owns a one-time instruction-change popup.
+The optional override is read from the native Codex home on each instruction-generation pass.
+A separate default snapshot is refreshed without altering the override. The first startup records
+a baseline; later bundled text changes notify once after acknowledgment.
+
+Actual packaged-builder probes resolve packaged Node externals and use isolated temporary Codex
+homes: missing-file output matches the native builder byte for byte across eight feature/hosted
+combinations, overrides stay
+literal, empty/removal behavior works, snapshots remain native, and custom files stay unchanged.
+Startup notice tests cover first-run establishment, unchanged defaults, changed text, acknowledgment
+and failed-notice retry. Pure transform tests cover minifier-independent text fingerprints,
+unknown/partial-owner rejection and byte-identical reapplication. No real profile or chat was
+changed by these probes. The actual native app-ready call passed a readiness-order and
+nonblocking-popup probe against the final repacked candidate.
+
+Complete signed 19-patch staging passed: composed/post-repack probes, byte-identical reapplication,
+native payload preservation, signature and ASAR seal. Candidate ASAR SHA-256:
+`cad823a95b1a26297daeb4657a554df32c0a577d4fe59ed5a8d1faad7d6f93d1`.
+Stock CLI bytes remain unchanged. Four startup bytecode entries were invalidated; 26 untouched
+entries and blobs match the vendor package. The native helper retains the same certificate-based
+designated requirement; the preview made no privacy reset. `npm run check` and `npm test` passed.
+Windows package and Linux adoption fixtures passed; production DEB/RPM staging fixtures were
+platform-skipped.
+
+The first supervised adoption reached renderer readiness but real-chat resume failed. The helper
+incorrectly used crypto's binding as fs; the initial probe had injected fs under that name and
+therefore missed the error. The regression probe reproduces the failure with the actual packaged
+externals; the helper now uses the existing fs binding. The original candidate hash above is not
+an accepted build. Corrected full 19-patch staging passed with post-repack probes, byte-identical
+reapplication, signature/seal and native preservation. Corrected candidate ASAR SHA-256:
+`7a6825ad28fe2a8d8e66287bcb36c5fd733aaf2f9676f9b573f90a44a8ccea1f`.
+Only the native instruction helper JavaScript differs from the failed installed candidate.
+
+Corrected supervised adoption reached renderer readiness without rescue and returned to the real
+continuing chat. Installed ASAR matches the corrected candidate, with valid signature/seal.
+The first-run state and native default snapshot were generated successfully; no override existed
+at launch. The override was then created from the generated default with a narrow instruction
+change. Ordinary messages in an existing loaded chat did not deliver the replacement block.
+Inspection of the packaged resume path found an idle-thread reuse branch that omits fresh
+developer instructions; a refreshed default snapshot alone does not establish delivery.
+
+The operator subsequently confirmed that a full app quit/relaunch and reopening the same
+continuing chat delivered the intended guidance. This qualifies cold-resume custom instruction
+delivery, not hot reload into loaded sessions. No replacement chat, history surgery or scheduler
+action was needed. A visible changed-default popup remains covered by isolated tests, not a live
+observation. Messaging/browser owners are unchanged and retain the preceding receipt's evidence.
+
 ## TMTK 0.2.29 — build 29803 live qualification
 
 The official ARM64 appcast offers Desktop `26.1117.41037` / build `29803`, published

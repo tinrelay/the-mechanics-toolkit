@@ -23,7 +23,7 @@ The detailed evidence and residual boundaries live in the platform runbooks and
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1117.41037`, build `29803` | Signed 18-patch stage, supervised adoption, real chat, task ACK/wait and two-way TinRelay passed. |
+| macOS ARM64 application | `26.1117.41037`, build `29803` | 0.2.30 signed stage, supervised adoption, real chat and cold-resume override delivery passed. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -49,7 +49,7 @@ and dedicated Chrome tab control also passed on that build; those native/browser
 repeated for the current target.
 The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default macOS example now selects 17 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0229).
+The default macOS example selects 18 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0230).
 
 ## Ordinary use
 
@@ -118,6 +118,7 @@ evidence, configuration, and non-goals.
 | [Native app-tools peer authorization](patches/native-app-tools-peer-authorization/) | Preserves native task tools and browser/host-service pipes; keeps vendor runtime ancestry for dedicated Chrome. |
 | [macOS Computer Use service](patches/macos-computer-use-service/) | Optional repair for the vendor-signed runtime under a locally signed Codex parent; keeps immediate-peer signature checks. |
 | [Codex observability](patches/codex-observability/) | Exposes bounded local CDP, renderer metrics, CPU profiles, and timeline traces. |
+| [App-context override](patches/app-context-override/) | Reads optional local Markdown at cold resume, refreshes a default snapshot and notices bundled-instruction changes. |
 | [Renderer turn window](patches/renderer-turn-window/) | Bounds mounted completed turns without truncating transcript storage or export. |
 | [Patched Codex binary integration](patches/standalone-output-compaction/) | Verifies and installs a separately built, same-version `codex` executable into a staged package. |
 | [Safe-start readiness](patches/safe-start-readiness/) | Publishes the one-use renderer-ready signal consumed by supervised adoption. |

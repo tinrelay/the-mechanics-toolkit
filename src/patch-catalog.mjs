@@ -103,6 +103,11 @@ const definitions = [
     probe: "test/renderer-turn-window.test.mjs"
   },
   {
+    name: "app-context-override",
+    script: "patches/app-context-override/patch.mjs",
+    probe: "test/app-context-override.test.mjs"
+  },
+  {
     name: "safe-start-readiness",
     script: "patches/safe-start-readiness/patch.mjs",
     probe: "test/safe-start-readiness.test.mjs"

@@ -1,10 +1,46 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.29` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.30` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.30
+
+Desktop remains macOS `26.1117.41037` / build `29803`. The new `app-context-override` patch
+adds an optional whole-block file override, a refreshable default snapshot and a startup notice
+when bundled instruction text changes. The default macOS fleet now selects 18 patches; adding
+the optional Computer Use repair selects 19. Linux and Windows selections are unchanged.
+
+After adopting the patched app, resume a chat to generate `~/.codex/app-context.default.md`.
+Copy it to `~/.codex/app-context.md`, then edit that file. These paths follow `CODEX_HOME` when set.
+The override is literal Markdown and applies to all app-context sections; the native wrapper and
+base instructions outside it remain intact. An absent file retains native output exactly. The app
+never overwrites edits. After creating, editing or removing the file, fully quit and relaunch the
+existing app, then reopen the same chat. This cold resume is the live-qualified refresh path;
+no rebuild or replacement chat is needed. Ordinary messages or switching chats can reuse a loaded
+session without delivering newly built instructions. The patch does not provide hot reload for
+already-loaded chats. Removing the file restores defaults at the next cold resume.
+
+The default snapshot refreshes when instructions are built, including after an app update. Compare
+it with your override when the startup popup says “App instructions changed”; no diff UI is added.
+The first run establishes a baseline in `app-context.state.json`. Later bundled text changes notify
+once after acknowledgment. Ordinary bundle/minifier changes do not notify. The snapshot can vary
+with the most recent chat's feature/Git context. The patch must remain selected when porting a new
+Desktop build. No existing chat, history or automation is changed by adding this facility.
+
+Focused actual-builder and transform tests, full signed 19-patch staging, post-repack probes,
+byte-identical reapplication, native preservation, signature/seal and repository checks/tests
+passed. The native app-ready call also passed an ordering/nonblocking probe. The first adoption
+reached renderer readiness but failed real-chat resume because the helper used the crypto binding
+as fs. The correction uses the native filesystem binding; the regression probe now resolves the
+actual bundled externals. Corrected supervised adoption returned to the real chat, with installed
+signature/seal and ASAR matching the corrected candidate. Default snapshot and first-run state
+generation passed. After creating the override, ordinary messages did not reliably refresh the
+loaded chat. A full app quit/relaunch followed by reopening the same continuing chat succeeded,
+as confirmed by the operator. Custom instruction delivery is live-qualified through that cold
+resume; the visible changed-default popup remains covered by isolated tests, not a live observation.
 
 ## 0.2.29
 

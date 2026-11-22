@@ -16,6 +16,7 @@
     "native-app-tools-peer-authorization",
     "codex-observability",
     "renderer-patch-registry",
+    "app-context-override",
     "safe-start-readiness"
   ],
   "signingIdentity": "-",
