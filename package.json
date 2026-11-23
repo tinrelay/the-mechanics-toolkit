@@ -30,7 +30,7 @@
     "inspect:installed:macos": "node bin/toolkit.mjs inspect /Applications/ChatGPT.app"
   },
   "devDependencies": {
-    "@electron/asar": "4.3.0"
+    "@electron/asar": "4.3.2"
   },
   "engines": {
     "node": ">=24"
