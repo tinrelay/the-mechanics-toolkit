@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 import path from 'node:path';
-import {matchesBuild29803} from '../runtime-json-reload/profiles/build29803.mjs';
+import {matchesBuild30607} from '../runtime-json-reload/profiles/build30607.mjs';
 import {mainProcessAsset} from '../../src/main-process-asset.mjs';
 import {instructionAsset,transformInstructions,readyBefore,readyAfter} from './transform.mjs';
 
 const [command,argument]=process.argv.slice(2);
 if(!['check','apply'].includes(command)||!argument)throw Error('usage: app-context-override/patch.mjs check|apply EXTRACTED_ASAR_ROOT');
 const root=path.resolve(argument);
-if(!matchesBuild29803(root))throw Error('Unsupported Desktop identity for app-context-override');
+if(!matchesBuild30607(root))throw Error('Unsupported Desktop identity for app-context-override');
 const file=path.join(root,instructionAsset),main=mainProcessAsset(root);
 const result=transformInstructions(fs.readFileSync(file,'utf8')),native=fs.readFileSync(main,'utf8');
 const applied=native.split(readyAfter).length===2;

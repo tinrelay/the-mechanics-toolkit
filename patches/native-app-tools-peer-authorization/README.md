@@ -38,14 +38,9 @@ container. Both sides derive the same default even if runtime configuration prec
 startup; an explicit socket override remains authoritative. No group-container data is moved or
 made accessible.
 
-The current macOS profile also makes the generated browser MCP configuration keep the packaged,
-vendor-signed Node runtime alive as the immediate parent of the packaged Node REPL. The separate
-Chrome extension host checks that parent and rejects the locally rebuilt CLI when it is directly
-above the REPL. This launch arrangement satisfies the host's existing checks without changing its
-binary, manifest, extension, browser profile or authentication policy. Runtime paths come from the
-stock configuration builder; normal plugin setup regenerates the configuration after adoption.
-Other platforms retain their existing launch configuration. MCP streams, executor environment,
-child exit status and shutdown signals pass through the parent.
+The current native browser builder launches the packaged Node directly and preserves its access
+flag, confirmation policy and surface configuration. The former TMTK parent-process wrapper is
+retired; no currently supported profile needs it. Browser launch remains upstream-owned.
 
 If the server owner, native module, Team ID, signing identifier, reason vocabulary, or surrounding
 authorization testimony changes, the transform fails with `Upstream changed`. Those are security
@@ -71,13 +66,10 @@ main-process profiles. It proves red/green transformation, stock-success preserv
 mixed-signature exception, retained negative cases, unchanged stock native-module ownership,
 exact pipe-owner scope, syntax validity, and byte-identical second application.
 
-The current browser-launch fixture additionally proves byte-for-byte MCP traffic, the actual
-parent PID, executor environment, child exit status and shutdown without an orphaned child.
-An exact-production-launcher probe against the unmodified current Chrome host rejects a direct
-vendor client under the rebuilt CLI, accepts it with the vendor parent, and still rejects an
-unsigned Python client. After supervised adoption, dedicated Chrome extension discovery,
-disposable-tab creation/navigation, DOM reading and tab closure passed. The operator confirmed
-the normal Chrome session appeared. This is separate from native Computer Use accessibility.
+The packaged browser-builder probe exercises native direct launch, shared-plugin access flags,
+policy and trusted-service environments, and the missing-instruction fallback. Earlier dedicated
+Chrome control passed with the former wrapper; that result does not qualify the new launch owner.
+Current live acceptance is tracked in the platform runbook, separately from Computer Use.
 
 The private implementation was separately accepted after the app-tools migration: native
 task-to-task ping/pong and browser control both worked under the locally signed application. That

@@ -55,13 +55,21 @@ restarts and permission prompts, and keeps the user out of an unpatched stock UI
 it once. Do not patch or port the current installation first.** Keep the installed app running as
 the working room while the new candidate is downloaded, patched, and proved.
 
-An agent does not have to wait for Sparkle to finish downloading the update. Codex's official
-Sparkle feed is:
+An agent does not have to wait for Sparkle to finish downloading the update. Inspect the installed
+updater's feed configuration first. Newer releases use
+`https://updates.oaistatic.com/codex/app/appcast` with the native architecture, app version,
+channel and existing installation ID. Follow that packaged request contract; a missing installation
+ID is rejected. Read the existing bootstrap record locally, keep the ID private, and do not put
+the complete request URL in logs or receipts. Record only the resulting public enclosure and identity.
+
+The older public Sparkle feed is:
 
 ```text
 https://persistent.oaistatic.com/codex-app-prod/appcast.xml
 ```
 
+It can lag the installed updater's production feed. If it lacks the offered release, inspect the
+native updater route rather than concluding that the new package is unavailable.
 Find the item whose title matches the release offered in the app, then use that item's `enclosure`
 URL. At the time of writing, ARM64 artifacts use a versioned URL of this form:
 

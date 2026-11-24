@@ -1,9 +1,9 @@
-import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner29803}from '../../agent-roster/profiles/build29803.mjs';
+import path from 'node:path';import{readRendererModule,writeRendererModule}from '../../../src/renderer-module.mjs';import{rosterOwner30607}from '../../agent-roster/profiles/build30607.mjs';
 const owner=(root,file,id,parameters=['e','t','n'])=>({file:path.join(root,'webview/assets/async',file),id,parameters});
-export function dotOwners29803(root){return{policy:rosterOwner29803(root),deletion:owner(root,'911644.eaf037cac0.js','tLki'),menus:['145109.1a6a21379d.js','209376.fcc686aacf.js'].map((f,i)=>owner(root,f,'SeWp',['e','t','n'])),rebootMenus:['145109.1a6a21379d.js'].map((f,i)=>owner(root,f,'eP5h',['e','t','n'])),reboot:owner(root,'775336.484cd56f89.js','PSog',['e','t','o'])}}
-export function dotHelper29803(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
-export function runBuild29803({root,command,helper}){
- const o=dotOwners29803(root),h=dotHelper29803(helper),entries=[];
+export function dotOwners30607(root){return{policy:rosterOwner30607(root),deletion:owner(root,'49792.ab5b643c25.js','tLki'),menus:['948973.ab8f9e03bc.js','209376.5a23cae0f4.js'].map((f,i)=>owner(root,f,'SeWp',['e','t','n'])),rebootMenus:['948973.ab8f9e03bc.js'].map((f,i)=>owner(root,f,'eP5h',['e','t','n'])),reboot:owner(root,'775336.2a9893bf83.js','PSog',['e','t','o'])}}
+export function dotHelper30607(helper){return helper.replace('e.query.getData(UC,t)?.id','e.query.getData(MTKdotMetadata,MTKdotNormalize(t))?.id')}
+export function runBuild30607({root,command,helper}){
+ const o=dotOwners30607(root),h=dotHelper30607(helper),entries=[];
  const policy=readRendererModule(o.policy),binding=';const MTKdotMetadata=n("TYK1").cloudAeonByThreadId$,MTKdotNormalize=n("DBCl").JXB;';
  if(command==='apply'&&!policy.includes('globalThis.__MTK_AGENT_ROSTER__=Object.freeze('))throw Error('Dot protection requires roster');
  entries.push({owner:o.policy,source:policy,pairs:[[null,binding+h]]});
@@ -11,7 +11,7 @@ export function runBuild29803({root,command,helper}){
  one(deletion,'if((0,m.rf)(e,n.threadId)?.id!==t)throw Error("The Dot deletion target is no longer current")');
  entries.push({owner:o.deletion,source:deletion,pairs:[["function I(e,t,n,I){","function I(e,t,n,I){if(globalThis.__MTK_DOT_POLICY__.protected(\"delete\",t))return;"],["if(!P()||e.get(g.kO,E).has(n.threadId))return;","if(globalThis.__MTK_DOT_POLICY__.protected(\"delete\",t)||!P()||e.get(g.kO,E).has(n.threadId))return;"]]});
  for(const [index,target]of o.menus.entries()){
-  const source=readRendererModule(target),names=[['f','i','a','u'],['p','a','i','c']][index];
+  const source=readRendererModule(target),names=[['u','i','o','d'],['c','a','l','s']][index];
   const [open,param,thread,metadata]=names;
   one(source,`${metadata}=${target.parameters.at(-1)}("TYK1")`);
   const before=`async function ${open}(e,t,${param}=e.get(${thread}.qX,t)){`,menuBefore=`bo:function(e,t,n,{hidePrimaryPersonalDot:${index===0?"i":"a"}=!1}={}){`;

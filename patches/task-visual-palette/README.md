@@ -22,9 +22,10 @@ turning the conversation into a saturated sheet of color.
 
 *The chip carries identity at a glance; the colored room and selected row carry place.*
 
-The same rule may opt an exact task ID out of sidebar archive affordances. That protection is based
-on the task ID, never merely a matching title, and it removes archive actions without hiding the
-task or changing its state.
+The same rule may opt an exact task ID out of sidebar archive affordances. On the current macOS
+target it also removes **Permanently delete** from the shared sidebar/title menu and bulk menus
+containing a protected chat. That protection is based on the task ID, never merely a matching
+title. It removes menu actions without hiding the task or changing its state.
 
 ## Configuration
 
@@ -33,7 +34,8 @@ local project root. No project path or identity is compiled into the application
 entry has one current exact `taskId`; `tasks` entries may instead use `taskId`, `titlePattern`, or
 both. A visual entry supplies a six-digit hex `color` and may include:
 
-- `protectSidebarArchive`: a boolean requiring an exact `taskId`; and
+- `protectSidebarArchive`: a boolean requiring an exact `taskId`; it also covers permanent-delete
+  menu actions on the current macOS target; and
 - `mark`: a safe relative path to an SVG below the project root that owns that roster entry.
 
 Calibration values are bounded percentages. Unknown extension keys are accepted. Invalid owned
@@ -48,8 +50,9 @@ The transform recognizes four renderer owners: the application/sidebar bootstrap
 shell, the delegated-message wrapper, and the thread footer fade. The current composer footer
 uses pseudo-elements: its surface token is overridden only on those pseudo-elements, so the
 native gradient geometry, transparent edge and composer controls retain their own styling. It also owns every stock sidebar
-archive affordance for the supported build so exact-ID protection cannot disappear from only one
-menu or hover action.
+archive affordance for the supported build. The current macOS profile also guards the native
+permanent-delete menu producer and bulk selection filter. This is an affordance safeguard, not
+an authorization boundary for other clients or direct deletion APIs.
 
 Mapped delegated-message color depends on the
 [cross-task attribution patch](../cross-task-attribution/)'s provenance surface. Apply attribution

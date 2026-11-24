@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild29803} from "../runtime-json-reload/profiles/build29803.mjs";
-import {runBuild29803} from "./profiles/build29803.mjs";
+import {matchesBuild30607} from "../runtime-json-reload/profiles/build30607.mjs";
+import {runBuild30607} from "./profiles/build30607.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -29,7 +29,7 @@ const neutralLabelExpression = "label:MTKcontrast(m,l)>=4.5?m:s";
 const readableLabelExpression = "label:MTKreadableLabel(e,l,n)";
 const canonicalArchiveClassifier = 'function MTKsidebarArchiveTaskId(e){if(typeof e!=="string")return null;let t=e.startsWith("local:")?e.slice(6):e;return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(t)?t:null}function MTKsidebarArchiveProtected(e,t=MTKsidebarPalette){let n=MTKsidebarArchiveTaskId(e);return n!==null&&t!=null&&t.rules.some(e=>e.protectSidebarArchive&&e.taskId===n)}const MTKsidebarArchiveListeners=new Set;let MTKsidebarArchiveEpoch=0;function MTKsidebarArchiveSubscribe(e){return MTKsidebarArchiveListeners.add(e),()=>MTKsidebarArchiveListeners.delete(e)}function MTKsidebarArchiveSnapshot(){return MTKsidebarArchiveEpoch}function MTKsidebarArchiveNotify(){MTKsidebarArchiveEpoch++;for(let e of MTKsidebarArchiveListeners)e()}globalThis.__MTKsidebarArchiveProtected=MTKsidebarArchiveProtected;globalThis.__MTKsidebarArchiveSubscribe=MTKsidebarArchiveSubscribe;globalThis.__MTKsidebarArchiveSnapshot=MTKsidebarArchiveSnapshot;';
 
-if(matchesBuild29803(root)){console.log(JSON.stringify(runBuild29803({root,command,buildPaletteHelper})));process.exit(0);}
+if(matchesBuild30607(root)){console.log(JSON.stringify(runBuild30607({root,command,buildPaletteHelper})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const appInitial = uniqueFile(/^app-initial-.*\.js$/);

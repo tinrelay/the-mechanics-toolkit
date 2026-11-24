@@ -1,13 +1,13 @@
 import {parse} from 'acorn';
 import {createHash} from 'node:crypto';
 
-export const instructionAsset='.vite/build/early-bootstrap-7-ce4a67f0257ee973.js';
+export const instructionAsset='.vite/build/early-bootstrap-7-6ca1370a6a70ee99.js';
 const expressionBefore='${f.trim()}';
 const expressionAfter='${MTKappContextFromFile(h?(0,rV.W_)(f.trim()):f.trim())}';
 const returnBefore='E=rX(r??"",_);return h?(0,rV.W_)(E):E';
 const returnAfter='E=rX(h?(0,rV.W_)(r??""):r??"",_);return E';
-export const readyBefore='await tg.app.whenReady(),';
-export const readyAfter='await tg.app.whenReady(),tI.MTKcheckAppContextDefaults(tg.dialog),';
+export const readyBefore='await td.app.whenReady(),';
+export const readyAfter='await td.app.whenReady(),ty.MTKcheckAppContextDefaults(td.dialog),';
 
 export function instructionOwner(source){
   const tree=parse(source,{ecmaVersion:'latest',sourceType:'module'});

@@ -16,8 +16,9 @@ Ordinary tasks use the shared `project/task title` label when project context is
 The current macOS build can also use Codex's direct thread summary when a task is absent from
 the sidebar store. Targets with no authoritative title remain explicit `Task 0123abcd…`
 fallbacks rather than receiving invented names or links.
-While a wait is active, Codex's stock shimmer is limited to the words `Waiting for`; it does not
-repaint the linked names and wash out their palette colors.
+The wait's own shimmer is limited to the words `Waiting for`. On the current macOS target,
+identity labels also set their text-fill color explicitly: Codex's outer activity shimmer can
+override descendant `color` with `!important`, and must not wash out the linked names.
 Palette-derived labels choose separate light- and dark-theme colors and enforce readable contrast
 against each native activity surface, including unusually bright configured identity colors.
 
@@ -47,3 +48,9 @@ node test/wait-thread-roster.test.mjs /path/to/extracted-asar
 The transform requires one exact app-control renderer owner, its stock task metadata selectors,
 its existing task-navigation path, and no upstream `wait_threads` renderer. Ambiguous, partial, or
 new native ownership fails closed.
+
+The current packaged probe resolves the container, spinner and summary wrapper through their
+actual native module exports. It executes the native container and checks running, completed,
+failed and summarized waits as well as title changes and navigation. Supplying a component under
+the profile's expected property is insufficient: that can hide an undefined native export and
+leave a whole transcript turn unable to render.

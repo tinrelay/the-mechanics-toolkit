@@ -5,7 +5,7 @@ export function mainProcessAsset(root) {
   const build = path.join(root, ".vite/build");
   const legacy = fs.readdirSync(build).filter(name => /^main-.*\.js$/.test(name));
   const profiles = [
-    {version: "26.1117.41037", build: "29803", chunk: 916, hash: "90e0adb52d70fbc5", bootstrapChunk: 719, bootstrap: "e5d94427667b109d", module: 17408, loaderModule: 9319, logger: "eb$", logging: "tI"},
+    {version: "26.1120.41243", build: "30607", chunk: 916, hash: "5cf181a62de3d3c8", bootstrapChunk: 719, bootstrap: "1af1d86b850b5496", module: 22631, loaderModule: 9319, logger: "emK", logging: "ty"},
     {version: "26.1027.30824", build: "22943", chunk: 916, hash: "2f6483d5bfd826f1", bootstrap: "aea964a206c655e4", module: 61071, logger: "eeC"}
   ];
   if (legacy.length === 1 && !profiles.some(profile => fs.existsSync(path.join(build, `early-bootstrap-${profile.chunk}-${profile.hash}.js`)))) return path.join(build, legacy[0]);
@@ -35,7 +35,7 @@ export function mainMessageAnchor(source) {
 
 export function mainLoggerOwner(source) {
   const pattern = isWebpackMain(source)
-    ? /let (?:eeC|erS|eb\$)=\(0,(?:em|e6|tI)\.vB9\)\("electron-message-handler"\)/g
+    ? /let (?:eeC|erS|emK)=\(0,(?:em|e6|ty)\.vB9\)\("electron-message-handler"\)/g
     : /var [$\w]+=[$\w]+\.(?:i|Lt|a)\(`electron-message-handler`\)/g;
   const owners = [...source.matchAll(pattern)];
   if (owners.length !== 1) throw new Error("Upstream changed: main logger owner is not unique");

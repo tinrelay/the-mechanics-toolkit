@@ -21,9 +21,14 @@ Compatibility belongs to an exact Desktop build and platform package, not a near
 The detailed evidence and residual boundaries live in the platform runbooks and
 [extraction ledger](docs/extraction-ledger.md).
 
+TMTK `0.2.31` ports macOS to Desktop `26.1120.41243` / build `30607` and extends exact-ID
+archive protection to **Permanently delete**, including mixed bulk selections. It uses the existing
+`protectSidebarArchive` flag. The native browser builder now owns direct Node launch; the former
+TMTK parent wrapper is retired. The accepted live results and remaining manual checks are recorded below.
+
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1117.41037`, build `29803` | 0.2.30 signed stage, supervised adoption, real chat and cold-resume override delivery passed. |
+| macOS ARM64 application | `26.1120.41243`, build `30607` | Signed fleet, supervised adoption, real chat, task ACK/wait, TinRelay ordering and dedicated Chrome passed. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -43,13 +48,14 @@ An `active` patch is maintained on the current branch. That does not mean it is 
 or compatible with an unnamed build. See [platform compatibility](docs/platform-compatibility.md)
 before porting or adopting a candidate.
 
-The optional macOS Computer Use repair has private-socket vendor-Node acceptance and unsigned-client
-rejection evidence from the preceding accepted macOS build. Native Codex accessibility observation
-and dedicated Chrome tab control also passed on that build; those native/browser actions were not
-repeated for the current target.
+The optional macOS Computer Use repair preserves the existing helper permission identity. Its
+private-socket vendor-Node and unsigned-client checks retain earlier evidence; native accessibility
+was not repeated on this target. Dedicated Chrome tab creation, page reading and cleanup passed
+on the accepted build. Protected-menu behavior passed actual packaged probes; manual menu checks
+were not repeated.
 The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default macOS example selects 18 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0230).
+The default macOS example selects 18 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0231).
 
 ## Ordinary use
 

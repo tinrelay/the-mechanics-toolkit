@@ -22,11 +22,11 @@ try {
   fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({main: "other.js", version: "26.1027.30824", codexBuildNumber: "22943"}));
   assert.throws(() => mainProcessAsset(root), /unrecognized/, "an orphaned familiar chunk is not the entry owner");
   fs.rmSync(current);
-  const next = path.join(build, "early-bootstrap-916-90e0adb52d70fbc5.js");
-  fs.writeFileSync(next, 'exports.ids=[916],exports.modules={};loadMain:function(){return Promise.resolve().then(r.bind(r,17408))};let eb$=(0,tI.vB9)("electron-message-handler");');
-  fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({main: ".vite/build/early-bootstrap.js", version: "26.1117.41037", codexBuildNumber: "29803"}));
-  fs.writeFileSync(path.join(build, "early-bootstrap.js"), '719:"e5d94427667b109d",916:"90e0adb52d70fbc5"');
-  fs.writeFileSync(path.join(build, "early-bootstrap-719-e5d94427667b109d.js"), 'let{loadMain:e}=await a.e(916).then(a.bind(a,9319)),{runMainAppStartup:t}=await e();await t()');
+  const next = path.join(build, "early-bootstrap-916-5cf181a62de3d3c8.js");
+  fs.writeFileSync(next, 'exports.ids=[916],exports.modules={};loadMain:function(){return Promise.resolve().then(r.bind(r,22631))};let emK=(0,ty.vB9)("electron-message-handler");');
+  fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({main: ".vite/build/early-bootstrap.js", version: "26.1120.41243", codexBuildNumber: "30607"}));
+  fs.writeFileSync(path.join(build, "early-bootstrap.js"), '719:"1af1d86b850b5496",916:"5cf181a62de3d3c8"');
+  fs.writeFileSync(path.join(build, "early-bootstrap-719-1af1d86b850b5496.js"), 'let{loadMain:e}=await a.e(916).then(a.bind(a,9319)),{runMainAppStartup:t}=await e();await t()');
   assert.equal(mainProcessAsset(root), next);
   console.log("main-process asset ownership probe passed");
 } finally {

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import {parse} from "acorn";
 
-export function probeAttribution29803(source, helper) {
-  assert.ok(source.includes('c=n("qmMi")') && source.includes('tc=n("tl5a")'), "state bindings refer to the actual stock modules");
+export function probeAttribution30607(source, helper) {
+  assert.ok(source.includes('c=n("Q840")') && source.includes('tc=n("tl5a")'), "state bindings refer to the actual stock modules");
   assert.ok(source.includes('const MTKtitleAtom=tc.HX,MTKsourceThreadAtom=tc.ok,MTKcrossTaskState=c;'), "title and source metadata use their stock exports");
   const node = parse(source, {ecmaVersion: "latest"}).body.find(node => node.type === "FunctionDeclaration" && node.id.name === "eX");
   assert.ok(node, "delegated-message component owner");
@@ -34,5 +34,5 @@ export function probeAttribution29803(source, helper) {
   summary = null;
   result = render(props);
   assert.equal(result.props.label.props.children.at(-1).props.children, title, "missing source metadata does not borrow the receiver's project");
-  console.log("build-29803 cross-task attribution behavior probe passed");
+  console.log("build-30607 cross-task attribution behavior probe passed");
 }

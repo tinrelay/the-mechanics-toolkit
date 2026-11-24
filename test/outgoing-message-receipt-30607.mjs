@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import{createRequire}from'node:module';import{randomUUID}from'node:crypto';import{parse}from'acorn';
-import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners29803}from'../patches/outgoing-message-receipt/profiles/build29803.mjs';import{waitProfiles29803}from'../patches/wait-thread-roster/profiles/build29803.mjs';
-export async function probeReceipts29803(root){
- const o=receiptOwners29803(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
+import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners30607}from'../patches/outgoing-message-receipt/profiles/build30607.mjs';import{waitProfiles30607}from'../patches/wait-thread-roster/profiles/build30607.mjs';
+export async function probeReceipts30607(root){
+ const o=receiptOwners30607(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
  const packagedExports=new Map,forwardedExports=new Map;
- for(const file of ['../727403.b9dd20a8a9.js','364313.d749d31da5.js','911644.eaf037cac0.js','154721.0941ae2da5.js']){
+ for(const file of ['../727403.b9dd20a8a9.js','../348410.477a16d4d9.js','142457.040a30ed8d.js','366996.9782070574.js','49792.ab5b643c25.js','407859.bb57f12697.js','990214.12d3fdf6e7.js']){
   const source=fs.readFileSync(path.join(root,'webview/assets/async',file),'utf8');
   const tree=parse(source,{ecmaVersion:'latest',sourceType:'module'});
-  const modules=tree.body.flatMap(node=>node.declaration?.declarations??[]).find(node=>node.id.name==='__webpack_modules__').init.properties;
+  const modules=tree.body.flatMap(node=>node.declaration?.declarations??node.declarations??[]).find(node=>node.id.name===(file.includes('348410.')?'l':'__webpack_modules__')).init.properties;
   for(const module of modules){
    const exports=new Set;
    walk(module.value.body,call=>{
@@ -20,23 +20,36 @@ export async function probeReceipts29803(root){
   }
  }
  assert.equal(forwardedExports.get('zd8w'),'Vlts','React wrapper forwards to the packaged implementation');assert.ok(packagedExports.get('Vlts').has('useState'));packagedExports.set('zd8w',packagedExports.get('Vlts'));
+ assert.equal(forwardedExports.get('ABep'),'eKDk','JSX wrapper forwards to the packaged implementation');packagedExports.set('ABep',packagedExports.get('eKDk'));
  const conversation=readRendererModule(o.conversation),start=conversation.indexOf('const MTKoutboundReceiptContract='),end=conversation.indexOf('n.d(t,{MTKOutboundTurnReceipts:',start);assert.ok(end>start);
  const listeners=new Map,dispatches=[],effects=[],realm={},react={useState:x=>[typeof x==='function'?x():x,()=>{}],useEffect:f=>effects.push(f)};
+ const injectedStart=conversation.indexOf('const MTKoutboundReceipt='),injectedEnd=conversation.indexOf('const MTKoutboundReceiptContract=',injectedStart);
+ assert.ok(injectedStart>=0&&injectedEnd>injectedStart,'actual conversation initializer is present');
+ const initialImports={acby:{MTKoutboundReceipt:Receipt},zd8w:react,ABep:jsx,TL6G:{O1:{}},yQHm:{m:Actions}};
+ const loadInitial=id=>{
+  assert.ok(packagedExports.has(id),'conversation initializer requires a real packaged module: '+id);
+  return new Proxy(initialImports[id]??{}, {get(value,key){assert.ok(packagedExports.get(id).has(key),'conversation initializer requires a real export: '+id+'.'+String(key));return value[key]}});
+ };
+ const nativeActions=readRendererModule({file:o.conversation.file,id:'yQHm',parameters:['e','t','n']});
+ assert.ok(conversation.includes('ev=n("yQHm")'),'receipt reuses the existing native actions import');
+ assert.ok(nativeActions.includes('m:()=>nb')&&nativeActions.includes('copyText:T')&&nativeActions.includes('sentAtMs:U')&&nativeActions.includes('timestampHoverOnly:V'),'native action component retains the receipt props');
+ const initialized=Function('n','ev',conversation.slice(injectedStart,injectedEnd)+';return {Receipt:MTKoutboundReceipt,Actions:MTKReceiptActions};')(loadInitial,loadInitial('yQHm'));
+ assert.equal(initialized.Receipt,Receipt);assert.equal(initialized.Actions,Actions);
  const api=Function('MTKReceiptBus','MTKOutboundReceiptReact','MTKReceiptJsx','MTKReceiptActions','MTKoutboundReceipt','globalThis','crypto',conversation.slice(start,end)+';return {remember:MTKoutboundRemember,list:MTKoutboundReceiptValues,state:MTKoutboundReceiptState,lifecycle:MTKOutboundReceiptLifecycle,view:MTKOutboundTurnReceipts};')({subscribe:(k,f)=>listeners.set(k,f),dispatchMessage:(type,payload)=>dispatches.push({type,payload})},react,jsx,Actions,Receipt,realm,{randomUUID});
- const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-29803-'));try{
+ const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-30607-'));try{
   const native=fs.readFileSync(mainProcessAsset(root),'utf8'),begin=native.indexOf('const MTKoutboundReceiptContract='),ast=parse(native,{ecmaVersion:'latest',sourceType:'module'});let last;
   walk(ast,x=>{if(x.type==='FunctionDeclaration'&&x.id?.name==='MTKoutboundReceiptList')last=x});assert.ok(last&&last.end>begin);
-  const makeCache=()=>Function('require','process','Buffer','tg',native.slice(begin,last.end)+';return {remember:MTKoutboundReceiptRemember,list:MTKoutboundReceiptList};')(createRequire(import.meta.url),process,Buffer,{app:{getPath:()=>scratch}});
+  const makeCache=()=>Function('require','process','Buffer','td',native.slice(begin,last.end)+';return {remember:MTKoutboundReceiptRemember,list:MTKoutboundReceiptList};')(createRequire(import.meta.url),process,Buffer,{app:{getPath:()=>scratch}});
   const cache=makeCache(),record={callId:'accepted-call',contract:'outgoing-message-receipt-v1',prompt:'Coordinator → Engineer — hello',recordedAtMs:100,sourceThreadId:'source',sourceTurnId:'turn',targetHostId:'local',targetThreadId:'ada'};
   const live=api.lifecycle({item:{completed:true,success:true},record});assert.equal(live.type,Receipt);assert.equal(live.props.Actions,Actions);for(const f of effects.splice(0))f();assert.equal(dispatches.length,1);assert.equal(api.remember(record),false);assert.equal(dispatches.length,1);assert.deepEqual(api.list(api.state('source')),[]);
   const saved=cache.remember(record);assert.deepEqual(saved,record);assert.deepEqual(makeCache().list('source'),[record],'receipt survives a new native helper realm');
   listeners.get('mtk-outbound-receipt-remember-result')({requestId:dispatches[0].payload.requestId,ok:true,record:saved});assert.equal(api.lifecycle({item:{},record}),null);const view=api.view({conversationId:'source',turnId:'turn'});assert.equal(view.props.children.length,1);assert.equal(view.props.children[0].props.item.recordedAtMs,100);
   assert.deepEqual(cache.remember({...record,prompt:'different'}),record,'same call identity returns its first durable record');assert.deepEqual(makeCache().list('source'),[record]);
   for(const[index,target]of o.send.entries()){
-   const source=readRendererModule(target),p=waitProfiles29803[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
+   const source=readRendererModule(target),p=waitProfiles30607[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
    const helper=nodes.filter(x=>x.type==='FunctionDeclaration'&&/^MTK(?:outbound|Outbound|renderOutbound)/.test(x.id.name)).map(x=>source.slice(x.start,x.end)).join('');
    const begin=source.indexOf('const MTKoutboundStoreHook='),end=source.indexOf(`;${p.loader}.d(t,{MTKoutboundReceipt:`,begin)+1,bindings=source.slice(begin,end);assert.ok(end>begin);
-   const titleAtom={},threadAtom={};let title=null;const routed=[];const imports=id=>({'qmMi':{gh:()=>({}),_U:(atom,key)=>{if(atom===titleAtom)return title;if(atom===threadAtom)return{summary:{title,cwd:'/projects/example-search'}};assert.fail('unknown title binding')}},'OWtl':{u:{}},'tl5a':{HX:titleAtom,ok:threadAtom},'slpy':{m:{Root:'tooltip-root',Content:'tooltip-content',Trigger:'tooltip-trigger'}},'zd8w':react,'jHtb':{J:'formatter'}}[id]??assert.fail('unknown import '+id));
+   const titleAtom={},threadAtom={};let title=null;const routed=[];const imports=id=>({'Q840':{gh:()=>({}),_U:(atom,key)=>{if(atom===titleAtom)return title;if(atom===threadAtom)return{summary:{title,cwd:'/projects/example-search'}};assert.fail('unknown title binding')}},'OWtl':{u:{}},'tl5a':{HX:titleAtom,ok:threadAtom},'slpy':{m:{Root:'tooltip-root',Content:'tooltip-content',Trigger:'tooltip-trigger'}},'zd8w':react,'jHtb':{J:'formatter'}}[id]??assert.fail('unknown import '+id));
    const values={[p.jsx]:jsx,[p.normalize.match(/,([\w$]+)\./)[1]]:{JXB:x=>x,Cv$:x=>'/new/'+x,_RT:x=>'/local/'+x},[p.hostBridge.split('.')[0]]:{O1:{dispatchHostMessage:m=>routed.push(m)}},[p.genericRender]:()=>null};
    const features={__MTK_PATCH_REGISTRY__:{apiVersion:1,packages:{crossTaskAttribution:{version:3,resolveTaskLabel:({title,cwd})=>title?.includes(' — ')?title.split(' — ')[0]:title?cwd.split('/').at(-1)+'/'+title:null},taskVisualPalette:{version:1,resolveTaskColor:()=> '#22AA44'}}}};
    let formatterLoaded=false,formatterAvailable=false;
@@ -55,8 +68,8 @@ export async function probeReceipts29803(root){
    const formatted=collect(hover).find(x=>typeof x.type==='function');assert.ok(formatted,'hover contains deferred native formatted text');assert.equal(formatted.type(formatted.props).type,'formatter');assert.equal(formatterLoaded,true);
    title='ticket-inbox';button=collect(render({item})).find(x=>x.type==='button');assert.equal(button.props.children,'example-search/ticket-inbox','project comes from recipient summary');
   }
-  const turn=readRendererModule(o.turn),dynamic=readRendererModule(o.dynamic);assert.ok(turn.includes('canOwnLatestTurnFollowContent:!1,isResponseContent:!1'));assert.ok(turn.includes('conversationId:th,turnId:tx'));assert.ok(dynamic.includes('turnId:MTKsourceTurnId,ReceiptLifecycle:MTKReceiptLifecycle'));
-  console.log('outgoing receipts 29803 behavior and persistence probe passed');
+  const turn=readRendererModule(o.turn),dynamic=readRendererModule(o.dynamic);assert.ok(turn.includes('canOwnLatestTurnFollowContent:!1,isResponseContent:!1'));assert.ok(turn.includes('conversationId:ty,turnId:tw'));assert.ok(dynamic.includes('turnId:MTKsourceTurnId,ReceiptLifecycle:MTKReceiptLifecycle'));
+  console.log('outgoing receipts 30607 behavior and persistence probe passed');
  }finally{fs.rmSync(scratch,{recursive:true,force:true})}
 }
 

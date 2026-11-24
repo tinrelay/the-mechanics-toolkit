@@ -3,10 +3,10 @@ import path from 'node:path';
 import {readRendererModule} from '../src/renderer-module.mjs';
 
 // Exercise the packaged sender and its real capability/version comparator. No model call.
-export function probeDelegationRetention29803(root) {
+export function probeDelegationRetention30607(root) {
   const factories = new Map();
-  const file = path.join(root, 'webview/assets/async/911644.eaf037cac0.js');
-  for (const id of ['KBsB', 'Ehlj', 'ldD6']) factories.set(id, readRendererModule({file:id==='KBsB'?file:path.join(root,'webview/assets/async/976185.5c5ffe91ef.js'), id, parameters:['e','t','n']}));
+  const file = path.join(root, 'webview/assets/async/49792.ab5b643c25.js');
+  for (const id of ['KBsB', 'Ehlj', 'ldD6']) factories.set(id, readRendererModule({file:id==='KBsB'?file:path.join(root,'webview/assets/async/976185.d6427dfaa7.js'), id, parameters:['e','t','n']}));
   const cache = new Map([['N2rm', {iw:'remote'}], ['DBCl', {}]]);
   const load = id => {
     if (cache.has(id)) return cache.get(id);
@@ -22,7 +22,7 @@ export function probeDelegationRetention29803(root) {
   };
   const sender = load('KBsB');
   for (const toolName of ['send_message_to_thread','create_thread']) {
-    const request=sender.on({appServerVersion:'0.171.0-alpha.13',sourceThreadId:'source',input:'current <task>',toolName});
+    const request=sender.on({appServerVersion:'0.171.0-alpha.13.2',sourceThreadId:'source',input:'current <task>',toolName});
     assert.deepEqual(request.input,[]);
     assert.equal(request.toolOutput.retain,true);
     assert.equal(request.toolOutput.name,toolName);

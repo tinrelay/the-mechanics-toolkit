@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild29803} from "../runtime-json-reload/profiles/build29803.mjs";
-import {runBuild29803} from "./profiles/build29803.mjs";
+import {matchesBuild30607} from "../runtime-json-reload/profiles/build30607.mjs";
+import {runBuild30607} from "./profiles/build30607.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import {spawnSync} from "node:child_process";
@@ -10,7 +10,7 @@ import {spawnSync} from "node:child_process";
 const command=process.argv[2],root=path.resolve(process.argv[3]??"");
 if(!["check","apply"].includes(command)||!process.argv[3])throw Error("usage: dot-lifecycle-protection/patch.mjs check|apply EXTRACTED_ASAR_ROOT");
 const helper=String.raw`const MTKdotLifecyclePolicy=1;function MTKdotEntries(){let e=globalThis.__MTK_AGENT_ROSTER__?.current()?.entries??[],t=[];for(let n of e){let r=n.data;if(n.kind!=="agent"||r?.orbitId===void 0)continue;if(typeof r.orbitId!=="string"||r.orbitId.length===0||r.orbitId.length>512||["protectDeletion","protectReboot"].some(e=>r[e]!==void 0&&typeof r[e]!=="boolean"))throw Error("Invalid TMTK dot policy");t.push(n)}return t}function MTKdotProtected(e,t,n){let r=e==="delete"?"protectDeletion":e==="reboot"?"protectReboot":null;return r!==null&&MTKdotEntries().some(e=>(typeof t==="string"?e.data.orbitId===t:typeof n==="string"&&e.taskId===n)&&e.data[r]===!0)}function MTKdotRebootProtected(e,t){return MTKdotProtected("reboot",e.query.getData(UC,t)?.id,t)}globalThis.__MTK_DOT_POLICY__=Object.freeze({version:1,protected:MTKdotProtected,rebootProtected:MTKdotRebootProtected,assertReboot(e,t){if(MTKdotRebootProtected(e,t))throw Error("This dot is protected from reboot by TMTK")},nameForThread(e,t){try{let n=MTKdotEntries().find(t=>t.taskId===e);return n==null?null:typeof t==="string"&&t.trim().length>0?t.trim():n.data.name}catch{return null}}});`;
-if(matchesBuild29803(root)){console.log(JSON.stringify(runBuild29803({root,command,helper})));process.exit(0);}
+if(matchesBuild30607(root)){console.log(JSON.stringify(runBuild30607({root,command,helper})));process.exit(0);}
 
 const assets=path.join(root,"webview/assets");
 function unique(pattern) {

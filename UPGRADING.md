@@ -1,10 +1,49 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.30` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.31` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.31
+
+The macOS target advances to Desktop `26.1120.41243` / build `30607`. Stage the complete
+18-patch default fleet, or 19 with the optional Computer Use service repair, from the authenticated
+pristine vendor package. Linux and Windows targets are unchanged.
+
+The existing `protectSidebarArchive` flag now also removes **Permanently delete** from the shared
+sidebar/title menu and from bulk menus whenever a selected chat is protected. Unprotected chats
+retain native deletion and eligibility checks. This is a desktop menu safeguard, not an API rule.
+
+This port follows relocated native startup, transcript and sidebar owners, one consolidated lazy
+tool module and two native command catalogs. Native terminal shortcuts retain Control-backtick
+and Command-or-Control-J. The browser builder now launches the packaged Node directly; TMTK's
+former parent wrapper has been removed. Confirmation/access policy remains native. Dedicated
+Chrome tab creation, reading and cleanup passed on the accepted build.
+
+The vendor CLI is `0.171.0-alpha.13.2`. Its marked-output feature remains stable/default-on and
+the packaged sender requests retention. The two compaction source files match the previously
+tested exact source. Keep the stock CLI and the local compaction repair dormant; no Rust build is
+needed. This does not prove retention of unmarked output or resolve every replay report.
+
+The optional Computer Use helper changed. Its same semantic parent gate is narrowly relocated,
+with the immediate vendor-peer check preserved. Keep the existing persistent local signing identity;
+no privacy reset is part of this port. Bundled app-context text changed, so an existing override may
+produce the expected instruction-change notice. Compare the refreshed default snapshot with your
+override; cold resume remains the qualified delivery path.
+
+Complete signed staging, post-repack probes, byte-identical reapplication, signature/seal and
+repository checks/tests passed. Supervised adoption opened the real continuing chat. Task-message
+ACK/wait cards, active identity colors, TinRelay send/return/reply ordering after collapse, and
+dedicated Chrome control passed live. Protected-menu behavior passed packaged probes; manual menu
+checks and native accessibility were not repeated. The macOS runbook records exact evidence.
+
+Use the final current profiles: the port corrects stale native action/container imports and pins
+actual exports, preserves identity paint through native shimmer, and places completed outgoing
+TinRelay cards before return activity and the final reply. No chat-history or authentication
+migration is needed. Adopt through `tmtk-restart --candidate` and open a real chat afterward;
+readiness on the default surface alone does not qualify a port.
 
 ## 0.2.30
 

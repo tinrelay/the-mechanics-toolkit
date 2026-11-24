@@ -162,10 +162,13 @@ The host-message cases bind to the enclosing main handler's actual request argum
 outgoing lookup/anchor restore and legacy incoming-pointer inspection are checked through that
 owner; isolated helper tests must not supply an obsolete request-variable name on its behalf.
 
-For builds `29513` and `29803`, presentation wraps the original history item before native command-output
+The current macOS profile wraps the original history item before native command-output
 deferral. The downstream command renderer receives empty output and no direct turn ID, so it
 cannot own acceptance lookup. The wrapper uses the native conversation-plus-turn activity key
 for source ownership and leaves native output deferral, command props and disclosure intact.
+A completed outgoing card registers before native command activity and the final reply, so a
+return delivered into that activity follows its send. It must keep that order when activity
+collapses, while remaining inside its source turn.
 A behavioral probe executes the actual history wrapper with the live input shape: original
 acceptance output, a valid activity key and no direct turn ID. Foreign activity keys cannot supply
 a source turn. Helper-only tests do not qualify this integration boundary.

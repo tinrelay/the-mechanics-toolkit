@@ -18,11 +18,11 @@ walk(bootstrapTree,n=>{if(n.type==='Property'&&[78335,89477,86697].includes(n.ke
 assert.equal(externals.get(78335),require('node:crypto'));
 assert.equal(externals.get(89477),fs);
 assert.equal(externals.get(86697),path);
-assert.ok(startup.includes('var tI=r(73488)')&&startup.includes('tg=r(4482)'),'startup uses the packaged native utility and Electron bindings');
-const ready='await tg.app.whenReady(),tI.MTKcheckAppContextDefaults(tg.dialog),';
+assert.ok(startup.includes('var ty=r(73488)')&&startup.includes('td=r(4482)'),'startup uses the packaged native utility and Electron bindings');
+const ready='await td.app.whenReady(),ty.MTKcheckAppContextDefaults(td.dialog),';
 assert.equal(startup.split(ready).length,2,'one app-ready notice call');
 const order=[],dialogToken={};
-const start=Function('return Object.getPrototypeOf(async function(){}).constructor')()('tg','tI','return ('+ready+'"continued")');
+const start=Function('return Object.getPrototypeOf(async function(){}).constructor')()('td','ty','return ('+ready+'"continued")');
 assert.equal(await start({app:{async whenReady(){order.push('ready')}},dialog:dialogToken},{MTKcheckAppContextDefaults(dialog){assert.equal(dialog,dialogToken);order.push('notice');return new Promise(()=>{})}}),'continued','an open notice does not block startup');
 assert.deepEqual(order,['ready','notice']);
 
