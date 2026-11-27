@@ -1,10 +1,32 @@
 # Upgrading The Mechanic's Toolkit
 
-TMTK `0.2.31` is source-only. Use an exact published toolkit revision and inspect the official
+TMTK `0.2.32` is source-only. Use an exact published toolkit revision and inspect the official
 package's **inner** Codex Desktop version and build before staging. An outer MSIX, DEB, or RPM
 version alone is not a generated-JavaScript compatibility claim. The
 [current build matrix](docs/extraction-ledger.md#current-build-matrix) and platform runbooks own
 the evidence; Git history holds older port instructions.
+
+## 0.2.32
+
+The macOS target advances to Desktop `26.1120.50957` / build `30866`. Use the complete 18-patch
+default fleet, or 19 including the optional Computer Use service repair. Linux and Windows targets
+are unchanged. Superseded current macOS profiles are replaced by exact build-30866 profiles.
+
+Native startup and the bundled CLI are unchanged from the preceding accepted target. Keep the
+stock CLI and the local compaction repair dormant. This does not establish general unmarked-output
+retention or replay correctness. The Computer Use helper retains the same exact normalized image
+and persistent signing identity; no privacy reset or new authentication migration is required.
+Native browser launch remains upstream-owned.
+
+Renderer asset names and local transcript bindings changed. The port follows actual activity,
+completion and registration owners, preserving send-before-return-before-reply order through
+collapse and the wait name's theme-aware paint. Existing protected-menu behavior remains in place.
+
+Complete signed staging passed, including post-repack probes and byte-identical reapplication.
+The helper permission identity is preserved. Adoption and live acceptance are pending. Use
+`tmtk-restart --candidate`, then open a real continuing chat and qualify
+native task send/wait/ACK cards, wait colors and a TinRelay self-ping through completion/collapse.
+Default-route renderer readiness alone is insufficient. The macOS runbook owns exact receipts.
 
 ## 0.2.31
 

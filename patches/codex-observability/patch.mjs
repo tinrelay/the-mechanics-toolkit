@@ -62,7 +62,7 @@ function patchMain(value) {
 function mainProfile(value) {
   if (value.includes('ep=new ty.kec;ep.add(G),ep.add(ea)')) {
     for(const contract of ['ep=new ty.kec;ep.add(G),ep.add(ea)', 'await td.app.whenReady(),', 'ec("main app.whenReady resolved",em)']) {
-      if(count(value,contract)!==1)throw Error("Upstream changed: build-30607 app-ready owner");
+      if(count(value,contract)!==1)throw Error("Upstream changed: build-30866 app-ready owner");
     }
     return {helperOwner:mainLoggerOwner(value)[0],startup:'ec("main app.whenReady resolved",em)',electron:"td",disposers:"ep"};
   }

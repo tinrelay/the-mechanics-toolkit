@@ -1,11 +1,11 @@
 import path from 'node:path';
 import {readRendererModule,writeRendererModule} from '../../../src/renderer-module.mjs';
-export const waitOwners30607=root=>[{file:path.join(root,'webview/assets/async/990214.12d3fdf6e7.js'),id:'acby',parameters:['e','t','a']}];
-export const waitProfiles30607=[{loader:'a',namespace:'o.PD',genericRender:'z',icon:'N',jsx:'r',container:'u.F',classNames:'(0,s.A)',spinner:'m.N',iconFunction:'N',summaryWrapper:'A.o',normalize:'(0,h.JXB)',hostBridge:'b.O1',routeFlag:'(()=>false)',newRoute:'(0,h.Cv$)',oldRoute:'(0,h._RT)',sendTool:'x.vN'}];
-export function runBuild30607({root,command,buildHelper}){
- const owners=waitOwners30607(root),targets=[];let states=[];
+export const waitOwners30866=root=>[{file:path.join(root,'webview/assets/async/990214.12d3fdf6e7.js'),id:'acby',parameters:['e','t','a']}];
+export const waitProfiles30866=[{loader:'a',namespace:'o.PD',genericRender:'z',icon:'N',jsx:'r',container:'u.F',classNames:'(0,s.A)',spinner:'m.N',iconFunction:'N',summaryWrapper:'A.o',normalize:'(0,h.JXB)',hostBridge:'b.O1',routeFlag:'(()=>false)',newRoute:'(0,h.Cv$)',oldRoute:'(0,h._RT)',sendTool:'x.vN'}];
+export function runBuild30866({root,command,buildHelper}){
+ const owners=waitOwners30866(root),targets=[];let states=[];
  for(let index=0;index<owners.length;index++){
-  const owner=owners[index],p=waitProfiles30607[index];let source=readRendererModule(owner);
+  const owner=owners[index],p=waitProfiles30866[index];let source=readRendererModule(owner);
   const entry=`{namespace:${p.namespace},render:${p.genericRender},renderAgentActivityIcon:${p.icon},tool:${p.sendTool}}`;
   const receiptEntry=`{namespace:${p.namespace},persistentInCollapsedConversation:!0,render:MTKrenderOutboundMessage,renderAgentActivityIcon:${p.icon},standaloneInConversation:!0,tool:${p.sendTool}}`;
   const sendEntry=source.includes(entry)?entry:receiptEntry;

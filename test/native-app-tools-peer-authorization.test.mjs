@@ -14,9 +14,9 @@ const start = source.indexOf("function MTKnativeAppToolsPeerAuthorizer()");
 const current=source.includes('ep=new ty.kec;ep.add(G),ep.add(ea)');
 let helperNode;const ast=parse(source,{ecmaVersion:"latest",sourceType:"module"});walk(ast,x=>{if(x.type==="FunctionDeclaration"&&x.id?.name==="MTKnativeAppToolsPeerAuthorizer")helperNode=x});
 const end = helperNode?.end??source.indexOf("async function ", start);
-const owner = current ? "30607" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
+const owner = current ? "30866" : source.slice(end).match(/^async function ([A-Za-z_$][\w$]*)\(/)?.[1];
 const profiles = {
-  "30607": {authorizer:"c4",addon:"e",socketVar:"s",authParam:"l"},
+  "30866": {authorizer:"c4",addon:"e",socketVar:"s",authParam:"l"},
   cB: {authorizer: "cR", addon: "e", socketVar: "s", authParam: "o"},
   c$: {authorizer: "cF", addon: "e", socketVar: "s", authParam: "o"},
   $ce: {authorizer: "kl", addon: "i"},

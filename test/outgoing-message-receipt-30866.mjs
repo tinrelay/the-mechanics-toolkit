@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import{createRequire}from'node:module';import{randomUUID}from'node:crypto';import{parse}from'acorn';
-import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners30607}from'../patches/outgoing-message-receipt/profiles/build30607.mjs';import{waitProfiles30607}from'../patches/wait-thread-roster/profiles/build30607.mjs';
-export async function probeReceipts30607(root){
- const o=receiptOwners30607(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
+import{readRendererModule}from'../src/renderer-module.mjs';import{mainProcessAsset}from'../src/main-process-asset.mjs';import{receiptOwners30866}from'../patches/outgoing-message-receipt/profiles/build30866.mjs';import{waitProfiles30866}from'../patches/wait-thread-roster/profiles/build30866.mjs';
+export async function probeReceipts30866(root){
+ const o=receiptOwners30866(root),jsx={jsx:(type,props,key)=>({type,props,key}),jsxs:(type,props,key)=>({type,props,key})};function Receipt(){}function Actions(){}
  const packagedExports=new Map,forwardedExports=new Map;
- for(const file of ['../727403.b9dd20a8a9.js','../348410.477a16d4d9.js','142457.040a30ed8d.js','366996.9782070574.js','49792.ab5b643c25.js','407859.bb57f12697.js','990214.12d3fdf6e7.js']){
+ for(const file of ['../727403.b9dd20a8a9.js','../348410.f0081c7d18.js','142457.040a30ed8d.js','366996.9782070574.js','49792.d8d33ace73.js','407859.bb57f12697.js','990214.12d3fdf6e7.js']){
   const source=fs.readFileSync(path.join(root,'webview/assets/async',file),'utf8');
   const tree=parse(source,{ecmaVersion:'latest',sourceType:'module'});
   const modules=tree.body.flatMap(node=>node.declaration?.declarations??node.declarations??[]).find(node=>node.id.name===(file.includes('348410.')?'l':'__webpack_modules__')).init.properties;
@@ -36,7 +36,7 @@ export async function probeReceipts30607(root){
  const initialized=Function('n','ev',conversation.slice(injectedStart,injectedEnd)+';return {Receipt:MTKoutboundReceipt,Actions:MTKReceiptActions};')(loadInitial,loadInitial('yQHm'));
  assert.equal(initialized.Receipt,Receipt);assert.equal(initialized.Actions,Actions);
  const api=Function('MTKReceiptBus','MTKOutboundReceiptReact','MTKReceiptJsx','MTKReceiptActions','MTKoutboundReceipt','globalThis','crypto',conversation.slice(start,end)+';return {remember:MTKoutboundRemember,list:MTKoutboundReceiptValues,state:MTKoutboundReceiptState,lifecycle:MTKOutboundReceiptLifecycle,view:MTKOutboundTurnReceipts};')({subscribe:(k,f)=>listeners.set(k,f),dispatchMessage:(type,payload)=>dispatches.push({type,payload})},react,jsx,Actions,Receipt,realm,{randomUUID});
- const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-30607-'));try{
+ const scratch=fs.mkdtempSync(path.join(os.tmpdir(),'tmtk-receipt-30866-'));try{
   const native=fs.readFileSync(mainProcessAsset(root),'utf8'),begin=native.indexOf('const MTKoutboundReceiptContract='),ast=parse(native,{ecmaVersion:'latest',sourceType:'module'});let last;
   walk(ast,x=>{if(x.type==='FunctionDeclaration'&&x.id?.name==='MTKoutboundReceiptList')last=x});assert.ok(last&&last.end>begin);
   const makeCache=()=>Function('require','process','Buffer','td',native.slice(begin,last.end)+';return {remember:MTKoutboundReceiptRemember,list:MTKoutboundReceiptList};')(createRequire(import.meta.url),process,Buffer,{app:{getPath:()=>scratch}});
@@ -46,7 +46,7 @@ export async function probeReceipts30607(root){
   listeners.get('mtk-outbound-receipt-remember-result')({requestId:dispatches[0].payload.requestId,ok:true,record:saved});assert.equal(api.lifecycle({item:{},record}),null);const view=api.view({conversationId:'source',turnId:'turn'});assert.equal(view.props.children.length,1);assert.equal(view.props.children[0].props.item.recordedAtMs,100);
   assert.deepEqual(cache.remember({...record,prompt:'different'}),record,'same call identity returns its first durable record');assert.deepEqual(makeCache().list('source'),[record]);
   for(const[index,target]of o.send.entries()){
-   const source=readRendererModule(target),p=waitProfiles30607[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
+   const source=readRendererModule(target),p=waitProfiles30866[index],nodes=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body;
    const helper=nodes.filter(x=>x.type==='FunctionDeclaration'&&/^MTK(?:outbound|Outbound|renderOutbound)/.test(x.id.name)).map(x=>source.slice(x.start,x.end)).join('');
    const begin=source.indexOf('const MTKoutboundStoreHook='),end=source.indexOf(`;${p.loader}.d(t,{MTKoutboundReceipt:`,begin)+1,bindings=source.slice(begin,end);assert.ok(end>begin);
    const titleAtom={},threadAtom={};let title=null;const routed=[];const imports=id=>({'Q840':{gh:()=>({}),_U:(atom,key)=>{if(atom===titleAtom)return title;if(atom===threadAtom)return{summary:{title,cwd:'/projects/example-search'}};assert.fail('unknown title binding')}},'OWtl':{u:{}},'tl5a':{HX:titleAtom,ok:threadAtom},'slpy':{m:{Root:'tooltip-root',Content:'tooltip-content',Trigger:'tooltip-trigger'}},'zd8w':react,'jHtb':{J:'formatter'}}[id]??assert.fail('unknown import '+id));
@@ -69,7 +69,7 @@ export async function probeReceipts30607(root){
    title='ticket-inbox';button=collect(render({item})).find(x=>x.type==='button');assert.equal(button.props.children,'example-search/ticket-inbox','project comes from recipient summary');
   }
   const turn=readRendererModule(o.turn),dynamic=readRendererModule(o.dynamic);assert.ok(turn.includes('canOwnLatestTurnFollowContent:!1,isResponseContent:!1'));assert.ok(turn.includes('conversationId:ty,turnId:tw'));assert.ok(dynamic.includes('turnId:MTKsourceTurnId,ReceiptLifecycle:MTKReceiptLifecycle'));
-  console.log('outgoing receipts 30607 behavior and persistence probe passed');
+  console.log('outgoing receipts 30866 behavior and persistence probe passed');
  }finally{fs.rmSync(scratch,{recursive:true,force:true})}
 }
 

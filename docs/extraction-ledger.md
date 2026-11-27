@@ -8,7 +8,7 @@ package hashes and operational receipts. Git history holds superseded ports.
 
 | Platform package | Current Desktop target | Fleet | Highest proved gate |
 | --- | --- | --- | --- |
-| macOS ARM64 application | `26.1120.41243` / `30607` | 18 default; 19 with Computer Use | Signed fleet, supervised adoption, real chat, task ACK/wait, TinRelay ordering and dedicated Chrome passed. |
+| macOS ARM64 application | `26.1120.50957` / `30866` | 18 default; 19 with Computer Use | Signed complete fleet, post-repack probes and byte-identical reapplication passed; live acceptance pending. |
 | Windows MSIX | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 signed stage, genuine task-led supervised adoption, usable task, and visible roster/palette |
 | Ubuntu DEB | `26.917.71314` / `10954` | Prior 16-patch receipt | ARM64 authenticated stage, direct installation, usable task, and visible roster/palette; supervisor not exercised |
 | Fedora RPM | `26.911.61220` / `9647` | Prior 16-patch receipt | AArch64 authenticated stage, supervised adoption, renderer readiness, and focused live features |
@@ -27,41 +27,26 @@ select a generated-JavaScript profile.
 
 ## Fleet-wide evidence and limits
 
-TMTK 0.2.31 ports the current macOS fleet to exact `build30607` profiles. Native startup and
-renderer ownership changed; one lazy tool module replaces five copies, and two native catalogs
-own terminal commands. The original history item still reaches TinRelay presentation before native
-output deferral. Common transcript receipt registration uses the current native turn lifecycle.
+TMTK 0.2.32 ports the current macOS fleet to exact `build30866` profiles. Native startup and the
+bundled CLI are byte-identical to the preceding authenticated target. Renderer assets and local
+transcript variables changed; exact profile bindings follow their current semantic owners.
 
-The existing protection flag now removes permanent deletion from individual sidebar/title menus
-and mixed protected bulk selections. Native eligibility and callbacks remain intact for ordinary
-chats. The former browser parent wrapper is retired because the new native builder owns direct
-packaged-Node launch. Access flags, policy and trusted-service configuration remain native.
+The protected permanent-delete guard, wait identity paint, original-output TinRelay classifier and
+send-before-return-before-reply registration remain. Native browser launch stays upstream-owned.
+The stock CLI retains marked-output retention, so the local compaction repair remains dormant;
+this is not proof of general unmarked-output or handled-input replay correctness.
 
-Vendor CLI `0.171.0-alpha.13.2` reports marked-output retention stable/default-on. Its actual
-sender/version comparator passes. Both compaction source files are unchanged from the previously
-proved exact source, so the local repair remains dormant. This does not establish general
-unmarked-output retention or every handled-input replay repair. No replacement CLI is selected.
+The optional Computer Use helper's exact normalized stock image is unchanged. Its narrow repair,
+immediate vendor-peer check and persistent signing requirement remain. Bundled native app-context
+code is unchanged. No authentication, chat-history or privacy reset is part of this port.
 
-The optional Computer Use repair follows the unchanged non-call instruction structure of the new
-helper's relocated parent gate. The immediate vendor-team check and persistent signing identity
-remain. The app-context default fingerprint changed; override delivery still requires cold resume.
-
-Complete signed 19-patch staging passed, including actual initializer/export and render probes,
-changed-module syntax, byte-identical reapplication, post-repack verification, native preservation,
-signature/seal and native-CSS footer checks. The final installed ASAR matches the accepted candidate.
-The helper signing requirement is preserved without a privacy reset. Repository checks/tests passed;
-production Linux package staging fixtures were platform-skipped.
-
-Supervised adoption returned to a real continuing chat. The operator accepted task-message ACK
-cards, wait rendering and active name colors, and TinRelay send/return/reply order after activity
-collapse. Dedicated Chrome extension tab creation, page reading and cleanup also passed. The port
-fixed stale native action/container bindings, native shimmer overriding identity paint, and the
-completed outgoing card's registration boundary; regression probes now cover those exact seams.
-Protected-menu behavior has packaged behavioral coverage, but manual menu checks and native
-accessibility actions were not repeated. These are evidence limits, not claims of live acceptance.
-The [macOS runbook](../qualification/macos.md) owns exact hashes and gates;
-[Windows](../qualification/windows.md) and [Linux](../qualification/linux.md) retain their existing
-platform targets and receipts.
+The complete signed fleet passed actual initializer/export and render probes, changed-module syntax,
+byte-identical reapplication, post-repack verification, native payload preservation, signature and
+ASAR integrity. The helper permission preview reported preserved using only codesign.
+Repository syntax, full tests and hygiene passed; Linux production staging fixtures were
+platform-skipped. Supervised adoption and real continuing-chat acceptance are pending. The [macOS runbook](../qualification/macos.md) records package hashes, static proof and
+live gates. [Windows](../qualification/windows.md) and [Linux](../qualification/linux.md) retain
+their existing platform targets and receipts.
 
 ## Extraction rule
 

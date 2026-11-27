@@ -2,16 +2,16 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import {matchesBuild30607} from "../patches/runtime-json-reload/profiles/build30607.mjs";
-import {rosterOwner30607, rosterClient30607} from "../patches/agent-roster/profiles/build30607.mjs";
-import {probeRosterFactory30607} from "./agent-roster-30607.mjs";
+import {matchesBuild30866} from "../patches/runtime-json-reload/profiles/build30866.mjs";
+import {rosterOwner30866, rosterClient30866} from "../patches/agent-roster/profiles/build30866.mjs";
+import {probeRosterFactory30866} from "./agent-roster-30866.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: agent-roster.test.mjs EXTRACTED_ASAR_ROOT");
 const assets = path.join(root, "webview/assets");
-const moduleOwner = matchesBuild30607(root) ? rosterOwner30607(root) : null;
-if(moduleOwner) await probeRosterFactory30607(root);
+const moduleOwner = matchesBuild30866(root) ? rosterOwner30866(root) : null;
+if(moduleOwner) await probeRosterFactory30866(root);
 const targets = moduleOwner != null ? [path.relative(assets, moduleOwner.file)] : fs.readdirSync(assets).filter(name => /^app-(?:initial|runtime)-.*\.js$/.test(name) &&
   fs.readFileSync(path.join(assets, name), "utf8").includes('const MTKagentRosterRelativePath='));
 assert.equal(targets.length, 1, "one agent roster helper owner");
@@ -27,7 +27,7 @@ const loaderBindings = moduleOwner != null ? {groups: {ready: "MTKunusedReady", 
 assert.ok(loaderBindings?.groups, "agent roster loader bindings");
 if (moduleOwner != null) {
   assert.ok(source.includes('rP=n("Dgwo")') && source.includes('const MTKrosterRpc=rP.V;'), "roster uses the actual native RPC factory");
-  const factory = readRendererModule(rosterClient30607(root));
+  const factory = readRendererModule(rosterClient30866(root));
   assert.ok(factory.includes('n.d(t,{},{V:function(e,t){'), "the selected factory export resolves to the stock client accessor");
   assert.ok(helper.includes('try{let n=MTKrosterRpc(e,"local")'), "the native factory owns client readiness");
 }

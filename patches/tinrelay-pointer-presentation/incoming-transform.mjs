@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild30607} from "../runtime-json-reload/profiles/build30607.mjs";
-import {runIncoming30607} from "./profiles/build30607.mjs";
+import {matchesBuild30866} from "../runtime-json-reload/profiles/build30866.mjs";
+import {runIncoming30866} from "./profiles/build30866.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -25,7 +25,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/incoming-transform.mjs check|apply EXTRACTED_ASAR_ROOT [--config TOOLKIT_CONFIG]");
 }
 
-if(matchesBuild30607(root)){console.log(JSON.stringify(runIncoming30607({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
+if(matchesBuild30866(root)){console.log(JSON.stringify(runIncoming30866({root,command,rendererHelpers,patchMain,getConfig:configuredTinrelay})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -469,7 +469,7 @@ function mainHelpers(config, childProcess) {
 function mainProcessProfile(source) {
   if(source.includes('ep=new ty.kec;ep.add(G),ep.add(ea)')) {
     const entry=fs.readFileSync(path.join(root,".vite/build/early-bootstrap.js"),"utf8");
-    if(count(source,'var rA=r(95398),rE=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-30607 child-process binding");
+    if(count(source,'var rA=r(95398),rE=r(78335)')!==1||count(entry,'95398(e){"use strict";e.exports=require("node:child_process")}')!==1)throw Error("Upstream changed: build-30866 child-process binding");
     return {childProcess:"rA",helperOwner:mainLoggerOwner(source)[0]};
   }
   if (isWebpackMain(source)) {

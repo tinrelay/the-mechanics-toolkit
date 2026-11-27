@@ -21,14 +21,14 @@ Compatibility belongs to an exact Desktop build and platform package, not a near
 The detailed evidence and residual boundaries live in the platform runbooks and
 [extraction ledger](docs/extraction-ledger.md).
 
-TMTK `0.2.31` ports macOS to Desktop `26.1120.41243` / build `30607` and extends exact-ID
-archive protection to **Permanently delete**, including mixed bulk selections. It uses the existing
-`protectSidebarArchive` flag. The native browser builder now owns direct Node launch; the former
-TMTK parent wrapper is retired. The accepted live results and remaining manual checks are recorded below.
+TMTK `0.2.32` ports macOS to Desktop `26.1120.50957` / build `30866`. It preserves protected
+permanent-delete menus, wait identity colors, and TinRelay send/return ordering. The stock CLI,
+Computer Use repair and native browser launch retain their existing contracts. Static candidate
+qualification and live acceptance remain separate.
 
 | Platform package | Current Desktop target | Qualification boundary |
 | --- | --- | --- |
-| macOS ARM64 application | `26.1120.41243`, build `30607` | Signed fleet, supervised adoption, real chat, task ACK/wait, TinRelay ordering and dedicated Chrome passed. |
+| macOS ARM64 application | `26.1120.50957`, build `30866` | Signed complete fleet, post-repack probes and byte-identical reapplication passed; live acceptance pending. |
 | Windows MSIX | `26.917.71314`, build `10954` | x64 and ARM64 tooling; ARM64 signed-package stage and genuine task-led supervised replacement opened a usable task. |
 | Ubuntu DEB | `26.917.71314`, build `10954` | `arm64` and `amd64` package support; ARM64 authenticated stage and direct install opened a usable task. Supervisor adoption on this build was not exercised. |
 | Fedora RPM | `26.911.61220`, build `9647` | `aarch64` and `x86_64` package support; AArch64 authenticated reconstruction, supervised adoption, and renderer readiness. |
@@ -50,12 +50,12 @@ before porting or adopting a candidate.
 
 The optional macOS Computer Use repair preserves the existing helper permission identity. Its
 private-socket vendor-Node and unsigned-client checks retain earlier evidence; native accessibility
-was not repeated on this target. Dedicated Chrome tab creation, page reading and cleanup passed
-on the accepted build. Protected-menu behavior passed actual packaged probes; manual menu checks
-were not repeated.
+and dedicated Chrome create/read/close retain evidence from the preceding accepted build; neither
+has a new live result for this candidate. Protected-menu behavior has packaged probes; manual
+menu checks remain pending.
 The optional native repair requires a persistent local signing certificate and first-transition macOS
 consent; ordinary same-identity updates preserve those grants.
-The default macOS example selects 18 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0231).
+The default macOS example selects 18 patches and keeps the stock CLI. See [upgrading](UPGRADING.md#0232).
 
 ## Ordinary use
 
@@ -142,7 +142,7 @@ Desktop staging may then verify and place that same-version binary into a candid
 
 | Source patch | Qualified source | Repair |
 | --- | --- | --- |
-| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Dormant on current macOS CLI `0.171.0-alpha.13`; exact earlier diffs retained | Desktop now marks delegation output for retention and the stock CLI enables that contract by default. |
+| [Standalone-output compaction](source-patches/standalone-output-compaction/) | Dormant on current macOS CLI `0.171.0-alpha.13.2`; exact earlier diffs retained | Desktop now marks delegation output for retention and the stock CLI enables that contract by default. |
 | [ChatGPT query depth](source-patches/chatgpt-query-depth/) | Prior build `11645` CLI source revision only | Raises one crate-local stable-Rust recursion limit for hosts whose build hits the compiler's query-depth ceiling. The current macOS CLI builds without it. |
 
 ## Documentation map

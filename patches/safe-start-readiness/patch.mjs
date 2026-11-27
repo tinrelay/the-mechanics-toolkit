@@ -14,10 +14,10 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
 
 const mainTarget = mainProcessAsset(root);
 let mainSource = fs.readFileSync(mainTarget, "utf8");
-const current30607 = mainSource.includes('ep=new ty.kec;ep.add(G),ep.add(ea)');
-const rendererTarget = current30607 ? path.join(root,"webview/assets/async/163341.4e4e6d0ab5.js") : uniqueAsset(path.join(root, "webview/assets"),
+const current30866 = mainSource.includes('ep=new ty.kec;ep.add(G),ep.add(ea)');
+const rendererTarget = current30866 ? path.join(root,"webview/assets/async/163341.a0e14d03d9.js") : uniqueAsset(path.join(root, "webview/assets"),
   mainSource.includes('v=require("./bootstrap-BLyztc2V.js")') || mainSource.startsWith("exports.ids=[916],exports.modules={") ? /^app-primary-.*\.js$/ : /^app-initial-.*\.js$/);
-const rendererSource = current30607 ? readRendererModule({file:rendererTarget,id:"SPoH",parameters:["e","t","n"]}) : fs.readFileSync(rendererTarget, "utf8");
+const rendererSource = current30866 ? readRendererModule({file:rendererTarget,id:"SPoH",parameters:["e","t","n"]}) : fs.readFileSync(rendererTarget, "utf8");
 let state = inspectState(mainSource, rendererSource);
 
 if (command === "apply" && state === "needs-apply") {
@@ -46,7 +46,7 @@ function inspectState(mainValue, rendererValue) {
 function verifyStockContracts(mainValue, rendererValue) {
   const profile = safeStartProfile(mainValue, rendererValue);
   const contractFamilies = profile.webpackBootstrap ? [
-    ["bootstrap writer import", [current30607?'cc=r(33136)':'lG=r(33136)']]
+    ["bootstrap writer import", [current30866?'cc=r(33136)':'lG=r(33136)']]
   ] : profile.splitBootstrap ? [
     ["bootstrap writer import", ['v=require("./bootstrap-BLyztc2V.js")']]
   ] : [
@@ -77,13 +77,13 @@ function patchMain(value, rendererValue) {
 }
 
 function safeStartProfile(value, rendererValue) {
-  if (current30607) {
+  if (current30866) {
     const bootstrap=fs.readFileSync(path.join(root,".vite/build/early-bootstrap-7-6ca1370a6a70ee99.js"),"utf8");
     for(const contract of ['33136(e,t,r){"use strict"','Ey:function({browserBackgroundNetworkingDisabled:e=process.argv.some(e=>e.split("=",1)[0]===`--${a.w4}`),markerPath:t=process.env.CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH?.trim(),writeMarker:r=', 'r.d(t,{},{$5:function(']) {
-      if(count(bootstrap,contract)!==1)throw Error("Upstream changed: build-30607 relaunch writer");
+      if(count(bootstrap,contract)!==1)throw Error("Upstream changed: build-30866 relaunch writer");
     }
     for(const contract of ['c=n("TL6G")','[startup][renderer] app routes mounted after','c.O1.dispatchMessage("ready",{})']) {
-      if(count(rendererValue,contract)!==1)throw Error("Upstream changed: build-30607 primary renderer readiness");
+      if(count(rendererValue,contract)!==1)throw Error("Upstream changed: build-30866 primary renderer readiness");
     }
     const marker='"CODEX_ELECTRON_DEV_RELAUNCH_MARKER_PATH"',writer='cc.Ey',action=readinessAction(marker,writer);
     return {marker,writer,webpackBootstrap:true,

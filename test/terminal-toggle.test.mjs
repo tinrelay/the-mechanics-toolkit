@@ -13,12 +13,12 @@ import {
   linuxBuild10954Contracts
 } from "../patches/terminal-toggle/profiles/linux.mjs";
 
-import {matchesBuild30607} from "../patches/runtime-json-reload/profiles/build30607.mjs";
-import {probeTerminal30607} from "./terminal-toggle-30607.mjs";
+import {matchesBuild30866} from "../patches/runtime-json-reload/profiles/build30866.mjs";
+import {probeTerminal30866} from "./terminal-toggle-30866.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: terminal-toggle.test.mjs EXTRACTED_ASAR_ROOT");
 
-if(matchesBuild30607(root)){probeTerminal30607(root);process.exit(0);}
+if(matchesBuild30866(root)){probeTerminal30866(root);process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const names = fs.readdirSync(assets);
 const runtime = names.filter(name => /^app-runtime-.*\.js$/.test(name) &&

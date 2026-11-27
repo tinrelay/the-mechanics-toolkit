@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';import {parse} from 'acorn';
-import {readRendererModule} from '../src/renderer-module.mjs';import {terminalCommandOwner30607,terminal30607,terminalKeyboardOwners30607} from '../patches/terminal-toggle/profiles/build30607.mjs';
-export function probeTerminal30607(root){
- const catalogs=[readRendererModule(terminalCommandOwner30607(root)),...['early-bootstrap-7-6ca1370a6a70ee99.js','app-server-host.js'].map(f=>fs.readFileSync(path.join(root,'.vite/build',f),'utf8'))];
- for(const s of catalogs){assert.equal(s.split(terminal30607.commandAfter).length,2);assert.ok(s.includes('defaultKeybindings:[{key:"Control+`"},{key:"CmdOrCtrl+J"}]'));}
- for(const owner of terminalKeyboardOwners30607(root)){
+import {readRendererModule} from '../src/renderer-module.mjs';import {terminalCommandOwner30866,terminal30866,terminalKeyboardOwners30866} from '../patches/terminal-toggle/profiles/build30866.mjs';
+export function probeTerminal30866(root){
+ const catalogs=[readRendererModule(terminalCommandOwner30866(root)),...['early-bootstrap-7-6ca1370a6a70ee99.js','app-server-host.js'].map(f=>fs.readFileSync(path.join(root,'.vite/build',f),'utf8'))];
+ for(const s of catalogs){assert.equal(s.split(terminal30866.commandAfter).length,2);assert.ok(s.includes('defaultKeybindings:[{key:"Control+`"},{key:"CmdOrCtrl+J"}]'));}
+ for(const owner of terminalKeyboardOwners30866(root)){
  const source=readRendererModule(owner);
  const node=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.find(x=>x.type==='FunctionDeclaration'&&x.id.name===owner.functionName);assert.ok(node);const text=source.slice(node.start,node.end);
  let options,dispatched=0;class Element{};
@@ -14,5 +14,5 @@ export function probeTerminal30607(root){
  assert.equal(dispatched,1);assert.equal(prevented,1);assert.equal(stopped,1);
  options.onKeyDown({target:new Element,defaultPrevented:false,isComposing:true,key:'Process',getModifierState:()=>false});assert.equal(dispatched,1,'IME composition does not toggle');
  }
- console.log('terminal toggle 30607 behavior probe passed');
+ console.log('terminal toggle 30866 behavior probe passed');
 }

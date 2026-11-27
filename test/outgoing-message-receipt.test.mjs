@@ -12,12 +12,12 @@ import {
   linuxBuild10954
 } from "../patches/outgoing-message-receipt/profiles/linux.mjs";
 
-import {matchesBuild30607} from "../patches/runtime-json-reload/profiles/build30607.mjs";
-import {probeReceipts30607} from "./outgoing-message-receipt-30607.mjs";
+import {matchesBuild30866} from "../patches/runtime-json-reload/profiles/build30866.mjs";
+import {probeReceipts30866} from "./outgoing-message-receipt-30866.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: outgoing-message-receipt.test.mjs EXTRACTED_ASAR_ROOT");
 
-if(matchesBuild30607(root)){await probeReceipts30607(root);process.exit(0);}
+if(matchesBuild30866(root)){await probeReceipts30866(root);process.exit(0);}
 const assets = path.join(root, "webview/assets");
 const require = createRequire(import.meta.url);
 const owners = fs.readdirSync(assets).filter(name => {

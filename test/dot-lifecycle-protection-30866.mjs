@@ -1,6 +1,6 @@
-import assert from 'node:assert/strict';import{parse}from'acorn';import{readRendererModule}from '../src/renderer-module.mjs';import{dotOwners30607}from '../patches/dot-lifecycle-protection/profiles/build30607.mjs';
-export async function probeDot30607(root){
- const o=dotOwners30607(root),source=readRendererModule(o.policy),start=source.indexOf('const MTKdotLifecyclePolicy=1;'),end=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.find(x=>x.type==='ExpressionStatement'&&source.slice(x.start,x.end).startsWith('globalThis.__MTK_DOT_POLICY__=Object.freeze(')).end;
+import assert from 'node:assert/strict';import{parse}from'acorn';import{readRendererModule}from '../src/renderer-module.mjs';import{dotOwners30866}from '../patches/dot-lifecycle-protection/profiles/build30866.mjs';
+export async function probeDot30866(root){
+ const o=dotOwners30866(root),source=readRendererModule(o.policy),start=source.indexOf('const MTKdotLifecyclePolicy=1;'),end=parse(source,{ecmaVersion:'latest',sourceType:'module'}).body.find(x=>x.type==='ExpressionStatement'&&source.slice(x.start,x.end).startsWith('globalThis.__MTK_DOT_POLICY__=Object.freeze(')).end;
  assert.ok(start>=0&&end>start);const helper=source.slice(start,end),id='11111111-2222-4333-8444-555555555555',dot='opaque-dot';let entries=[{kind:'agent',taskId:id,data:{name:'Example',orbitId:dot,protectDeletion:true,protectReboot:true}}];
  const realm={__MTK_AGENT_ROSTER__:{current:()=>({entries})}},metadata={},scope={query:{getData:(q,t)=>q===metadata&&t===id?{id:dot}:null},get(key){return key==='enabled'?true:key==='selected'?id:false}};
  Function('globalThis','MTKdotMetadata','MTKdotNormalize',helper)(realm,metadata,x=>x);const policy=realm.__MTK_DOT_POLICY__;
@@ -13,5 +13,5 @@ export async function probeDot30607(root){
  transport.Request.postResponse=async(_,options)=>{entries=[{kind:'agent',taskId:id,data:{orbitId:dot,protectReboot:true}}];options.assertRequestCurrent();assert.fail('request should reject')};await assert.rejects(run(),/protected/);
  for(const target of o.menus)assert.ok(readRendererModule(target).includes('__MTK_DOT_POLICY__.protected("delete",'));
  for(const target of o.rebootMenus)assert.ok(readRendererModule(target).includes('__MTK_DOT_POLICY__.rebootProtected(e,t)'));
- console.log('dot lifecycle 30607 behavior probe passed');
+ console.log('dot lifecycle 30866 behavior probe passed');
 }

@@ -24,7 +24,7 @@ try {
   fs.rmSync(current);
   const next = path.join(build, "early-bootstrap-916-5cf181a62de3d3c8.js");
   fs.writeFileSync(next, 'exports.ids=[916],exports.modules={};loadMain:function(){return Promise.resolve().then(r.bind(r,22631))};let emK=(0,ty.vB9)("electron-message-handler");');
-  fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({main: ".vite/build/early-bootstrap.js", version: "26.1120.41243", codexBuildNumber: "30607"}));
+  fs.writeFileSync(path.join(root, "package.json"), JSON.stringify({main: ".vite/build/early-bootstrap.js", version: "26.1120.50957", codexBuildNumber: "30866"}));
   fs.writeFileSync(path.join(build, "early-bootstrap.js"), '719:"1af1d86b850b5496",916:"5cf181a62de3d3c8"');
   fs.writeFileSync(path.join(build, "early-bootstrap-719-1af1d86b850b5496.js"), 'let{loadMain:e}=await a.e(916).then(a.bind(a,9319)),{runMainAppStartup:t}=await e();await t()');
   assert.equal(mainProcessAsset(root), next);

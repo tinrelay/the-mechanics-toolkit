@@ -7,16 +7,16 @@ import os from "node:os";
 import path from "node:path";
 
 const windows = process.platform === "win32";
-import {matchesBuild30607} from "../patches/runtime-json-reload/profiles/build30607.mjs";
-import {tinrelayOwners30607} from "../patches/tinrelay-pointer-presentation/profiles/build30607.mjs";
+import {matchesBuild30866} from "../patches/runtime-json-reload/profiles/build30866.mjs";
+import {tinrelayOwners30866} from "../patches/tinrelay-pointer-presentation/profiles/build30866.mjs";
 import {readRendererModule} from "../src/renderer-module.mjs";
 import {parse} from "acorn";
-import {probeClassification30607} from "./tinrelay-classification-30607.mjs";
+import {probeClassification30866} from "./tinrelay-classification-30866.mjs";
 const root = path.resolve(process.argv[2] ?? "");
 if (!process.argv[2]) throw new Error("usage: tinrelay-presentation-outgoing.test.mjs EXTRACTED_ASAR_ROOT");
 
 const assets = path.join(root, "webview/assets");
-const current=matchesBuild30607(root), moduleOwners=current?tinrelayOwners30607(root):null;
+const current=matchesBuild30866(root), moduleOwners=current?tinrelayOwners30866(root):null;
 const renderer = current?moduleOwners.renderer.file:unique(fs.readdirSync(assets).filter(name =>
   /^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/.test(name)
 ).map(name => path.join(assets, name)), "conversation renderer");
@@ -312,7 +312,7 @@ assert.equal((activitySource.match(/MTKtinrelayOutgoingAcceptance\(e\)!=null\?[`
 if(!current)assert.equal((rendererSource.match(/\(MTKtinrelayOutgoingExec,\{Component:/g) ?? []).length, 1,
   "one exec renderer owns the outgoing card");
 
-if(current){probeClassification30607(root,item,activityApi);}else{
+if(current){probeClassification30866(root,item,activityApi);}else{
 const collapseMarker = rendererSource.search(/([ia])\.type===`exec`&&MTKtinrelayOutgoingAcceptance\(\1\)!=null\|\|/);
 const collapseStart = rendererSource.lastIndexOf("function ", collapseMarker);
 const collapseEndMarker = rendererSource.indexOf("}function ", collapseMarker);

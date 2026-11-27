@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import {matchesBuild30607} from "../runtime-json-reload/profiles/build30607.mjs";
-import {runOutgoing30607} from "./profiles/build30607.mjs";
+import {matchesBuild30866} from "../runtime-json-reload/profiles/build30866.mjs";
+import {runOutgoing30866} from "./profiles/build30866.mjs";
 import fs from "node:fs";
 import {mainProcessAsset, mainMessageAnchor, mainLoggerOwner, isWebpackMain} from "../../src/main-process-asset.mjs";
 import path from "node:path";
@@ -21,7 +21,7 @@ if (!new Set(["check", "apply"]).has(command) || !process.argv[3]) {
   throw new Error("usage: tinrelay-pointer-presentation/outgoing-transform.mjs check|apply EXTRACTED_ASAR_ROOT");
 }
 
-if(matchesBuild30607(root)){console.log(JSON.stringify(runOutgoing30607({root,command,rendererHelpers,acceptanceParser,patchMain})));process.exit(0);}
+if(matchesBuild30866(root)){console.log(JSON.stringify(runOutgoing30866({root,command,rendererHelpers,acceptanceParser,patchMain})));process.exit(0);}
 
 const assets = path.join(root, "webview/assets");
 const renderer = uniqueFile(/^(?:subagent-activity-chip-group|conversation-blocks|sites-end-resource)-.*\.js$/);
@@ -769,8 +769,8 @@ function jsxDialect(value, jsx) {
 
 function mainStartup(source) {
   if(source.includes('ep=new ty.kec;ep.add(G),ep.add(ea)')) {
-    if(count(source,'ep=new ty.kec;ep.add(G),ep.add(ea)')!==1)throw Error("Upstream changed: build-30607 outgoing disposer");
-    const match=uniqueMatch(source,/(?<prefix>await (?<electron>td)\.app\.whenReady\(\),)(?:(?<observer>(?<observerDisposers>ep)\.add\(await MTKtinrelayStartOutgoingObserver\((?<observerElectron>td)\.app\.getPath\("userData"\)\)\),))?(?<log>ec\("main app\.whenReady resolved",em\))/g,"build-30607 outgoing app-ready owner");
+    if(count(source,'ep=new ty.kec;ep.add(G),ep.add(ea)')!==1)throw Error("Upstream changed: build-30866 outgoing disposer");
+    const match=uniqueMatch(source,/(?<prefix>await (?<electron>td)\.app\.whenReady\(\),)(?:(?<observer>(?<observerDisposers>ep)\.add\(await MTKtinrelayStartOutgoingObserver\((?<observerElectron>td)\.app\.getPath\("userData"\)\)\),))?(?<log>ec\("main app\.whenReady resolved",em\))/g,"build-30866 outgoing app-ready owner");
     match.groups.disposers="ep";return match;
   }
   if (isWebpackMain(source)) {

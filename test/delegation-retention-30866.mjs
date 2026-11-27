@@ -3,9 +3,9 @@ import path from 'node:path';
 import {readRendererModule} from '../src/renderer-module.mjs';
 
 // Exercise the packaged sender and its real capability/version comparator. No model call.
-export function probeDelegationRetention30607(root) {
+export function probeDelegationRetention30866(root) {
   const factories = new Map();
-  const file = path.join(root, 'webview/assets/async/49792.ab5b643c25.js');
+  const file = path.join(root, 'webview/assets/async/49792.d8d33ace73.js');
   for (const id of ['KBsB', 'Ehlj', 'ldD6']) factories.set(id, readRendererModule({file:id==='KBsB'?file:path.join(root,'webview/assets/async/976185.d6427dfaa7.js'), id, parameters:['e','t','n']}));
   const cache = new Map([['N2rm', {iw:'remote'}], ['DBCl', {}]]);
   const load = id => {

@@ -15,68 +15,47 @@ This document contains two related qualifications with separate conclusions:
 Do not report a rescued patchset launch as a patchset pass. Do not report a clean patchset launch as
 proof of the supervisor's Terminal rescue path.
 
-## TMTK 0.2.31 — Desktop 30607, protected menus and activity transitions
+## TMTK 0.2.32 — Desktop 30866
 
-Accepted target: `26.1120.41243` / `30607`, with 18 default patches or 19 including the optional
-Computer Use service repair. Linux and Windows targets are unchanged. The official production
-[ARM64 ZIP](https://persistent.oaistatic.com/codex-app-prod/ChatGPT-darwin-arm64-26.1120.41243.zip)
-is 662370483 bytes, SHA-256 `ef8aad31409e2ee3993a9e740cf3e94e79e2d7219e50f48adea2217d4acf79d4`.
+Candidate target: `26.1120.50957` / `30866`, with 18 default patches or 19 including the optional
+Computer Use service repair. Linux and Windows targets remain unchanged. The official production
+[ARM64 ZIP](https://persistent.oaistatic.com/codex-app-prod/ChatGPT-darwin-arm64-26.1120.50957.zip)
+is 662370089 bytes, SHA-256 `2c16671fcaad5291a2f6be135e1282961d5342639c3db55514a1af1a881dde6f`.
 Sparkle Ed25519, vendor deep signature, notarization and ASAR seal passed.
-Pristine ASAR: `e60f32facfaebf94310f18b95e4883799506541356204b9589ac373e192897e6`.
-Accepted installed ASAR: `2451195ceb89e827196ef808fa5125d27fe7649728c6f15b70eae88045156024`.
+Pristine ASAR: `c6488597167abbbeff5a2422cdbe63f7466143b9770a224c9bc6ac2168631f13`.
+Signed candidate ASAR: `c9e5f8e6e4ba0bbebc7930bf2933948c9aababe85ec52947269234a9c2489c3e`.
 
-Native startup, transcript, roster and sidebar owners moved. Five lazy tool copies consolidated
-into one; both keyboard dispatchers remain, with two native terminal-command catalogs. The new
-native browser builder launches packaged Node directly, preserving browser access flags,
-confirmation policy and trusted services; the former TMTK parent wrapper is retired.
+Native startup ASAR files and stock CLI are unchanged from the preceding authenticated package.
+CLI `0.171.0-alpha.13.2`, SHA-256
+`e1c3d034b7fd295d160d6ab412357f9c54241c8ed7a2a861f4730b8a4dd88ddb`, remains selected. Existing
+source proof and packaged sender probes support leaving local compaction repair dormant. This
+neither proves general unmarked-output retention nor resolves all replay reports.
 
-The existing `protectSidebarArchive` flag now covers permanent deletion in the shared sidebar/title
-menu and mixed bulk selections. Actual packaged probes cover protected/unprotected menus, native
-eligibility/callbacks, mixed selection and policy changes. No deletion API is changed.
-
-Vendor CLI `0.171.0-alpha.13.2` remains byte-identical to the authenticated source executable:
-`e1c3d034b7fd295d160d6ab412357f9c54241c8ed7a2a861f4730b8a4dd88ddb`.
-Its source tag peels to `ad9d659a8491fc5169a00dcf7b7e6ca8a87adf69`. Both compaction files match
-the previously tested `581161ab41e643d942e1e1b5f561034060bf18e3` source. The actual CLI reports
-marked-output retention stable/default-on, and the packaged sender requests it. The local repair
-stays dormant; this does not prove general unmarked-output retention or every replay repair.
-
-The optional helper's parent gate relocates to `0x188420`; non-call instructions match the
-preceding function. Named symbols identify the same-team/developer-team methods. Normalized stock
-image: `ce8e991b5fb75c0154dc6cc09cff5c757021d601b7564d85cb18bd2ff05ae590`; repaired image:
+The Computer Use helper's normalized stock image remains
+`ce8e991b5fb75c0154dc6cc09cff5c757021d601b7564d85cb18bd2ff05ae590`; repaired image remains
 `6f004be22b8b6deaadfff44689d36a5959345171e69373baeddbde827f5be268`.
-The canonical helper's certificate-based designated requirement is preserved. The preview used
-only codesign; no privacy reset occurred. Bundled app-context fingerprint:
+Preserve the existing persistent signing identity and immediate vendor-peer check. Native browser
+launch and app-context delivery code are unchanged. App-context fingerprint remains
 `8644170c39b3e15084036e74dc2b964e008185e3c53245bb4af90df2960f7592`.
-Cold resume remains the qualified override-delivery path.
 
-Complete signed 19-patch staging passed: actual packaged initializer/export and native-container
+Renderer asset hashes and transcript-local variables changed. Exact owner probes must resolve
+actual receipt initializers, exported components and native wait containers. TinRelay registers at
+the native activity boundary and uses the current progress/final-answer decision; the causal probe
+must show send, return activity, final reply in both active and completed states. Protected individual
+and mixed menus and theme-aware wait text fill retain packaged behavioral coverage.
+
+Complete signed 19-patch staging passed, including actual initializer/export and native-container
 probes, changed-module syntax, byte-identical reapplication, post-repack probes, ASAR integrity,
-deep signature and native payload preservation. Three changed startup caches were invalidated;
-32 untouched entries/blobs match the vendor. Native-CSS footer checks passed in isolated Chrome
-for dark/light themes, transparent edge, solid tail, focus mode and unmapped fallback, preserving
-the composer surface. Actual native-CSS shimmer fixtures prove identity paint on base/highlight
-copies in both themes. Repository syntax/full tests and hygiene passed; production Linux package
-staging fixtures were platform-skipped, while Windows package and Linux adoption fixtures passed.
+deep signature and native payload preservation. The helper permission preview used only codesign
+and reported preserved, with no privacy reset. `npm run check`, `npm test` and repository hygiene
+passed. Production Linux DEB/RPM staging fixtures explicitly skip on macOS; Windows package and
+Linux adoption behavior fixtures passed.
 
-Live qualification initially exposed two gaps hidden by helper stand-ins: a removed native action
-module prevented real-chat load, then a wrong container export broke the wait turn. The final
-profiles reuse/pin actual native imports and exports; package probes execute those initializers
-and the native container. Further transition probes cover running/completed/failed waits, explicit
-identity text-fill under native outer shimmer, and actual send/activity/reply registration order.
-The completed TinRelay card now stays inside its source turn, before return activity and the
-final reply, retaining existing completion and scroll-ownership flags.
-
-Final supervised adoption reached readiness and opened the real continuing chat. The operator
-accepted direct task-message ACK cards, wait rendering/colors and TinRelay send-before-return-
-before-reply order after completion/collapse. The self-send was accepted, routed and returned.
-Dedicated Chrome extension tab creation, page reading and tab cleanup passed on this installation.
-Installed signature/seal and ASAR match the final candidate. Manual protected-menu checks and
-native accessibility actions were not repeated; their packaged/earlier evidence remains distinct.
-No supervisor algorithm, chat history, credentials or user permission grants changed.
-
-Superseded apps, installers and extracted comparison/source trees were removed. After acceptance,
-the loose candidate is removed; one current vendor ZIP and compact receipts remain.
+The installed accepted application remains build30607. No
+supervised adoption or live feature acceptance is claimed for build30866. After adoption, open a
+real continuing chat; qualify task send/wait/direct incoming ACK cards and active identity colors,
+then TinRelay self-send through completion and activity collapse. Dedicated Chrome and native
+accessibility retain earlier evidence; new live checks are recorded only when actually performed.
 
 ## TMTK 0.2.30 — optional app-context files, cold-resume qualification
 

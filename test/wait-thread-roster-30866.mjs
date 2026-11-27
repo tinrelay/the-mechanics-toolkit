@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {parse} from 'acorn';
 import {readRendererModule} from '../src/renderer-module.mjs';
-import {waitOwners30607,waitProfiles30607} from '../patches/wait-thread-roster/profiles/build30607.mjs';
-export function probeWait30607(root){
- for(const[index,owner]of waitOwners30607(root).entries()){
-  const source=readRendererModule(owner),p=waitProfiles30607[index],ast=parse(source,{ecmaVersion:'latest',sourceType:'module'});
+import {waitOwners30866,waitProfiles30866} from '../patches/wait-thread-roster/profiles/build30866.mjs';
+export function probeWait30866(root){
+ for(const[index,owner]of waitOwners30866(root).entries()){
+  const source=readRendererModule(owner),p=waitProfiles30866[index],ast=parse(source,{ecmaVersion:'latest',sourceType:'module'});
   const helpers=ast.body.filter(x=>x.type==='FunctionDeclaration'&&x.id.name.startsWith('MTK')).map(x=>source.slice(x.start,x.end)).join('');
   const bindings=source.slice(source.indexOf('const MTKwaitStoreHook='),source.indexOf(';',source.indexOf('const MTKwaitStoreHook='))+1);
   const titleAtom={},threadAtom={},dispatched=[];let title='Ada — Coordinator';
@@ -12,7 +12,7 @@ export function probeWait30607(root){
   const makeElement=(type,props,key)=>{assert.ok(typeof type==='function'||typeof type==='string','wait card renders a defined component');return {type,props,key}};
   const jsx={jsx:makeElement,jsxs:makeElement};
   const nativeImports=new Map(ast.body.filter(x=>x.type==='VariableDeclaration').flatMap(x=>x.declarations).filter(x=>x.init?.type==='CallExpression'&&x.init.callee.name===p.loader&&typeof x.init.arguments[0]?.value==='string').map(x=>[x.id.name,x.init.arguments[0].value]));
-  const nativeOwners={dqpP:{file:owner.file,id:'dqpP',parameters:['e','t','a']},HOLv:{file:owner.file.replace('990214.12d3fdf6e7.js','972521.6cec9fea8c.js'),id:'HOLv',parameters:['e','t','i']},wbOy:{file:owner.file.replace('990214.12d3fdf6e7.js','49792.ab5b643c25.js'),id:'wbOy',parameters:['e','t','n']},MFk9:{file:owner.file,id:'MFk9',parameters:['e','t','a']}};
+  const nativeOwners={dqpP:{file:owner.file,id:'dqpP',parameters:['e','t','a']},HOLv:{file:owner.file.replace('990214.12d3fdf6e7.js','972521.6cec9fea8c.js'),id:'HOLv',parameters:['e','t','i']},wbOy:{file:owner.file.replace('990214.12d3fdf6e7.js','49792.d8d33ace73.js'),id:'wbOy',parameters:['e','t','n']},MFk9:{file:owner.file,id:'MFk9',parameters:['e','t','a']}};
   for(const reference of [p.container,p.spinner,p.summaryWrapper]){
    const [local,key]=reference.split('.'),id=nativeImports.get(local),target=nativeOwners[id];assert.ok(target,'current native component owner '+reference);
    const body=readRendererModule(target),nodes=parse(body,{ecmaVersion:'latest',sourceType:'module'}),exports=new Set;
@@ -42,6 +42,6 @@ export function probeWait30607(root){
   realm.__MTK_PATCH_REGISTRY__.packages.taskVisualPalette.resolveTaskColor=()=>null;
   assert.equal(collect(render()).find(n=>n.type==='button').props.style,undefined,'removing the palette clears both text color properties');
  }
- console.log('wait-thread roster 30607 behavior probe passed');
+ console.log('wait-thread roster 30866 behavior probe passed');
 }
 function walk(n,f){if(!n||typeof n!=='object')return;if(n.type)f(n);for(const v of Object.values(n))if(Array.isArray(v))v.forEach(x=>walk(x,f));else if(v&&typeof v==='object')walk(v,f)}
